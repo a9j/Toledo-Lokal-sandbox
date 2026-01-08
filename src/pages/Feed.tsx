@@ -73,7 +73,7 @@ export default function Feed() {
         <div className="px-5 pt-12 pb-8">
           {/* Logo/Brand */}
           <div className="mb-8">
-            <h1 className="font-serif text-2xl text-foreground">ToledoLokal</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Toledo<span className="text-lokal-amber">Lokal</span></h1>
             <p className="text-sm text-muted-foreground mt-1">Discover the Glass City</p>
           </div>
 

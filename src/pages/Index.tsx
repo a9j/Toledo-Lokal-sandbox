@@ -93,16 +93,21 @@ export default function Index() {
 
       {/* CTA Section */}
       <section className="px-4 py-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-toledo-teal to-accent p-6 text-white">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-lokal-midnight to-primary p-6 text-white">
+          {/* Amber accent glow */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-lokal-amber/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-lokal-forest/15 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
           <div className="relative">
-            <h3 className="text-xl font-bold mb-2">Own a business in Toledo?</h3>
-            <p className="text-white/80 text-sm mb-4">
-              Get discovered by thousands of locals. List your business for free.
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lokal-amber/20 border border-lokal-amber/30 mb-4">
+              <span className="text-lokal-amber text-xs font-semibold">FREE LISTING</span>
+            </div>
+            <h3 className="font-display text-xl font-bold mb-2">Own a business in Toledo?</h3>
+            <p className="text-white/70 text-sm mb-5">
+              Get discovered by thousands of locals. Join the ToledoLokal community.
             </p>
             <button 
               onClick={() => navigate('/create-business')}
-              className="px-5 py-2.5 bg-white text-toledo-teal rounded-xl font-semibold text-sm hover:bg-white/90 transition-colors"
+              className="px-6 py-3 bg-lokal-amber text-lokal-midnight rounded-xl font-semibold text-sm hover:bg-lokal-amber/90 transition-all hover:shadow-glow-amber"
             >
               Add Your Business →
             </button>
