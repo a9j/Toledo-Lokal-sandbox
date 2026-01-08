@@ -1,114 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Toledo Hub Design System - Apple-inspired clean aesthetic */
+/* Toledo Hub Design System - Warm, Modern, Human */
 
 @layer base {
   :root {
-    /* Core background/foreground */
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    /* Core background - warm off-white */
+    --background: 40 20% 98%;
+    --foreground: 220 25% 12%;
 
     /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 25% 12%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 25% 12%;
 
-    /* Primary - Toledo blue */
-    --primary: 220 70% 50%;
+    /* Primary - Toledo Coral/Terracotta */
+    --primary: 12 76% 61%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Soft gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 20%;
+    /* Secondary - Soft warm gray */
+    --secondary: 40 15% 94%;
+    --secondary-foreground: 220 20% 25%;
 
     /* Muted backgrounds */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 40 10% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Accent */
-    --accent: 220 14% 96%;
-    --accent-foreground: 220 20% 20%;
+    /* Accent - Toledo Teal */
+    --accent: 175 60% 40%;
+    --accent-foreground: 0 0% 100%;
 
     /* Semantic colors */
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 152 69% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 92% 55%;
     --warning-foreground: 0 0% 100%;
 
     /* Borders & inputs */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 70% 50%;
+    --border: 40 15% 90%;
+    --input: 40 15% 90%;
+    --ring: 12 76% 61%;
 
-    /* Radius - rounded for Apple feel */
-    --radius: 0.75rem;
+    /* Radius - modern rounded */
+    --radius: 1rem;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 10% 26%;
-    --sidebar-primary: 220 70% 50%;
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 220 15% 30%;
+    --sidebar-primary: 12 76% 61%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 220 20% 20%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 220 70% 50%;
+    --sidebar-accent: 40 15% 94%;
+    --sidebar-accent-foreground: 220 20% 25%;
+    --sidebar-border: 40 15% 90%;
+    --sidebar-ring: 12 76% 61%;
 
-    /* Toledo-specific */
-    --toledo-blue: 220 70% 50%;
-    --toledo-blue-light: 220 70% 95%;
-    --featured: 38 92% 50%;
-    --verified: 142 76% 36%;
+    /* Toledo-specific palette */
+    --toledo-coral: 12 76% 61%;
+    --toledo-coral-light: 12 76% 95%;
+    --toledo-teal: 175 60% 40%;
+    --toledo-teal-light: 175 60% 95%;
+    --toledo-navy: 220 60% 25%;
+    --toledo-gold: 42 87% 55%;
+    --toledo-purple: 270 50% 55%;
+    
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(12 76% 61%) 0%, hsl(30 80% 55%) 50%, hsl(42 87% 55%) 100%);
+    --gradient-teal: linear-gradient(135deg, hsl(175 60% 40%) 0%, hsl(190 70% 45%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(12 76% 61%) 0%, hsl(330 60% 55%) 100%);
+    
+    --featured: 42 87% 55%;
+    --verified: 175 60% 40%;
   }
 
   .dark {
-    --background: 220 20% 8%;
-    --foreground: 220 14% 96%;
+    --background: 220 25% 8%;
+    --foreground: 40 15% 96%;
 
-    --card: 220 20% 12%;
-    --card-foreground: 220 14% 96%;
+    --card: 220 25% 12%;
+    --card-foreground: 40 15% 96%;
 
-    --popover: 220 20% 12%;
-    --popover-foreground: 220 14% 96%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 40 15% 96%;
 
-    --primary: 220 70% 60%;
+    --primary: 12 76% 65%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 20% 18%;
-    --secondary-foreground: 220 14% 96%;
+    --secondary-foreground: 40 15% 96%;
 
     --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 55%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 220 20% 18%;
-    --accent-foreground: 220 14% 96%;
+    --accent: 175 60% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 20% 20%;
     --input: 220 20% 20%;
-    --ring: 220 70% 60%;
+    --ring: 12 76% 65%;
 
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 220 14% 96%;
-    --sidebar-primary: 220 70% 60%;
+    --sidebar-background: 220 25% 10%;
+    --sidebar-foreground: 40 15% 96%;
+    --sidebar-primary: 12 76% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 20% 18%;
-    --sidebar-accent-foreground: 220 14% 96%;
+    --sidebar-accent-foreground: 40 15% 96%;
     --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 220 70% 60%;
+    --sidebar-ring: 12 76% 65%;
 
-    --toledo-blue: 220 70% 60%;
-    --toledo-blue-light: 220 30% 20%;
+    --toledo-coral: 12 76% 65%;
+    --toledo-coral-light: 12 30% 20%;
+    --toledo-teal: 175 60% 50%;
+    --toledo-teal-light: 175 30% 20%;
   }
 }
 
@@ -119,7 +134,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   /* iOS-style safe areas */
@@ -133,26 +148,121 @@
 }
 
 @layer components {
-  /* Apple-style card */
+  /* Elevated card with warm shadow */
   .card-elevated {
-    @apply bg-card rounded-2xl shadow-sm border border-border/50;
+    @apply bg-card rounded-2xl;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 12px 0 rgba(0, 0, 0, 0.03);
   }
 
-  /* Subtle hover effect */
+  .card-elevated-lg {
+    @apply bg-card rounded-3xl;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Hover effects */
   .hover-lift {
-    @apply transition-transform duration-200 ease-out;
+    @apply transition-all duration-300 ease-out;
   }
   .hover-lift:hover {
-    @apply -translate-y-0.5;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.1);
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 ease-out;
+  }
+  .hover-scale:hover {
+    transform: scale(1.02);
   }
 
   /* Featured badge */
   .badge-featured {
-    @apply bg-warning/10 text-warning text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: linear-gradient(135deg, hsl(42 87% 55%) 0%, hsl(30 80% 55%) 100%);
+    color: white;
   }
 
   /* Verified badge */
   .badge-verified {
-    @apply bg-success/10 text-success text-xs font-medium px-2 py-0.5 rounded-full;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full;
+    background: linear-gradient(135deg, hsl(175 60% 40%) 0%, hsl(190 70% 45%) 100%);
+    color: white;
   }
+
+  /* Open now badge */
+  .badge-open {
+    @apply bg-success/15 text-success text-xs font-semibold px-2.5 py-1 rounded-full;
+  }
+
+  /* Category chip */
+  .category-chip {
+    @apply flex flex-col items-center gap-2 p-4 rounded-2xl bg-card transition-all duration-200;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  }
+  .category-chip:hover {
+    @apply bg-secondary;
+    transform: translateY(-2px);
+  }
+
+  /* Hero gradient overlay */
+  .hero-gradient {
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+  }
+
+  /* Glass effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Image overlay gradient */
+  .image-overlay {
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+  }
+
+  /* Scrollbar hide */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-wider;
+    color: hsl(var(--primary));
+  }
+
+  /* Rich listing card image */
+  .listing-image {
+    @apply w-full aspect-[4/3] object-cover rounded-2xl;
+  }
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }

@@ -1,0 +1,137 @@
+import { Link } from 'react-router-dom';
+import { MapPin, Star, Clock, CheckCircle2 } from 'lucide-react';
+
+interface FeaturedListingCardProps {
+  business: {
+    id: string;
+    name: string;
+    description?: string | null;
+    verified?: boolean | null;
+    featured?: boolean | null;
+    photos?: string[] | null;
+    neighborhood?: { name: string } | null;
+    category?: { name: string; icon: string } | null;
+  };
+  showImage?: boolean;
+}
+
+// Placeholder images for demo
+const placeholderImages = [
+  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=300&fit=crop',
+];
+
+export function FeaturedListingCard({ business, showImage = true }: FeaturedListingCardProps) {
+  const imageUrl = business.photos?.[0] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+
+  return (
+    <Link to={`/business/${business.id}`} className="block group">
+      <div className="card-elevated overflow-hidden hover-lift">
+        {showImage && (
+          <div className="relative aspect-[4/3] overflow-hidden">
+            <img
+              src={imageUrl}
+              alt={business.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 image-overlay" />
+            
+            {/* Badges */}
+            <div className="absolute top-3 left-3 flex gap-2">
+              {business.category && (
+                <span className="px-2.5 py-1 rounded-full bg-white/95 text-xs font-semibold text-foreground shadow-sm">
+                  {business.category.name}
+                </span>
+              )}
+              {business.featured && (
+                <span className="badge-featured">
+                  Featured
+                </span>
+              )}
+            </div>
+            
+            {/* Open status - demo */}
+            <div className="absolute top-3 right-3">
+              <span className="badge-open flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-soft" />
+                Open Now
+              </span>
+            </div>
+
+            {/* Bottom info on image */}
+            <div className="absolute bottom-3 left-3 right-3">
+              <h3 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-md">
+                {business.name}
+              </h3>
+              <div className="flex items-center gap-3 text-white/90 text-sm">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-toledo-gold text-toledo-gold" />
+                  <span className="font-medium">4.8</span>
+                </div>
+                {business.neighborhood && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span>{business.neighborhood.name}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Card content */}
+        <div className="p-4">
+          {!showImage && (
+            <>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-foreground">{business.name}</h3>
+                    {business.verified && (
+                      <CheckCircle2 className="h-4 w-4 text-toledo-teal" />
+                    )}
+                  </div>
+                  {business.category && (
+                    <p className="text-sm text-muted-foreground">{business.category.name}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-sm">
+                  <Star className="h-4 w-4 fill-toledo-gold text-toledo-gold" />
+                  <span className="font-semibold">4.8</span>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {business.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+              {business.description}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4 text-muted-foreground">
+              {business.neighborhood && showImage && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>{business.neighborhood.name}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Open until 9 PM</span>
+              </div>
+            </div>
+            {business.verified && showImage && (
+              <CheckCircle2 className="h-5 w-5 text-toledo-teal" />
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}

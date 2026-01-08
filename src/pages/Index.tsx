@@ -1,118 +1,95 @@
 import { useState } from 'react';
-import { Header } from '@/components/layout/Header';
-import { PageContainer } from '@/components/layout/PageContainer';
-import { SearchBar } from '@/components/home/SearchBar';
-import { NeighborhoodSelector } from '@/components/home/NeighborhoodSelector';
-import { SectionHeader } from '@/components/home/SectionHeader';
-import { EventCard } from '@/components/cards/EventCard';
-import { DealCard } from '@/components/cards/DealCard';
-import { BusinessCard } from '@/components/cards/BusinessCard';
+import { useNavigate } from 'react-router-dom';
+import { HeroSection } from '@/components/home/HeroSection';
+import { CategoryGrid } from '@/components/home/CategoryGrid';
+import { FeaturedSection } from '@/components/home/FeaturedSection';
+import { EventsCarousel } from '@/components/home/EventsCarousel';
+import { DealsSection } from '@/components/home/DealsSection';
+import { NeighborhoodHighlight } from '@/components/home/NeighborhoodHighlight';
+import { BottomNav } from '@/components/layout/BottomNav';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { useBusinesses } from '@/hooks/useBusinesses';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Index() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
-
-  const { data: todayEvents, isLoading: eventsLoading } = useEvents({ today: true, limit: 3 });
+  const navigate = useNavigate();
+  const { data: upcomingEvents, isLoading: eventsLoading } = useEvents({ limit: 6 });
   const { data: deals, isLoading: dealsLoading } = useDeals({ limit: 4 });
-  const { data: featuredBusinesses, isLoading: businessesLoading } = useBusinesses({ featured: true, limit: 4 });
-  const { data: newBusinesses, isLoading: newBusinessesLoading } = useBusinesses({ limit: 4 });
+  const { data: featuredBusinesses, isLoading: featuredLoading } = useBusinesses({ featured: true, limit: 4 });
+  const { data: newBusinesses, isLoading: newLoading } = useBusinesses({ limit: 6 });
+
+  const handleSearch = (query: string, filters: { neighborhood?: string; category?: string }) => {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (filters.neighborhood && filters.neighborhood !== 'all') params.set('neighborhood', filters.neighborhood);
+    if (filters.category && filters.category !== 'all') params.set('category', filters.category);
+    navigate(`/explore?${params.toString()}`);
+  };
 
   return (
-    <>
-      <Header title="Toledo Hub" showNotifications />
-      
-      <PageContainer className="space-y-6">
-        {/* Search */}
-        <div className="space-y-3">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
-          <NeighborhoodSelector 
-            selected={selectedNeighborhood} 
-            onSelect={setSelectedNeighborhood} 
-          />
+    <div className="min-h-screen bg-background pb-24">
+      {/* Hero Section with Search */}
+      <HeroSection onSearch={handleSearch} />
+
+      {/* Category Grid */}
+      <CategoryGrid />
+
+      {/* Featured Places */}
+      <FeaturedSection
+        title="Featured Places"
+        subtitle="Hand-picked local favorites"
+        viewAllLink="/explore"
+        businesses={featuredBusinesses}
+        isLoading={featuredLoading}
+        labelText="Editor's Choice"
+      />
+
+      {/* Events Carousel */}
+      <EventsCarousel
+        title="This Week in Toledo"
+        subtitle="Concerts, shows, markets & more"
+        events={upcomingEvents}
+        isLoading={eventsLoading}
+        viewAllLink="/events"
+      />
+
+      {/* Deals Section */}
+      <DealsSection deals={deals} isLoading={dealsLoading} />
+
+      {/* Neighborhood Highlight */}
+      <NeighborhoodHighlight />
+
+      {/* New Listings */}
+      <FeaturedSection
+        title="New & Notable"
+        subtitle="Recently added to Toledo Hub"
+        viewAllLink="/explore?sort=newest"
+        businesses={newBusinesses}
+        isLoading={newLoading}
+        showLabel={true}
+        labelText="Just Added"
+      />
+
+      {/* CTA Section */}
+      <section className="px-4 py-8">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-toledo-teal to-accent p-6 text-white">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+          <div className="relative">
+            <h3 className="text-xl font-bold mb-2">Own a business in Toledo?</h3>
+            <p className="text-white/80 text-sm mb-4">
+              Get discovered by thousands of locals. List your business for free.
+            </p>
+            <button 
+              onClick={() => navigate('/create-business')}
+              className="px-5 py-2.5 bg-white text-toledo-teal rounded-xl font-semibold text-sm hover:bg-white/90 transition-colors"
+            >
+              Add Your Business →
+            </button>
+          </div>
         </div>
+      </section>
 
-        {/* Tonight in Toledo */}
-        <section>
-          <SectionHeader title="Tonight in Toledo" viewAllLink="/events" />
-          {eventsLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-20 rounded-2xl" />
-              ))}
-            </div>
-          ) : todayEvents?.length ? (
-            <div className="space-y-3">
-              {todayEvents.map(event => (
-                <EventCard key={event.id} event={event} compact />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              No events scheduled for today
-            </p>
-          )}
-        </section>
-
-        {/* Top Deals */}
-        <section>
-          <SectionHeader title="Top Deals Near You" viewAllLink="/deals" />
-          {dealsLoading ? (
-            <div className="space-y-3">
-              {[1, 2].map(i => (
-                <Skeleton key={i} className="h-24 rounded-2xl" />
-              ))}
-            </div>
-          ) : deals?.length ? (
-            <div className="space-y-3">
-              {deals.slice(0, 2).map(deal => (
-                <DealCard key={deal.id} deal={deal} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              No deals available right now
-            </p>
-          )}
-        </section>
-
-        {/* Editor Picks */}
-        {featuredBusinesses && featuredBusinesses.length > 0 && (
-          <section>
-            <SectionHeader title="Editor's Picks" />
-            <div className="space-y-3">
-              {featuredBusinesses.map(business => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* New & Notable */}
-        <section>
-          <SectionHeader title="New & Notable" />
-          {newBusinessesLoading ? (
-            <div className="space-y-3">
-              {[1, 2].map(i => (
-                <Skeleton key={i} className="h-24 rounded-2xl" />
-              ))}
-            </div>
-          ) : newBusinesses?.length ? (
-            <div className="space-y-3">
-              {newBusinesses.map(business => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              New businesses coming soon
-            </p>
-          )}
-        </section>
-      </PageContainer>
-    </>
+      <BottomNav />
+    </div>
   );
 }
