@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { 
   Dialog,
   DialogContent,
@@ -28,7 +29,8 @@ import {
   ArrowLeft,
   Shield,
   Image as ImageIcon,
-  Pencil
+  Pencil,
+  BarChart3
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -264,8 +266,12 @@ export default function Admin() {
           Back
         </Button>
 
-        <Tabs defaultValue="businesses" className="w-full">
+        <Tabs defaultValue="analytics" className="w-full">
           <TabsList className="w-full mb-4">
+            <TabsTrigger value="analytics" className="flex-1 gap-1.5">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
             <TabsTrigger value="businesses" className="flex-1 gap-1.5">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Businesses</span>
@@ -292,6 +298,10 @@ export default function Admin() {
               <span className="hidden sm:inline">Manage</span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
+          </TabsContent>
 
           <TabsContent value="businesses" className="space-y-3">
             {pendingBusinesses?.length ? (
