@@ -61,6 +61,7 @@ export type Database = {
           category_id: string | null
           created_at: string
           description: string | null
+          editor_pick_image: string | null
           featured: boolean | null
           hours: Json | null
           id: string
@@ -81,6 +82,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          editor_pick_image?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string
@@ -101,6 +103,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          editor_pick_image?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string
@@ -197,6 +200,7 @@ export type Database = {
           end_date: string
           featured: boolean | null
           id: string
+          image_url: string | null
           redemption_method: string | null
           start_date: string
           status: string
@@ -209,6 +213,7 @@ export type Database = {
           end_date: string
           featured?: boolean | null
           id?: string
+          image_url?: string | null
           redemption_method?: string | null
           start_date?: string
           status?: string
@@ -221,6 +226,7 @@ export type Database = {
           end_date?: string
           featured?: boolean | null
           id?: string
+          image_url?: string | null
           redemption_method?: string | null
           start_date?: string
           status?: string
@@ -276,6 +282,7 @@ export type Database = {
           end_date_time: string | null
           featured: boolean | null
           id: string
+          image_url: string | null
           location_text: string | null
           start_date_time: string
           status: string
@@ -289,6 +296,7 @@ export type Database = {
           end_date_time?: string | null
           featured?: boolean | null
           id?: string
+          image_url?: string | null
           location_text?: string | null
           start_date_time: string
           status?: string
@@ -302,6 +310,7 @@ export type Database = {
           end_date_time?: string | null
           featured?: boolean | null
           id?: string
+          image_url?: string | null
           location_text?: string | null
           start_date_time?: string
           status?: string
@@ -463,6 +472,7 @@ export type Database = {
           content: string
           created_at: string
           featured: boolean | null
+          hashtags: string[] | null
           id: string
           images: string[] | null
           likes_count: number | null
@@ -478,6 +488,7 @@ export type Database = {
           content: string
           created_at?: string
           featured?: boolean | null
+          hashtags?: string[] | null
           id?: string
           images?: string[] | null
           likes_count?: number | null
@@ -493,6 +504,7 @@ export type Database = {
           content?: string
           created_at?: string
           featured?: boolean | null
+          hashtags?: string[] | null
           id?: string
           images?: string[] | null
           likes_count?: number | null
