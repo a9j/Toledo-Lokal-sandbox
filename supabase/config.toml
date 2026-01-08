@@ -2,3 +2,6 @@ project_id = "ixupthihhfeikeydvvir"
 
 [functions.moderate-content]
 verify_jwt = false
+
+[functions.ask-toledo]
+verify_jwt = false
