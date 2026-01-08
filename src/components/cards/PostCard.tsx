@@ -169,7 +169,7 @@ export function PostCard({ post }: PostCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Check out this post on Toledo Hub',
+          title: 'Check out this post on ToledoLokal',
           text: post.content.substring(0, 100),
           url: window.location.href,
         });
