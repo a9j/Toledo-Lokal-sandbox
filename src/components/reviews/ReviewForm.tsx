@@ -42,6 +42,7 @@ export function ReviewForm({ onSubmit, isSubmitting = false }: ReviewFormProps) 
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="rounded-xl"
+          maxLength={200}
         />
       </div>
 
@@ -52,6 +53,7 @@ export function ReviewForm({ onSubmit, isSubmitting = false }: ReviewFormProps) 
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="rounded-xl min-h-[100px] resize-none"
+          maxLength={5000}
         />
       </div>
 

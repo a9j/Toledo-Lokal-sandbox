@@ -117,6 +117,7 @@ export default function CreateBusiness() {
               name="name" 
               placeholder="Your business name"
               required 
+              maxLength={200}
             />
           </div>
           
@@ -162,6 +163,7 @@ export default function CreateBusiness() {
               placeholder="Tell people about your business..."
               rows={4}
               required
+              maxLength={5000}
             />
           </div>
           
@@ -171,6 +173,7 @@ export default function CreateBusiness() {
               id="address" 
               name="address" 
               placeholder="123 Main St, Toledo, OH"
+              maxLength={500}
             />
           </div>
           
@@ -181,6 +184,7 @@ export default function CreateBusiness() {
               name="phone" 
               type="tel"
               placeholder="(419) 555-0123"
+              maxLength={50}
             />
           </div>
           
@@ -191,6 +195,7 @@ export default function CreateBusiness() {
               name="website" 
               type="url"
               placeholder="https://yourbusiness.com"
+              maxLength={500}
             />
           </div>
           
@@ -200,6 +205,7 @@ export default function CreateBusiness() {
               id="instagram" 
               name="instagram" 
               placeholder="@yourbusiness"
+              maxLength={100}
             />
           </div>
           

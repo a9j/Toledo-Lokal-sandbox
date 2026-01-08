@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Sparkles, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Sparkles, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-toledo`;
-
 export function AskToledoChat() {
+  const { user, session } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: "Hey! I'm your Toledo Connect guide 🌆 Ask me anything about local restaurants, events, hidden gems, or what to do this weekend!" }
@@ -31,6 +33,12 @@ export function AskToledoChat() {
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    // Check if user is authenticated
+    if (!user || !session) {
+      toast.error('Please sign in to use the AI chat');
+      return;
+    }
+
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -39,22 +47,47 @@ export function AskToledoChat() {
     let assistantContent = '';
 
     try {
-      const response = await fetch(CHAT_URL, {
+      // Use supabase.functions.invoke for proper auth handling
+      const { data, error } = await supabase.functions.invoke('ask-toledo', {
+        body: { messages: [...messages, userMessage] }
+      });
+
+      if (error) {
+        console.error('Chat error:', error);
+        if (error.message?.includes('401') || error.message?.includes('Authentication')) {
+          toast.error('Please sign in to use the AI chat');
+        } else if (error.message?.includes('429') || error.message?.includes('rate limit')) {
+          toast.error('Daily message limit reached. Try again tomorrow.');
+        } else {
+          toast.error('Failed to get response');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // If we got streaming response, handle it
+      // Note: supabase.functions.invoke doesn't support streaming directly
+      // We need to use fetch for streaming
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-toledo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
 
       if (!response.ok) {
-        if (response.status === 429) {
-          toast.error('Too many requests. Please wait a moment.');
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          toast.error(errorData.error || 'Please sign in to use the AI chat');
+        } else if (response.status === 429) {
+          toast.error(errorData.error || 'Daily message limit reached. Try again tomorrow.');
         } else if (response.status === 402) {
           toast.error('AI credits depleted.');
         } else {
-          toast.error('Failed to get response');
+          toast.error(errorData.error || 'Failed to get response');
         }
         setIsLoading(false);
         return;
@@ -146,65 +179,88 @@ export function AskToledoChat() {
             </Button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px]">
-            {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
-                  msg.role === 'user' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-secondary text-secondary-foreground'
-                }`}>
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                </div>
+          {/* Not authenticated message */}
+          {!user && (
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-full bg-secondary flex items-center justify-center">
+                <LogIn className="h-8 w-8 text-muted-foreground" />
               </div>
-            ))}
-            {isLoading && messages[messages.length - 1]?.role === 'user' && (
-              <div className="flex justify-start">
-                <div className="bg-secondary rounded-2xl px-4 py-2.5">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                </div>
+              <div>
+                <h4 className="font-semibold mb-1">Sign in to Chat</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Create a free account to ask questions about Toledo
+                </p>
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full">Sign In</Button>
+                </Link>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Quick Questions */}
-          {messages.length <= 2 && (
-            <div className="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-hide">
-              {quickQuestions.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setInput(q); }}
-                  className="px-3 py-1.5 rounded-full bg-secondary text-xs font-medium whitespace-nowrap hover:bg-secondary/80 transition-colors"
-                >
-                  {q}
-                </button>
-              ))}
             </div>
           )}
 
-          {/* Input */}
-          <div className="p-4 border-t border-border safe-area-bottom">
-            <div className="flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder="Ask about Toledo..."
-                className="flex-1 rounded-full"
-                disabled={isLoading}
-              />
-              <Button 
-                onClick={sendMessage} 
-                size="icon" 
-                className="rounded-full"
-                disabled={isLoading || !input.trim()}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          {/* Messages (only show when authenticated) */}
+          {user && (
+            <>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px]">
+                {messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
+                      msg.role === 'user' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-secondary text-secondary-foreground'
+                    }`}>
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                  <div className="flex justify-start">
+                    <div className="bg-secondary rounded-2xl px-4 py-2.5">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Quick Questions */}
+              {messages.length <= 2 && (
+                <div className="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+                  {quickQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setInput(q); }}
+                      className="px-3 py-1.5 rounded-full bg-secondary text-xs font-medium whitespace-nowrap hover:bg-secondary/80 transition-colors"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input */}
+              <div className="p-4 border-t border-border safe-area-bottom">
+                <div className="flex gap-2">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                    placeholder="Ask about Toledo..."
+                    className="flex-1 rounded-full"
+                    disabled={isLoading}
+                    maxLength={500}
+                  />
+                  <Button 
+                    onClick={sendMessage} 
+                    size="icon" 
+                    className="rounded-full"
+                    disabled={isLoading || !input.trim()}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </>

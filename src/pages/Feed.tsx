@@ -250,6 +250,7 @@ export default function Feed() {
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
                     className="min-h-[60px] border-0 bg-transparent resize-none p-0 focus-visible:ring-0 text-sm"
+                    maxLength={5000}
                   />
                   <div className="flex justify-end mt-2">
                     <Button 
