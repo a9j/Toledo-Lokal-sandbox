@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeroSection } from '@/components/home/HeroSection';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
@@ -9,16 +9,25 @@ import { NeighborhoodHighlight } from '@/components/home/NeighborhoodHighlight';
 import { NonprofitsSection } from '@/components/home/NonprofitsSection';
 import { HappeningNow } from '@/components/home/HappeningNow';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboarding';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { useBusinesses } from '@/hooks/useBusinesses';
 
 export default function Index() {
   const navigate = useNavigate();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { data: upcomingEvents, isLoading: eventsLoading } = useEvents({ limit: 6 });
   const { data: deals, isLoading: dealsLoading } = useDeals({ limit: 4 });
   const { data: featuredBusinesses, isLoading: featuredLoading } = useBusinesses({ featured: true, limit: 4 });
   const { data: newBusinesses, isLoading: newLoading } = useBusinesses({ limit: 6 });
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('onboarding-completed');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
 
   const handleSearch = (query: string, filters: { neighborhood?: string; category?: string }) => {
     const params = new URLSearchParams();
@@ -27,6 +36,10 @@ export default function Index() {
     if (filters.category && filters.category !== 'all') params.set('category', filters.category);
     navigate(`/explore?${params.toString()}`);
   };
+
+  if (showOnboarding) {
+    return <FirstVisitOnboarding onComplete={() => setShowOnboarding(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24">
