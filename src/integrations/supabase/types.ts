@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          query_details: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          query_details?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          query_details?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       boosts: {
         Row: {
           amount_paid: number
@@ -1319,6 +1355,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_all_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string | null
+          neighborhood_id: string | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       check_global_lead_rate_limit: {
         Args: { _user_id: string }
         Returns: boolean
