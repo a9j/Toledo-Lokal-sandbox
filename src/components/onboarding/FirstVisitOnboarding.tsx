@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import useEmblaCarousel from 'embla-carousel-react';
 import { 
   MapPin, 
   Calendar, 
@@ -56,16 +57,36 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
   const isLastStep = step === totalSteps - 1;
   const showInstallStep = canInstall || isIOS;
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: false,
+    dragFree: false,
+  });
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setStep(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
   const handleNext = () => {
     if (isLastStep) {
       handleComplete();
-    } else {
-      setStep(s => s + 1);
+    } else if (emblaApi) {
+      emblaApi.scrollNext();
     }
   };
 
   const handleBack = () => {
-    if (step > 0) setStep(s => s - 1);
+    if (emblaApi && step > 0) {
+      emblaApi.scrollPrev();
+    }
   };
 
   const handleComplete = () => {
@@ -134,8 +155,9 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
       <div className="flex items-center justify-between p-4">
         <div className="flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
-            <div
+            <button
               key={i}
+              onClick={() => emblaApi?.scrollTo(i)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i <= step ? 'w-8 bg-primary' : 'w-4 bg-border'
               }`}
@@ -152,66 +174,73 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
         </Button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
-        {step < features.length ? (
-          // Feature slides
-          <div className="w-full max-w-sm text-center animate-in fade-in slide-in-from-right duration-300" key={step}>
-            <div className={`w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br ${features[step].gradient} flex items-center justify-center mb-8 shadow-lg`}>
-              {(() => {
-                const Icon = features[step].icon;
-                return <Icon className="h-12 w-12 text-white" />;
-              })()}
+      {/* Swipeable Content */}
+      <div className="flex-1 overflow-hidden" ref={emblaRef}>
+        <div className="flex h-full">
+          {/* Feature slides */}
+          {features.map((feature, index) => (
+            <div 
+              key={index} 
+              className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6"
+            >
+              <div className="w-full max-w-sm text-center">
+                <div className={`w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-8 shadow-lg`}>
+                  <feature.icon className="h-12 w-12 text-white" />
+                </div>
+                
+                <h1 className="text-2xl font-bold mb-3">{feature.title}</h1>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
             </div>
-            
-            <h1 className="text-2xl font-bold mb-3">{features[step].title}</h1>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              {features[step].description}
-            </p>
+          ))}
+          
+          {/* Install/Final step */}
+          <div className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6">
+            {showInstallStep ? (
+              <div className="w-full max-w-sm text-center">
+                <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary via-accent to-toledo-teal flex items-center justify-center mb-8 shadow-lg relative">
+                  <Smartphone className="h-12 w-12 text-white" />
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-toledo-rose rounded-full flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                </div>
+                
+                <h1 className="text-2xl font-bold mb-3">Get the Full Experience</h1>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-6">
+                  Install Toledo Connect for instant access, push notifications, and offline browsing.
+                </p>
+                
+                <div className="space-y-3 text-left bg-secondary/50 rounded-2xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <Bell className="h-5 w-5 text-primary" />
+                    <span className="text-sm">Get notified about events & deals</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Smartphone className="h-5 w-5 text-primary" />
+                    <span className="text-sm">Launch instantly from home screen</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span className="text-sm">Works offline for saved places</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full max-w-sm text-center">
+                <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-8 shadow-lg">
+                  <Sparkles className="h-12 w-12 text-white" />
+                </div>
+                
+                <h1 className="text-2xl font-bold mb-3">You're All Set!</h1>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Start exploring everything Toledo has to offer.
+                </p>
+              </div>
+            )}
           </div>
-        ) : showInstallStep ? (
-          // Install step
-          <div className="w-full max-w-sm text-center animate-in fade-in slide-in-from-right duration-300">
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary via-accent to-toledo-teal flex items-center justify-center mb-8 shadow-lg relative">
-              <Smartphone className="h-12 w-12 text-white" />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-toledo-rose rounded-full flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-            </div>
-            
-            <h1 className="text-2xl font-bold mb-3">Get the Full Experience</h1>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              Install Toledo Connect for instant access, push notifications, and offline browsing.
-            </p>
-            
-            <div className="space-y-3 text-left bg-secondary/50 rounded-2xl p-4 mb-6">
-              <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-primary" />
-                <span className="text-sm">Get notified about events & deals</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Smartphone className="h-5 w-5 text-primary" />
-                <span className="text-sm">Launch instantly from home screen</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm">Works offline for saved places</span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Final step (no install available)
-          <div className="w-full max-w-sm text-center animate-in fade-in slide-in-from-right duration-300">
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-8 shadow-lg">
-              <Sparkles className="h-12 w-12 text-white" />
-            </div>
-            
-            <h1 className="text-2xl font-bold mb-3">You're All Set!</h1>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Start exploring everything Toledo has to offer.
-            </p>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Navigation */}
