@@ -26,6 +26,7 @@ import Challenges from "./pages/Challenges";
 import Stories from "./pages/Stories";
 import CreateStory from "./pages/CreateStory";
 import Subscription from "./pages/Subscription";
+import Saved from "./pages/Saved";
 import NotFound from "./pages/NotFound";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/stories" element={<Stories />} />
             <Route path="/stories/create" element={<CreateStory />} />
             <Route path="/subscription" element={<Subscription />} />
+            <Route path="/saved" element={<Saved />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />

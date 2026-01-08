@@ -1,0 +1,167 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+
+export type SavedItemType = 'business' | 'event' | 'post';
+
+interface SavedItem {
+  id: string;
+  user_id: string;
+  item_type: string;
+  item_id: string;
+  created_at: string;
+}
+
+interface SavedItemWithDetails extends SavedItem {
+  business?: {
+    id: string;
+    name: string;
+    logo_url: string | null;
+    description: string | null;
+    category: { name: string } | null;
+  };
+  event?: {
+    id: string;
+    title: string;
+    image_url: string | null;
+    start_date: string;
+  };
+}
+
+export function useSavedItems(itemType?: SavedItemType) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: savedItems = [], isLoading } = useQuery({
+    queryKey: ['saved-items', user?.id, itemType],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      let query = supabase
+        .from('saved_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (itemType) {
+        query = query.eq('item_type', itemType);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as SavedItem[];
+    },
+    enabled: !!user,
+  });
+
+  const { data: savedItemsWithDetails = [], isLoading: isLoadingDetails } = useQuery({
+    queryKey: ['saved-items-details', user?.id, itemType],
+    queryFn: async () => {
+      if (!user || savedItems.length === 0) return [];
+
+      const businessIds = savedItems
+        .filter(item => item.item_type === 'business')
+        .map(item => item.item_id);
+      
+      const eventIds = savedItems
+        .filter(item => item.item_type === 'event')
+        .map(item => item.item_id);
+
+      const [businessesResult, eventsResult] = await Promise.all([
+        businessIds.length > 0
+          ? supabase
+              .from('businesses')
+              .select('id, name, logo_url, description, category:categories(name)')
+              .in('id', businessIds)
+          : { data: [] },
+        eventIds.length > 0
+          ? supabase
+              .from('events')
+              .select('id, title, image_url, start_date')
+              .in('id', eventIds)
+          : { data: [] },
+      ]);
+
+      const businessesMap = new Map(
+        (businessesResult.data || []).map(b => [b.id, b])
+      );
+      const eventsMap = new Map(
+        (eventsResult.data || []).map(e => [e.id, e])
+      );
+
+      return savedItems.map(item => ({
+        ...item,
+        business: item.item_type === 'business' ? businessesMap.get(item.item_id) : undefined,
+        event: item.item_type === 'event' ? eventsMap.get(item.item_id) : undefined,
+      })) as SavedItemWithDetails[];
+    },
+    enabled: !!user && savedItems.length > 0,
+  });
+
+  const saveItem = useMutation({
+    mutationFn: async ({ itemId, itemType }: { itemId: string; itemType: SavedItemType }) => {
+      if (!user) throw new Error('Must be logged in');
+      
+      const { error } = await supabase
+        .from('saved_items')
+        .insert({
+          user_id: user.id,
+          item_id: itemId,
+          item_type: itemType,
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-items'] });
+      toast.success('Saved!');
+    },
+    onError: () => {
+      toast.error('Failed to save');
+    },
+  });
+
+  const unsaveItem = useMutation({
+    mutationFn: async (itemId: string) => {
+      if (!user) throw new Error('Must be logged in');
+      
+      const { error } = await supabase
+        .from('saved_items')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('item_id', itemId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-items'] });
+      toast.success('Removed from saved');
+    },
+    onError: () => {
+      toast.error('Failed to remove');
+    },
+  });
+
+  const isItemSaved = (itemId: string) => {
+    return savedItems.some(item => item.item_id === itemId);
+  };
+
+  const toggleSave = (itemId: string, itemType: SavedItemType) => {
+    if (isItemSaved(itemId)) {
+      unsaveItem.mutate(itemId);
+    } else {
+      saveItem.mutate({ itemId, itemType });
+    }
+  };
+
+  return {
+    savedItems,
+    savedItemsWithDetails,
+    isLoading: isLoading || isLoadingDetails,
+    saveItem,
+    unsaveItem,
+    isItemSaved,
+    toggleSave,
+  };
+}

@@ -1,12 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Settings, Bookmark, FileText, Building2, LogOut, ChevronRight } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight } from 'lucide-react';
+import { AvatarUpload } from '@/components/profile/AvatarUpload';
+import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isBusiness } = useAuth();
@@ -54,10 +56,16 @@ export default function Profile() {
     return null;
   }
 
+  const queryClient = useQueryClient();
+
   const menuItems = [
-    { icon: Bookmark, label: 'Saved', href: '/saved' },
+    { icon: Bookmark, label: 'Saved Places', href: '/saved' },
     { icon: FileText, label: 'My Requests', href: '/my-requests' },
   ];
+
+  const handleAvatarUpdate = (newUrl: string) => {
+    queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+  };
 
   return (
     <>
@@ -66,12 +74,13 @@ export default function Profile() {
       <PageContainer className="space-y-6">
         {/* Profile header */}
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xl">
-              {profile?.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarUpload
+            currentUrl={profile?.avatar_url}
+            userName={profile?.name}
+            userEmail={user.email}
+            userId={user.id}
+            onUploadComplete={handleAvatarUpdate}
+          />
           
           <div className="flex-1">
             <h2 className="text-xl font-semibold">{profile?.name || 'User'}</h2>
@@ -114,6 +123,15 @@ export default function Profile() {
             </div>
           </Link>
         )}
+
+        {/* Saved Places Preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Saved Places</h3>
+            <Link to="/saved" className="text-sm text-primary">View All</Link>
+          </div>
+          <SavedPlacesList compact maxItems={3} />
+        </div>
 
         {/* Menu items */}
         <div className="space-y-1">
