@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,6 +69,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        lokal: {
+          midnight: "hsl(var(--lokal-midnight))",
+          "midnight-light": "hsl(var(--lokal-midnight-light))",
+          amber: "hsl(var(--lokal-amber))",
+          "amber-light": "hsl(var(--lokal-amber-light))",
+          terracotta: "hsl(var(--lokal-terracotta))",
+          "terracotta-light": "hsl(var(--lokal-terracotta-light))",
+          forest: "hsl(var(--lokal-forest))",
+          "forest-light": "hsl(var(--lokal-forest-light))",
+          sand: "hsl(var(--lokal-sand))",
+          cream: "hsl(var(--lokal-cream))",
+        },
         toledo: {
           coral: "hsl(var(--toledo-coral))",
           "coral-light": "hsl(var(--toledo-coral-light))",
@@ -102,6 +115,7 @@ export default {
         'soft-lg': '0 8px 24px -4px rgba(0, 0, 0, 0.1)',
         'soft-xl': '0 16px 40px -8px rgba(0, 0, 0, 0.12)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
+        'glow-amber': '0 0 20px -5px hsla(38, 90%, 55%, 0.4)',
       },
       keyframes: {
         "accordion-down": {
