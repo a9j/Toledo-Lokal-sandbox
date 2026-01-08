@@ -6,6 +6,7 @@ import { FeaturedSection } from '@/components/home/FeaturedSection';
 import { EventsCarousel } from '@/components/home/EventsCarousel';
 import { DealsSection } from '@/components/home/DealsSection';
 import { NeighborhoodHighlight } from '@/components/home/NeighborhoodHighlight';
+import { NonprofitsSection } from '@/components/home/NonprofitsSection';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
@@ -55,6 +56,9 @@ export default function Index() {
 
       {/* Deals Section */}
       <DealsSection deals={deals} isLoading={dealsLoading} />
+
+      {/* Nonprofits Section */}
+      <NonprofitsSection />
 
       {/* Neighborhood Highlight */}
       <NeighborhoodHighlight />
