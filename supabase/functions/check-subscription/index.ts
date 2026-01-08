@@ -17,7 +17,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
@@ -30,27 +30,57 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
 
+    const freeResponse = () =>
+      new Response(
+        JSON.stringify({
+          subscribed: false,
+          tier: "free",
+          product_id: null,
+          subscription_end: null,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      throw new Error("No authorization header provided");
+      logStep("No auth header, returning free tier");
+      return freeResponse();
     }
 
+    const anonKey =
+      Deno.env.get("SUPABASE_ANON_KEY") ??
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      "";
+
+    const supabaseAuth = createClient(Deno.env.get("SUPABASE_URL") ?? "", anonKey, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: authHeader } },
+    });
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      throw new Error(`Authentication error: ${claimsError?.message || "Invalid token"}`);
+      logStep("Auth invalid, returning free tier", { message: claimsError?.message });
+      return freeResponse();
     }
-    
+
     const userId = claimsData.claims.sub as string;
     const email = claimsData.claims.email as string;
-    if (!email) throw new Error("User email not available in token");
+    if (!email) {
+      logStep("Email missing from token, returning free tier");
+      return freeResponse();
+    }
+
     logStep("User authenticated", { userId, email });
 
     // Check if user is an early adopter (first 10 users get free Anchor Partner)
-    const { data: earlyAdopter } = await supabaseClient
-      .from('early_adopters')
-      .select('tier')
-      .eq('user_id', userId)
+    const { data: earlyAdopter } = await supabaseAdmin
+      .from("early_adopters")
+      .select("tier")
+      .eq("user_id", userId)
       .single();
 
     if (earlyAdopter) {
