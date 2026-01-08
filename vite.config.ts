@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "placeholder.svg"],
       manifest: {
-        name: "Toledo Hub",
-        short_name: "Toledo Hub",
+        name: "ToledoLokal",
+        short_name: "ToledoLokal",
         description: "Discover the Glass City - Local businesses, events, and community",
         theme_color: "#ffffff",
         background_color: "#ffffff",

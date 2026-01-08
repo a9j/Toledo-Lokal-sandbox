@@ -83,7 +83,7 @@ export default function Index() {
       {/* New Listings */}
       <FeaturedSection
         title="New & Notable"
-        subtitle="Recently added to Toledo Hub"
+        subtitle="Recently added to ToledoLokal"
         viewAllLink="/explore?sort=newest"
         businesses={newBusinesses}
         isLoading={newLoading}

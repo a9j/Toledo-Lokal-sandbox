@@ -68,7 +68,7 @@ export default function Auth() {
           }
         } else {
           toast({
-            title: 'Welcome to Toledo Hub!',
+            title: 'Welcome to ToledoLokal!',
             description: 'Your account has been created.',
           });
           navigate('/');
@@ -108,7 +108,7 @@ export default function Auth() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
             <MapPin className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Toledo Hub</h1>
+          <h1 className="text-2xl font-bold tracking-tight">ToledoLokal</h1>
           <p className="text-muted-foreground text-sm">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>
