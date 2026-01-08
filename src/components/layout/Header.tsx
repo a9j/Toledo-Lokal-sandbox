@@ -9,14 +9,14 @@ interface HeaderProps {
   showNotifications?: boolean;
 }
 
-export function Header({ title = 'Toledo Hub', showSearch = false, showNotifications = false }: HeaderProps) {
+export function Header({ title = 'Toledo Connect', showSearch = false, showNotifications = false }: HeaderProps) {
   const { user, isAdmin, isBusiness } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border safe-area-top">
       <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          <h1 className="text-lg font-bold tracking-tight">Toledo<span className="text-primary">Connect</span></h1>
         </div>
 
         <div className="flex items-center gap-2">
