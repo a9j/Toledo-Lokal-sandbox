@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DealCard } from '@/components/cards/DealCard';
 import { EventCard } from '@/components/cards/EventCard';
+import { BusinessMap } from '@/components/maps/BusinessMap';
 import { 
   MapPin, 
   Phone, 
@@ -281,6 +282,18 @@ export default function BusinessDetail() {
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {/* Map */}
+        {business.address && (
+          <section>
+            <h2 className="text-lg font-semibold mb-3">Location</h2>
+            <BusinessMap 
+              address={business.address} 
+              businessName={business.name}
+              className="h-48"
+            />
           </section>
         )}
 
