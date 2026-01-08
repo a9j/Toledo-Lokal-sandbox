@@ -9,6 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DealCard } from '@/components/cards/DealCard';
 import { EventCard } from '@/components/cards/EventCard';
 import { BusinessMap } from '@/components/maps/BusinessMap';
+import { ReviewsSection } from '@/components/reviews/ReviewsSection';
+import { StarRating } from '@/components/reviews/StarRating';
+import { ShareButton } from '@/components/sharing/ShareButton';
 import { 
   MapPin, 
   Phone, 
@@ -229,7 +232,22 @@ export default function BusinessDetail() {
               {business.verified && (
                 <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
               )}
+              <ShareButton 
+                title={business.name}
+                text={business.description || `Check out ${business.name} on Toledo Connect`}
+                className="ml-auto"
+              />
             </div>
+            
+            {/* Rating display */}
+            {(business.review_count ?? 0) > 0 && (
+              <div className="flex items-center gap-1.5 mb-1">
+                <StarRating rating={business.average_rating ?? 0} size="sm" />
+                <span className="text-sm text-muted-foreground">
+                  ({business.review_count})
+                </span>
+              </div>
+            )}
             
             {business.category && (
               <p className="text-muted-foreground">{business.category.name}</p>
@@ -369,6 +387,13 @@ export default function BusinessDetail() {
             </div>
           </section>
         )}
+
+        {/* Reviews Section */}
+        <ReviewsSection 
+          businessId={business.id}
+          averageRating={business.average_rating ?? 0}
+          reviewCount={business.review_count ?? 0}
+        />
       </PageContainer>
     </>
   );
