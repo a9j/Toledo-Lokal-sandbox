@@ -1319,6 +1319,60 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_business_by_id: {
+        Args: { business_id: string }
+        Returns: {
+          address: string
+          average_rating: number
+          category_id: string
+          created_at: string
+          description: string
+          editor_pick_image: string
+          featured: boolean
+          hours: Json
+          id: string
+          instagram: string
+          is_owner: boolean
+          logo_url: string
+          name: string
+          neighborhood_id: string
+          phone: string
+          photos: string[]
+          review_count: number
+          status: string
+          story: string
+          updated_at: string
+          verified: boolean
+          website: string
+        }[]
+      }
+      get_public_businesses: {
+        Args: never
+        Returns: {
+          address: string
+          average_rating: number
+          category_id: string
+          created_at: string
+          description: string
+          editor_pick_image: string
+          featured: boolean
+          hours: Json
+          id: string
+          instagram: string
+          is_owner: boolean
+          logo_url: string
+          name: string
+          neighborhood_id: string
+          phone: string
+          photos: string[]
+          review_count: number
+          status: string
+          story: string
+          updated_at: string
+          verified: boolean
+          website: string
+        }[]
+      }
       get_user_business_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

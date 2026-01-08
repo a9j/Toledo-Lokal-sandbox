@@ -42,13 +42,38 @@ export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
+  // Public-safe columns that don't expose owner_user_id
+  const PUBLIC_BUSINESS_COLUMNS = `
+    id,
+    name,
+    description,
+    address,
+    phone,
+    website,
+    instagram,
+    category_id,
+    neighborhood_id,
+    featured,
+    verified,
+    average_rating,
+    review_count,
+    photos,
+    logo_url,
+    hours,
+    editor_pick_image,
+    story,
+    status,
+    created_at,
+    updated_at
+  `;
+
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
         .select(`
-          *,
+          ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(name),
           category:categories(name, icon)
         `)
