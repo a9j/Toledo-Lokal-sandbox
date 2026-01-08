@@ -40,6 +40,27 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check if user is an early adopter (first 10 users get free Anchor Partner)
+    const { data: earlyAdopter } = await supabaseClient
+      .from('early_adopters')
+      .select('tier')
+      .eq('user_id', user.id)
+      .single();
+
+    if (earlyAdopter) {
+      logStep("User is early adopter", { tier: earlyAdopter.tier });
+      return new Response(JSON.stringify({
+        subscribed: true,
+        tier: earlyAdopter.tier,
+        product_id: 'early_adopter',
+        subscription_end: null,
+        is_early_adopter: true
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
