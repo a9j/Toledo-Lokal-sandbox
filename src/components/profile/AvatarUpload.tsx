@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { generateSignedUrl } from '@/hooks/useSignedUrl';
+import { SecureAvatar } from '@/components/ui/secure-avatar';
 
 interface AvatarUploadProps {
   currentUrl?: string | null;
@@ -52,23 +53,24 @@ export function AvatarUpload({
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName);
+      // Get signed URL for the uploaded file
+      const signedUrl = await generateSignedUrl(fileName);
+      
+      if (!signedUrl) {
+        throw new Error('Failed to generate signed URL');
+      }
 
-      // Add timestamp to bust cache
-      const urlWithTimestamp = `${publicUrl}?t=${Date.now()}`;
-
-      // Update profile
+      // Update profile with the file path (not the full URL)
+      // This allows signed URLs to be regenerated later
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: urlWithTimestamp })
+        .update({ avatar_url: fileName })
         .eq('user_id', userId);
 
       if (updateError) throw updateError;
 
-      onUploadComplete(urlWithTimestamp);
+      // Pass the signed URL back for immediate display
+      onUploadComplete(signedUrl);
       toast.success('Profile photo updated!');
     } catch (error) {
       console.error('Upload error:', error);
@@ -84,12 +86,11 @@ export function AvatarUpload({
 
   return (
     <div className="relative group">
-      <Avatar className="h-20 w-20">
-        <AvatarImage src={currentUrl || undefined} />
-        <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-          {fallbackChar}
-        </AvatarFallback>
-      </Avatar>
+      <SecureAvatar 
+        storagePath={currentUrl}
+        fallbackText={fallbackChar}
+        className="h-20 w-20"
+      />
       
       <Button
         size="icon"

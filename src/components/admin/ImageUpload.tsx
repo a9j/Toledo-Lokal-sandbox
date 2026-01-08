@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { moderateContent } from '@/hooks/useContentModeration';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, X, Loader2, AlertTriangle } from 'lucide-react';
+import { generateSignedUrl } from '@/hooks/useSignedUrl';
 
 interface ImageUploadProps {
   currentUrl?: string;
@@ -65,14 +66,16 @@ export function ImageUpload({
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName);
+      // Get signed URL for the uploaded file
+      const signedUrl = await generateSignedUrl(fileName);
+      
+      if (!signedUrl) {
+        throw new Error('Failed to generate signed URL');
+      }
 
-      // Moderate the image
+      // Moderate the image using signed URL
       setModerating(true);
-      const modResult = await moderateContent({ imageUrl: publicUrl });
+      const modResult = await moderateContent({ imageUrl: signedUrl });
       setModerating(false);
 
       if (!modResult.safe) {
@@ -88,7 +91,9 @@ export function ImageUpload({
         return;
       }
 
-      onUpload(publicUrl);
+      // Store the file path (not the signed URL) for persistence
+      // The signed URL will be regenerated when displaying the image
+      onUpload(fileName);
       toast({ title: 'Image uploaded successfully' });
 
     } catch (err: any) {
