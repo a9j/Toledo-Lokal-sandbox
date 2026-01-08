@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import Index from "./pages/Index";
@@ -24,6 +25,7 @@ import Tours from "./pages/Tours";
 import Challenges from "./pages/Challenges";
 import Stories from "./pages/Stories";
 import CreateStory from "./pages/CreateStory";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
@@ -32,7 +34,8 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
+      <SubscriptionProvider>
+        <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -55,6 +58,7 @@ const App = () => (
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/stories/create" element={<CreateStory />} />
+            <Route path="/subscription" element={<Subscription />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
@@ -62,6 +66,7 @@ const App = () => (
           <InstallPrompt />
         </BrowserRouter>
       </TooltipProvider>
+    </SubscriptionProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
