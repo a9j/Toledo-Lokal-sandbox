@@ -58,6 +58,7 @@ export type Database = {
       businesses: {
         Row: {
           address: string | null
+          average_rating: number | null
           category_id: string | null
           created_at: string
           description: string | null
@@ -72,6 +73,7 @@ export type Database = {
           owner_user_id: string
           phone: string | null
           photos: string[] | null
+          review_count: number | null
           status: string
           story: string | null
           updated_at: string
@@ -80,6 +82,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          average_rating?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -94,6 +97,7 @@ export type Database = {
           owner_user_id: string
           phone?: string | null
           photos?: string[] | null
+          review_count?: number | null
           status?: string
           story?: string | null
           updated_at?: string
@@ -102,6 +106,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          average_rating?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -116,6 +121,7 @@ export type Database = {
           owner_user_id?: string
           phone?: string | null
           photos?: string[] | null
+          review_count?: number | null
           status?: string
           story?: string | null
           updated_at?: string
@@ -365,6 +371,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_tickets: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_id: string
+          id: string
+          name: string
+          price: number
+          quantity_available: number | null
+          quantity_sold: number
+          sales_end: string | null
+          sales_start: string | null
+          stripe_price_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_id: string
+          id?: string
+          name: string
+          price?: number
+          quantity_available?: number | null
+          quantity_sold?: number
+          sales_end?: string | null
+          sales_start?: string | null
+          stripe_price_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          price?: number
+          quantity_available?: number | null
+          quantity_sold?: number
+          sales_end?: string | null
+          sales_start?: string | null
+          stripe_price_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tickets_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -807,6 +863,53 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          business_id: string
+          content: string | null
+          created_at: string
+          helpful_count: number
+          id: string
+          photos: string[] | null
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          content?: string | null
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          photos?: string[] | null
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          content?: string | null
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          photos?: string[] | null
+          rating?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_items: {
         Row: {
           created_at: string
@@ -961,6 +1064,50 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_purchases: {
+        Row: {
+          created_at: string
+          id: string
+          quantity: number
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          ticket_id: string
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          ticket_id: string
+          total_amount: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          ticket_id?: string
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_purchases_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "event_tickets"
             referencedColumns: ["id"]
           },
         ]
