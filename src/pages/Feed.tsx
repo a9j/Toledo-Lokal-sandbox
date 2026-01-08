@@ -55,8 +55,13 @@ export default function Feed() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast({ title: 'Posted!' });
     },
-    onError: (error) => {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
+    onError: (error: any) => {
+      const isRateLimit = error?.message?.includes('row-level security') || error?.code === '42501';
+      toast({ 
+        variant: 'destructive', 
+        title: isRateLimit ? 'Slow down!' : 'Error', 
+        description: isRateLimit ? 'You can only post 10 times per day. Please try again later.' : error.message 
+      });
     },
   });
 
