@@ -5,11 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { Heart, MessageCircle, Share2, Bookmark, Send } from 'lucide-react';
+import { SecureAvatar } from '@/components/ui/secure-avatar';
 
 interface PostCardProps {
   post: {
@@ -189,12 +189,11 @@ export function PostCard({ post }: PostCardProps) {
     <div className="card-elevated p-4">
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={post.author?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {authorInitial}
-          </AvatarFallback>
-        </Avatar>
+        <SecureAvatar
+          storagePath={post.author?.avatar_url}
+          fallbackText={authorInitial}
+          className="h-10 w-10"
+        />
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -271,11 +270,11 @@ export function PostCard({ post }: PostCardProps) {
         <div className="mt-4 pt-4 border-t border-border space-y-3">
           {comments?.map(comment => (
             <div key={comment.id} className="flex gap-2">
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="text-xs bg-secondary">
-                  {comment.author?.name?.charAt(0)?.toUpperCase() || '?'}
-                </AvatarFallback>
-              </Avatar>
+              <SecureAvatar
+                storagePath={comment.author?.avatar_url}
+                fallbackText={comment.author?.name?.charAt(0) || '?'}
+                className="h-7 w-7"
+              />
               <div className="flex-1 bg-secondary rounded-xl px-3 py-2">
                 <p className="text-xs font-medium">{comment.author?.name || 'Anonymous'}</p>
                 <p className="text-sm">{comment.content}</p>
