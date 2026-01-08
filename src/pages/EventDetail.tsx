@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { ShareButton } from '@/components/sharing/ShareButton';
 import { format } from 'date-fns';
 import { 
   Calendar, 
@@ -209,6 +210,11 @@ export default function EventDetail() {
               {event.featured && (
                 <Badge variant="secondary" className="bg-warning/10 text-warning">Featured</Badge>
               )}
+              <ShareButton 
+                title={event.title}
+                text={`${event.title} - ${format(startDate, 'MMM d')} at ${event.location_text || 'TBD'}`}
+                className="ml-auto"
+              />
             </div>
             <h1 className="text-xl font-bold">{event.title}</h1>
             {event.business && (
