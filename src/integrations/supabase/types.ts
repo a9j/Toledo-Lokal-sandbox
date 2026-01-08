@@ -157,6 +157,101 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_progress: {
+        Row: {
+          business_id: string
+          challenge_id: string
+          id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          business_id: string
+          challenge_id: string
+          id?: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          business_id?: string
+          challenge_id?: string
+          id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          badge_color: string | null
+          badge_icon: string | null
+          category_id: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          featured: boolean | null
+          id: string
+          required_visits: number | null
+          reward_description: string | null
+          start_date: string | null
+          status: string | null
+          title: string
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          featured?: boolean | null
+          id?: string
+          required_visits?: number | null
+          reward_description?: string | null
+          start_date?: string | null
+          status?: string | null
+          title: string
+        }
+        Update: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          featured?: boolean | null
+          id?: string
+          required_visits?: number | null
+          reward_description?: string | null
+          start_date?: string | null
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           author_id: string
@@ -733,6 +828,95 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          author_id: string
+          business_id: string | null
+          content: string
+          created_at: string
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          likes_count: number | null
+          neighborhood_id: string | null
+          status: string | null
+          story_type: string | null
+          title: string
+        }
+        Insert: {
+          author_id: string
+          business_id?: string | null
+          content: string
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          likes_count?: number | null
+          neighborhood_id?: string | null
+          status?: string | null
+          story_type?: string | null
+          title: string
+        }
+        Update: {
+          author_id?: string
+          business_id?: string | null
+          content?: string
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          likes_count?: number | null
+          neighborhood_id?: string | null
+          status?: string | null
+          story_type?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stories_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_likes: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_likes_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           business_id: string
@@ -777,6 +961,172 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tour_stops: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          deal_text: string | null
+          description: string | null
+          id: string
+          stop_order: number
+          tip: string | null
+          title: string
+          tour_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          deal_text?: string | null
+          description?: string | null
+          id?: string
+          stop_order: number
+          tip?: string | null
+          title: string
+          tour_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          deal_text?: string | null
+          description?: string | null
+          id?: string
+          stop_order?: number
+          tip?: string | null
+          title?: string
+          tour_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_stops_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tours: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          distance_miles: number | null
+          duration_minutes: number | null
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          neighborhood_id: string | null
+          status: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          distance_miles?: number | null
+          duration_minutes?: number | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          neighborhood_id?: string | null
+          status?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          distance_miles?: number | null
+          duration_minutes?: number | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          neighborhood_id?: string | null
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tours_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          challenge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          interests: string[] | null
+          is_newcomer: boolean | null
+          moved_date: string | null
+          onboarding_completed: boolean | null
+          preferred_neighborhoods: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interests?: string[] | null
+          is_newcomer?: boolean | null
+          moved_date?: string | null
+          onboarding_completed?: boolean | null
+          preferred_neighborhoods?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interests?: string[] | null
+          is_newcomer?: boolean | null
+          moved_date?: string | null
+          onboarding_completed?: boolean | null
+          preferred_neighborhoods?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

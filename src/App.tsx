@@ -20,7 +20,12 @@ import BusinessDetail from "./pages/BusinessDetail";
 import CreateBusiness from "./pages/CreateBusiness";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import Tours from "./pages/Tours";
+import Challenges from "./pages/Challenges";
+import Stories from "./pages/Stories";
+import CreateStory from "./pages/CreateStory";
 import NotFound from "./pages/NotFound";
+import { AskToledoChat } from "./components/chat/AskToledoChat";
 
 const queryClient = new QueryClient();
 
@@ -46,9 +51,14 @@ const App = () => (
             <Route path="/create-business" element={<CreateBusiness />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/tours" element={<Tours />} />
+            <Route path="/challenges" element={<Challenges />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/stories/create" element={<CreateStory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />
+          <AskToledoChat />
           <InstallPrompt />
         </BrowserRouter>
       </TooltipProvider>

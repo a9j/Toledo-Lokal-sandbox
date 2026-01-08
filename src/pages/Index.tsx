@@ -7,6 +7,7 @@ import { EventsCarousel } from '@/components/home/EventsCarousel';
 import { DealsSection } from '@/components/home/DealsSection';
 import { NeighborhoodHighlight } from '@/components/home/NeighborhoodHighlight';
 import { NonprofitsSection } from '@/components/home/NonprofitsSection';
+import { HappeningNow } from '@/components/home/HappeningNow';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
@@ -56,6 +57,9 @@ export default function Index() {
 
       {/* Deals Section */}
       <DealsSection deals={deals} isLoading={dealsLoading} />
+
+      {/* Happening Now - Real-time Activity */}
+      <HappeningNow />
 
       {/* Nonprofits Section */}
       <NonprofitsSection />
