@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MapPin, Calendar, SlidersHorizontal } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, UtensilsCrossed, Coffee, PartyPopper, Palette, ShoppingBag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -127,26 +127,30 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
         {/* Quick category chips - modernized */}
         <div className="flex gap-2 mt-8 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
           {[
-            { label: '🍽️ Restaurants', search: 'restaurant' },
-            { label: '☕ Coffee', search: 'coffee' },
-            { label: '🎉 Events', path: '/events' },
-            { label: '🎨 Arts', search: 'arts' },
-            { label: '🛍️ Shopping', search: 'shopping' },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={() => {
-                if ('path' in item && item.path) {
-                  window.location.href = item.path;
-                } else if ('search' in item) {
-                  onSearch(item.search, {});
-                }
-              }}
-              className="px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-sm font-medium hover:bg-white/25 hover:scale-105 transition-all duration-200 whitespace-nowrap"
-            >
-              {item.label}
-            </button>
-          ))}
+            { label: 'Restaurants', search: 'restaurant', icon: UtensilsCrossed },
+            { label: 'Coffee', search: 'coffee', icon: Coffee },
+            { label: 'Events', path: '/events', icon: PartyPopper },
+            { label: 'Arts', search: 'arts', icon: Palette },
+            { label: 'Shopping', search: 'shopping', icon: ShoppingBag },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => {
+                  if ('path' in item && item.path) {
+                    window.location.href = item.path;
+                  } else if ('search' in item) {
+                    onSearch(item.search, {});
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-sm font-medium hover:bg-white/30 hover:scale-105 transition-all duration-200 whitespace-nowrap"
+              >
+                <Icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
