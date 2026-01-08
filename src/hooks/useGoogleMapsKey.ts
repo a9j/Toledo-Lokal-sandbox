@@ -9,6 +9,16 @@ export function useGoogleMapsKey() {
   useEffect(() => {
     async function fetchKey() {
       try {
+        // Check if user is authenticated first
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          console.log('User not authenticated, cannot fetch maps key');
+          setError('Authentication required');
+          setIsLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase.functions.invoke('get-maps-key');
         
         if (error) {
@@ -19,6 +29,8 @@ export function useGoogleMapsKey() {
         
         if (data?.apiKey) {
           setApiKey(data.apiKey);
+        } else if (data?.error === 'Unauthorized') {
+          setError('Authentication required');
         } else {
           setError('Maps not configured');
         }
