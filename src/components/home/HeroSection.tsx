@@ -116,12 +116,24 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
 
         {/* Quick category chips */}
         <div className="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
-          {['Restaurants', 'Coffee', 'Events', 'Museums'].map((label) => (
+          {[
+            { label: 'Restaurants', search: 'restaurant' },
+            { label: 'Coffee', search: 'coffee' },
+            { label: 'Events', path: '/events' },
+            { label: 'Museums', search: 'museum' },
+          ].map((item) => (
             <button
-              key={label}
+              key={item.label}
+              onClick={() => {
+                if ('path' in item && item.path) {
+                  window.location.href = item.path;
+                } else if ('search' in item) {
+                  onSearch(item.search, {});
+                }
+              }}
               className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium hover:bg-white/30 transition-colors whitespace-nowrap"
             >
-              {label}
+              {item.label}
             </button>
           ))}
         </div>
