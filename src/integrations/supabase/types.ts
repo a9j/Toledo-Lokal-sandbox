@@ -1398,6 +1398,10 @@ export type Database = {
         }
       }
       check_ai_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      check_first_review_cooldown: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       check_global_lead_rate_limit: {
         Args: { _user_id: string }
         Returns: boolean
@@ -1406,6 +1410,8 @@ export type Database = {
         Args: { _business_id: string; _user_id: string }
         Returns: boolean
       }
+      check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       get_business_by_id: {
         Args: { business_id: string }
         Returns: {

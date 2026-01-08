@@ -92,8 +92,13 @@ export function ReviewsSection({ businessId, averageRating = 0, reviewCount = 0 
       setIsDialogOpen(false);
       toast.success('Review submitted!');
     },
-    onError: () => {
-      toast.error('Failed to submit review');
+    onError: (error: any) => {
+      const isRateLimit = error?.message?.includes('row-level security') || error?.code === '42501';
+      if (isRateLimit) {
+        toast.error('Slow down! You can only post 5 reviews per day, and new accounts must wait 1 hour before reviewing.');
+      } else {
+        toast.error('Failed to submit review');
+      }
     },
   });
 
