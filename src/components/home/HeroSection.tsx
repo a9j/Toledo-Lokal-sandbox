@@ -28,56 +28,66 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
   };
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-toledo-coral via-primary to-toledo-gold opacity-95" />
+    <div className="relative overflow-hidden min-h-[420px]">
+      {/* Modern gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-primary to-toledo-teal" />
       
-      {/* Decorative shapes */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+      {/* Animated mesh gradient overlay */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-toledo-coral rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-toledo-gold rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-500" />
+      </div>
+      
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
       
       {/* Content */}
-      <div className="relative px-4 pt-12 pb-8">
+      <div className="relative px-4 pt-14 pb-10">
+        {/* Brand badge */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+            <div className="w-2 h-2 rounded-full bg-toledo-coral animate-pulse" />
+            <span className="text-white/90 text-xs font-medium tracking-wider uppercase">Toledo, Ohio</span>
+          </div>
+        </div>
+        
         {/* Header text */}
         <div className="text-center mb-8">
-          <p className="text-white/80 text-sm font-medium mb-2 tracking-wide uppercase">
-            Discover Toledo, Ohio
-          </p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
-            Find Your Next<br />
-            <span className="text-white/90">Favorite Spot</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-[1.1] tracking-tight">
+            Toledo<span className="text-toledo-coral">Connect</span>
           </h1>
-          <p className="text-white/70 text-sm max-w-xs mx-auto">
-            Explore local businesses, events, and hidden gems in the Glass City
+          <p className="text-white/70 text-base max-w-sm mx-auto leading-relaxed">
+            Discover local businesses, events, and the best of the Glass City
           </p>
         </div>
 
-        {/* Search box */}
-        <div className="bg-white rounded-2xl shadow-soft-xl p-4 space-y-3 max-w-md mx-auto">
+        {/* Search box - modernized */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-5 space-y-4 max-w-md mx-auto border border-white/50">
           {/* Search input */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search places, events, deals..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-12 pl-10 pr-4 rounded-xl bg-secondary border-0 text-base"
+              className="h-14 pl-12 pr-4 rounded-2xl bg-secondary/50 border-0 text-base placeholder:text-muted-foreground/60"
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
 
           {/* Filters row */}
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Select value={neighborhood} onValueChange={setNeighborhood}>
-              <SelectTrigger className="flex-1 h-11 rounded-xl border-0 bg-secondary">
+              <SelectTrigger className="flex-1 h-12 rounded-xl border-0 bg-secondary/50">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <SelectValue placeholder="Neighborhood" />
+                  <SelectValue placeholder="Area" />
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Neighborhoods</SelectItem>
+                <SelectItem value="all">All Areas</SelectItem>
                 {neighborhoods?.map((n) => (
                   <SelectItem key={n.id} value={n.id}>
                     {n.name}
@@ -87,14 +97,14 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
             </Select>
 
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="flex-1 h-11 rounded-xl border-0 bg-secondary">
+              <SelectTrigger className="flex-1 h-12 rounded-xl border-0 bg-secondary/50">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <SlidersHorizontal className="h-4 w-4" />
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Type" />
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 {categories?.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -107,20 +117,21 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
           {/* Search button */}
           <Button 
             onClick={handleSearch}
-            className="w-full h-12 rounded-xl text-base font-semibold bg-primary hover:bg-primary/90"
+            className="w-full h-14 rounded-2xl text-base font-semibold bg-gradient-to-r from-primary to-toledo-teal hover:opacity-90 transition-opacity shadow-lg"
           >
             <Search className="h-5 w-5 mr-2" />
-            Search
+            Explore Toledo
           </Button>
         </div>
 
-        {/* Quick category chips */}
-        <div className="flex gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
+        {/* Quick category chips - modernized */}
+        <div className="flex gap-2 mt-8 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
           {[
-            { label: 'Restaurants', search: 'restaurant' },
-            { label: 'Coffee', search: 'coffee' },
-            { label: 'Events', path: '/events' },
-            { label: 'Museums', search: 'museum' },
+            { label: '🍽️ Restaurants', search: 'restaurant' },
+            { label: '☕ Coffee', search: 'coffee' },
+            { label: '🎉 Events', path: '/events' },
+            { label: '🎨 Arts', search: 'arts' },
+            { label: '🛍️ Shopping', search: 'shopping' },
           ].map((item) => (
             <button
               key={item.label}
@@ -131,7 +142,7 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
                   onSearch(item.search, {});
                 }
               }}
-              className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium hover:bg-white/30 transition-colors whitespace-nowrap"
+              className="px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-sm font-medium hover:bg-white/25 hover:scale-105 transition-all duration-200 whitespace-nowrap"
             >
               {item.label}
             </button>
