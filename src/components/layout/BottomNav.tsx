@@ -1,13 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Tag, Calendar, HelpCircle, User } from 'lucide-react';
+import { Home, Compass, Calendar, BookOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Home' },
-  { path: '/deals', icon: Tag, label: 'Deals' },
+  { path: '/explore', icon: Compass, label: 'Explore' },
   { path: '/events', icon: Calendar, label: 'Events' },
-  { path: '/requests', icon: HelpCircle, label: 'Requests' },
+  { path: '/programs', icon: BookOpen, label: 'Programs' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 

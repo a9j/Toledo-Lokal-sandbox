@@ -65,6 +65,7 @@ export type Database = {
           hours: Json | null
           id: string
           instagram: string | null
+          logo_url: string | null
           name: string
           neighborhood_id: string | null
           owner_user_id: string
@@ -84,6 +85,7 @@ export type Database = {
           hours?: Json | null
           id?: string
           instagram?: string | null
+          logo_url?: string | null
           name: string
           neighborhood_id?: string | null
           owner_user_id: string
@@ -103,6 +105,7 @@ export type Database = {
           hours?: Json | null
           id?: string
           instagram?: string | null
+          logo_url?: string | null
           name?: string
           neighborhood_id?: string | null
           owner_user_id?: string
@@ -151,6 +154,41 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          status: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          status?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           business_id: string
@@ -194,6 +232,38 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -356,6 +426,91 @@ export type Database = {
         }
         Relationships: []
       }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          business_id: string | null
+          comments_count: number | null
+          content: string
+          created_at: string
+          featured: boolean | null
+          id: string
+          images: string[] | null
+          likes_count: number | null
+          pinned: boolean | null
+          post_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          business_id?: string | null
+          comments_count?: number | null
+          content: string
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          likes_count?: number | null
+          pinned?: boolean | null
+          post_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          business_id?: string | null
+          comments_count?: number | null
+          content?: string
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          images?: string[] | null
+          likes_count?: number | null
+          pinned?: boolean | null
+          post_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -393,6 +548,91 @@ export type Database = {
             columns: ["neighborhood_id"]
             isOneToOne: false
             referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_signups: {
+        Row: {
+          created_at: string
+          id: string
+          program_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          program_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          program_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_signups_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          benefits: string | null
+          category_id: string | null
+          created_at: string
+          created_by_user_id: string | null
+          eligibility: string | null
+          featured: boolean | null
+          id: string
+          overview: string | null
+          signup_url: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          benefits?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          eligibility?: string | null
+          featured?: boolean | null
+          id?: string
+          overview?: string | null
+          signup_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          benefits?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          eligibility?: string | null
+          featured?: boolean | null
+          id?: string
+          overview?: string | null
+          signup_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programs_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -559,7 +799,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "resident" | "business" | "admin"
+      app_role: "resident" | "business" | "admin" | "organizer" | "nonprofit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -687,7 +927,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["resident", "business", "admin"],
+      app_role: ["resident", "business", "admin", "organizer", "nonprofit"],
     },
   },
 } as const
