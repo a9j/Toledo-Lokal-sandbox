@@ -73,6 +73,7 @@ export type Database = {
           phone: string | null
           photos: string[] | null
           status: string
+          story: string | null
           updated_at: string
           verified: boolean | null
           website: string | null
@@ -94,6 +95,7 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           status?: string
+          story?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -115,6 +117,7 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           status?: string
+          story?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null

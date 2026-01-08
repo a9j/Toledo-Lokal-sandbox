@@ -16,12 +16,27 @@ import {
   Clock, 
   CheckCircle,
   ArrowLeft,
-  Building2
+  Building2,
+  Heart
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { useState } from 'react';
+
+// Day order for displaying hours
+const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_LABELS: Record<string, string> = {
+  monday: 'Mon',
+  tuesday: 'Tue',
+  wednesday: 'Wed',
+  thursday: 'Thu',
+  friday: 'Fri',
+  saturday: 'Sat',
+  sunday: 'Sun'
+};
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
@@ -82,12 +97,19 @@ export default function BusinessDetail() {
     return (LucideIcons as Record<string, any>)[name] || Building2;
   };
 
+  // Parse hours if available
+  const parseHours = (hours: unknown): Record<string, { open: string; close: string } | null> | null => {
+    if (!hours || typeof hours !== 'object') return null;
+    return hours as Record<string, { open: string; close: string } | null>;
+  };
+
   if (isLoading) {
     return (
       <>
         <Header title="Business" />
         <PageContainer>
-          <Skeleton className="h-40 rounded-2xl mb-4" />
+          <Skeleton className="h-56 rounded-2xl mb-4" />
+          <Skeleton className="h-24 rounded-xl mb-4" />
           <Skeleton className="h-20 rounded-xl mb-2" />
           <Skeleton className="h-20 rounded-xl" />
         </PageContainer>
@@ -112,6 +134,9 @@ export default function BusinessDetail() {
   }
 
   const Icon = getIcon(business.category?.icon);
+  const photos = business.photos && business.photos.length > 0 ? business.photos : [];
+  const hasPhotos = photos.length > 0;
+  const parsedHours = parseHours(business.hours);
 
   return (
     <>
@@ -123,17 +148,81 @@ export default function BusinessDetail() {
           Back to Explore
         </Link>
 
-        {/* Header */}
-        <div className="flex items-start gap-4">
-          <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0">
-            {business.logo_url ? (
-              <img src={business.logo_url} alt={business.name} className="w-full h-full object-cover rounded-2xl" />
-            ) : (
-              <Icon className="h-8 w-8 text-foreground" />
+        {/* Photo Gallery */}
+        {hasPhotos ? (
+          <div className="space-y-3">
+            {/* Main Photo */}
+            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-secondary">
+              <img 
+                src={photos[selectedPhotoIndex]} 
+                alt={`${business.name} photo ${selectedPhotoIndex + 1}`}
+                className="w-full h-full object-cover"
+              />
+              {business.featured && (
+                <Badge className="absolute top-3 left-3 bg-warning text-warning-foreground">
+                  Featured
+                </Badge>
+              )}
+            </div>
+            
+            {/* Thumbnail Strip */}
+            {photos.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {photos.map((photo, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedPhotoIndex(index)}
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedPhotoIndex === index 
+                        ? 'border-primary ring-2 ring-primary/20' 
+                        : 'border-transparent opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img 
+                      src={photo} 
+                      alt={`${business.name} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
+        ) : (
+          /* Fallback header when no photos */
+          <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-primary/10 to-secondary flex items-center justify-center">
+            <div className="text-center">
+              {business.logo_url ? (
+                <img 
+                  src={business.logo_url} 
+                  alt={business.name} 
+                  className="w-24 h-24 rounded-2xl object-cover mx-auto mb-3"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-3">
+                  <Icon className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
+              {business.featured && (
+                <Badge className="bg-warning text-warning-foreground">Featured</Badge>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Business Info Header */}
+        <div className="flex items-start gap-4">
+          {hasPhotos && (
+            <div className="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 border-2 border-background shadow-md -mt-10 relative z-10">
+              {business.logo_url ? (
+                <img src={business.logo_url} alt={business.name} className="w-full h-full object-cover rounded-xl" />
+              ) : (
+                <Icon className="h-6 w-6 text-foreground" />
+              )}
+            </div>
+          )}
           
-          <div className="flex-1 min-w-0">
+          <div className={`flex-1 min-w-0 ${hasPhotos ? '-mt-2' : ''}`}>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="text-xl font-bold truncate">{business.name}</h1>
               {business.verified && (
@@ -145,23 +234,54 @@ export default function BusinessDetail() {
               <p className="text-muted-foreground">{business.category.name}</p>
             )}
             
-            <div className="flex items-center gap-2 mt-2">
-              {business.featured && (
-                <Badge variant="secondary" className="bg-warning/10 text-warning">Featured</Badge>
-              )}
-              {business.neighborhood && (
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {business.neighborhood.name}
-                </span>
-              )}
-            </div>
+            {business.neighborhood && (
+              <span className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                <MapPin className="h-3 w-3" />
+                {business.neighborhood.name}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Description */}
         {business.description && (
-          <p className="text-foreground">{business.description}</p>
+          <p className="text-foreground leading-relaxed">{business.description}</p>
+        )}
+
+        {/* Our Story Section */}
+        {business.story && (
+          <section className="card-elevated p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-primary" />
+              <h2 className="font-semibold text-lg">Our Story</h2>
+            </div>
+            <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
+              {business.story}
+            </p>
+          </section>
+        )}
+
+        {/* Hours */}
+        {parsedHours && (
+          <section className="card-elevated p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="h-5 w-5 text-muted-foreground" />
+              <h2 className="font-semibold">Hours</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+              {DAY_ORDER.map(day => {
+                const dayHours = parsedHours[day];
+                return (
+                  <div key={day} className="contents">
+                    <span className="text-muted-foreground">{DAY_LABELS[day]}</span>
+                    <span className="text-foreground">
+                      {dayHours ? `${dayHours.open} - ${dayHours.close}` : 'Closed'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
 
         {/* Contact info */}
