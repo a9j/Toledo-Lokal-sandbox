@@ -29,33 +29,33 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
 
   return (
     <div className="relative overflow-hidden min-h-[420px]">
-      {/* Modern gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-primary to-toledo-teal" />
+      {/* Soft pastel gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-toledo-sage via-toledo-lavender to-toledo-rose opacity-90" />
       
-      {/* Animated mesh gradient overlay */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-toledo-coral rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-toledo-gold rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-accent rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-500" />
+      {/* Soft animated blobs */}
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute top-0 left-1/4 w-80 h-80 bg-toledo-cream rounded-full mix-blend-overlay filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-toledo-lavender-light rounded-full mix-blend-overlay filter blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
       </div>
       
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      {/* Subtle texture overlay */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '32px 32px' }} />
       
       {/* Content */}
       <div className="relative px-4 pt-14 pb-10">
         {/* Brand badge */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-            <div className="w-2 h-2 rounded-full bg-toledo-coral animate-pulse" />
-            <span className="text-white/90 text-xs font-medium tracking-wider uppercase">Toledo, Ohio</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/30 backdrop-blur-md border border-white/40">
+            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="text-white text-xs font-medium tracking-wider uppercase">Toledo, Ohio</span>
           </div>
         </div>
         
         {/* Header text */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-[1.1] tracking-tight">
-            Toledo<span className="text-toledo-coral">Connect</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-[1.1] tracking-tight drop-shadow-sm">
+            Toledo<span className="text-toledo-cream">Connect</span>
           </h1>
           <p className="text-white/70 text-base max-w-sm mx-auto leading-relaxed">
             Discover local businesses, events, and the best of the Glass City
@@ -117,7 +117,7 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
           {/* Search button */}
           <Button 
             onClick={handleSearch}
-            className="w-full h-14 rounded-2xl text-base font-semibold bg-gradient-to-r from-primary to-toledo-teal hover:opacity-90 transition-opacity shadow-lg"
+            className="w-full h-14 rounded-2xl text-base font-semibold bg-gradient-to-r from-primary to-toledo-lavender text-white hover:opacity-90 transition-opacity shadow-lg"
           >
             <Search className="h-5 w-5 mr-2" />
             Explore Toledo
