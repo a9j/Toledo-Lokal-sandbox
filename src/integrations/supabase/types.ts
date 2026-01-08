@@ -1319,6 +1319,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_global_lead_rate_limit: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      check_lead_rate_limit: {
+        Args: { _business_id: string; _user_id: string }
+        Returns: boolean
+      }
       get_business_by_id: {
         Args: { business_id: string }
         Returns: {
