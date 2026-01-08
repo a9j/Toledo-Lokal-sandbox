@@ -346,6 +346,27 @@ export type Database = {
           },
         ]
       }
+      early_adopters: {
+        Row: {
+          granted_at: string
+          id: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          id?: string
+          tier?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          id?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_rsvps: {
         Row: {
           created_at: string
