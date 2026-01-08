@@ -12,7 +12,8 @@ import {
   Car,
   Briefcase,
   Calendar,
-  Home
+  Home,
+  HeartHandshake
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -28,6 +29,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'briefcase': Briefcase,
   'calendar': Calendar,
   'home': Home,
+  'heart-handshake': HeartHandshake,
 };
 
 const colorMap: Record<string, string> = {
@@ -39,6 +41,7 @@ const colorMap: Record<string, string> = {
   'Events & Venues': 'bg-indigo-50 text-indigo-600',
   'Home Services': 'bg-amber-50 text-amber-600',
   'Local Pros': 'bg-teal-50 text-teal-600',
+  'Volunteer & Nonprofit': 'bg-rose-50 text-rose-600',
 };
 
 export function CategoryGrid() {
