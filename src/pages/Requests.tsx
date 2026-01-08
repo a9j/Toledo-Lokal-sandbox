@@ -134,6 +134,7 @@ export default function Requests() {
                       name="title" 
                       placeholder="e.g., Need snow shoveling help"
                       required 
+                      maxLength={200}
                     />
                   </div>
                   
@@ -144,6 +145,7 @@ export default function Requests() {
                       name="description" 
                       placeholder="Describe what you need..."
                       rows={3}
+                      maxLength={2000}
                     />
                   </div>
                   

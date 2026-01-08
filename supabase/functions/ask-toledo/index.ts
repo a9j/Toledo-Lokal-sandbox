@@ -13,6 +13,59 @@ serve(async (req) => {
   }
 
   try {
+    // =============================================
+    // SECURITY: Authenticate the user
+    // =============================================
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Authentication required. Please sign in to use the chat." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    
+    // Create client with user's token to verify auth
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired session. Please sign in again." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Authenticated user: ${user.id}`);
+
+    // =============================================
+    // SECURITY: Check rate limit
+    // =============================================
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const { data: withinLimit, error: rateLimitError } = await supabaseAdmin.rpc('check_ai_rate_limit', {
+      _user_id: user.id
+    });
+
+    if (rateLimitError) {
+      console.error("Rate limit check failed:", rateLimitError);
+      // Continue anyway - don't block users due to rate limit check errors
+    } else if (!withinLimit) {
+      console.log(`User ${user.id} exceeded rate limit`);
+      return new Response(
+        JSON.stringify({ error: "Daily message limit reached. Please try again tomorrow." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -20,17 +73,12 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Fetch context from database
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get businesses, events, deals for context
+    // Get businesses, events, deals for context (using service role for efficiency)
     const [businessesRes, eventsRes, dealsRes, neighborhoodsRes] = await Promise.all([
-      supabase.from('businesses').select('name, description, address, category:categories(name), neighborhood:neighborhoods(name)').eq('status', 'approved').limit(50),
-      supabase.from('events').select('title, description, location_text, start_date_time').eq('status', 'approved').gte('start_date_time', new Date().toISOString()).limit(20),
-      supabase.from('deals').select('title, description, business:businesses(name)').eq('status', 'approved').limit(20),
-      supabase.from('neighborhoods').select('name').limit(20),
+      supabaseAdmin.from('businesses').select('name, description, address, category:categories(name), neighborhood:neighborhoods(name)').eq('status', 'approved').limit(50),
+      supabaseAdmin.from('events').select('title, description, location_text, start_date_time').eq('status', 'approved').gte('start_date_time', new Date().toISOString()).limit(20),
+      supabaseAdmin.from('deals').select('title, description, business:businesses(name)').eq('status', 'approved').limit(20),
+      supabaseAdmin.from('neighborhoods').select('name').limit(20),
     ]);
 
     const businesses = businessesRes.data || [];
@@ -75,7 +123,7 @@ Guidelines:
 
 ${contextString}`;
 
-    console.log("Calling Lovable AI with context...");
+    console.log(`User ${user.id} calling Lovable AI with context...`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

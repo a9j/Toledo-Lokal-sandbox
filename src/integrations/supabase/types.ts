@@ -50,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_chat_usage: {
+        Row: {
+          created_at: string
+          id: string
+          message_count: number
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_count?: number
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_count?: number
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       boosts: {
         Row: {
           amount_paid: number
@@ -1373,6 +1397,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      check_ai_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_global_lead_rate_limit: {
         Args: { _user_id: string }
         Returns: boolean
@@ -1442,6 +1467,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_ticket_purchase_from_webhook: {
+        Args: {
+          _new_status: string
+          _payment_intent_id: string
+          _purchase_id: string
+          _session_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
