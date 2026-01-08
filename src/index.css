@@ -1,129 +1,124 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Toledo Hub Design System - Warm, Modern, Human */
+/* Toledo Hub Design System - Editorial, Clean, Magazine-like */
 
 @layer base {
   :root {
-    /* Core background - warm off-white */
-    --background: 40 20% 98%;
-    --foreground: 220 25% 12%;
+    /* Pure white/neutral backgrounds */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
 
     /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card-foreground: 0 0% 8%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover-foreground: 0 0% 8%;
 
-    /* Primary - Toledo Coral/Terracotta */
-    --primary: 12 76% 61%;
+    /* Primary - Deep charcoal for sophistication */
+    --primary: 0 0% 12%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Soft warm gray */
-    --secondary: 40 15% 94%;
-    --secondary-foreground: 220 20% 25%;
+    --secondary: 40 10% 96%;
+    --secondary-foreground: 0 0% 20%;
 
     /* Muted backgrounds */
-    --muted: 40 10% 94%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 40 5% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Accent - Toledo Teal */
-    --accent: 175 60% 40%;
+    /* Accent - Warm terracotta for Toledo's artistic vibe */
+    --accent: 16 70% 52%;
     --accent-foreground: 0 0% 100%;
 
     /* Semantic colors */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 69% 40%;
+    --success: 145 65% 42%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 55%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 8%;
 
     /* Borders & inputs */
-    --border: 40 15% 90%;
-    --input: 40 15% 90%;
-    --ring: 12 76% 61%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 16 70% 52%;
 
-    /* Radius - modern rounded */
-    --radius: 1rem;
+    /* Radius - refined */
+    --radius: 0.75rem;
 
     /* Sidebar */
     --sidebar-background: 0 0% 99%;
-    --sidebar-foreground: 220 15% 30%;
-    --sidebar-primary: 12 76% 61%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 0 0% 12%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 15% 94%;
-    --sidebar-accent-foreground: 220 20% 25%;
-    --sidebar-border: 40 15% 90%;
-    --sidebar-ring: 12 76% 61%;
+    --sidebar-accent: 40 10% 96%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 16 70% 52%;
 
-    /* Toledo-specific palette */
-    --toledo-coral: 12 76% 61%;
-    --toledo-coral-light: 12 76% 95%;
-    --toledo-teal: 175 60% 40%;
-    --toledo-teal-light: 175 60% 95%;
-    --toledo-navy: 220 60% 25%;
-    --toledo-gold: 42 87% 55%;
-    --toledo-purple: 270 50% 55%;
+    /* Toledo palette - muted, editorial */
+    --toledo-coral: 16 70% 52%;
+    --toledo-coral-light: 16 70% 97%;
+    --toledo-teal: 175 50% 38%;
+    --toledo-teal-light: 175 50% 96%;
+    --toledo-navy: 220 50% 18%;
+    --toledo-gold: 42 80% 50%;
+    --toledo-purple: 270 40% 50%;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(12 76% 61%) 0%, hsl(30 80% 55%) 50%, hsl(42 87% 55%) 100%);
-    --gradient-teal: linear-gradient(135deg, hsl(175 60% 40%) 0%, hsl(190 70% 45%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(12 76% 61%) 0%, hsl(330 60% 55%) 100%);
-    
-    --featured: 42 87% 55%;
-    --verified: 175 60% 40%;
+    --featured: 42 80% 50%;
+    --verified: 175 50% 38%;
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 40 15% 96%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 96%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 40 15% 96%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 40 15% 96%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 12 76% 65%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 40 15% 96%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
 
-    --accent: 175 60% 50%;
+    --accent: 16 70% 58%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 12 76% 65%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 16 70% 58%;
 
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 40 15% 96%;
-    --sidebar-primary: 12 76% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 18%;
-    --sidebar-accent-foreground: 40 15% 96%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 12 76% 65%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 0 0% 96%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 16 70% 58%;
 
-    --toledo-coral: 12 76% 65%;
-    --toledo-coral-light: 12 30% 20%;
-    --toledo-teal: 175 60% 50%;
-    --toledo-teal-light: 175 30% 20%;
+    --toledo-coral: 16 70% 58%;
+    --toledo-coral-light: 16 30% 15%;
+    --toledo-teal: 175 50% 45%;
+    --toledo-teal-light: 175 30% 15%;
   }
 }
 
@@ -134,7 +129,12 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
   }
 
   /* iOS-style safe areas */
@@ -148,83 +148,72 @@
 }
 
 @layer components {
-  /* Elevated card with warm shadow */
+  /* Refined card with subtle shadow */
   .card-elevated {
-    @apply bg-card rounded-2xl;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 12px 0 rgba(0, 0, 0, 0.03);
+    @apply bg-card rounded-xl border border-border/50;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   }
 
   .card-elevated-lg {
-    @apply bg-card rounded-3xl;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+    @apply bg-card rounded-2xl border border-border/50;
+    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
   }
 
-  /* Hover effects */
+  /* Hover effects - more subtle */
   .hover-lift {
     @apply transition-all duration-300 ease-out;
   }
   .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
   }
 
   .hover-scale {
     @apply transition-transform duration-300 ease-out;
   }
   .hover-scale:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
   }
 
-  /* Featured badge */
+  /* Featured badge - editorial style */
   .badge-featured {
-    @apply text-xs font-semibold px-2.5 py-1 rounded-full;
-    background: linear-gradient(135deg, hsl(42 87% 55%) 0%, hsl(30 80% 55%) 100%);
-    color: white;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-toledo-gold text-foreground;
   }
 
   /* Verified badge */
   .badge-verified {
-    @apply text-xs font-semibold px-2.5 py-1 rounded-full;
-    background: linear-gradient(135deg, hsl(175 60% 40%) 0%, hsl(190 70% 45%) 100%);
-    color: white;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-toledo-teal text-white;
   }
 
   /* Open now badge */
   .badge-open {
-    @apply bg-success/15 text-success text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-success/10 text-success text-xs font-medium px-2 py-0.5 rounded-full;
   }
 
-  /* Category chip */
+  /* Category chip - minimal */
   .category-chip {
-    @apply flex flex-col items-center gap-2 p-4 rounded-2xl bg-card transition-all duration-200;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    @apply flex flex-col items-center gap-2 p-3 rounded-xl bg-secondary/50 transition-all duration-200;
   }
   .category-chip:hover {
     @apply bg-secondary;
-    transform: translateY(-2px);
-  }
-
-  /* Hero gradient overlay */
-  .hero-gradient {
-    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
   }
 
   /* Glass effect */
   .glass {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   /* Image overlay gradient */
   .image-overlay {
-    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+    background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.6) 100%);
   }
 
   /* Scrollbar hide */
@@ -236,27 +225,44 @@
     display: none;
   }
 
-  /* Section label */
+  /* Section label - editorial */
   .section-label {
-    @apply text-xs font-bold uppercase tracking-wider;
-    color: hsl(var(--primary));
+    @apply text-xs font-semibold uppercase tracking-widest text-muted-foreground;
+  }
+
+  /* Editorial heading */
+  .heading-editorial {
+    font-family: 'Instrument Serif', Georgia, serif;
+    @apply text-3xl md:text-4xl font-normal tracking-tight;
   }
 
   /* Rich listing card image */
   .listing-image {
-    @apply w-full aspect-[4/3] object-cover rounded-2xl;
+    @apply w-full aspect-[4/3] object-cover rounded-xl;
+  }
+
+  /* Link hover underline */
+  .link-underline {
+    @apply relative;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute left-0 bottom-0 w-0 h-px bg-current transition-all duration-300;
+  }
+  .link-underline:hover::after {
+    @apply w-full;
   }
 }
 
 /* Custom animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50% { opacity: 0.6; }
 }
 
 .animate-float {
