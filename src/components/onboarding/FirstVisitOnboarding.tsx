@@ -170,7 +170,7 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
           className="text-muted-foreground"
           onClick={handleComplete}
         >
-          Skip
+          {isLastStep ? 'Done' : 'Skip'}
         </Button>
       </div>
 
