@@ -13,9 +13,11 @@ import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboardi
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { useBusinesses } from '@/hooks/useBusinesses';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Index() {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { data: upcomingEvents, isLoading: eventsLoading } = useEvents({ limit: 6 });
   const { data: deals, isLoading: dealsLoading } = useDeals({ limit: 4 });
@@ -23,11 +25,20 @@ export default function Index() {
   const { data: newBusinesses, isLoading: newLoading } = useBusinesses({ limit: 6 });
 
   useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('onboarding-completed');
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
+    // Skip onboarding for logged-in users or if already completed
+    if (authLoading) return;
+    
+    if (user) {
+      // User is logged in, mark onboarding as complete and skip
+      localStorage.setItem('onboarding-completed', 'true');
+      setShowOnboarding(false);
+    } else {
+      const hasSeenOnboarding = localStorage.getItem('onboarding-completed');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
     }
-  }, []);
+  }, [user, authLoading]);
 
   const handleSearch = (query: string, filters: { neighborhood?: string; category?: string }) => {
     const params = new URLSearchParams();
