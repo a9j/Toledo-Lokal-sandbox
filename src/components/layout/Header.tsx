@@ -2,6 +2,7 @@ import { Search, Bell, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import tlLogo from '@/assets/tl-logo.png';
 
 interface HeaderProps {
   title?: string;
@@ -26,7 +27,10 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
           {showBack && title ? (
             <h1 className="text-lg font-semibold">{title}</h1>
           ) : (
-            <h1 className="text-lg font-bold tracking-tight">Toledo<span className="text-primary">Connect</span></h1>
+            <Link to="/" className="flex items-center gap-2">
+              <img src={tlLogo} alt="ToledoLokal" className="h-8 w-8 rounded-lg" />
+              <h1 className="text-lg font-bold tracking-tight">Toledo<span className="text-primary">Lokal</span></h1>
+            </Link>
           )}
         </div>
 
