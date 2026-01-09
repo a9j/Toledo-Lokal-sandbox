@@ -6,13 +6,24 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight } from 'lucide-react';
+import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share } from 'lucide-react';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isBusiness } = useAuth();
   const navigate = useNavigate();
+  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+
+  const handleInstallClick = async () => {
+    if (isIOS) {
+      setShowIOSInstructions(true);
+    } else {
+      await promptInstall();
+    }
+  };
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -154,7 +165,45 @@ export default function Profile() {
               </div>
             </Link>
           )}
+
+          {/* Install App option - show if not installed */}
+          {!isInstalled && (canInstall || isIOS) && (
+            <button 
+              onClick={handleInstallClick}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
+            >
+              <Download className="h-5 w-5 text-primary" />
+              <span className="flex-1 font-medium">Install App</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          )}
         </div>
+
+        {/* iOS Instructions Modal */}
+        {showIOSInstructions && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-background rounded-2xl p-6 max-w-sm w-full space-y-4">
+              <h3 className="text-lg font-semibold">Install Toledo Connect</h3>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">1</div>
+                  <p>Tap the <Share className="inline h-4 w-4" /> Share button in Safari</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">2</div>
+                  <p>Scroll down and tap "Add to Home Screen"</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">3</div>
+                  <p>Tap "Add" to install</p>
+                </div>
+              </div>
+              <Button onClick={() => setShowIOSInstructions(false)} className="w-full">
+                Got it
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Sign out */}
         <Button 
