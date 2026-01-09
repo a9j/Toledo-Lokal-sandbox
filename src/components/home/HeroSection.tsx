@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useCategories } from '@/hooks/useCategories';
+import tlLogo from '@/assets/tl-logo.png';
 
 interface HeroSectionProps {
   onSearch: (query: string, filters: { neighborhood?: string; category?: string }) => void;
@@ -59,6 +60,9 @@ export function HeroSection({ onSearch }: HeroSectionProps) {
         
         {/* Header text */}
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img src={tlLogo} alt="ToledoLokal" className="h-16 w-16 rounded-2xl shadow-lg" />
+          </div>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 leading-[1.1] tracking-tight">
             Toledo<span className="text-lokal-amber">Lokal</span>
           </h1>
