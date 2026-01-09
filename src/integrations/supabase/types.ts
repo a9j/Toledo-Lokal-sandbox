@@ -1540,6 +1540,7 @@ export type Database = {
         Row: {
           business_id: string | null
           contact_info: string | null
+          contact_info_masked: string | null
           created_at: string | null
           id: string | null
           message: string | null
@@ -1551,7 +1552,8 @@ export type Database = {
         }
         Insert: {
           business_id?: string | null
-          contact_info?: never
+          contact_info?: string | null
+          contact_info_masked?: never
           created_at?: string | null
           id?: string | null
           message?: string | null
@@ -1563,7 +1565,8 @@ export type Database = {
         }
         Update: {
           business_id?: string | null
-          contact_info?: never
+          contact_info?: string | null
+          contact_info_masked?: never
           created_at?: string | null
           id?: string | null
           message?: string | null
