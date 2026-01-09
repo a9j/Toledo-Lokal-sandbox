@@ -13,6 +13,39 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid Authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify the user's session
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: authError } = await supabaseAuth.auth.getUser(token);
+    
+    if (authError || !claimsData?.user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: "Invalid session" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.user.id;
+    console.log(`Authenticated user: ${userId}`);
+
     const { filePath, expiresIn = 3600 } = await req.json();
 
     if (!filePath) {
@@ -23,18 +56,27 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Generating signed URL for: ${filePath}, expires in: ${expiresIn}s`);
+    // Validate file path to prevent directory traversal
+    if (filePath.includes("..") || filePath.startsWith("/")) {
+      console.error("Invalid file path detected:", filePath);
+      return new Response(
+        JSON.stringify({ error: "Invalid file path" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate expiration time (max 1 hour for security)
+    const safeExpiresIn = Math.min(Math.max(60, expiresIn), 3600);
+
+    console.log(`Generating signed URL for: ${filePath}, expires in: ${safeExpiresIn}s, user: ${userId}`);
 
     // Use service role to generate signed URLs (required for private buckets)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Generate signed URL
     const { data, error } = await supabase.storage
       .from("uploads")
-      .createSignedUrl(filePath, expiresIn);
+      .createSignedUrl(filePath, safeExpiresIn);
 
     if (error) {
       console.error("Error creating signed URL:", error);
@@ -44,7 +86,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Signed URL generated successfully");
+    console.log("Signed URL generated successfully for user:", userId);
     
     return new Response(
       JSON.stringify({ signedUrl: data.signedUrl }),
