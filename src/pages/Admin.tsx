@@ -31,7 +31,8 @@ import {
   Shield,
   Image as ImageIcon,
   Pencil,
-  BarChart3
+  BarChart3,
+  Award
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -499,9 +500,19 @@ export default function Admin() {
                       </Button>
                       <Button
                         size="sm"
+                        variant={biz.editor_pick_image ? "secondary" : "ghost"}
+                        onClick={() => openEditDialog('business', biz)}
+                        className="gap-1"
+                        title="Editor's Pick"
+                      >
+                        <Award className={`h-4 w-4 ${biz.editor_pick_image ? 'fill-current text-primary' : ''}`} />
+                      </Button>
+                      <Button
+                        size="sm"
                         variant={biz.featured ? "secondary" : "ghost"}
                         onClick={() => updateBusinessStatus.mutate({ id: biz.id, featured: !biz.featured })}
                         className="gap-1"
+                        title="Featured"
                       >
                         <Star className={`h-4 w-4 ${biz.featured ? 'fill-current' : ''}`} />
                       </Button>
