@@ -26,21 +26,25 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
   const hasLoopFeatures = tierConfig.loopFeatures && tierConfig.loopFeatures.length > 0;
 
   return (
-    <Card className={cn(
-      "relative flex flex-col overflow-hidden",
-      isCurrentPlan && "border-primary ring-2 ring-primary/20",
-      isPopular && !isCurrentPlan && "border-primary/50"
+    <div className={cn(
+      "relative",
+      (isPopular || isCurrentPlan) && "pt-3"
     )}>
-      {isPopular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary whitespace-nowrap z-10">
+      {isPopular && !isCurrentPlan && (
+        <Badge className="absolute top-0 left-1/2 -translate-x-1/2 bg-primary whitespace-nowrap z-10">
           Most Popular
         </Badge>
       )}
       {isCurrentPlan && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 whitespace-nowrap z-10">
+        <Badge className="absolute top-0 left-1/2 -translate-x-1/2 bg-green-600 whitespace-nowrap z-10">
           Current Plan
         </Badge>
       )}
+      <Card className={cn(
+        "relative flex flex-col h-full",
+        isCurrentPlan && "border-primary ring-2 ring-primary/20",
+        isPopular && !isCurrentPlan && "border-primary/50"
+      )}>
       
       <CardHeader className="text-center pb-2 px-4">
         <div className="mx-auto mb-2 p-2 rounded-full bg-muted w-fit">
@@ -112,6 +116,7 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
           </Button>
         )}
       </CardFooter>
-    </Card>
+      </Card>
+    </div>
   );
 }
