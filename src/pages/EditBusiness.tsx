@@ -316,75 +316,62 @@ export default function EditBusiness() {
             </div>
           </div>
 
-          {/* Main Photo Upload - Prominent Section */}
-          <div className="card-elevated p-4 border-2 border-dashed border-primary/30 bg-primary/5">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold">📸 Feed Photo</Label>
-                <Badge variant="outline" className="text-xs">Important</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                This is the main image customers see when browsing the feed and search results.
-              </p>
+          {/* Images Section - Two Side by Side */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Logo */}
+            <div className="card-elevated p-3 space-y-2">
+              <Label className="text-sm font-medium">Logo</Label>
+              {logoUrl ? (
+                <div className="relative">
+                  <SecureImage
+                    storagePath={logoUrl}
+                    alt="Business logo"
+                    className="w-full aspect-square object-contain rounded-lg border border-border bg-muted/30"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6"
+                    onClick={() => setLogoUrl(null)}
+                  >
+                    <span className="sr-only">Remove</span>×
+                  </Button>
+                </div>
+              ) : (
+                <ImageUpload
+                  onUpload={(url) => setLogoUrl(url)}
+                  folder="businesses/logos"
+                  label="Upload"
+                />
+              )}
+            </div>
+
+            {/* Feed Photo */}
+            <div className="card-elevated p-3 space-y-2">
+              <Label className="text-sm font-medium">Feed Photo</Label>
               {mainPhoto ? (
-                <div className="space-y-2">
+                <div className="relative">
                   <SecureImage
                     storagePath={mainPhoto}
-                    alt="Business main photo"
-                    className="w-full h-40 object-cover rounded-lg"
+                    alt="Feed photo"
+                    className="w-full aspect-square object-cover rounded-lg"
                   />
                   <Button
                     type="button" 
-                    variant="outline" 
-                    size="sm"
+                    variant="destructive" 
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6"
                     onClick={() => setMainPhoto(null)}
                   >
-                    Change Photo
+                    <span className="sr-only">Remove</span>×
                   </Button>
                 </div>
               ) : (
                 <ImageUpload
                   onUpload={(url) => setMainPhoto(url)}
                   folder="businesses"
-                  label="Upload Feed Photo"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Logo Upload Section */}
-          <div className="card-elevated p-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold">🏢 Business Logo</Label>
-                <span className="text-xs text-muted-foreground">(Optional)</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Your logo appears on your business profile and in search results.
-              </p>
-              {logoUrl ? (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-4">
-                    <SecureImage
-                      storagePath={logoUrl}
-                      alt="Business logo"
-                      className="w-20 h-20 object-contain rounded-lg border border-border bg-muted/30"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setLogoUrl(null)}
-                    >
-                      Change Logo
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <ImageUpload
-                  onUpload={(url) => setLogoUrl(url)}
-                  folder="businesses/logos"
-                  label="Upload Logo"
+                  label="Upload"
                 />
               )}
             </div>
