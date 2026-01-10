@@ -44,8 +44,8 @@ export function BusinessCard({ business }: BusinessCardProps) {
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-semibold text-foreground truncate">{business.name}</h3>
+            <div className="flex items-start gap-2 mb-0.5">
+              <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{business.name}</h3>
               {business.verified && (
                 <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
               )}
