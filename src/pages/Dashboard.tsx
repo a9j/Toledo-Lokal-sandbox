@@ -16,11 +16,13 @@ import {
   AlertCircle,
   QrCode,
   Gift,
-  ClipboardCheck
+  ClipboardCheck,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
+import { StaffManagement } from '@/components/staff/StaffManagement';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -120,6 +122,12 @@ export default function Dashboard() {
       label: 'Pending Confirmations', 
       href: '/dashboard/pending-scans',
       subtitle: 'Confirm customer scans'
+    },
+    { 
+      icon: Users, 
+      label: 'Staff & Scanners', 
+      href: '/dashboard/staff',
+      subtitle: 'Manage who can scan'
     },
     { 
       icon: CreditCard, 

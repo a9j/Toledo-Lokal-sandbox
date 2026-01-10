@@ -33,6 +33,9 @@ import BusinessQRCodes from "./pages/BusinessQRCodes";
 import BusinessRewards from "./pages/BusinessRewards";
 import ScanQR from "./pages/ScanQR";
 import PendingScans from "./pages/PendingScans";
+import DashboardStaff from "./pages/DashboardStaff";
+import ScannerMode from "./pages/ScannerMode";
+import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
@@ -64,6 +67,7 @@ const App = () => (
                 <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
                 <Route path="/dashboard/rewards" element={<BusinessRewards />} />
                 <Route path="/dashboard/pending-scans" element={<PendingScans />} />
+                <Route path="/dashboard/staff" element={<DashboardStaff />} />
                 <Route path="/dashboard/subscription" element={<Subscription />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/tours" element={<Tours />} />
@@ -75,6 +79,8 @@ const App = () => (
                 <Route path="/loop-wallet" element={<LoopWallet />} />
                 <Route path="/wallet" element={<LoopWallet />} />
                 <Route path="/scan/:qrCodeId" element={<ScanQR />} />
+                <Route path="/scanner-mode" element={<ScannerMode />} />
+                <Route path="/accept-invitation" element={<AcceptInvitation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <BottomNav />
