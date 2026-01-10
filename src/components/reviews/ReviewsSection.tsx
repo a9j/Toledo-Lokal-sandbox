@@ -19,11 +19,12 @@ import {
 
 interface ReviewsSectionProps {
   businessId: string;
+  businessOwnerId?: string;
   averageRating?: number;
   reviewCount?: number;
 }
 
-export function ReviewsSection({ businessId, averageRating = 0, reviewCount = 0 }: ReviewsSectionProps) {
+export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0, reviewCount = 0 }: ReviewsSectionProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -103,6 +104,7 @@ export function ReviewsSection({ businessId, averageRating = 0, reviewCount = 0 
   });
 
   const hasReviewed = !!userReview;
+  const isBusinessOwner = user?.id === businessOwnerId;
 
   return (
     <section className="space-y-4">
@@ -118,7 +120,7 @@ export function ReviewsSection({ businessId, averageRating = 0, reviewCount = 0 
           </div>
         </div>
 
-        {user && !hasReviewed && (
+        {user && !hasReviewed && !isBusinessOwner && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="rounded-xl gap-2">
@@ -155,7 +157,7 @@ export function ReviewsSection({ businessId, averageRating = 0, reviewCount = 0 
         <div className="text-center py-8 bg-secondary/30 rounded-xl">
           <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
           <p className="text-muted-foreground">No reviews yet</p>
-          {user && !hasReviewed && (
+          {user && !hasReviewed && !isBusinessOwner && (
             <p className="text-sm text-muted-foreground mt-1">Be the first to review!</p>
           )}
         </div>

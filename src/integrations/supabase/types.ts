@@ -290,6 +290,7 @@ export type Database = {
           created_at: string
           description: string | null
           editor_pick_image: string | null
+          facebook: string | null
           featured: boolean | null
           hours: Json | null
           id: string
@@ -304,6 +305,7 @@ export type Database = {
           slug: string | null
           status: string
           story: string | null
+          tiktok: string | null
           updated_at: string
           verified: boolean | null
           website: string | null
@@ -315,6 +317,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
+          facebook?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string
@@ -329,6 +332,7 @@ export type Database = {
           slug?: string | null
           status?: string
           story?: string | null
+          tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -340,6 +344,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
+          facebook?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string
@@ -354,6 +359,7 @@ export type Database = {
           slug?: string | null
           status?: string
           story?: string | null
+          tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
