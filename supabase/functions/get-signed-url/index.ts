@@ -14,39 +14,26 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify authentication
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      console.error("Missing or invalid Authorization header");
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Verify the user's session
-    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: authError } = await supabaseAuth.auth.getUser(token);
-    
-    if (authError || !claimsData?.user) {
-      console.error("Authentication failed:", authError?.message);
-      return new Response(
-        JSON.stringify({ error: "Invalid session" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const userId = claimsData.user.id;
-    console.log(`Authenticated user: ${userId}`);
-
+    // Parse request body
     const { filePath, expiresIn = 3600 } = await req.json();
+
+    // Optional: Log authenticated user if present (but don't require it)
+    const authHeader = req.headers.get("Authorization");
+    let userId = "anonymous";
+    if (authHeader?.startsWith("Bearer ")) {
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData } = await supabaseAuth.auth.getUser(token);
+      if (claimsData?.user) {
+        userId = claimsData.user.id;
+      }
+    }
+    console.log(`Request from user: ${userId}`);
 
     if (!filePath) {
       console.error("Missing filePath parameter");
