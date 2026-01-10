@@ -27,35 +27,35 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
 
   return (
     <Card className={cn(
-      "relative flex flex-col",
+      "relative flex flex-col overflow-hidden",
       isCurrentPlan && "border-primary ring-2 ring-primary/20",
       isPopular && !isCurrentPlan && "border-primary/50"
     )}>
       {isPopular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
+        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary whitespace-nowrap z-10">
           Most Popular
         </Badge>
       )}
       {isCurrentPlan && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600">
+        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 whitespace-nowrap z-10">
           Current Plan
         </Badge>
       )}
       
-      <CardHeader className="text-center pb-2">
+      <CardHeader className="text-center pb-2 px-3 sm:px-6">
         <div className="mx-auto mb-2 p-2 rounded-full bg-muted w-fit">
           {tierIcons[tierConfig.id]}
         </div>
-        <CardTitle className="text-xl">{tierConfig.name}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl break-words">{tierConfig.name}</CardTitle>
         <CardDescription>
-          <span className="text-3xl font-bold text-foreground">
+          <span className="text-2xl sm:text-3xl font-bold text-foreground">
             ${tierConfig.price}
           </span>
           {tierConfig.price > 0 && <span className="text-muted-foreground">/mo</span>}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-4">
+      <CardContent className="flex-1 space-y-4 px-3 sm:px-6">
         {/* Business Features */}
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
@@ -63,9 +63,9 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
           </p>
           <ul className="space-y-2">
             {tierConfig.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm">
+              <li key={index} className="flex items-start gap-2 text-xs sm:text-sm">
                 <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>{feature}</span>
+                <span className="break-words">{feature}</span>
               </li>
             ))}
           </ul>
@@ -75,16 +75,16 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
         {hasLoopFeatures && (
           <div className="pt-3 border-t">
             <div className="flex items-center gap-1 mb-2">
-              <Coins className="h-3.5 w-3.5 text-primary" />
+              <Coins className="h-3.5 w-3.5 text-primary flex-shrink-0" />
               <p className="text-xs font-semibold text-primary uppercase tracking-wide">
                 Loop Lokal
               </p>
             </div>
             <ul className="space-y-2">
               {tierConfig.loopFeatures.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
+                <li key={index} className="flex items-start gap-2 text-xs sm:text-sm">
                   <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>{feature}</span>
+                  <span className="break-words">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -92,10 +92,10 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
         )}
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="px-3 sm:px-6">
         {isFree ? (
           <Button 
-            className="w-full" 
+            className="w-full text-xs sm:text-sm" 
             variant="outline" 
             disabled
           >
@@ -103,12 +103,12 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
           </Button>
         ) : (
           <Button
-            className="w-full"
+            className="w-full text-xs sm:text-sm px-2"
             variant={isCurrentPlan ? "outline" : "default"}
             disabled={isCurrentPlan || isLoading}
             onClick={() => tierConfig.priceId && onSelect(tierConfig.priceId)}
           >
-            {isLoading ? 'Loading...' : isCurrentPlan ? 'Current Plan' : `Upgrade to ${tierConfig.name}`}
+            {isLoading ? 'Loading...' : isCurrentPlan ? 'Current Plan' : `Upgrade`}
           </Button>
         )}
       </CardFooter>
