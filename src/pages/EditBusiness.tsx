@@ -256,40 +256,49 @@ export default function EditBusiness() {
           Back to Dashboard
         </Button>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Founding Member Badge */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Founding Member Badge - Compact */}
           {isFoundingMember && (
-            <div className="card-elevated p-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg">
-                  <Crown className="h-6 w-6 text-white" />
+            <div className="card-elevated p-3 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center flex-shrink-0">
+                  <Crown className="h-4 w-4 text-white" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-amber-600 dark:text-amber-400">Founding 5 Member</h3>
-                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm text-amber-600 dark:text-amber-400">Founding 5</span>
+                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 text-xs px-1.5 py-0">
                       1 of 6
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    All Loop Partner benefits free for life. Thank you for believing in Toledo!
+                  <p className="text-xs text-muted-foreground truncate">
+                    All Loop benefits free for life
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Loop Participation Toggle */}
-          <div className="card-elevated p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Infinity className="h-5 w-5 text-primary" />
+          {/* Loop Participation Toggle - Compact */}
+          <div className={`card-elevated p-3 ${isInLoop ? 'border-primary/30 bg-primary/5' : 'border-muted bg-muted/30'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isInLoop ? 'bg-primary/20' : 'bg-muted'}`}>
+                  <Infinity className={`h-4 w-4 ${isInLoop ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
-                <div>
-                  <Label className="text-base font-medium">Participate in Loop</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Show your business as "in the loop" to customers
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm font-medium ${isInLoop ? '' : 'text-muted-foreground'}`}>
+                      {isInLoop ? 'In the Loop' : 'Out of the Loop'}
+                    </span>
+                    {isInLoop && (
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0 bg-primary/20 text-primary">
+                        Active
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isInLoop ? 'Customers can earn & redeem points' : 'Toggle on to join Loop'}
                   </p>
                 </div>
               </div>
@@ -299,11 +308,6 @@ export default function EditBusiness() {
                 disabled={updateLoopSettings.isPending}
               />
             </div>
-            {isInLoop && (
-              <p className="text-xs text-muted-foreground bg-secondary/50 p-2 rounded-lg">
-                Your business will appear with the Loop badge and customers can earn/redeem points with you.
-              </p>
-            )}
           </div>
 
           {/* Main Photo Upload */}
