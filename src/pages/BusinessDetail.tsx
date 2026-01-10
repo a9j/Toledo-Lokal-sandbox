@@ -27,7 +27,6 @@ import {
   Infinity
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { useState } from 'react';
 
 // Day order for displaying hours
 const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -43,7 +42,6 @@ const DAY_LABELS: Record<string, string> = {
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   // Public-safe columns that don't expose owner_user_id
   const PUBLIC_BUSINESS_COLUMNS = `
@@ -223,46 +221,18 @@ export default function BusinessDetail() {
           Back to Explore
         </Link>
 
-        {/* Photo Gallery */}
+        {/* Main Photo */}
         {hasPhotos ? (
-          <div className="space-y-3">
-            {/* Main Photo */}
-            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-secondary">
-              <SecureImage
-                storagePath={photos[selectedPhotoIndex]}
-                alt={`${business.name} photo ${selectedPhotoIndex + 1}`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-              {business.featured && (
-                <Badge className="absolute top-3 left-3 bg-warning text-warning-foreground">
-                  Featured
-                </Badge>
-              )}
-            </div>
-            
-            {/* Thumbnail Strip */}
-            {photos.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {photos.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedPhotoIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedPhotoIndex === index 
-                        ? 'border-primary ring-2 ring-primary/20' 
-                        : 'border-transparent opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <SecureImage
-                      storagePath={photo}
-                      alt={`${business.name} thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </button>
-                ))}
-              </div>
+          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-secondary">
+            <SecureImage
+              storagePath={photos[0]}
+              alt={`${business.name} photo`}
+              className="w-full h-full object-cover"
+            />
+            {business.featured && (
+              <Badge className="absolute top-3 left-3 bg-warning text-warning-foreground">
+                Featured
+              </Badge>
             )}
           </div>
         ) : (
