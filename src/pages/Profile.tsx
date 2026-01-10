@@ -10,6 +10,7 @@ import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
+import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isBusiness } = useAuth();
@@ -101,6 +102,9 @@ export default function Profile() {
             )}
           </div>
         </div>
+
+        {/* Loop Wallet Card */}
+        <ProfileWalletCard />
 
         {/* Business section */}
         {userBusiness ? (

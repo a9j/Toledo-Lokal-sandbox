@@ -1,3 +1,5 @@
+import { LoopTierId } from './loop-tiers';
+
 export type SubscriptionTier = 'free' | 'local_supporter' | 'featured_local' | 'anchor_partner';
 
 export interface TierConfig {
@@ -16,6 +18,9 @@ export interface TierConfig {
     supportBadge: boolean;
     prioritySupport: boolean;
   };
+  // Loop Lokal integration
+  loopTierId: LoopTierId | null;
+  loopFeatures: string[];
 }
 
 export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
@@ -38,7 +43,12 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       analytics: false,
       supportBadge: false,
       prioritySupport: false,
-    }
+    },
+    loopTierId: 'visible_only',
+    loopFeatures: [
+      'Loop-Visible Only',
+      'No points issued or accepted'
+    ]
   },
   local_supporter: {
     id: 'local_supporter',
@@ -60,7 +70,15 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       analytics: false,
       supportBadge: true,
       prioritySupport: false,
-    }
+    },
+    loopTierId: 'loop_starter',
+    loopFeatures: [
+      'Loop Starter included',
+      'Issue up to 500 points/month',
+      'Accept point redemptions',
+      'QR code issuance',
+      'Basic rewards setup'
+    ]
   },
   featured_local: {
     id: 'featured_local',
@@ -83,7 +101,16 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       analytics: true,
       supportBadge: true,
       prioritySupport: false,
-    }
+    },
+    loopTierId: 'loop_growth',
+    loopFeatures: [
+      'Loop Growth included',
+      'Issue up to 2,000 points/month',
+      'Citywide missions participation',
+      'Featured discovery placement',
+      'Experience rewards',
+      'Advanced Loop analytics'
+    ]
   },
   anchor_partner: {
     id: 'anchor_partner',
@@ -106,7 +133,16 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       analytics: true,
       supportBadge: true,
       prioritySupport: true,
-    }
+    },
+    loopTierId: 'loop_partner',
+    loopFeatures: [
+      'Loop Partner included',
+      'Issue up to 5,000 points/month',
+      'Sponsored missions',
+      'Priority placement in Loop',
+      'Event integrations',
+      'Quarterly impact reports'
+    ]
   }
 };
 
@@ -139,4 +175,8 @@ export const getDealsLimit = (tier: SubscriptionTier): number => {
 
 export const getEventsLimit = (tier: SubscriptionTier): number => {
   return SUBSCRIPTION_TIERS[tier].limits.events;
+};
+
+export const getLoopTierForSubscription = (tier: SubscriptionTier): LoopTierId => {
+  return SUBSCRIPTION_TIERS[tier].loopTierId || 'visible_only';
 };

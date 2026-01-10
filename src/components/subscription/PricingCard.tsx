@@ -1,4 +1,4 @@
-import { Check, Star, Crown, Building2 } from 'lucide-react';
+import { Check, Star, Crown, Building2, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +23,7 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
   const isCurrentPlan = currentTier === tierConfig.id;
   const isPopular = tierConfig.id === 'featured_local';
   const isFree = tierConfig.id === 'free';
+  const hasLoopFeatures = tierConfig.loopFeatures && tierConfig.loopFeatures.length > 0;
 
   return (
     <Card className={cn(
@@ -54,15 +55,41 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1">
-        <ul className="space-y-2">
-          {tierConfig.features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-sm">
-              <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
+      <CardContent className="flex-1 space-y-4">
+        {/* Business Features */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            Business Features
+          </p>
+          <ul className="space-y-2">
+            {tierConfig.features.map((feature, index) => (
+              <li key={index} className="flex items-start gap-2 text-sm">
+                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Loop Lokal Features */}
+        {hasLoopFeatures && (
+          <div className="pt-3 border-t">
+            <div className="flex items-center gap-1 mb-2">
+              <Coins className="h-3.5 w-3.5 text-primary" />
+              <p className="text-xs font-semibold text-primary uppercase tracking-wide">
+                Loop Lokal
+              </p>
+            </div>
+            <ul className="space-y-2">
+              {tierConfig.loopFeatures.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter>
