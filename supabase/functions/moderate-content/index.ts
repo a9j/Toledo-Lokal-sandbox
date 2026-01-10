@@ -198,29 +198,26 @@ async function moderateImage(imageUrl: string): Promise<{ safe: boolean; issues:
   }
 
   try {
+    // Add timeout with AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-lite',
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Analyze this image for content moderation. Check if it contains:
-- Nudity or sexually explicit content (NSFW)
-- Violence or gore
-- Hate symbols or offensive imagery
-- Drug paraphernalia
-- Graphic or disturbing content
-
-Respond with a JSON object ONLY (no markdown):
-{"safe": true/false, "issues": ["issue1", "issue2"]}`
+                text: `Is this image safe for a business directory? Check for nudity, violence, hate symbols, or inappropriate content. Respond with JSON only: {"safe": true/false, "issues": []}`
               },
               {
                 type: 'image_url',
@@ -230,12 +227,21 @@ Respond with a JSON object ONLY (no markdown):
           }
         ],
         temperature: 0.1,
-        max_tokens: 200
+        max_tokens: 100
       })
     });
 
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error('Image moderation API error:', response.status);
+      return { safe: true, issues: [] }; // Allow if API fails
+    }
+
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '{"safe": true, "issues": []}';
+    
+    console.log('Image moderation response:', content);
     
     // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);

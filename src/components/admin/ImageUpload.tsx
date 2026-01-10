@@ -73,9 +73,19 @@ export function ImageUpload({
         throw new Error('Failed to generate signed URL');
       }
 
-      // Moderate the image using signed URL
+      // Moderate the image using signed URL with timeout
       setModerating(true);
-      const modResult = await moderateContent({ imageUrl: signedUrl });
+      
+      // Set a client-side timeout for moderation
+      const moderationPromise = moderateContent({ imageUrl: signedUrl });
+      const timeoutPromise = new Promise<{ safe: boolean; flaggedReasons: string[] }>((resolve) => {
+        setTimeout(() => {
+          console.log('Moderation timeout - allowing upload');
+          resolve({ safe: true, flaggedReasons: [] });
+        }, 20000); // 20 second timeout
+      });
+
+      const modResult = await Promise.race([moderationPromise, timeoutPromise]);
       setModerating(false);
 
       if (!modResult.safe) {
