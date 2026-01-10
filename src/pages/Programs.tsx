@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Clock, ExternalLink } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Programs() {
   const { user } = useAuth();
@@ -74,6 +75,12 @@ export default function Programs() {
 
   return (
     <>
+      <SEOHead 
+        title="Community Programs"
+        description="Discover city initiatives and community programs for Toledo residents. Find opportunities, resources, and support in the Glass City."
+        url="/programs"
+        keywords={['Toledo programs', 'Toledo community', 'Toledo resources', 'city initiatives Toledo', 'Glass City programs']}
+      />
       <Header title="Programs" />
       
       <PageContainer className="space-y-4">
