@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -156,6 +157,9 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* Loop Lokal Stats */}
+        <BusinessLoopStats businessId={business.id} />
 
         {/* Dashboard items */}
         <div className="space-y-2">
