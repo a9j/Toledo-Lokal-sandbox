@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Clock, CheckCircle2 } from 'lucide-react';
+import { MapPin, Star, Clock, CheckCircle2, Infinity } from 'lucide-react';
 
 interface FeaturedListingCardProps {
   business: {
@@ -8,6 +8,7 @@ interface FeaturedListingCardProps {
     description?: string | null;
     verified?: boolean | null;
     featured?: boolean | null;
+    isInLoop?: boolean;
     photos?: string[] | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
@@ -64,9 +65,17 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
 
             {/* Bottom info on image */}
             <div className="absolute bottom-3 left-3 right-3">
-              <h3 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-md">
-                {business.name}
-              </h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-white font-bold text-lg leading-tight drop-shadow-md">
+                  {business.name}
+                </h3>
+                {business.isInLoop && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-medium">
+                    <Infinity className="h-2.5 w-2.5" />
+                    in the loop
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3 text-white/90 text-sm">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-toledo-gold text-toledo-gold" />
@@ -85,14 +94,20 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
 
         {/* Card content */}
         <div className="p-4">
-          {!showImage && (
+        {!showImage && (
             <>
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-foreground">{business.name}</h3>
                     {business.verified && (
                       <CheckCircle2 className="h-4 w-4 text-toledo-teal" />
+                    )}
+                    {business.isInLoop && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                        <Infinity className="h-2.5 w-2.5" />
+                        in the loop
+                      </span>
                     )}
                   </div>
                   {business.category && (

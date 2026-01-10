@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, CheckCircle } from 'lucide-react';
+import { MapPin, CheckCircle, Infinity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import * as LucideIcons from 'lucide-react';
 
@@ -10,6 +10,7 @@ interface BusinessCardProps {
     description?: string | null;
     verified?: boolean | null;
     featured?: boolean | null;
+    isInLoop?: boolean;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
   };
@@ -51,11 +52,19 @@ export function BusinessCard({ business }: BusinessCardProps) {
               </div>
             )}
             
-            {business.featured && (
-              <Badge variant="secondary" className="mt-2 bg-warning/10 text-warning text-[10px] px-1.5">
-                Featured
-              </Badge>
-            )}
+            <div className="flex items-center gap-2 mt-2">
+              {business.featured && (
+                <Badge variant="secondary" className="bg-warning/10 text-warning text-[10px] px-1.5">
+                  Featured
+                </Badge>
+              )}
+              {business.isInLoop && (
+                <Badge variant="secondary" className="bg-primary/10 text-primary text-[10px] px-1.5 flex items-center gap-1">
+                  <Infinity className="h-3 w-3" />
+                  in the loop
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>
