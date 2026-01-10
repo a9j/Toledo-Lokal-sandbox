@@ -1,6 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// In-memory cache for signed URLs with expiration tracking
+interface CacheEntry {
+  signedUrl: string;
+  expiresAt: number; // timestamp
+}
+
+const signedUrlCache = new Map<string, CacheEntry>();
+
+// Cache duration buffer (5 minutes before actual expiry)
+const CACHE_BUFFER_MS = 5 * 60 * 1000;
+
+function getCachedUrl(filePath: string): string | null {
+  const entry = signedUrlCache.get(filePath);
+  if (!entry) return null;
+  
+  // Check if still valid (with buffer)
+  if (Date.now() < entry.expiresAt - CACHE_BUFFER_MS) {
+    return entry.signedUrl;
+  }
+  
+  // Expired or about to expire
+  signedUrlCache.delete(filePath);
+  return null;
+}
+
+function setCachedUrl(filePath: string, signedUrl: string, expiresInSeconds: number): void {
+  signedUrlCache.set(filePath, {
+    signedUrl,
+    expiresAt: Date.now() + expiresInSeconds * 1000,
+  });
+}
+
 interface UseSignedUrlOptions {
   expiresIn?: number; // seconds, default 1 hour
   refreshBuffer?: number; // seconds before expiry to refresh, default 5 minutes
@@ -16,6 +48,14 @@ export function useSignedUrl(
   const [error, setError] = useState<string | null>(null);
 
   const fetchSignedUrl = useCallback(async (path: string) => {
+    // Check cache first
+    const cached = getCachedUrl(path);
+    if (cached) {
+      setSignedUrl(cached);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -29,6 +69,7 @@ export function useSignedUrl(
       }
 
       if (data?.signedUrl) {
+        setCachedUrl(path, data.signedUrl, expiresIn);
         setSignedUrl(data.signedUrl);
       } else {
         throw new Error('No signed URL returned');
@@ -93,15 +134,24 @@ export function extractStoragePath(url: string | null | undefined): string | nul
   return null; // External URL
 }
 
-// Generate a signed URL immediately (for upload callbacks)
+// Generate a signed URL immediately (for upload callbacks) - with caching
 export async function generateSignedUrl(filePath: string, expiresIn = 3600): Promise<string | null> {
+  // Check cache first
+  const cached = getCachedUrl(filePath);
+  if (cached) return cached;
+
   try {
     const { data, error } = await supabase.functions.invoke('get-signed-url', {
       body: { filePath, expiresIn }
     });
 
     if (error) throw error;
-    return data?.signedUrl || null;
+    
+    if (data?.signedUrl) {
+      setCachedUrl(filePath, data.signedUrl, expiresIn);
+      return data.signedUrl;
+    }
+    return null;
   } catch (err) {
     console.error('Failed to generate signed URL:', err);
     return null;
