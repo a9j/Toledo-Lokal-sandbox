@@ -35,6 +35,10 @@ import BusinessRewards from "./pages/BusinessRewards";
 import ScanQR from "./pages/ScanQR";
 import PendingScans from "./pages/PendingScans";
 import DashboardStaff from "./pages/DashboardStaff";
+import DashboardDeals from "./pages/DashboardDeals";
+import DashboardEvents from "./pages/DashboardEvents";
+import DashboardLeads from "./pages/DashboardLeads";
+import DashboardBoost from "./pages/DashboardBoost";
 import ScannerMode from "./pages/ScannerMode";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
@@ -71,6 +75,10 @@ const App = () => (
                 <Route path="/dashboard/pending-scans" element={<PendingScans />} />
                 <Route path="/dashboard/staff" element={<DashboardStaff />} />
                 <Route path="/dashboard/subscription" element={<Subscription />} />
+                <Route path="/dashboard/deals" element={<DashboardDeals />} />
+                <Route path="/dashboard/events" element={<DashboardEvents />} />
+                <Route path="/dashboard/leads" element={<DashboardLeads />} />
+                <Route path="/dashboard/boost" element={<DashboardBoost />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/tours" element={<Tours />} />
                 <Route path="/challenges" element={<Challenges />} />
