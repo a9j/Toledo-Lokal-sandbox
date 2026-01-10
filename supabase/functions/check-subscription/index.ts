@@ -76,7 +76,7 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId, email });
 
-    // Check if user is an early adopter (first 10 users get free Anchor Partner)
+    // Check if user is an early adopter (first 5 businesses get free Anchor Partner)
     const { data: earlyAdopter } = await supabaseAdmin
       .from("early_adopters")
       .select("tier")
