@@ -8,6 +8,7 @@ export interface BusinessLoopSettings {
   business_id: string;
   loop_tier_id: LoopTierId;
   is_active: boolean;
+  is_founding_member?: boolean;
   points_issued_this_month: number;
   month_reset_at: string;
   stripe_subscription_id: string | null;
