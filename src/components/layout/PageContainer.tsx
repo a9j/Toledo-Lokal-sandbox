@@ -11,7 +11,7 @@ export function PageContainer({ children, className, noPadding = false }: PageCo
   return (
     <main
       className={cn(
-        "min-h-[100dvh] w-full max-w-lg mx-auto pb-[calc(9rem+env(safe-area-inset-bottom))]",
+        "min-h-[100dvh] w-full max-w-lg mx-auto !pb-[calc(9rem+env(safe-area-inset-bottom))]",
         !noPadding && "px-4 py-4",
         className
       )}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { BottomNav } from '@/components/layout/BottomNav';
 import { useStories, useCreateStory, useLikeStory } from '@/hooks/useStories';
 import { useAuth } from '@/contexts/AuthContext';
 import { Heart, MapPin, Plus, Sparkles, MessageCircle, BookOpen } from 'lucide-react';
@@ -23,7 +22,7 @@ export default function Stories() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead 
         title="Community Stories"
         description="Read stories from the Toledo community. Local tips, hidden gems, memories, and recommendations from Glass City residents."
@@ -130,9 +129,7 @@ export default function Stories() {
             </div>
           )}
         </div>
-      </div>
-
-      <BottomNav />
+       </div>
     </div>
   );
 }

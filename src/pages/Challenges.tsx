@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { BottomNav } from '@/components/layout/BottomNav';
 import { useChallenges, useUserBadges } from '@/hooks/useChallenges';
 import { useAuth } from '@/contexts/AuthContext';
 import { Trophy, Star, CheckCircle2, ChevronRight, Award, Lock } from 'lucide-react';
@@ -18,7 +17,7 @@ export default function Challenges() {
   const earnedChallengeIds = badges?.map(b => b.challenge_id) || [];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead 
         title="Local Challenges"
         description="Support local Toledo businesses through fun challenges. Visit spots, earn badges, and unlock exclusive rewards in the Glass City."
@@ -128,9 +127,7 @@ export default function Challenges() {
             </Link>
           </div>
         )}
-      </div>
-
-      <BottomNav />
+       </div>
     </div>
   );
 }
