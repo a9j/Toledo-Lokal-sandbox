@@ -10,8 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { SecureImage } from '@/components/ui/secure-image';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -459,10 +460,11 @@ export default function Admin() {
                 <div key={biz.id} className="card-elevated p-4">
                   <div className="flex items-center gap-3">
                     {biz.photos?.[0] && (
-                      <img 
-                        src={biz.photos[0]} 
+                      <SecureImage
+                        storagePath={biz.photos[0]}
                         alt={biz.name}
                         className="w-16 h-16 rounded-lg object-cover"
+                        loading="lazy"
                       />
                     )}
                     <div className="flex-1">

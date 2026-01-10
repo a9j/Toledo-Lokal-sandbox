@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Star, Clock, CheckCircle2, Infinity } from 'lucide-react';
+import { SecureImage } from '@/components/ui/secure-image';
 
 interface FeaturedListingCardProps {
   business: {
@@ -32,12 +33,13 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
       <div className="card-elevated overflow-hidden hover-lift">
         {showImage && (
           <div className="relative aspect-[4/3] overflow-hidden">
-            <img
-              src={imageUrl}
+            <SecureImage
+              storagePath={imageUrl}
               alt={business.name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
             />
-            
+
             {/* Overlay gradient */}
             <div className="absolute inset-0 image-overlay" />
             

@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, ChevronRight, Star, Clock, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { SecureImage } from '@/components/ui/secure-image';
 
 // Placeholder images
 const heroImages = [
@@ -155,10 +156,11 @@ export default function Feed() {
                 className="flex-shrink-0 w-[280px] group"
               >
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-                  <img
-                    src={heroImages[i % heroImages.length]}
+                  <SecureImage
+                    storagePath={business.photos?.[0] || heroImages[i % heroImages.length]}
                     alt={business.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
                   />
                   <div className="absolute top-3 left-3">
                     <span className="badge-open flex items-center gap-1">

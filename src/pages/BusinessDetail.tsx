@@ -6,6 +6,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SecureImage } from '@/components/ui/secure-image';
 import { DealCard } from '@/components/cards/DealCard';
 import { EventCard } from '@/components/cards/EventCard';
 import { BusinessMap } from '@/components/maps/BusinessMap';
@@ -227,10 +228,11 @@ export default function BusinessDetail() {
           <div className="space-y-3">
             {/* Main Photo */}
             <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-secondary">
-              <img 
-                src={photos[selectedPhotoIndex]} 
+              <SecureImage
+                storagePath={photos[selectedPhotoIndex]}
                 alt={`${business.name} photo ${selectedPhotoIndex + 1}`}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
               {business.featured && (
                 <Badge className="absolute top-3 left-3 bg-warning text-warning-foreground">
@@ -252,10 +254,11 @@ export default function BusinessDetail() {
                         : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img 
-                      src={photo} 
+                    <SecureImage
+                      storagePath={photo}
                       alt={`${business.name} thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -267,10 +270,11 @@ export default function BusinessDetail() {
           <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-primary/10 to-secondary flex items-center justify-center">
             <div className="text-center">
               {business.logo_url ? (
-                <img 
-                  src={business.logo_url} 
-                  alt={business.name} 
+                <SecureImage
+                  storagePath={business.logo_url}
+                  alt={business.name}
                   className="w-24 h-24 rounded-2xl object-cover mx-auto mb-3"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-3">
@@ -289,7 +293,12 @@ export default function BusinessDetail() {
           {hasPhotos && (
             <div className="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 border-2 border-background shadow-md -mt-10 relative z-10">
               {business.logo_url ? (
-                <img src={business.logo_url} alt={business.name} className="w-full h-full object-cover rounded-xl" />
+                <SecureImage
+                  storagePath={business.logo_url}
+                  alt={business.name}
+                  className="w-full h-full object-cover rounded-xl"
+                  loading="lazy"
+                />
               ) : (
                 <Icon className="h-6 w-6 text-foreground" />
               )}
