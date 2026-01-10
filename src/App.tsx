@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { LoopProvider } from "@/contexts/LoopContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import Index from "./pages/Index";
@@ -27,6 +28,7 @@ import Stories from "./pages/Stories";
 import CreateStory from "./pages/CreateStory";
 import Subscription from "./pages/Subscription";
 import Saved from "./pages/Saved";
+import LoopWallet from "./pages/LoopWallet";
 import NotFound from "./pages/NotFound";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
@@ -36,39 +38,42 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <SubscriptionProvider>
-        <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/events/:id" element={<EventDetail />} />
-            <Route path="/programs" element={<Programs />} />
-            <Route path="/deals" element={<Deals />} />
-            <Route path="/requests" element={<Requests />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/business/:id" element={<BusinessDetail />} />
-            <Route path="/create-business" element={<CreateBusiness />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/tours" element={<Tours />} />
-            <Route path="/challenges" element={<Challenges />} />
-            <Route path="/stories" element={<Stories />} />
-            <Route path="/stories/create" element={<CreateStory />} />
-            <Route path="/subscription" element={<Subscription />} />
-            <Route path="/saved" element={<Saved />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <BottomNav />
-          <AskToledoChat />
-          <InstallPrompt />
-        </BrowserRouter>
-      </TooltipProvider>
-    </SubscriptionProvider>
+        <LoopProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/events/:id" element={<EventDetail />} />
+                <Route path="/programs" element={<Programs />} />
+                <Route path="/deals" element={<Deals />} />
+                <Route path="/requests" element={<Requests />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/business/:id" element={<BusinessDetail />} />
+                <Route path="/create-business" element={<CreateBusiness />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/tours" element={<Tours />} />
+                <Route path="/challenges" element={<Challenges />} />
+                <Route path="/stories" element={<Stories />} />
+                <Route path="/stories/create" element={<CreateStory />} />
+                <Route path="/subscription" element={<Subscription />} />
+                <Route path="/saved" element={<Saved />} />
+                <Route path="/wallet" element={<LoopWallet />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <BottomNav />
+              <AskToledoChat />
+              <InstallPrompt />
+            </BrowserRouter>
+          </TooltipProvider>
+        </LoopProvider>
+      </SubscriptionProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

@@ -122,6 +122,67 @@ export type Database = {
           },
         ]
       }
+      business_loop_settings: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          loop_tier_id: string
+          month_reset_at: string | null
+          points_issued_this_month: number | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          loop_tier_id?: string
+          month_reset_at?: string | null
+          points_issued_this_month?: number | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          loop_tier_id?: string
+          month_reset_at?: string | null
+          points_issued_this_month?: number | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_loop_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_loop_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_loop_settings_loop_tier_id_fkey"
+            columns: ["loop_tier_id"]
+            isOneToOne: false
+            referencedRelation: "loop_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string | null
@@ -653,6 +714,625 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      loop_badges: {
+        Row: {
+          badge_color: string | null
+          badge_icon: string | null
+          badge_name: string
+          earned_at: string
+          id: string
+          mission_id: string
+          user_id: string
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          badge_name: string
+          earned_at?: string
+          id?: string
+          mission_id: string
+          user_id: string
+        }
+        Update: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          badge_name?: string
+          earned_at?: string
+          id?: string
+          mission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_badges_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "loop_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_causes: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          organization_name: string | null
+          points_donated: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          organization_name?: string | null
+          points_donated?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          organization_name?: string | null
+          points_donated?: number | null
+        }
+        Relationships: []
+      }
+      loop_donations: {
+        Row: {
+          cause_id: string
+          created_at: string
+          id: string
+          points_amount: number
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          cause_id: string
+          created_at?: string
+          id?: string
+          points_amount: number
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          cause_id?: string
+          created_at?: string
+          id?: string
+          points_amount?: number
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_donations_cause_id_fkey"
+            columns: ["cause_id"]
+            isOneToOne: false
+            referencedRelation: "loop_causes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_donations_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "loop_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_mission_progress: {
+        Row: {
+          businesses_visited: string[] | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          mission_id: string
+          progress_count: number | null
+          reward_claimed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          businesses_visited?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id: string
+          progress_count?: number | null
+          reward_claimed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          businesses_visited?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id?: string
+          progress_count?: number | null
+          reward_claimed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_mission_progress_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "loop_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_missions: {
+        Row: {
+          badge_color: string | null
+          badge_icon: string | null
+          created_at: string
+          current_participants: number | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_featured: boolean | null
+          max_participants: number | null
+          mission_type: Database["public"]["Enums"]["loop_mission_type"]
+          points_reward: number
+          required_count: number
+          sponsor_business_id: string | null
+          start_date: string | null
+          status: string | null
+          target_businesses: string[] | null
+          target_category_id: string | null
+          target_neighborhood_id: string | null
+          title: string
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          created_at?: string
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_featured?: boolean | null
+          max_participants?: number | null
+          mission_type: Database["public"]["Enums"]["loop_mission_type"]
+          points_reward?: number
+          required_count?: number
+          sponsor_business_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          target_businesses?: string[] | null
+          target_category_id?: string | null
+          target_neighborhood_id?: string | null
+          title: string
+        }
+        Update: {
+          badge_color?: string | null
+          badge_icon?: string | null
+          created_at?: string
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_featured?: boolean | null
+          max_participants?: number | null
+          mission_type?: Database["public"]["Enums"]["loop_mission_type"]
+          points_reward?: number
+          required_count?: number
+          sponsor_business_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          target_businesses?: string[] | null
+          target_category_id?: string | null
+          target_neighborhood_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_missions_sponsor_business_id_fkey"
+            columns: ["sponsor_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_missions_sponsor_business_id_fkey"
+            columns: ["sponsor_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_missions_target_category_id_fkey"
+            columns: ["target_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_missions_target_neighborhood_id_fkey"
+            columns: ["target_neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_qr_codes: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_single_use: boolean | null
+          max_scans_per_user: number | null
+          name: string
+          points_value: number
+          qr_type: Database["public"]["Enums"]["loop_qr_type"]
+          requires_staff_confirm: boolean | null
+          scan_cooldown_hours: number | null
+          total_scans: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_single_use?: boolean | null
+          max_scans_per_user?: number | null
+          name: string
+          points_value: number
+          qr_type?: Database["public"]["Enums"]["loop_qr_type"]
+          requires_staff_confirm?: boolean | null
+          scan_cooldown_hours?: number | null
+          total_scans?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_single_use?: boolean | null
+          max_scans_per_user?: number | null
+          name?: string
+          points_value?: number
+          qr_type?: Database["public"]["Enums"]["loop_qr_type"]
+          requires_staff_confirm?: boolean | null
+          scan_cooldown_hours?: number | null
+          total_scans?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_qr_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_qr_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_qr_scans: {
+        Row: {
+          created_at: string
+          id: string
+          qr_code_id: string
+          staff_confirmed_at: string | null
+          status: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          qr_code_id: string
+          staff_confirmed_at?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          qr_code_id?: string
+          staff_confirmed_at?: string | null
+          status?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_qr_scans_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "loop_qr_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_qr_scans_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "loop_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_redemptions: {
+        Row: {
+          confirmed_at: string | null
+          confirmed_by_staff: string | null
+          created_at: string
+          id: string
+          redemption_code: string
+          reward_id: string
+          status: string | null
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          confirmed_by_staff?: string | null
+          created_at?: string
+          id?: string
+          redemption_code: string
+          reward_id: string
+          status?: string | null
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          confirmed_by_staff?: string | null
+          created_at?: string
+          id?: string
+          redemption_code?: string
+          reward_id?: string
+          status?: string | null
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "loop_rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_redemptions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "loop_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_rewards: {
+        Row: {
+          business_id: string
+          category: Database["public"]["Enums"]["loop_reward_category"]
+          created_at: string
+          daily_limit: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          monthly_limit: number | null
+          name: string
+          points_cost: number
+          quantity_available: number | null
+          quantity_redeemed: number | null
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          business_id: string
+          category?: Database["public"]["Enums"]["loop_reward_category"]
+          created_at?: string
+          daily_limit?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_limit?: number | null
+          name: string
+          points_cost: number
+          quantity_available?: number | null
+          quantity_redeemed?: number | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          business_id?: string
+          category?: Database["public"]["Enums"]["loop_reward_category"]
+          created_at?: string
+          daily_limit?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_limit?: number | null
+          name?: string
+          points_cost?: number
+          quantity_available?: number | null
+          quantity_redeemed?: number | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_rewards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_rewards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_tiers: {
+        Row: {
+          can_create_missions: boolean | null
+          can_sponsor_missions: boolean | null
+          created_at: string
+          features: string[] | null
+          id: string
+          name: string
+          points_cap_monthly: number
+          price_monthly: number
+          stripe_price_id: string | null
+        }
+        Insert: {
+          can_create_missions?: boolean | null
+          can_sponsor_missions?: boolean | null
+          created_at?: string
+          features?: string[] | null
+          id: string
+          name: string
+          points_cap_monthly?: number
+          price_monthly?: number
+          stripe_price_id?: string | null
+        }
+        Update: {
+          can_create_missions?: boolean | null
+          can_sponsor_missions?: boolean | null
+          created_at?: string
+          features?: string[] | null
+          id?: string
+          name?: string
+          points_cap_monthly?: number
+          price_monthly?: number
+          stripe_price_id?: string | null
+        }
+        Relationships: []
+      }
+      loop_transactions: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          mission_id: string | null
+          points: number
+          qr_code_id: string | null
+          transaction_type: Database["public"]["Enums"]["loop_transaction_type"]
+          wallet_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          mission_id?: string | null
+          points: number
+          qr_code_id?: string | null
+          transaction_type: Database["public"]["Enums"]["loop_transaction_type"]
+          wallet_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          mission_id?: string | null
+          points?: number
+          qr_code_id?: string | null
+          transaction_type?: Database["public"]["Enums"]["loop_transaction_type"]
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "loop_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_wallets: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          lifetime_donated: number
+          lifetime_earned: number
+          lifetime_redeemed: number
+          points_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          id?: string
+          lifetime_donated?: number
+          lifetime_earned?: number
+          lifetime_redeemed?: number
+          points_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          lifetime_donated?: number
+          lifetime_earned?: number
+          lifetime_redeemed?: number
+          points_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       neighborhoods: {
         Row: {
@@ -1669,6 +2349,10 @@ export type Database = {
           website: string
         }[]
       }
+      get_or_create_loop_wallet: {
+        Args: { p_city?: string; p_user_id: string }
+        Returns: string
+      }
       get_public_businesses: {
         Args: never
         Returns: {
@@ -1704,6 +2388,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      issue_loop_points: {
+        Args: {
+          p_business_id: string
+          p_description?: string
+          p_mission_id?: string
+          p_points: number
+          p_qr_code_id?: string
+          p_transaction_type: Database["public"]["Enums"]["loop_transaction_type"]
+          p_user_id: string
+        }
+        Returns: string
+      }
+      redeem_loop_points: {
+        Args: { p_reward_id: string; p_user_id: string }
+        Returns: Json
+      }
+      reset_monthly_loop_caps: { Args: never; Returns: undefined }
       update_ticket_purchase_from_webhook: {
         Args: {
           _new_status: string
@@ -1722,6 +2423,23 @@ export type Database = {
         | "organizer"
         | "nonprofit"
         | "partner"
+      loop_mission_type:
+        | "visits"
+        | "category"
+        | "neighborhood"
+        | "mwbe"
+        | "tourism"
+        | "event"
+        | "donation"
+      loop_qr_type: "visit" | "job_complete" | "referral" | "event" | "campaign"
+      loop_reward_category: "perk" | "experience" | "service_credit"
+      loop_transaction_type:
+        | "earn"
+        | "redeem"
+        | "donate"
+        | "bonus"
+        | "refund"
+        | "expire"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1856,6 +2574,25 @@ export const Constants = {
         "organizer",
         "nonprofit",
         "partner",
+      ],
+      loop_mission_type: [
+        "visits",
+        "category",
+        "neighborhood",
+        "mwbe",
+        "tourism",
+        "event",
+        "donation",
+      ],
+      loop_qr_type: ["visit", "job_complete", "referral", "event", "campaign"],
+      loop_reward_category: ["perk", "experience", "service_credit"],
+      loop_transaction_type: [
+        "earn",
+        "redeem",
+        "donate",
+        "bonus",
+        "refund",
+        "expire",
       ],
     },
   },
