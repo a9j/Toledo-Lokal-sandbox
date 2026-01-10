@@ -310,35 +310,40 @@ export default function EditBusiness() {
             </div>
           </div>
 
-          {/* Main Photo Upload */}
-          <div className="space-y-2">
-            <Label>Main Photo (shown in feed)</Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              This image will be displayed when your business appears in listings and search results.
-            </p>
-            {mainPhoto ? (
-              <div className="space-y-2">
-                <SecureImage
-                  src={mainPhoto}
-                  alt="Business main photo"
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setMainPhoto(null)}
-                >
-                  Remove Photo
-                </Button>
+          {/* Main Photo Upload - Prominent Section */}
+          <div className="card-elevated p-4 border-2 border-dashed border-primary/30 bg-primary/5">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Label className="text-base font-semibold">📸 Feed Photo</Label>
+                <Badge variant="outline" className="text-xs">Important</Badge>
               </div>
-            ) : (
-              <ImageUpload
-                onUpload={(url) => setMainPhoto(url)}
-                folder="businesses"
-                label="Upload Main Photo"
-              />
-            )}
+              <p className="text-sm text-muted-foreground">
+                This is the main image customers see when browsing the feed and search results.
+              </p>
+              {mainPhoto ? (
+                <div className="space-y-2">
+                  <SecureImage
+                    src={mainPhoto}
+                    alt="Business main photo"
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setMainPhoto(null)}
+                  >
+                    Change Photo
+                  </Button>
+                </div>
+              ) : (
+                <ImageUpload
+                  onUpload={(url) => setMainPhoto(url)}
+                  folder="businesses"
+                  label="Upload Feed Photo"
+                />
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
