@@ -73,7 +73,7 @@ export default function Profile() {
 
   const menuItems = [
     { icon: Bookmark, label: 'Saved Places', href: '/saved' },
-    { icon: FileText, label: 'My Requests', href: '/my-requests' },
+    { icon: FileText, label: 'My Requests', href: '/requests' },
   ];
 
   const handleAvatarUpdate = (newUrl: string) => {

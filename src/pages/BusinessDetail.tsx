@@ -148,10 +148,18 @@ export default function BusinessDetail() {
     return (LucideIcons as Record<string, any>)[name] || Building2;
   };
 
+  // Convert 24hr to 12hr format
+  const formatTime12hr = (time24: string): string => {
+    const [hours, minutes] = time24.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12 || 12;
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   // Parse hours if available
-  const parseHours = (hours: unknown): Record<string, { open: string; close: string } | null> | null => {
+  const parseHours = (hours: unknown): Record<string, { open: string; close: string; closed?: boolean } | null> | null => {
     if (!hours || typeof hours !== 'object') return null;
-    return hours as Record<string, { open: string; close: string } | null>;
+    return hours as Record<string, { open: string; close: string; closed?: boolean } | null>;
   };
 
   if (isLoading) {
@@ -348,11 +356,12 @@ export default function BusinessDetail() {
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
               {DAY_ORDER.map(day => {
                 const dayHours = parsedHours[day];
+                const isClosed = !dayHours || dayHours.closed;
                 return (
                   <div key={day} className="contents">
                     <span className="text-muted-foreground">{DAY_LABELS[day]}</span>
                     <span className="text-foreground">
-                      {dayHours ? `${dayHours.open} - ${dayHours.close}` : 'Closed'}
+                      {isClosed ? 'Closed' : `${formatTime12hr(dayHours.open)} - ${formatTime12hr(dayHours.close)}`}
                     </span>
                   </div>
                 );
