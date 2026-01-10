@@ -84,7 +84,7 @@ export default function Profile() {
     <>
       <Header title="Profile" />
       
-      <PageContainer className="space-y-6">
+      <PageContainer className="space-y-6 pb-20">
         {/* Profile header */}
         <div className="flex items-center gap-4">
           <AvatarUpload
