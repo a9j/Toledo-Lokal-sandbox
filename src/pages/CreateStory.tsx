@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { BottomNav } from '@/components/layout/BottomNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +50,7 @@ export default function CreateStory() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <Header title="Share Your Story" />
 
       <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
@@ -125,9 +124,7 @@ export default function CreateStory() {
         <p className="text-xs text-muted-foreground text-center">
           Stories are reviewed before being published to ensure quality.
         </p>
-      </form>
-
-      <BottomNav />
+       </form>
     </div>
   );
 }

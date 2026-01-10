@@ -8,7 +8,6 @@ import { DealsSection } from '@/components/home/DealsSection';
 import { NeighborhoodHighlight } from '@/components/home/NeighborhoodHighlight';
 import { NonprofitsSection } from '@/components/home/NonprofitsSection';
 import { HappeningNow } from '@/components/home/HappeningNow';
-import { BottomNav } from '@/components/layout/BottomNav';
 import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboarding';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
@@ -54,7 +53,7 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead 
         url="/"
         keywords={['Toledo local businesses', 'Toledo events calendar', 'Glass City guide', 'Toledo restaurants', 'Toledo shopping']}
@@ -133,9 +132,7 @@ export default function Index() {
             </button>
           </div>
         </div>
-      </section>
-
-      <BottomNav />
+       </section>
     </div>
   );
 }

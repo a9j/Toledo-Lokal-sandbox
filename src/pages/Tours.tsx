@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
-import { BottomNav } from '@/components/layout/BottomNav';
 import { useTours } from '@/hooks/useTours';
 import { MapPin, Clock, Footprints, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,7 +11,7 @@ export default function Tours() {
   const { data: tours, isLoading } = useTours();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead 
         title="Walking Tours"
         description="Explore Toledo on foot with curated walking tours. Discover neighborhoods, local businesses, and hidden gems in the Glass City."
@@ -97,9 +96,7 @@ export default function Tours() {
             </div>
           )}
         </div>
-      </div>
-
-      <BottomNav />
+       </div>
     </div>
   );
 }
