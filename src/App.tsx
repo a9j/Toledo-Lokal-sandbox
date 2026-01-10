@@ -19,6 +19,7 @@ import Deals from "./pages/Deals";
 import Requests from "./pages/Requests";
 import Profile from "./pages/Profile";
 import BusinessDetail from "./pages/BusinessDetail";
+import EditBusiness from "./pages/EditBusiness";
 import CreateBusiness from "./pages/CreateBusiness";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/requests" element={<Requests />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/business/:id" element={<BusinessDetail />} />
+                <Route path="/business/:id/edit" element={<EditBusiness />} />
                 <Route path="/create-business" element={<CreateBusiness />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
