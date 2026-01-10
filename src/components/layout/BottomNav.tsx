@@ -15,7 +15,9 @@ export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
 
-  if (location.pathname === '/auth') return null;
+  // Hide on auth page, scanner mode, and accept invitation pages
+  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation'];
+  if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-bottom">
