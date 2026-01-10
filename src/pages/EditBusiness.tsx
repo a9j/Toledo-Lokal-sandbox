@@ -323,11 +323,11 @@ export default function EditBusiness() {
               {mainPhoto ? (
                 <div className="space-y-2">
                   <SecureImage
-                    src={mainPhoto}
+                    storagePath={mainPhoto}
                     alt="Business main photo"
                     className="w-full h-40 object-cover rounded-lg"
                   />
-                  <Button 
+                  <Button
                     type="button" 
                     variant="outline" 
                     size="sm"
