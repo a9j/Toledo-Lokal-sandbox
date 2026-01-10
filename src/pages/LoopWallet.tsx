@@ -3,6 +3,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletBalance } from '@/components/loop/WalletBalance';
+import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { TransactionHistory } from '@/components/loop/TransactionHistory';
 import { RewardsList } from '@/components/loop/RewardsList';
 import { MissionsList } from '@/components/loop/MissionsList';
@@ -48,8 +49,9 @@ export default function LoopWallet() {
         description="Earn and redeem Loop Points at local Toledo businesses"
       />
       <Header title="Loop Wallet" />
-      <PageContainer className="space-y-6 pb-24">
+      <PageContainer className="space-y-4 pb-24">
         <WalletBalance />
+        <UserWalletQR />
         <BadgesDisplay />
         
         <Tabs defaultValue="rewards" className="w-full">
