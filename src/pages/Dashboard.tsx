@@ -185,6 +185,16 @@ export default function Dashboard() {
               <p>Your business is pending approval</p>
             </div>
           )}
+
+          {/* Quick tip about photo */}
+          {!business.photos?.length && (
+            <div className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-primary/10 text-sm">
+              <span>📸</span>
+              <p className="text-muted-foreground">
+                Add a feed photo in <Link to={`/business/${business.id}/edit`} className="text-primary font-medium underline">My Business Profile</Link> to stand out!
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Loop Lokal Stats */}
