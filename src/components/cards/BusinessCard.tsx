@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, CheckCircle, Infinity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { SecureImage } from '@/components/ui/secure-image';
 import * as LucideIcons from 'lucide-react';
 
 interface BusinessCardProps {
@@ -11,13 +12,14 @@ interface BusinessCardProps {
     verified?: boolean | null;
     featured?: boolean | null;
     isInLoop?: boolean;
+    logo_url?: string | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
   };
 }
 
 export function BusinessCard({ business }: BusinessCardProps) {
-  // Get the icon component dynamically
+  // Get the icon component dynamically (fallback when no logo)
   const iconName = business.category?.icon 
     ? business.category.icon.charAt(0).toUpperCase() + business.category.icon.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase())
     : 'Building2';
@@ -27,8 +29,18 @@ export function BusinessCard({ business }: BusinessCardProps) {
     <Link to={`/business/${business.id}`} className="block">
       <div className="card-elevated p-4 hover-lift">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-secondary flex items-center justify-center">
-            <IconComponent className="h-6 w-6 text-foreground" />
+          {/* Logo or fallback icon */}
+          <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden">
+            {business.logo_url ? (
+              <SecureImage
+                storagePath={business.logo_url}
+                alt={`${business.name} logo`}
+                className="w-full h-full object-contain"
+                fallback={<IconComponent className="h-6 w-6 text-foreground" />}
+              />
+            ) : (
+              <IconComponent className="h-6 w-6 text-foreground" />
+            )}
           </div>
           
           <div className="flex-1 min-w-0">
