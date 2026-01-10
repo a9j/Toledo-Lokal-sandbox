@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { MapPin } from 'lucide-react';
+import tlLogo from '@/assets/tl-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -140,9 +140,11 @@ export default function Auth() {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-            <MapPin className="h-8 w-8 text-primary" />
-          </div>
+          <img 
+            src={tlLogo} 
+            alt="ToledoLokal" 
+            className="h-20 w-auto mx-auto mb-2"
+          />
           <h1 className="text-2xl font-bold tracking-tight">ToledoLokal</h1>
           <p className="text-muted-foreground text-sm">
             {isSignUp ? 'Create your account' : 'Welcome back'}
