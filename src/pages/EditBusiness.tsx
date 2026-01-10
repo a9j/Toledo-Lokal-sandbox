@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, Infinity, Crown } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
+import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 
 export default function EditBusiness() {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,7 @@ export default function EditBusiness() {
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
   const [isInLoop, setIsInLoop] = useState(false);
 
   const { data: business, isLoading } = useQuery({
@@ -108,6 +110,7 @@ export default function EditBusiness() {
       });
       setMainPhoto(business.photos?.[0] || null);
       setLogoUrl(business.logo_url || null);
+      setHours(parseBusinessHours(business.hours));
     }
   }, [business]);
 
@@ -133,6 +136,9 @@ export default function EditBusiness() {
       
       // Handle logo
       updateData.logo_url = logoUrl;
+      
+      // Handle hours
+      updateData.hours = hours;
       
       const { error } = await supabase
         .from('businesses')
@@ -486,6 +492,11 @@ export default function EditBusiness() {
               placeholder="@yourbusiness"
               maxLength={100}
             />
+          </div>
+          
+          {/* Hours of Operation */}
+          <div className="card-elevated p-4">
+            <HoursEditor hours={hours} onChange={setHours} />
           </div>
           
           <Button 
