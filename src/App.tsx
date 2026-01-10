@@ -30,6 +30,7 @@ import Subscription from "./pages/Subscription";
 import Saved from "./pages/Saved";
 import LoopWallet from "./pages/LoopWallet";
 import BusinessQRCodes from "./pages/BusinessQRCodes";
+import BusinessRewards from "./pages/BusinessRewards";
 import ScanQR from "./pages/ScanQR";
 import PendingScans from "./pages/PendingScans";
 import NotFound from "./pages/NotFound";
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="/create-business" element={<CreateBusiness />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
+                <Route path="/dashboard/rewards" element={<BusinessRewards />} />
                 <Route path="/dashboard/pending-scans" element={<PendingScans />} />
                 <Route path="/dashboard/subscription" element={<Subscription />} />
                 <Route path="/admin" element={<Admin />} />

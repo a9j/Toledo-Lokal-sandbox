@@ -13,7 +13,10 @@ import {
   Zap,
   ChevronRight,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
+  QrCode,
+  Gift,
+  ClipboardCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -99,6 +102,24 @@ export default function Dashboard() {
       subtitle: `${business.leads?.length || 0} total leads`,
       badge: newLeadsCount > 0 ? 'new' : undefined,
       badgeCount: newLeadsCount
+    },
+    { 
+      icon: QrCode, 
+      label: 'Loop QR Codes', 
+      href: '/dashboard/qr-codes',
+      subtitle: 'Issue points to customers'
+    },
+    { 
+      icon: Gift, 
+      label: 'Loop Rewards', 
+      href: '/dashboard/rewards',
+      subtitle: 'Set redemption options'
+    },
+    { 
+      icon: ClipboardCheck, 
+      label: 'Pending Confirmations', 
+      href: '/dashboard/pending-scans',
+      subtitle: 'Confirm customer scans'
     },
     { 
       icon: CreditCard, 
