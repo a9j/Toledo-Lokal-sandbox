@@ -46,33 +46,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+    let mounted = true;
+
+    // First, get the initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
-
         if (session?.user) {
           fetchUserRoles(session.user.id);
+        }
+        setIsLoading(false);
+      }
+    });
+
+    // Then set up the listener for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        if (!mounted) return;
+        
+        // Only update if there's an actual change
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+
+        if (newSession?.user) {
+          fetchUserRoles(newSession.user.id);
         } else {
           setRoles([]);
         }
 
-        if (event === 'INITIAL_SESSION') {
-          setIsLoading(false);
+        // Handle specific auth events
+        if (event === 'SIGNED_OUT') {
+          setRoles([]);
         }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserRoles(session.user.id);
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, name?: string) => {
