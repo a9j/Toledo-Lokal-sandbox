@@ -8,6 +8,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Deals() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +30,12 @@ export default function Deals() {
 
   return (
     <>
+      <SEOHead 
+        title="Local Deals & Discounts"
+        description="Find the best deals and discounts from local Toledo businesses. Save money while supporting the Glass City community."
+        url="/deals"
+        keywords={['Toledo deals', 'Toledo discounts', 'Toledo coupons', 'local deals Toledo', 'Glass City savings']}
+      />
       <Header title="Deals" />
       
       <PageContainer className="space-y-4">

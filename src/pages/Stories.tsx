@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const storyTypeLabels: Record<string, { label: string; color: string }> = {
   tip: { label: '💡 Tip', color: 'bg-toledo-gold/20 text-toledo-gold' },
@@ -23,6 +24,12 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEOHead 
+        title="Community Stories"
+        description="Read stories from the Toledo community. Local tips, hidden gems, memories, and recommendations from Glass City residents."
+        url="/stories"
+        keywords={['Toledo stories', 'Toledo community', 'Toledo tips', 'Toledo hidden gems', 'Glass City memories']}
+      />
       <Header title="Community Stories" />
 
       <div className="px-4 py-6">

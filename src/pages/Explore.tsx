@@ -9,6 +9,7 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import * as LucideIcons from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,6 +36,12 @@ export default function Explore() {
 
   return (
     <>
+      <SEOHead 
+        title="Explore Local Businesses"
+        description="Discover the best local businesses in Toledo, Ohio. Browse restaurants, shops, services, and more in the Glass City."
+        url="/explore"
+        keywords={['Toledo businesses', 'local businesses Toledo', 'Toledo restaurants', 'Toledo shops', 'Glass City directory']}
+      />
       <Header title="Explore" showSearch />
       
       <PageContainer className="space-y-5">

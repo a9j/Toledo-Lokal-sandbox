@@ -6,12 +6,19 @@ import { useTours } from '@/hooks/useTours';
 import { MapPin, Clock, Footprints, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Tours() {
   const { data: tours, isLoading } = useTours();
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEOHead 
+        title="Walking Tours"
+        description="Explore Toledo on foot with curated walking tours. Discover neighborhoods, local businesses, and hidden gems in the Glass City."
+        url="/tours"
+        keywords={['Toledo walking tours', 'Toledo sightseeing', 'Glass City tours', 'Toledo neighborhoods', 'explore Toledo']}
+      />
       <Header title="Walking Tours" />
 
       <div className="px-4 py-6">

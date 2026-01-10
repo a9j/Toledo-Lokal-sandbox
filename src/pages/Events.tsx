@@ -6,6 +6,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { format, isToday, isThisWeek, isWeekend, startOfDay, endOfDay, addDays } from 'date-fns';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 type FilterType = 'all' | 'today' | 'weekend' | 'week';
 
@@ -41,6 +42,13 @@ export default function Events() {
 
   return (
     <>
+      <SEOHead 
+        title="Events in Toledo"
+        description="Discover upcoming events, concerts, festivals, and community gatherings in Toledo, Ohio. Find things to do in the Glass City."
+        url="/events"
+        type="website"
+        keywords={['Toledo events', 'Toledo concerts', 'Toledo festivals', 'things to do in Toledo', 'Glass City events']}
+      />
       <Header title="Events" />
       
       <PageContainer className="space-y-4">

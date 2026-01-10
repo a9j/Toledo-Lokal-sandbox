@@ -14,6 +14,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { useBusinesses } from '@/hooks/useBusinesses';
 import { useAuth } from '@/contexts/AuthContext';
+import { SEOHead, createWebsiteJsonLd, createOrganizationJsonLd } from '@/components/seo/SEOHead';
 
 export default function Index() {
   const navigate = useNavigate();
@@ -54,6 +55,14 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEOHead 
+        url="/"
+        keywords={['Toledo local businesses', 'Toledo events calendar', 'Glass City guide', 'Toledo restaurants', 'Toledo shopping']}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@graph': [createWebsiteJsonLd(), createOrganizationJsonLd()]
+        }}
+      />
       {/* Hero Section with Search */}
       <HeroSection onSearch={handleSearch} />
 

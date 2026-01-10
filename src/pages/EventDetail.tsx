@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/sharing/ShareButton';
+import { SEOHead, createEventJsonLd } from '@/components/seo/SEOHead';
 import { format } from 'date-fns';
 import { 
   Calendar, 
@@ -186,6 +187,29 @@ export default function EventDetail() {
 
   return (
     <>
+      <SEOHead 
+        title={event.title}
+        description={event.description || `${event.title} - ${format(startDate, 'MMMM d, yyyy')} in Toledo, Ohio`}
+        url={`/events/${event.id}`}
+        type="event"
+        image={event.image_url || undefined}
+        keywords={[
+          event.title,
+          'Toledo event',
+          format(startDate, 'MMMM yyyy'),
+          event.location_text || '',
+          'Glass City events',
+        ].filter(Boolean)}
+        jsonLd={createEventJsonLd({
+          title: event.title,
+          description: event.description || undefined,
+          startDate: event.start_date_time,
+          endDate: event.end_date_time || undefined,
+          location: event.location_text || undefined,
+          image: event.image_url || undefined,
+          ticketUrl: event.ticket_url || undefined,
+        })}
+      />
       <Header title="Event" />
       
       <PageContainer className="space-y-6">

@@ -8,6 +8,7 @@ import { Trophy, Star, CheckCircle2, ChevronRight, Award, Lock } from 'lucide-re
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Challenges() {
   const { data: challenges, isLoading } = useChallenges();
@@ -18,6 +19,12 @@ export default function Challenges() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <SEOHead 
+        title="Local Challenges"
+        description="Support local Toledo businesses through fun challenges. Visit spots, earn badges, and unlock exclusive rewards in the Glass City."
+        url="/challenges"
+        keywords={['Toledo challenges', 'local rewards', 'Toledo badges', 'support local Toledo', 'Glass City loyalty']}
+      />
       <Header title="Challenges" />
 
       <div className="px-4 py-6">

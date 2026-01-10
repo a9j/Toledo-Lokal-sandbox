@@ -12,6 +12,7 @@ import { BusinessMap } from '@/components/maps/BusinessMap';
 import { ReviewsSection } from '@/components/reviews/ReviewsSection';
 import { StarRating } from '@/components/reviews/StarRating';
 import { ShareButton } from '@/components/sharing/ShareButton';
+import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { 
   MapPin, 
   Phone, 
@@ -180,6 +181,31 @@ export default function BusinessDetail() {
 
   return (
     <>
+      <SEOHead 
+        title={business.name}
+        description={business.description || `${business.name} - a local business in Toledo, Ohio. ${business.category?.name || ''}`}
+        url={`/business/${business.slug || business.id}`}
+        type="business.business"
+        image={photos[0] || business.logo_url}
+        keywords={[
+          business.name,
+          business.category?.name || '',
+          business.neighborhood?.name || '',
+          'Toledo business',
+          'Glass City',
+        ].filter(Boolean)}
+        jsonLd={createBusinessJsonLd({
+          name: business.name,
+          description: business.description || undefined,
+          address: business.address || undefined,
+          phone: business.phone || undefined,
+          website: business.website || undefined,
+          rating: business.average_rating || undefined,
+          reviewCount: business.review_count || undefined,
+          image: photos[0] || business.logo_url || undefined,
+          slug: business.slug || undefined,
+        })}
+      />
       <Header title={business.name} />
       
       <PageContainer className="space-y-6">
