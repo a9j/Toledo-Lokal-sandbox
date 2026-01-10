@@ -46,6 +46,7 @@ export default function BusinessDetail() {
   const PUBLIC_BUSINESS_COLUMNS = `
     id,
     name,
+    slug,
     description,
     address,
     phone,
@@ -67,18 +68,28 @@ export default function BusinessDetail() {
     updated_at
   `;
 
+  // Check if id is a UUID or a slug
+  const isUUID = id ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) : false;
+
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('businesses')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(name),
           category:categories(name, icon)
-        `)
-        .eq('id', id)
-        .single();
+        `);
+      
+      // Query by UUID or slug
+      if (isUUID) {
+        query = query.eq('id', id);
+      } else {
+        query = query.eq('slug', id);
+      }
+      
+      const { data, error } = await query.single();
       
       if (error) throw error;
       return data;
