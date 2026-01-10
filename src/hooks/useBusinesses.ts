@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 const PUBLIC_BUSINESS_COLUMNS = `
   id,
   name,
+  slug,
   description,
   address,
   phone,

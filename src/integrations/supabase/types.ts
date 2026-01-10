@@ -141,6 +141,7 @@ export type Database = {
           phone: string | null
           photos: string[] | null
           review_count: number | null
+          slug: string | null
           status: string
           story: string | null
           updated_at: string
@@ -165,6 +166,7 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           review_count?: number | null
+          slug?: string | null
           status?: string
           story?: string | null
           updated_at?: string
@@ -189,6 +191,7 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           review_count?: number | null
+          slug?: string | null
           status?: string
           story?: string | null
           updated_at?: string
@@ -1635,6 +1638,10 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      generate_business_slug: {
+        Args: { business_name: string }
+        Returns: string
+      }
       get_business_by_id: {
         Args: { business_id: string }
         Returns: {
