@@ -182,6 +182,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean | null
+          is_founding_member: boolean | null
           loop_tier_id: string
           month_reset_at: string | null
           points_issued_this_month: number | null
@@ -194,6 +195,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_founding_member?: boolean | null
           loop_tier_id?: string
           month_reset_at?: string | null
           points_issued_this_month?: number | null
@@ -206,6 +208,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_founding_member?: boolean | null
           loop_tier_id?: string
           month_reset_at?: string | null
           points_issued_this_month?: number | null

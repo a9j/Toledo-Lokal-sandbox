@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -19,7 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Infinity, Crown } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 
@@ -43,6 +45,7 @@ export default function EditBusiness() {
     address: '',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [isInLoop, setIsInLoop] = useState(false);
 
   const { data: business, isLoading } = useQuery({
     queryKey: ['edit-business', id],
@@ -55,6 +58,23 @@ export default function EditBusiness() {
         .single();
       
       if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch loop settings for this business
+  const { data: loopSettings } = useQuery({
+    queryKey: ['business-loop-settings-edit', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from('business_loop_settings')
+        .select('*')
+        .eq('business_id', id)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') throw error;
       return data;
     },
     enabled: !!id,
@@ -88,6 +108,13 @@ export default function EditBusiness() {
       setMainPhoto(business.photos?.[0] || null);
     }
   }, [business]);
+
+  // Populate loop settings
+  useEffect(() => {
+    if (loopSettings) {
+      setIsInLoop(loopSettings.is_active || false);
+    }
+  }, [loopSettings]);
 
   const updateBusiness = useMutation({
     mutationFn: async (data: typeof formData & { photos?: string[] }) => {
@@ -127,6 +154,56 @@ export default function EditBusiness() {
       });
     },
   });
+
+  const updateLoopSettings = useMutation({
+    mutationFn: async (active: boolean) => {
+      if (!id) throw new Error('No business ID');
+      
+      // Check if settings exist
+      if (loopSettings) {
+        const { error } = await supabase
+          .from('business_loop_settings')
+          .update({ is_active: active })
+          .eq('business_id', id);
+        
+        if (error) throw error;
+      } else {
+        // Create settings if they don't exist
+        const { error } = await supabase
+          .from('business_loop_settings')
+          .insert({
+            business_id: id,
+            loop_tier_id: 'visible_only',
+            is_active: active,
+          });
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['business-loop-settings-edit', id] });
+      toast({ 
+        title: isInLoop ? 'Joined the Loop!' : 'Left the Loop',
+        description: isInLoop ? 'Your business is now visible in Loop.' : 'Your business is no longer in Loop.',
+      });
+    },
+    onError: (error) => {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Error', 
+        description: error.message 
+      });
+      // Revert the toggle
+      setIsInLoop(!isInLoop);
+    },
+  });
+
+  const handleLoopToggle = (checked: boolean) => {
+    setIsInLoop(checked);
+    updateLoopSettings.mutate(checked);
+  };
+
+  const isFoundingMember = loopSettings?.is_founding_member || false;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,6 +257,55 @@ export default function EditBusiness() {
         </Button>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Founding Member Badge */}
+          {isFoundingMember && (
+            <div className="card-elevated p-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg">
+                  <Crown className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-amber-600 dark:text-amber-400">Founding 5 Member</h3>
+                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0">
+                      1 of 6
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    All Loop Partner benefits free for life. Thank you for believing in Toledo!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loop Participation Toggle */}
+          <div className="card-elevated p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Infinity className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <Label className="text-base font-medium">Participate in Loop</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Show your business as "in the loop" to customers
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={isInLoop}
+                onCheckedChange={handleLoopToggle}
+                disabled={updateLoopSettings.isPending}
+              />
+            </div>
+            {isInLoop && (
+              <p className="text-xs text-muted-foreground bg-secondary/50 p-2 rounded-lg">
+                Your business will appear with the Loop badge and customers can earn/redeem points with you.
+              </p>
+            )}
+          </div>
+
           {/* Main Photo Upload */}
           <div className="space-y-2">
             <Label>Main Photo (shown in feed)</Label>
