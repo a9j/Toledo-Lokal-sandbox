@@ -145,6 +145,7 @@ export default function EditBusiness() {
       queryClient.invalidateQueries({ queryKey: ['edit-business', id] });
       queryClient.invalidateQueries({ queryKey: ['user-business'] });
       queryClient.invalidateQueries({ queryKey: ['user-business-full'] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
       toast({ 
         title: 'Business updated!',
         description: 'Your changes have been saved.',
