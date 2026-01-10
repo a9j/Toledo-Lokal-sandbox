@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,8 @@ export default function Auth() {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +47,36 @@ export default function Auth() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleForgotPassword = async () => {
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: 'Please enter your email address first' });
+      return;
+    }
+
+    setIsResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Check your email',
+        description: 'We sent you a password reset link.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to send reset email',
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,6 +110,7 @@ export default function Auth() {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes('Invalid login')) {
+            setFailedAttempts(prev => prev + 1);
             toast({
               variant: 'destructive',
               title: 'Invalid credentials',
@@ -86,6 +120,7 @@ export default function Auth() {
             throw error;
           }
         } else {
+          setFailedAttempts(0);
           navigate('/');
         }
       }
@@ -175,6 +210,20 @@ export default function Auth() {
           </Button>
         </form>
 
+        {/* Forgot Password - shows after 3 failed attempts */}
+        {!isSignUp && failedAttempts >= 3 && (
+          <div className="text-center animate-in fade-in slide-in-from-top-2">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={isResettingPassword}
+              className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              {isResettingPassword ? 'Sending...' : 'Forgot your password?'}
+            </button>
+          </div>
+        )}
+
         {/* Toggle */}
         <div className="text-center">
           <button
@@ -182,6 +231,7 @@ export default function Auth() {
             onClick={() => {
               setIsSignUp(!isSignUp);
               setErrors({});
+              setFailedAttempts(0);
             }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
