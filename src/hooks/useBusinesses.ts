@@ -36,7 +36,8 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(id, name),
-          category:categories(id, name, icon)
+          category:categories(id, name, icon),
+          business_loop_settings(is_active, loop_tier_id)
         `)
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
@@ -59,7 +60,13 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      
+      // Transform to include isInLoop flag
+      return data?.map(business => ({
+        ...business,
+        isInLoop: business.business_loop_settings?.is_active && 
+          business.business_loop_settings?.loop_tier_id !== 'visible_only'
+      }));
     },
   });
 }

@@ -22,7 +22,8 @@ import {
   CheckCircle,
   ArrowLeft,
   Building2,
-  Heart
+  Heart,
+  Infinity
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { useState } from 'react';
@@ -80,7 +81,8 @@ export default function BusinessDetail() {
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(name),
-          category:categories(name, icon)
+          category:categories(name, icon),
+          business_loop_settings(is_active, loop_tier_id)
         `);
       
       // Query by UUID or slug
@@ -93,7 +95,13 @@ export default function BusinessDetail() {
       const { data, error } = await query.single();
       
       if (error) throw error;
-      return data;
+      
+      // Add isInLoop flag
+      return {
+        ...data,
+        isInLoop: data.business_loop_settings?.is_active && 
+          data.business_loop_settings?.loop_tier_id !== 'visible_only'
+      };
     },
     enabled: !!id,
   });
@@ -289,10 +297,16 @@ export default function BusinessDetail() {
           )}
           
           <div className={`flex-1 min-w-0 ${hasPhotos ? '-mt-2' : ''}`}>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-xl font-bold truncate">{business.name}</h1>
               {business.verified && (
                 <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
+              )}
+              {business.isInLoop && (
+                <Badge variant="secondary" className="bg-primary/10 text-primary text-xs px-2 py-0.5 flex items-center gap-1">
+                  <Infinity className="h-3 w-3" />
+                  in the loop
+                </Badge>
               )}
               <ShareButton 
                 title={business.name}
