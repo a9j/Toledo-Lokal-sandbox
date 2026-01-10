@@ -124,8 +124,8 @@ export function SubscriptionManager() {
         )}
       </Card>
 
-      {/* Pricing Grid - Stack on mobile, 2 columns on tablet, 4 on desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      {/* Pricing Grid - 1 column mobile, 2 columns tablet, 2 on medium desktop, 4 on large */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-4">
         {tiers.map((tierItem) => (
           <PricingCard
             key={tierItem.id}
