@@ -42,30 +42,30 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
         </Badge>
       )}
       
-      <CardHeader className="text-center pb-2 px-3 sm:px-6">
+      <CardHeader className="text-center pb-2 px-4">
         <div className="mx-auto mb-2 p-2 rounded-full bg-muted w-fit">
           {tierIcons[tierConfig.id]}
         </div>
-        <CardTitle className="text-lg sm:text-xl break-words">{tierConfig.name}</CardTitle>
+        <CardTitle className="text-lg whitespace-nowrap">{tierConfig.name}</CardTitle>
         <CardDescription>
-          <span className="text-2xl sm:text-3xl font-bold text-foreground">
+          <span className="text-2xl font-bold text-foreground">
             ${tierConfig.price}
           </span>
           {tierConfig.price > 0 && <span className="text-muted-foreground">/mo</span>}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-4 px-3 sm:px-6">
+      <CardContent className="flex-1 space-y-4 px-4">
         {/* Business Features */}
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
             Business Features
           </p>
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {tierConfig.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2 text-xs sm:text-sm">
+              <li key={index} className="flex items-start gap-2 text-sm">
                 <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                <span className="break-words">{feature}</span>
+                <span>{feature}</span>
               </li>
             ))}
           </ul>
@@ -80,11 +80,11 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
                 Loop Lokal
               </p>
             </div>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5">
               {tierConfig.loopFeatures.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-xs sm:text-sm">
+                <li key={index} className="flex items-start gap-2 text-sm">
                   <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="break-words">{feature}</span>
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
@@ -92,10 +92,10 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
         )}
       </CardContent>
 
-      <CardFooter className="px-3 sm:px-6">
+      <CardFooter className="px-4">
         {isFree ? (
           <Button 
-            className="w-full text-xs sm:text-sm" 
+            className="w-full" 
             variant="outline" 
             disabled
           >
@@ -103,12 +103,12 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
           </Button>
         ) : (
           <Button
-            className="w-full text-xs sm:text-sm px-2"
+            className="w-full"
             variant={isCurrentPlan ? "outline" : "default"}
             disabled={isCurrentPlan || isLoading}
             onClick={() => tierConfig.priceId && onSelect(tierConfig.priceId)}
           >
-            {isLoading ? 'Loading...' : isCurrentPlan ? 'Current Plan' : `Upgrade`}
+            {isLoading ? 'Loading...' : isCurrentPlan ? 'Current Plan' : 'Upgrade'}
           </Button>
         )}
       </CardFooter>
