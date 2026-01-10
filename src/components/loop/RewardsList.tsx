@@ -59,7 +59,7 @@ export function RewardsList() {
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Gift className="h-5 w-5" />
-            Available Rewards
+            Redeem Your Points
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -77,15 +77,15 @@ export function RewardsList() {
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Gift className="h-5 w-5" />
-            Available Rewards
+            Redeem Your Points
           </CardTitle>
         </CardHeader>
         <CardContent>
           {!rewards || rewards.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Store className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No rewards available yet</p>
-              <p className="text-sm">Check back soon for new offers!</p>
+              <p>New rewards coming soon</p>
+              <p className="text-sm">Keep earning — more options are on the way!</p>
             </div>
           ) : (
             <div className="space-y-3">
