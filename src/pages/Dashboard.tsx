@@ -204,13 +204,13 @@ export default function Dashboard() {
         <div className="space-y-2">
           {dashboardItems.map(item => (
             <Link key={item.href} to={item.href}>
-              <div className="card-elevated p-4 flex items-center gap-3 hover-lift">
-                <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center">
+              <div className="card-elevated p-4 flex items-start gap-3 hover-lift">
+                <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
                   <item.icon className="h-5 w-5 text-foreground" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.label}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium break-words">{item.label}</span>
                     {item.badge === 'warning' && (
                       <Badge variant="secondary" className="bg-warning/10 text-warning text-[10px]">
                         Pending
@@ -222,9 +222,11 @@ export default function Dashboard() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">{item.subtitle}</p>
+                  <p className="text-sm text-muted-foreground leading-tight mt-0.5">
+                    {item.subtitle}
+                  </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               </div>
             </Link>
           ))}

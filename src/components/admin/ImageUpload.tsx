@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useId } from 'react';
+import heic2any from 'heic2any';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,40 +30,65 @@ export function ImageUpload({
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const { toast } = useToast();
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB');
-      return;
-    }
-
     setError(null);
     setUploading(true);
 
     try {
+      // Some devices (notably iPhone) may provide HEIC/HEIF photos which aren't reliably previewable
+      // or processable by downstream services. Convert to JPEG when needed.
+      let workingFile: File = file;
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      const isHeic =
+        ext === 'heic' ||
+        ext === 'heif' ||
+        file.type === 'image/heic' ||
+        file.type === 'image/heif';
+
+      if (isHeic) {
+        try {
+          const converted = (await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9,
+          })) as Blob;
+
+          workingFile = new File([
+            converted,
+          ], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
+        } catch (convertErr) {
+          throw new Error('This photo format (HEIC) could not be processed. Please try a JPG or PNG.');
+        }
+      }
+
+      // Validate file type
+      if (!workingFile.type.startsWith('image/')) {
+        throw new Error('Please select an image file');
+      }
+
+      // Validate file size (max 5MB)
+      if (workingFile.size > 5 * 1024 * 1024) {
+        throw new Error('Image must be less than 5MB');
+      }
+
       // Create preview
       const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target?.result as string);
-      reader.readAsDataURL(file);
+      reader.onload = (ev) => setPreview(ev.target?.result as string);
+      reader.readAsDataURL(workingFile);
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
+      // Upload to Storage
+      const fileExt = (workingFile.name.split('.').pop() || 'jpg').toLowerCase();
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('uploads')
-        .upload(fileName, file);
+        .upload(fileName, workingFile, { contentType: workingFile.type, upsert: false });
 
       if (uploadError) throw uploadError;
 
@@ -128,11 +154,11 @@ export function ImageUpload({
       <Input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         onChange={handleFileSelect}
         disabled={uploading || moderating}
         className="hidden"
-        id="image-upload"
+        id={inputId}
       />
       
       {preview ? (
@@ -163,7 +189,7 @@ export function ImageUpload({
         </div>
       ) : (
         <label 
-          htmlFor="image-upload"
+          htmlFor={inputId}
           className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
         >
           <Upload className="h-8 w-8 text-muted-foreground mb-2" />
