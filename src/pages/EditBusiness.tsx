@@ -245,7 +245,7 @@ export default function EditBusiness() {
     <>
       <Header title="Edit Business" />
       
-      <PageContainer className="pb-20">
+      <PageContainer className="pb-32">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -358,15 +358,15 @@ export default function EditBusiness() {
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Category *</Label>
               <Select 
                 value={formData.category_id} 
                 onValueChange={(value) => handleInputChange('category_id', value)}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories?.map(cat => (
@@ -384,8 +384,8 @@ export default function EditBusiness() {
                 value={formData.neighborhood_id}
                 onValueChange={(value) => handleInputChange('neighborhood_id', value)}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select area" />
                 </SelectTrigger>
                 <SelectContent>
                   {neighborhoods?.map(n => (
