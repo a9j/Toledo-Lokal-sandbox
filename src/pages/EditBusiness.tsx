@@ -45,6 +45,7 @@ export default function EditBusiness() {
     address: '',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isInLoop, setIsInLoop] = useState(false);
 
   const { data: business, isLoading } = useQuery({
@@ -106,6 +107,7 @@ export default function EditBusiness() {
         address: business.address || '',
       });
       setMainPhoto(business.photos?.[0] || null);
+      setLogoUrl(business.logo_url || null);
     }
   }, [business]);
 
@@ -117,7 +119,7 @@ export default function EditBusiness() {
   }, [loopSettings]);
 
   const updateBusiness = useMutation({
-    mutationFn: async (data: typeof formData & { photos?: string[] }) => {
+    mutationFn: async (data: typeof formData & { photos?: string[]; logo_url?: string | null }) => {
       if (!id) throw new Error('No business ID');
       
       const updateData: any = { ...data };
@@ -128,6 +130,9 @@ export default function EditBusiness() {
         // Put new main photo first, keep others
         updateData.photos = [mainPhoto, ...existingPhotos.filter(p => p !== mainPhoto)];
       }
+      
+      // Handle logo
+      updateData.logo_url = logoUrl;
       
       const { error } = await supabase
         .from('businesses')
@@ -341,6 +346,44 @@ export default function EditBusiness() {
                   onUpload={(url) => setMainPhoto(url)}
                   folder="businesses"
                   label="Upload Feed Photo"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Logo Upload Section */}
+          <div className="card-elevated p-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Label className="text-base font-semibold">🏢 Business Logo</Label>
+                <span className="text-xs text-muted-foreground">(Optional)</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your logo appears on your business profile and in search results.
+              </p>
+              {logoUrl ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-4">
+                    <SecureImage
+                      storagePath={logoUrl}
+                      alt="Business logo"
+                      className="w-20 h-20 object-contain rounded-lg border border-border bg-muted/30"
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setLogoUrl(null)}
+                    >
+                      Change Logo
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <ImageUpload
+                  onUpload={(url) => setLogoUrl(url)}
+                  folder="businesses/logos"
+                  label="Upload Logo"
                 />
               )}
             </div>
