@@ -29,6 +29,9 @@ import CreateStory from "./pages/CreateStory";
 import Subscription from "./pages/Subscription";
 import Saved from "./pages/Saved";
 import LoopWallet from "./pages/LoopWallet";
+import BusinessQRCodes from "./pages/BusinessQRCodes";
+import ScanQR from "./pages/ScanQR";
+import PendingScans from "./pages/PendingScans";
 import NotFound from "./pages/NotFound";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
@@ -57,6 +60,9 @@ const App = () => (
                 <Route path="/business/:id" element={<BusinessDetail />} />
                 <Route path="/create-business" element={<CreateBusiness />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
+                <Route path="/dashboard/pending-scans" element={<PendingScans />} />
+                <Route path="/dashboard/subscription" element={<Subscription />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/tours" element={<Tours />} />
                 <Route path="/challenges" element={<Challenges />} />
@@ -64,7 +70,9 @@ const App = () => (
                 <Route path="/stories/create" element={<CreateStory />} />
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/saved" element={<Saved />} />
+                <Route path="/loop-wallet" element={<LoopWallet />} />
                 <Route path="/wallet" element={<LoopWallet />} />
+                <Route path="/scan/:qrCodeId" element={<ScanQR />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <BottomNav />
