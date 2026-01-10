@@ -43,6 +43,8 @@ export default function EditBusiness() {
     phone: '',
     website: '',
     instagram: '',
+    tiktok: '',
+    facebook: '',
     address: '',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
@@ -106,6 +108,8 @@ export default function EditBusiness() {
         phone: business.phone || '',
         website: business.website || '',
         instagram: business.instagram || '',
+        tiktok: (business as any).tiktok || '',
+        facebook: (business as any).facebook || '',
         address: business.address || '',
       });
       setMainPhoto(business.photos?.[0] || null);
@@ -490,6 +494,28 @@ export default function EditBusiness() {
               value={formData.instagram}
               onChange={(e) => handleInputChange('instagram', e.target.value)}
               placeholder="@yourbusiness"
+              maxLength={100}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="tiktok">TikTok Handle</Label>
+            <Input 
+              id="tiktok" 
+              value={formData.tiktok}
+              onChange={(e) => handleInputChange('tiktok', e.target.value)}
+              placeholder="@yourbusiness"
+              maxLength={100}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="facebook">Facebook Page</Label>
+            <Input 
+              id="facebook" 
+              value={formData.facebook}
+              onChange={(e) => handleInputChange('facebook', e.target.value)}
+              placeholder="YourBusinessPage"
               maxLength={100}
             />
           </div>
