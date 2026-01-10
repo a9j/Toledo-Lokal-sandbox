@@ -41,10 +41,25 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('business_staff')
-        .select('*, profiles:user_id(name, avatar_url)')
+        .select('*')
         .eq('business_id', businessId);
       
       if (error) throw error;
+      
+      // Fetch profile names separately
+      if (data && data.length > 0) {
+        const userIds = data.map(s => s.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, name, avatar_url')
+          .in('user_id', userIds);
+        
+        return data.map(staff => ({
+          ...staff,
+          profile: profiles?.find(p => p.user_id === staff.user_id) || null
+        }));
+      }
+      
       return data;
     },
   });
@@ -280,7 +295,7 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">
-                  {(member.profiles as any)?.name || 'Staff Member'}
+                  {(member as any).profile?.name || 'Staff Member'}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {member.role} • Added {formatDistanceToNow(new Date(member.created_at), { addSuffix: true })}
