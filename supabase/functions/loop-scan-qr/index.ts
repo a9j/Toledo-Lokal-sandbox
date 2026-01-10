@@ -83,8 +83,12 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
 
   // 2. Validate QR code is active
   if (!qrCode.is_active) {
-    return new Response(JSON.stringify({ error: 'This QR code is no longer active' }), {
-      status: 400,
+    return new Response(JSON.stringify({ 
+      success: false,
+      paused: true,
+      error: 'Loop rewards are paused at this location — check back soon!'
+    }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -92,14 +96,22 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
   // 3. Check validity dates
   const now = new Date();
   if (qrCode.valid_from && new Date(qrCode.valid_from) > now) {
-    return new Response(JSON.stringify({ error: 'This QR code is not yet valid' }), {
-      status: 400,
+    return new Response(JSON.stringify({ 
+      success: false,
+      paused: true,
+      error: 'Loop rewards are paused at this location — check back soon!'
+    }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
   if (qrCode.valid_until && new Date(qrCode.valid_until) < now) {
-    return new Response(JSON.stringify({ error: 'This QR code has expired' }), {
-      status: 400,
+    return new Response(JSON.stringify({ 
+      success: false,
+      paused: true,
+      error: 'Loop rewards are paused at this location — check back soon!'
+    }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -116,36 +128,43 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     console.error('Error fetching scan history:', scanHistoryError);
   }
 
-  // 5. Check single-use
+  // 5. Check single-use (customer-friendly messaging)
   if (qrCode.is_single_use && previousScans && previousScans.length > 0) {
-    return new Response(JSON.stringify({ error: 'This is a single-use QR code and has already been used' }), {
-      status: 400,
+    return new Response(JSON.stringify({ 
+      success: false,
+      alreadyEarned: true,
+      error: 'You\'ve already earned bonus points here — thanks for visiting!'
+    }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 6. Check max scans per user
+  // 6. Check max scans per user (customer-friendly messaging)
   if (qrCode.max_scans_per_user && previousScans && previousScans.length >= qrCode.max_scans_per_user) {
     return new Response(JSON.stringify({ 
-      error: `You've reached the maximum ${qrCode.max_scans_per_user} scans for this QR code` 
+      success: false,
+      alreadyEarned: true,
+      error: 'You\'ve already earned bonus points here — thanks for visiting!'
     }), {
-      status: 400,
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 7. Check cooldown period
+  // 7. Check cooldown period (customer-friendly messaging)
   if (qrCode.scan_cooldown_hours && previousScans && previousScans.length > 0) {
     const lastScan = new Date(previousScans[0].created_at);
     const cooldownMs = qrCode.scan_cooldown_hours * 60 * 60 * 1000;
     const timeSinceLast = now.getTime() - lastScan.getTime();
     
     if (timeSinceLast < cooldownMs) {
-      const hoursRemaining = Math.ceil((cooldownMs - timeSinceLast) / (60 * 60 * 1000));
       return new Response(JSON.stringify({ 
-        error: `Please wait ${hoursRemaining} more hour(s) before scanning again` 
+        success: false,
+        alreadyEarned: true,
+        error: 'You\'ve already earned bonus points recently — check back later!'
       }), {
-        status: 400,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -159,13 +178,18 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     .single();
 
   if (!businessSettings || !businessSettings.is_active || businessSettings.loop_tier_id === 'visible_only') {
-    return new Response(JSON.stringify({ error: 'This business is not currently participating in Loop' }), {
-      status: 400,
+    // Customer-friendly message - never expose internal details
+    return new Response(JSON.stringify({ 
+      success: false,
+      paused: true,
+      error: 'Loop rewards are paused at this location — check back soon!' 
+    }), {
+      status: 200, // Use 200 so it doesn't feel like an error
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 9. Check monthly cap
+  // 9. Check monthly cap (customer never sees "limit reached")
   const { data: tierData } = await supabase
     .from('loop_tiers')
     .select('points_cap_monthly')
@@ -174,10 +198,13 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
 
   const monthlyRemaining = (tierData?.points_cap_monthly || 0) - (businessSettings.points_issued_this_month || 0);
   if (monthlyRemaining < qrCode.points_value) {
+    // Customer-friendly message - never mention caps or limits
     return new Response(JSON.stringify({ 
-      error: 'This business has reached their monthly points limit' 
+      success: false,
+      paused: true,
+      error: 'Loop rewards are paused at this location — check back soon!'
     }), {
-      status: 400,
+      status: 200, // Use 200 so it doesn't feel like an error
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
