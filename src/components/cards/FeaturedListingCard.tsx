@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Star, Clock, CheckCircle2, Infinity } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
+import { Json } from '@/integrations/supabase/types';
 
 interface FeaturedListingCardProps {
   business: {
@@ -11,11 +12,34 @@ interface FeaturedListingCardProps {
     featured?: boolean | null;
     isInLoop?: boolean;
     photos?: string[] | null;
+    hours?: Json | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
   };
   showImage?: boolean;
 }
+
+// Convert 24-hour time to 12-hour format
+const formatTime12hr = (time24: string): string => {
+  if (!time24) return '';
+  const [hours, minutes] = time24.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}${minutes ? `:${minutes.toString().padStart(2, '0')}` : ''} ${period}`;
+};
+
+// Get today's hours status
+const getTodayHoursStatus = (hours: Json | null): string => {
+  if (!hours || typeof hours !== 'object' || Array.isArray(hours)) return '';
+  
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const today = days[new Date().getDay()];
+  const todayHours = (hours as Record<string, { open?: string; close?: string; closed?: boolean }>)[today];
+  
+  if (!todayHours || todayHours.closed) return 'Closed today';
+  if (todayHours.close) return `Open until ${formatTime12hr(todayHours.close)}`;
+  return '';
+};
 
 // Placeholder images for demo
 const placeholderImages = [
@@ -138,10 +162,12 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                   <span>{business.neighborhood.name}</span>
                 </div>
               )}
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>Open until 9 PM</span>
-              </div>
+              {getTodayHoursStatus(business.hours) && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>{getTodayHoursStatus(business.hours)}</span>
+                </div>
+              )}
             </div>
             {business.verified && showImage && (
               <CheckCircle2 className="h-5 w-5 text-toledo-teal" />
