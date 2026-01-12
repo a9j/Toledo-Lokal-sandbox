@@ -21,6 +21,10 @@ export interface TierConfig {
     prioritySupport: boolean;
     jobBadge: boolean;
     jobAnalytics: boolean;
+    // Pulse limits
+    pulsePostsPerDay: number;
+    pulsePinnedPerDay: number;
+    pulsePromoAllowed: boolean;
   };
   // Loop Lokal integration
   loopTierId: LoopTierId | null;
@@ -53,6 +57,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       prioritySupport: false,
       jobBadge: false,
       jobAnalytics: false,
+      pulsePostsPerDay: 1,
+      pulsePinnedPerDay: 0,
+      pulsePromoAllowed: false,
     },
     loopTierId: 'visible_only',
     loopFeatures: [
@@ -87,6 +94,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       prioritySupport: false,
       jobBadge: true,
       jobAnalytics: false,
+      pulsePostsPerDay: 3,
+      pulsePinnedPerDay: 0,
+      pulsePromoAllowed: true,
     },
     loopTierId: 'loop_starter',
     loopFeatures: [
@@ -124,6 +134,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       prioritySupport: false,
       jobBadge: true,
       jobAnalytics: true,
+      pulsePostsPerDay: 5,
+      pulsePinnedPerDay: 1,
+      pulsePromoAllowed: true,
     },
     loopTierId: 'loop_growth',
     loopFeatures: [
@@ -163,6 +176,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       prioritySupport: true,
       jobBadge: true,
       jobAnalytics: true,
+      pulsePostsPerDay: 10,
+      pulsePinnedPerDay: 3,
+      pulsePromoAllowed: true,
     },
     loopTierId: 'loop_partner',
     loopFeatures: [

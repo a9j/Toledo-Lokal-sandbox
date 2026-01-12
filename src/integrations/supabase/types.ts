@@ -1894,6 +1894,98 @@ export type Database = {
           },
         ]
       }
+      pulse_feedback: {
+        Row: {
+          created_at: string
+          feedback_type: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_type: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_feedback_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_posts: {
+        Row: {
+          business_id: string | null
+          category: Database["public"]["Enums"]["pulse_category"]
+          content: string
+          created_at: string
+          expires_at: string
+          flag_count: number
+          helpful_count: number
+          id: string
+          is_pinned: boolean
+          location_text: string | null
+          status: Database["public"]["Enums"]["pulse_post_status"]
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          category: Database["public"]["Enums"]["pulse_category"]
+          content: string
+          created_at?: string
+          expires_at: string
+          flag_count?: number
+          helpful_count?: number
+          id?: string
+          is_pinned?: boolean
+          location_text?: string | null
+          status?: Database["public"]["Enums"]["pulse_post_status"]
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          category?: Database["public"]["Enums"]["pulse_category"]
+          content?: string
+          created_at?: string
+          expires_at?: string
+          flag_count?: number
+          helpful_count?: number
+          id?: string
+          is_pinned?: boolean
+          location_text?: string | null
+          status?: Database["public"]["Enums"]["pulse_post_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       requests: {
         Row: {
           budget_max: number | null
@@ -2619,6 +2711,7 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      expire_pulse_posts: { Args: never; Returns: undefined }
       generate_business_slug: {
         Args: { business_name: string }
         Returns: string
@@ -2745,6 +2838,13 @@ export type Database = {
         | "bonus"
         | "refund"
         | "expire"
+      pulse_category:
+        | "right_now"
+        | "heads_up"
+        | "energy_check"
+        | "community_ask"
+        | "good_stuff"
+      pulse_post_status: "active" | "hidden" | "removed" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2899,6 +2999,14 @@ export const Constants = {
         "refund",
         "expire",
       ],
+      pulse_category: [
+        "right_now",
+        "heads_up",
+        "energy_check",
+        "community_ask",
+        "good_stuff",
+      ],
+      pulse_post_status: ["active", "hidden", "removed", "expired"],
     },
   },
 } as const
