@@ -48,6 +48,7 @@ import DashboardJobs from "./pages/DashboardJobs";
 import DashboardFoodTruck from "./pages/DashboardFoodTruck";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 import Pulse from "./pages/Pulse";
+import PulseDetail from "./pages/PulseDetail";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Pulse />} />
                 <Route path="/pulse" element={<Pulse />} />
+                <Route path="/pulse/:pulseId" element={<PulseDetail />} />
                 <Route path="/discover" element={<Index />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/auth" element={<Auth />} />

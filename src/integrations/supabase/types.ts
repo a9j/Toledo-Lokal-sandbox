@@ -1928,44 +1928,74 @@ export type Database = {
       }
       pulse_posts: {
         Row: {
+          anonymous: boolean | null
+          author_type: string | null
           business_id: string | null
+          business_tier: string | null
           category: Database["public"]["Enums"]["pulse_category"]
           content: string
           created_at: string
           expires_at: string
           flag_count: number
+          full_body: string | null
+          headline: string | null
           helpful_count: number
+          hero_image: string | null
           id: string
           is_pinned: boolean
           location_text: string | null
+          preview_text: string | null
+          pulse_id: string | null
+          resharing_allowed: boolean | null
+          share_enabled: boolean | null
           status: Database["public"]["Enums"]["pulse_post_status"]
           user_id: string | null
         }
         Insert: {
+          anonymous?: boolean | null
+          author_type?: string | null
           business_id?: string | null
+          business_tier?: string | null
           category: Database["public"]["Enums"]["pulse_category"]
           content: string
           created_at?: string
           expires_at: string
           flag_count?: number
+          full_body?: string | null
+          headline?: string | null
           helpful_count?: number
+          hero_image?: string | null
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          preview_text?: string | null
+          pulse_id?: string | null
+          resharing_allowed?: boolean | null
+          share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
           user_id?: string | null
         }
         Update: {
+          anonymous?: boolean | null
+          author_type?: string | null
           business_id?: string | null
+          business_tier?: string | null
           category?: Database["public"]["Enums"]["pulse_category"]
           content?: string
           created_at?: string
           expires_at?: string
           flag_count?: number
+          full_body?: string | null
+          headline?: string | null
           helpful_count?: number
+          hero_image?: string | null
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          preview_text?: string | null
+          pulse_id?: string | null
+          resharing_allowed?: boolean | null
+          share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
           user_id?: string | null
         }
