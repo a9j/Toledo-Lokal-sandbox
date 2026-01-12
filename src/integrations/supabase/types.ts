@@ -2425,6 +2425,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           editor_pick_image: string | null
+          facebook: string | null
           featured: boolean | null
           hours: Json | null
           id: string | null
@@ -2436,8 +2437,10 @@ export type Database = {
           phone: string | null
           photos: string[] | null
           review_count: number | null
+          slug: string | null
           status: string | null
           story: string | null
+          tiktok: string | null
           updated_at: string | null
           verified: boolean | null
           website: string | null
@@ -2449,6 +2452,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           editor_pick_image?: string | null
+          facebook?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string | null
@@ -2460,8 +2464,10 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           review_count?: number | null
+          slug?: string | null
           status?: string | null
           story?: string | null
+          tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
           website?: string | null
@@ -2473,6 +2479,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           editor_pick_image?: string | null
+          facebook?: string | null
           featured?: boolean | null
           hours?: Json | null
           id?: string | null
@@ -2484,8 +2491,10 @@ export type Database = {
           phone?: string | null
           photos?: string[] | null
           review_count?: number | null
+          slug?: string | null
           status?: string | null
           story?: string | null
+          tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
           website?: string | null
@@ -2523,7 +2532,7 @@ export type Database = {
         }
         Insert: {
           business_id?: string | null
-          contact_info?: string | null
+          contact_info?: never
           contact_info_masked?: never
           created_at?: string | null
           id?: string | null
@@ -2536,7 +2545,7 @@ export type Database = {
         }
         Update: {
           business_id?: string | null
-          contact_info?: string | null
+          contact_info?: never
           contact_info_masked?: never
           created_at?: string | null
           id?: string | null
