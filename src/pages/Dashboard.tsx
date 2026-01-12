@@ -17,7 +17,9 @@ import {
   QrCode,
   Gift,
   ClipboardCheck,
-  Users
+  Users,
+  Briefcase,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +86,18 @@ export default function Dashboard() {
       href: `/business/${business.id}/edit`,
       subtitle: business.status === 'pending' ? 'Pending approval' : 'Active',
       badge: business.status === 'pending' ? 'warning' : undefined
+    },
+    { 
+      icon: Briefcase, 
+      label: 'Hiring & Jobs', 
+      href: '/dashboard/jobs',
+      subtitle: 'Post job openings'
+    },
+    { 
+      icon: Truck, 
+      label: 'Food Truck Mode', 
+      href: '/dashboard/food-truck',
+      subtitle: 'Post daily locations'
     },
     { 
       icon: Tag, 
