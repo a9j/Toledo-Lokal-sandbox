@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Briefcase, DollarSign, Clock, MapPin, Zap } from 'lucide-react';
+import { Briefcase, DollarSign, Clock, Zap, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Job, JobType } from '@/hooks/useJobs';
 
 interface JobCardProps {
   job: Job;
+  showLocalEmployerBadge?: boolean;
 }
 
 const jobTypeLabels: Record<JobType, string> = {
@@ -39,7 +40,7 @@ const formatPay = (job: Job): string => {
   return '';
 };
 
-export function JobCard({ job }: JobCardProps) {
+export function JobCard({ job, showLocalEmployerBadge = false }: JobCardProps) {
   const pay = formatPay(job);
 
   return (
@@ -67,10 +68,18 @@ export function JobCard({ job }: JobCardProps) {
                   {job.title}
                 </h3>
                 {job.business && (
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">
-                    {job.business.name}
-                    {job.business.neighborhood && ` · ${job.business.neighborhood.name}`}
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <p className="text-xs text-muted-foreground truncate">
+                      {job.business.name}
+                      {job.business.neighborhood && ` · ${job.business.neighborhood.name}`}
+                    </p>
+                    {showLocalEmployerBadge && (
+                      <Badge variant="secondary" className="bg-primary/10 text-primary text-[9px] px-1 py-0">
+                        <Crown className="h-2 w-2 mr-0.5" />
+                        Local
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">

@@ -12,11 +12,15 @@ export interface TierConfig {
   limits: {
     deals: number;
     events: number;
+    jobs: number; // -1 = unlimited
+    jobExpirationDays: number; // 0 = no expiration
     featuredPlacement: boolean;
     homepageFeatured: boolean;
     analytics: boolean;
     supportBadge: boolean;
     prioritySupport: boolean;
+    jobBadge: boolean;
+    jobAnalytics: boolean;
   };
   // Loop Lokal integration
   loopTierId: LoopTierId | null;
@@ -33,16 +37,22 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
     features: [
       'Business name & category',
       'Location on map',
-      'Basic listing'
+      'Basic listing',
+      '1 active job posting',
+      'Jobs auto-expire in 30 days'
     ],
     limits: {
       deals: 0,
       events: 0,
+      jobs: 1,
+      jobExpirationDays: 30,
       featuredPlacement: false,
       homepageFeatured: false,
       analytics: false,
       supportBadge: false,
       prioritySupport: false,
+      jobBadge: false,
+      jobAnalytics: false,
     },
     loopTierId: 'visible_only',
     loopFeatures: [
@@ -60,16 +70,23 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       'Everything in Free',
       '1 deal per month',
       'Support local badge',
-      'Enhanced listing'
+      'Enhanced listing',
+      '3 active job postings',
+      '"Local Employer" badge on jobs',
+      'Repost & duplicate jobs'
     ],
     limits: {
       deals: 1,
       events: 0,
+      jobs: 3,
+      jobExpirationDays: 0, // No expiration
       featuredPlacement: false,
       homepageFeatured: false,
       analytics: false,
       supportBadge: true,
       prioritySupport: false,
+      jobBadge: true,
+      jobAnalytics: false,
     },
     loopTierId: 'loop_starter',
     loopFeatures: [
@@ -91,16 +108,22 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       'Unlimited deals',
       'Post events',
       'Featured placement',
-      'Basic analytics'
+      'Basic analytics',
+      '5 active job postings',
+      'Higher visibility in job feed'
     ],
     limits: {
       deals: -1, // unlimited
       events: -1, // unlimited
+      jobs: 5,
+      jobExpirationDays: 0,
       featuredPlacement: true,
       homepageFeatured: false,
       analytics: true,
       supportBadge: true,
       prioritySupport: false,
+      jobBadge: true,
+      jobAnalytics: true,
     },
     loopTierId: 'loop_growth',
     loopFeatures: [
@@ -123,16 +146,23 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       'Homepage featured section',
       'Exclusive placements',
       'Advanced analytics',
-      'Priority support'
+      'Priority support',
+      'Unlimited job postings',
+      'Featured job placement',
+      'Job analytics dashboard'
     ],
     limits: {
       deals: -1,
       events: -1,
+      jobs: -1, // unlimited
+      jobExpirationDays: 0,
       featuredPlacement: true,
       homepageFeatured: true,
       analytics: true,
       supportBadge: true,
       prioritySupport: true,
+      jobBadge: true,
+      jobAnalytics: true,
     },
     loopTierId: 'loop_partner',
     loopFeatures: [
@@ -175,6 +205,14 @@ export const getDealsLimit = (tier: SubscriptionTier): number => {
 
 export const getEventsLimit = (tier: SubscriptionTier): number => {
   return SUBSCRIPTION_TIERS[tier].limits.events;
+};
+
+export const getJobsLimit = (tier: SubscriptionTier): number => {
+  return SUBSCRIPTION_TIERS[tier].limits.jobs;
+};
+
+export const getJobExpirationDays = (tier: SubscriptionTier): number => {
+  return SUBSCRIPTION_TIERS[tier].limits.jobExpirationDays;
 };
 
 export const getLoopTierForSubscription = (tier: SubscriptionTier): LoopTierId => {
