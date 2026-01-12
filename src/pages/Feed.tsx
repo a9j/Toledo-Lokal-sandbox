@@ -19,6 +19,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, ChevronRight, Star, Clock, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SecureImage } from '@/components/ui/secure-image';
+import { postSchema, validateInput, sanitizeText } from '@/lib/validation-schemas';
+import { moderateTextContent } from '@/hooks/useContentModeration';
 
 // Placeholder images
 const heroImages = [
@@ -44,10 +46,26 @@ export default function Feed() {
   const createPost = useMutation({
     mutationFn: async (content: string) => {
       if (!user) throw new Error('Must be logged in');
+      
+      // Validate input with Zod
+      const validation = validateInput(postSchema, { content, post_type: 'community' });
+      if (!validation.success) {
+        throw new Error('errors' in validation ? validation.errors[0] : 'Validation failed');
+      }
+      
+      // Sanitize content
+      const sanitizedContent = sanitizeText(validation.data.content);
+      
+      // Moderate text content
+      const moderation = await moderateTextContent(sanitizedContent);
+      if (!moderation.safe) {
+        throw new Error(`Content flagged: ${moderation.flaggedReasons.join(', ')}`);
+      }
+      
       const { error } = await supabase.from('posts').insert({
         author_id: user.id,
-        content,
-        post_type: 'community',
+        content: sanitizedContent,
+        post_type: validation.data.post_type,
       });
       if (error) throw error;
     },
