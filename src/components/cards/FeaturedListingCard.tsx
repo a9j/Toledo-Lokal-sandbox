@@ -28,17 +28,46 @@ const formatTime12hr = (time24: string): string => {
   return `${hours12}${minutes ? `:${minutes.toString().padStart(2, '0')}` : ''} ${period}`;
 };
 
-// Get today's hours status
-const getTodayHoursStatus = (hours: Json | null): string => {
-  if (!hours || typeof hours !== 'object' || Array.isArray(hours)) return '';
+// Check if business is currently open
+const isCurrentlyOpen = (hours: Json | null): boolean => {
+  if (!hours || typeof hours !== 'object' || Array.isArray(hours)) return false;
   
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const today = days[new Date().getDay()];
+  const now = new Date();
+  const today = days[now.getDay()];
   const todayHours = (hours as Record<string, { open?: string; close?: string; closed?: boolean }>)[today];
   
-  if (!todayHours || todayHours.closed) return 'Closed today';
-  if (todayHours.close) return `Open until ${formatTime12hr(todayHours.close)}`;
-  return '';
+  if (!todayHours || todayHours.closed || !todayHours.open || !todayHours.close) return false;
+  
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const [openHours, openMins] = todayHours.open.split(':').map(Number);
+  const [closeHours, closeMins] = todayHours.close.split(':').map(Number);
+  const openMinutes = openHours * 60 + (openMins || 0);
+  const closeMinutes = closeHours * 60 + (closeMins || 0);
+  
+  return currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+};
+
+// Get today's hours status
+const getTodayHoursStatus = (hours: Json | null): { text: string; isOpen: boolean } => {
+  if (!hours || typeof hours !== 'object' || Array.isArray(hours)) return { text: '', isOpen: false };
+  
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const now = new Date();
+  const today = days[now.getDay()];
+  const todayHours = (hours as Record<string, { open?: string; close?: string; closed?: boolean }>)[today];
+  
+  if (!todayHours || todayHours.closed) return { text: 'Closed today', isOpen: false };
+  
+  const isOpen = isCurrentlyOpen(hours);
+  
+  if (isOpen && todayHours.close) {
+    return { text: `Open until ${formatTime12hr(todayHours.close)}`, isOpen: true };
+  } else if (!isOpen && todayHours.open) {
+    return { text: `Closed · Opens ${formatTime12hr(todayHours.open)}`, isOpen: false };
+  }
+  
+  return { text: '', isOpen: false };
 };
 
 // Placeholder images for demo
@@ -51,6 +80,7 @@ const placeholderImages = [
 
 export function FeaturedListingCard({ business, showImage = true }: FeaturedListingCardProps) {
   const imageUrl = business.photos?.[0] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+  const hoursStatus = getTodayHoursStatus(business.hours);
 
   return (
     <Link to={`/business/${business.id}`} className="block group">
@@ -81,13 +111,21 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
               )}
             </div>
             
-            {/* Open status - demo */}
-            <div className="absolute top-3 right-3">
-              <span className="badge-open flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-soft" />
-                Open Now
-              </span>
-            </div>
+            {/* Open status */}
+            {hoursStatus.text && (
+              <div className="absolute top-3 right-3">
+                {hoursStatus.isOpen ? (
+                  <span className="badge-open flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-soft" />
+                    Open Now
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full bg-muted/90 text-xs font-medium text-muted-foreground shadow-sm">
+                    Closed
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Bottom info on image */}
             <div className="absolute bottom-3 left-3 right-3">
@@ -162,10 +200,10 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                   <span>{business.neighborhood.name}</span>
                 </div>
               )}
-              {getTodayHoursStatus(business.hours) && (
+              {hoursStatus.text && (
                 <div className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>{getTodayHoursStatus(business.hours)}</span>
+                  <span>{hoursStatus.text}</span>
                 </div>
               )}
             </div>
