@@ -32,7 +32,9 @@ import {
   Image as ImageIcon,
   Pencil,
   BarChart3,
-  Award
+  Award,
+  Briefcase,
+  Truck
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -105,6 +107,38 @@ export default function Admin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
+        .select('*, business:businesses(name)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Pending jobs
+  const { data: pendingJobs } = useQuery({
+    queryKey: ['admin-pending-jobs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*, business:businesses(name)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Pending food truck locations
+  const { data: pendingFoodLocations } = useQuery({
+    queryKey: ['admin-pending-food-locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('food_truck_locations')
         .select('*, business:businesses(name)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
@@ -202,6 +236,46 @@ export default function Admin() {
     },
   });
 
+  const updateJobStatus = useMutation({
+    mutationFn: async ({ id, status, featured }: { id: string; status?: string; featured?: boolean }) => {
+      const updates: Record<string, any> = {};
+      if (status !== undefined) updates.status = status;
+      if (featured !== undefined) updates.featured = featured;
+      
+      const { error } = await supabase
+        .from('jobs')
+        .update(updates)
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-pending-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      toast({ title: 'Job updated' });
+    },
+  });
+
+  const updateFoodLocationStatus = useMutation({
+    mutationFn: async ({ id, status, featured }: { id: string; status?: string; featured?: boolean }) => {
+      const updates: Record<string, any> = {};
+      if (status !== undefined) updates.status = status;
+      if (featured !== undefined) updates.featured = featured;
+      
+      const { error } = await supabase
+        .from('food_truck_locations')
+        .update(updates)
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-pending-food-locations'] });
+      queryClient.invalidateQueries({ queryKey: ['food-truck-locations'] });
+      toast({ title: 'Food location updated' });
+    },
+  });
+
   const openEditDialog = (type: 'business' | 'deal' | 'event', item: any) => {
     setEditDialog({ open: true, type, item });
     if (type === 'business') {
@@ -293,6 +367,20 @@ export default function Admin() {
               <span className="hidden sm:inline">Events</span>
               {pendingEvents && pendingEvents.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingEvents.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="jobs" className="flex-1 gap-1.5">
+              <Briefcase className="h-4 w-4" />
+              <span className="hidden sm:inline">Jobs</span>
+              {pendingJobs && pendingJobs.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{pendingJobs.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="food" className="flex-1 gap-1.5">
+              <Truck className="h-4 w-4" />
+              <span className="hidden sm:inline">Food</span>
+              {pendingFoodLocations && pendingFoodLocations.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{pendingFoodLocations.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="manage" className="flex-1 gap-1.5">
@@ -449,6 +537,98 @@ export default function Admin() {
               ))
             ) : (
               <p className="text-center text-muted-foreground py-8">No pending events</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="jobs" className="space-y-3">
+            {pendingJobs?.length ? (
+              pendingJobs.map(job => (
+                <div key={job.id} className="card-elevated p-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{job.title}</h3>
+                    <p className="text-sm text-muted-foreground">{job.business?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {job.job_type} · ${job.pay_min}{job.pay_max && ` - $${job.pay_max}`}/{job.pay_type || 'hour'}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      onClick={() => updateJobStatus.mutate({ id: job.id, status: 'approved' })}
+                      className="gap-1"
+                    >
+                      <Check className="h-4 w-4" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateJobStatus.mutate({ id: job.id, status: 'rejected' })}
+                      className="gap-1"
+                    >
+                      <X className="h-4 w-4" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateJobStatus.mutate({ id: job.id, status: 'approved', featured: true })}
+                      className="gap-1 ml-auto"
+                    >
+                      <Star className="h-4 w-4" />
+                      Feature
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No pending jobs</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="food" className="space-y-3">
+            {pendingFoodLocations?.length ? (
+              pendingFoodLocations.map(location => (
+                <div key={location.id} className="card-elevated p-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{location.location_name}</h3>
+                    <p className="text-sm text-muted-foreground">{location.business?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {location.location_date} · {location.start_time} - {location.end_time}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      onClick={() => updateFoodLocationStatus.mutate({ id: location.id, status: 'approved' })}
+                      className="gap-1"
+                    >
+                      <Check className="h-4 w-4" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateFoodLocationStatus.mutate({ id: location.id, status: 'rejected' })}
+                      className="gap-1"
+                    >
+                      <X className="h-4 w-4" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateFoodLocationStatus.mutate({ id: location.id, status: 'approved', featured: true })}
+                      className="gap-1 ml-auto"
+                    >
+                      <Star className="h-4 w-4" />
+                      Feature
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No pending food truck locations</p>
             )}
           </TabsContent>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeroSection } from '@/components/home/HeroSection';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
+import { QuickLinksBar } from '@/components/home/QuickLinksBar';
 import { FeaturedSection } from '@/components/home/FeaturedSection';
 import { EventsCarousel } from '@/components/home/EventsCarousel';
 import { DealsSection } from '@/components/home/DealsSection';
@@ -64,6 +65,9 @@ export default function Index() {
       />
       {/* Hero Section with Search */}
       <HeroSection onSearch={handleSearch} />
+
+      {/* Quick Links Bar */}
+      <QuickLinksBar />
 
       {/* Category Grid */}
       <CategoryGrid />
