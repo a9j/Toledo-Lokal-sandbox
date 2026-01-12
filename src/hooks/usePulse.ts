@@ -17,6 +17,17 @@ export interface PulsePost {
   is_pinned: boolean;
   helpful_count: number;
   flag_count: number;
+  // New sharing fields
+  pulse_id: string;
+  headline: string | null;
+  preview_text: string | null;
+  full_body: string | null;
+  author_type: string;
+  business_tier: string;
+  share_enabled: boolean;
+  resharing_allowed: boolean;
+  anonymous: boolean;
+  hero_image: string | null;
   // Joined data
   business?: {
     id: string;
@@ -163,6 +174,13 @@ interface CreatePulsePostInput {
   locationText?: string;
   businessId?: string;
   isPinned?: boolean;
+  // Sharing fields
+  headline?: string;
+  previewText?: string;
+  fullBody?: string;
+  heroImage?: string;
+  shareEnabled?: boolean;
+  anonymous?: boolean;
 }
 
 export function useCreatePulsePost() {
@@ -186,6 +204,15 @@ export function useCreatePulsePost() {
           user_id: input.businessId ? null : user.id,
           business_id: input.businessId || null,
           is_pinned: input.isPinned || false,
+          // Sharing fields
+          headline: input.headline || null,
+          preview_text: input.previewText || null,
+          full_body: input.fullBody || null,
+          hero_image: input.heroImage || null,
+          share_enabled: input.shareEnabled !== false,
+          anonymous: input.anonymous || false,
+          author_type: input.businessId ? 'business' : 'user',
+          business_tier: input.businessId ? 'paid' : 'free', // TODO: fetch actual tier
         })
         .select()
         .single();

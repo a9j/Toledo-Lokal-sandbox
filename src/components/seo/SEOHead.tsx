@@ -219,3 +219,42 @@ export function createOrganizationJsonLd() {
     ],
   };
 }
+
+// Helper to create Pulse Article JSON-LD
+export function createPulseArticleJsonLd(pulse: {
+  headline: string;
+  description: string;
+  author?: string;
+  datePublished: string;
+  dateExpires?: string;
+  image?: string;
+  pulseId: string;
+  category?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: pulse.headline,
+    description: pulse.description,
+    author: {
+      '@type': pulse.author ? 'Person' : 'Organization',
+      name: pulse.author || 'ToledoLokal Community',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'ToledoLokal',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/pwa-512x512.png`,
+      },
+    },
+    datePublished: pulse.datePublished,
+    dateModified: pulse.datePublished,
+    image: pulse.image || DEFAULT_IMAGE,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${SITE_URL}/pulse/${pulse.pulseId}`,
+    },
+    articleSection: pulse.category || 'Community',
+  };
+}

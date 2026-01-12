@@ -12,9 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SecureAvatar } from '@/components/ui/secure-avatar';
+import { PulseShareButton } from './PulseShareButton';
 import {
   Zap, AlertTriangle, Activity, HelpCircle, Heart,
-  ThumbsUp, Flag, Clock, MapPin, Building2, MoreVertical, Pin, Trash2
+  ThumbsUp, Flag, Clock, MapPin, MoreVertical, Pin, Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -131,9 +132,12 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
             </Badge>
           </div>
 
-          <p className="text-foreground text-sm leading-relaxed mb-2">
-            {post.content}
-          </p>
+          {/* Link to detail page */}
+          <Link to={`/pulse/${post.pulse_id || post.id}`} className="block">
+            <p className="text-foreground text-sm leading-relaxed mb-2 hover:text-primary transition-colors">
+              {post.content}
+            </p>
+          </Link>
 
           {/* Meta row */}
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -171,32 +175,37 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
         )}
       </div>
 
-      {/* Feedback buttons */}
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleFeedback('helpful')}
-          className={cn(
-            "h-8 text-xs gap-1.5",
-            feedback?.feedback_type === 'helpful' && "text-primary bg-primary/10"
-          )}
-        >
-          <ThumbsUp className="h-3.5 w-3.5" />
-          Helpful
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handleFeedback('not_helpful')}
-          className={cn(
-            "h-8 text-xs gap-1.5",
-            feedback?.feedback_type === 'not_helpful' && "text-muted-foreground bg-muted"
-          )}
-        >
-          <Flag className="h-3.5 w-3.5" />
-          Not Helpful
-        </Button>
+      {/* Feedback and Share buttons */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleFeedback('helpful')}
+            className={cn(
+              "h-8 text-xs gap-1.5",
+              feedback?.feedback_type === 'helpful' && "text-primary bg-primary/10"
+            )}
+          >
+            <ThumbsUp className="h-3.5 w-3.5" />
+            Helpful
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleFeedback('not_helpful')}
+            className={cn(
+              "h-8 text-xs gap-1.5",
+              feedback?.feedback_type === 'not_helpful' && "text-muted-foreground bg-muted"
+            )}
+          >
+            <Flag className="h-3.5 w-3.5" />
+            Not Helpful
+          </Button>
+        </div>
+        
+        {/* Share button */}
+        <PulseShareButton post={post} />
       </div>
     </div>
   );
