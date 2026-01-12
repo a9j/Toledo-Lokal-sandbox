@@ -122,6 +122,48 @@ export type Database = {
           },
         ]
       }
+      business_features: {
+        Row: {
+          business_id: string
+          created_at: string
+          food_truck_enabled: boolean | null
+          hiring_enabled: boolean | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          food_truck_enabled?: boolean | null
+          hiring_enabled?: boolean | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          food_truck_enabled?: boolean | null
+          hiring_enabled?: boolean | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_features_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_features_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_invitations: {
         Row: {
           accepted_at: string | null
@@ -752,6 +794,147 @@ export type Database = {
           },
           {
             foreignKeyName: "events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      food_truck_locations: {
+        Row: {
+          address: string | null
+          business_id: string
+          created_at: string
+          end_time: string
+          featured: boolean | null
+          id: string
+          latitude: number | null
+          location_date: string
+          location_name: string
+          longitude: number | null
+          notes: string | null
+          start_time: string
+          status: string
+        }
+        Insert: {
+          address?: string | null
+          business_id: string
+          created_at?: string
+          end_time: string
+          featured?: boolean | null
+          id?: string
+          latitude?: number | null
+          location_date: string
+          location_name: string
+          longitude?: number | null
+          notes?: string | null
+          start_time: string
+          status?: string
+        }
+        Update: {
+          address?: string | null
+          business_id?: string
+          created_at?: string
+          end_time?: string
+          featured?: boolean | null
+          id?: string
+          latitude?: number | null
+          location_date?: string
+          location_name?: string
+          longitude?: number | null
+          notes?: string | null
+          start_time?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_truck_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_truck_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          apply_contact: string
+          apply_method: string
+          business_id: string
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          hiring_now: boolean | null
+          id: string
+          job_type: string
+          pay_max: number | null
+          pay_min: number | null
+          pay_type: string | null
+          schedule: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          apply_contact: string
+          apply_method: string
+          business_id: string
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          hiring_now?: boolean | null
+          id?: string
+          job_type: string
+          pay_max?: number | null
+          pay_min?: number | null
+          pay_type?: string | null
+          schedule?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          apply_contact?: string
+          apply_method?: string
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          hiring_now?: boolean | null
+          id?: string
+          job_type?: string
+          pay_max?: number | null
+          pay_min?: number | null
+          pay_type?: string | null
+          schedule?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"

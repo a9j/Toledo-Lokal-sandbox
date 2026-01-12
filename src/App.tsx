@@ -42,6 +42,10 @@ import DashboardBoost from "./pages/DashboardBoost";
 import ScannerMode from "./pages/ScannerMode";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
+import Jobs from "./pages/Jobs";
+import FoodToday from "./pages/FoodToday";
+import DashboardJobs from "./pages/DashboardJobs";
+import DashboardFoodTruck from "./pages/DashboardFoodTruck";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 
 const queryClient = new QueryClient();
@@ -91,6 +95,10 @@ const App = () => (
                 <Route path="/scan/:qrCodeId" element={<ScanQR />} />
                 <Route path="/scanner-mode" element={<ScannerMode />} />
                 <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/food-today" element={<FoodToday />} />
+                <Route path="/dashboard/jobs" element={<DashboardJobs />} />
+                <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <BottomNav />
