@@ -32,6 +32,7 @@ export interface Job {
     logo_url: string | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
+    business_loop_settings?: { loop_tier_id: string; is_active: boolean } | null;
   } | null;
 }
 
@@ -55,7 +56,8 @@ export function useJobs(filters?: JobFilters) {
             name,
             logo_url,
             neighborhood:neighborhoods(name),
-            category:categories(name, icon)
+            category:categories(name, icon),
+            business_loop_settings(loop_tier_id, is_active)
           )
         `)
         .eq('status', 'approved')

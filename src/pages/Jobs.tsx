@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { useJobs, JobType } from '@/hooks/useJobs';
+import { useJobs, JobType, Job } from '@/hooks/useJobs';
 import { JobCard } from '@/components/cards/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Briefcase, Zap, Filter, X } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { isLoopParticipant } from '@/lib/loop-tiers';
 import {
   Select,
   SelectContent,
@@ -211,9 +212,19 @@ export default function Jobs() {
               </div>
             ))
           ) : filteredJobs && filteredJobs.length > 0 ? (
-            filteredJobs.map(job => (
-              <JobCard key={job.id} job={job} />
-            ))
+            filteredJobs.map(job => {
+              // Check if business is a Loop participant (paid tier)
+              const loopSettings = job.business?.business_loop_settings;
+              const isPaidTier = loopSettings?.is_active && isLoopParticipant(loopSettings.loop_tier_id);
+              
+              return (
+                <JobCard 
+                  key={job.id} 
+                  job={job} 
+                  showLocalEmployerBadge={isPaidTier}
+                />
+              );
+            })
           ) : (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">

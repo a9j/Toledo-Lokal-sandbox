@@ -4,9 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useBusinessJobs, useCreateJob, useUpdateJob, useDeleteJob, JobType, PayType, ApplyMethod } from '@/hooks/useJobs';
 import { useBusinessFeatures, useUpdateBusinessFeatures } from '@/hooks/useBusinessFeatures';
+import { useJobLimits } from '@/hooks/useJobLimits';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 import { 
   ArrowLeft, 
   Plus, 
@@ -21,8 +24,10 @@ import {
   Trash2, 
   Edit, 
   Zap,
-  ToggleLeft,
-  ToggleRight
+  Crown,
+  Copy,
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import {
   Dialog,
@@ -49,6 +54,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const jobTypes: { value: JobType; label: string }[] = [
   { value: 'full-time', label: 'Full-time' },
@@ -126,6 +132,8 @@ export default function DashboardJobs() {
 
   const { data: features, isLoading: featuresLoading } = useBusinessFeatures(business?.id);
   const { data: jobs, isLoading: jobsLoading } = useBusinessJobs(business?.id);
+  const jobLimits = useJobLimits(business?.id);
+  const { tier, tierConfig } = useSubscription();
   const updateFeatures = useUpdateBusinessFeatures();
   const createJob = useCreateJob();
   const updateJob = useUpdateJob();
@@ -145,7 +153,27 @@ export default function DashboardJobs() {
   };
 
   const handleOpenCreate = () => {
+    if (!jobLimits.canPostJob) return;
     setFormData(defaultFormData);
+    setEditingJob(null);
+    setDialogOpen(true);
+  };
+
+  const handleDuplicateJob = (job: typeof jobs[0]) => {
+    if (!jobLimits.canPostJob) return;
+    setFormData({
+      title: job.title + ' (Copy)',
+      job_type: job.job_type as JobType,
+      pay_min: job.pay_min,
+      pay_max: job.pay_max,
+      pay_type: job.pay_type as PayType,
+      schedule: job.schedule || '',
+      description: job.description || '',
+      start_date: '',
+      hiring_now: job.hiring_now,
+      apply_method: job.apply_method as ApplyMethod,
+      apply_contact: job.apply_contact,
+    });
     setEditingJob(null);
     setDialogOpen(true);
   };
@@ -245,12 +273,69 @@ export default function DashboardJobs() {
 
         {features?.hiring_enabled && (
           <>
+            {/* Job Limits Card */}
+            <div className="card-elevated p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Active Job Postings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {jobLimits.maxJobs === Infinity 
+                      ? 'Unlimited job postings'
+                      : `${jobLimits.activeJobsCount} of ${jobLimits.maxJobs} used`
+                    }
+                  </p>
+                </div>
+                {jobLimits.hasJobBadge && (
+                  <Badge variant="secondary" className="bg-primary/10 text-primary">
+                    <Crown className="h-3 w-3 mr-1" />
+                    Local Employer
+                  </Badge>
+                )}
+              </div>
+              
+              {jobLimits.maxJobs !== Infinity && (
+                <Progress 
+                  value={(jobLimits.activeJobsCount / jobLimits.maxJobs) * 100} 
+                  className="h-2"
+                />
+              )}
+              
+              {jobLimits.expirationDays > 0 && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  Jobs auto-expire after {jobLimits.expirationDays} days
+                </div>
+              )}
+              
+              {!jobLimits.canPostJob && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    You've reached your job posting limit. 
+                    <Link to="/subscription" className="text-primary underline ml-1">
+                      Upgrade your plan
+                    </Link>
+                    {' '}to post more jobs.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+
             {/* Create Job Button */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full" onClick={handleOpenCreate}>
+                <Button 
+                  className="w-full" 
+                  onClick={handleOpenCreate}
+                  disabled={!jobLimits.canPostJob}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Post a Job
+                  {!jobLimits.canPostJob && (
+                    <Badge variant="secondary" className="ml-2 text-[10px]">
+                      Limit Reached
+                    </Badge>
+                  )}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -465,6 +550,17 @@ export default function DashboardJobs() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
+                        {tier !== 'free' && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleDuplicateJob(job)}
+                            disabled={!jobLimits.canPostJob}
+                            title="Duplicate job"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        )}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon">
