@@ -47,6 +47,7 @@ import FoodToday from "./pages/FoodToday";
 import DashboardJobs from "./pages/DashboardJobs";
 import DashboardFoodTruck from "./pages/DashboardFoodTruck";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
+import Pulse from "./pages/Pulse";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +61,9 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<Pulse />} />
+                <Route path="/pulse" element={<Pulse />} />
+                <Route path="/discover" element={<Index />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/explore" element={<Explore />} />
