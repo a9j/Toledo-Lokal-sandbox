@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
+import { reviewSchema, validateInput, sanitizeText } from '@/lib/validation-schemas';
+import { moderateTextContent } from '@/hooks/useContentModeration';
 import {
   Dialog,
   DialogContent,
@@ -76,12 +78,30 @@ export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0,
     mutationFn: async ({ rating, title, content }: { rating: number; title: string; content: string }) => {
       if (!user) throw new Error('Not authenticated');
       
+      // Validate input with Zod
+      const validation = validateInput(reviewSchema, { rating, title, content });
+      if (!validation.success) {
+        throw new Error('errors' in validation ? validation.errors[0] : 'Validation failed');
+      }
+      
+      // Sanitize text content
+      const sanitizedTitle = validation.data.title ? sanitizeText(validation.data.title) : null;
+      const sanitizedContent = validation.data.content ? sanitizeText(validation.data.content) : null;
+      
+      // Moderate review content (fail closed for reviews - they're critical)
+      if (sanitizedContent) {
+        const moderation = await moderateTextContent(sanitizedContent, { failClosed: true });
+        if (!moderation.safe) {
+          throw new Error(`Review flagged: ${moderation.flaggedReasons.join(', ')}`);
+        }
+      }
+      
       const { error } = await supabase.from('reviews').insert({
         business_id: businessId,
         user_id: user.id,
-        rating,
-        title: title || null,
-        content: content || null,
+        rating: validation.data.rating,
+        title: sanitizedTitle,
+        content: sanitizedContent,
       });
       
       if (error) throw error;
@@ -98,7 +118,7 @@ export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0,
       if (isRateLimit) {
         toast.error('Slow down! You can only post 5 reviews per day, and new accounts must wait 1 hour before reviewing.');
       } else {
-        toast.error('Failed to submit review');
+        toast.error(error.message || 'Failed to submit review');
       }
     },
   });
