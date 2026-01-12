@@ -98,7 +98,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 export function useSubscription() {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    // Return safe default values during initial render or hot reload
+    return {
+      tier: 'free' as const,
+      tierConfig: SUBSCRIPTION_TIERS['free'],
+      isLoading: true,
+      subscriptionEnd: null,
+      refreshSubscription: async () => {},
+      canAccess: () => false,
+      isSubscribed: false,
+    };
   }
   return context;
 }
