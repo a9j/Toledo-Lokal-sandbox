@@ -8,8 +8,10 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
-import Home from "./pages/Home";
-import Index from "./pages/Index";
+import Today from "./pages/Today";
+import NearMe from "./pages/NearMe";
+import Discover from "./pages/Discover";
+import Loop from "./pages/Loop";
 import Feed from "./pages/Feed";
 import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
@@ -63,10 +65,12 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Today />} />
+                <Route path="/near-me" element={<NearMe />} />
+                <Route path="/discover" element={<Discover />} />
+                <Route path="/loop" element={<Loop />} />
                 <Route path="/pulse" element={<Pulse />} />
                 <Route path="/pulse/:pulseId" element={<PulseDetail />} />
-                <Route path="/discover" element={<Index />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/explore" element={<Explore />} />

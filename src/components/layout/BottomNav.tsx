@@ -1,14 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Compass, Calendar, Gift, User } from 'lucide-react';
+import { Newspaper, MapPin, Compass, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
-  { path: '/', icon: Home, label: 'Home' },
-  { path: '/explore', icon: Compass, label: 'Explore' },
-  { path: '/events', icon: Calendar, label: 'Events' },
-  { path: '/programs', icon: Gift, label: 'Programs' },
-  { path: '/profile', icon: User, label: 'Profile' },
+  { path: '/', icon: Newspaper, label: 'Today' },
+  { path: '/near-me', icon: MapPin, label: 'Near Me' },
+  { path: '/discover', icon: Compass, label: 'Discover' },
+  { path: '/loop', icon: Repeat, label: 'Loop' },
 ];
 
 export function BottomNav() {
