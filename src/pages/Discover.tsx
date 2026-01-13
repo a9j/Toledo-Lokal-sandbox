@@ -45,7 +45,7 @@ export default function Discover() {
       />
       <Header title="Discover" showSearch />
       
-      <PageContainer className="space-y-5">
+      <PageContainer className="space-y-6">
         {/* Search */}
         <SearchBar 
           value={searchQuery} 
@@ -56,23 +56,31 @@ export default function Discover() {
         {/* Category Selection */}
         {!selectedCategory && (
           <section>
-            <h2 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
-              Browse by Category
-            </h2>
-            <div className="grid grid-cols-4 gap-2">
-              {categories?.map(category => {
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-foreground tracking-tight">
+                Browse Categories
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {categories?.length || 0} categories
+              </span>
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              {categories?.map((category, index) => {
                 const Icon = getIcon(category.icon || 'building2');
                 return (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
-                      "flex flex-col items-center gap-2 p-3 rounded-xl",
-                      "bg-card border border-border/50 hover:border-primary/30 hover:bg-muted/50",
-                      "transition-all duration-200"
+                      "flex flex-col items-center gap-2.5 p-4 rounded-2xl",
+                      "bg-card border border-border/40",
+                      "hover:border-primary/30 hover:bg-primary/5",
+                      "transition-all duration-200 group",
+                      "animate-fade-in-up"
                     )}
+                    style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200">
                       <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-xs text-center font-medium text-foreground line-clamp-1">
@@ -92,22 +100,22 @@ export default function Discover() {
               <Button
                 variant="secondary"
                 size="sm"
-                className="rounded-full gap-1 bg-primary/10 text-primary hover:bg-primary/20"
+                className="rounded-full gap-1.5 bg-primary/10 text-primary hover:bg-primary/20 border-0 h-9 px-4"
                 onClick={() => setSelectedCategory(null)}
               >
                 {categories?.find(c => c.id === selectedCategory)?.name}
-                <LucideIcons.X className="h-3 w-3" />
+                <LucideIcons.X className="h-3.5 w-3.5" />
               </Button>
             )}
             {selectedNeighborhood && (
               <Button
                 variant="secondary"
                 size="sm"
-                className="rounded-full gap-1"
+                className="rounded-full gap-1.5 h-9 px-4"
                 onClick={() => setSelectedNeighborhood(null)}
               >
                 {neighborhoods?.find(n => n.id === selectedNeighborhood)?.name}
-                <LucideIcons.X className="h-3 w-3" />
+                <LucideIcons.X className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
@@ -119,7 +127,7 @@ export default function Discover() {
             <Button
               variant={selectedNeighborhood === null ? "default" : "outline"}
               size="sm"
-              className="rounded-full flex-shrink-0"
+              className="rounded-full flex-shrink-0 h-9"
               onClick={() => setSelectedNeighborhood(null)}
             >
               All Areas
@@ -129,7 +137,7 @@ export default function Discover() {
                 key={n.id}
                 variant={selectedNeighborhood === n.id ? "default" : "outline"}
                 size="sm"
-                className="rounded-full flex-shrink-0"
+                className="rounded-full flex-shrink-0 h-9"
                 onClick={() => setSelectedNeighborhood(n.id)}
               >
                 {n.name}
@@ -142,24 +150,33 @@ export default function Discover() {
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-24 rounded-2xl" />
+              <Skeleton key={i} className="h-28 rounded-2xl" />
             ))}
           </div>
         ) : filteredBusinesses?.length ? (
           <div className="space-y-3">
-            {filteredBusinesses.map(business => (
-              <BusinessCard key={business.id} business={business} />
+            {filteredBusinesses.map((business, index) => (
+              <div 
+                key={business.id} 
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
+                <BusinessCard business={business} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <LucideIcons.Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-muted-foreground">No businesses found</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+              <LucideIcons.Search className="h-8 w-8 text-muted-foreground/50" />
+            </div>
+            <p className="text-muted-foreground font-medium mb-1">No businesses found</p>
+            <p className="text-sm text-muted-foreground/70 mb-4">Try adjusting your filters</p>
             {searchQuery && (
               <Button 
-                variant="link" 
+                variant="outline" 
                 onClick={() => setSearchQuery('')}
-                className="mt-2"
+                className="rounded-full"
               >
                 Clear search
               </Button>
