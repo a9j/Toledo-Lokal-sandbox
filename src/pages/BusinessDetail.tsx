@@ -77,8 +77,18 @@ export default function BusinessDetail() {
       
       if (error) throw error;
       
+      // Detect if this is a food truck based on category
+      const isFoodTruck = data.category?.name?.toLowerCase().includes('food truck') ||
+        data.category?.icon === 'truck';
+      
+      // Detect if nonprofit
+      const isNonprofit = data.category?.name?.toLowerCase().includes('nonprofit') ||
+        data.category?.name?.toLowerCase().includes('non-profit');
+      
       return {
         ...data,
+        isFoodTruck,
+        isNonprofit,
         isInLoop: data.business_loop_settings?.is_active && 
           data.business_loop_settings?.loop_tier_id !== 'visible_only',
         isFoundingMember: data.business_loop_settings?.is_founding_member,
@@ -124,6 +134,25 @@ export default function BusinessDetail() {
     enabled: !!business?.id,
   });
 
+  // Fetch food truck locations for today (if food truck)
+  const { data: foodTruckLocations } = useQuery({
+    queryKey: ['business-food-truck-today', business?.id],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('food_truck_locations')
+        .select('*')
+        .eq('business_id', business!.id)
+        .eq('location_date', today)
+        .eq('status', 'active')
+        .order('start_time', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!business?.id && business?.isFoodTruck,
+  });
+
   // Fetch Loop rewards for this business
   const { data: rewards } = useQuery({
     queryKey: ['business-loop-rewards-public', business?.id],
@@ -166,7 +195,7 @@ export default function BusinessDetail() {
     return hours as Record<string, { open: string; close: string; closed?: boolean } | null>;
   };
 
-  // Determine today status
+  // Determine today status - matches example spec
   const getTodayStatus = () => {
     if (!business) return null;
 
@@ -175,31 +204,23 @@ export default function BusinessDetail() {
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const todayName = dayNames[today.getDay()];
     
-    // Check if open today
-    if (parsedHours && parsedHours[todayName] && !parsedHours[todayName]?.closed) {
-      const hours = parsedHours[todayName]!;
-      const formatTime = (t: string) => {
-        const [h, m] = t.split(':').map(Number);
-        const period = h >= 12 ? 'pm' : 'am';
-        const h12 = h % 12 || 12;
-        return `${h12}${m > 0 ? ':' + m.toString().padStart(2, '0') : ''}${period}`;
-      };
+    const formatTime = (t: string) => {
+      const [h, m] = t.split(':').map(Number);
+      const period = h >= 12 ? 'pm' : 'am';
+      const h12 = h % 12 || 12;
+      return `${h12}:${m > 0 ? ':' + m.toString().padStart(2, '0') : ''}${period}`;
+    };
+
+    // Food truck: Show location if here today
+    if (business.isFoodTruck && foodTruckLocations && foodTruckLocations.length > 0) {
+      const loc = foodTruckLocations[0];
       return {
-        type: 'open' as const,
-        message: `Open today · ${formatTime(hours.open)}–${formatTime(hours.close)}`
+        type: 'food_truck' as const,
+        message: `Here today · ${loc.location_name} · ${formatTime(loc.start_time)}–${formatTime(loc.end_time)}`
       };
     }
 
-    // Check for today's deal
-    if (deals && deals.length > 0) {
-      return {
-        type: 'deal' as const,
-        message: deals[0].title,
-        subMessage: 'Deal active today'
-      };
-    }
-
-    // Check for today's event
+    // Check for today's event (volunteer for nonprofits)
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
@@ -211,10 +232,48 @@ export default function BusinessDetail() {
     });
 
     if (todaysEvent) {
+      // Format event time
+      const eventTime = new Date(todaysEvent.start_date_time);
+      const timeStr = formatTime(`${eventTime.getHours()}:${eventTime.getMinutes().toString().padStart(2, '0')}`);
+      
+      // Check if this is a volunteer event (for nonprofits)
+      const isVolunteer = business.isNonprofit || 
+        todaysEvent.title.toLowerCase().includes('volunteer');
+      
       return {
-        type: 'event' as const,
-        message: todaysEvent.title,
-        subMessage: 'Event today'
+        type: isVolunteer ? 'volunteer' as const : 'event' as const,
+        message: `${todaysEvent.title} · ${timeStr}`
+      };
+    }
+
+    // Check for today's deal with timing
+    if (deals && deals.length > 0) {
+      return {
+        type: 'deal' as const,
+        message: deals[0].title,
+        subMessage: deals[0].description?.substring(0, 50) || undefined
+      };
+    }
+    
+    // Check if open today
+    if (parsedHours && parsedHours[todayName] && !parsedHours[todayName]?.closed) {
+      const hours = parsedHours[todayName]!;
+      return {
+        type: 'open' as const,
+        message: `Open today · ${formatTime(hours.open)}–${formatTime(hours.close)}`
+      };
+    }
+
+    // Professional services: appointments available
+    const isService = business.category?.name?.toLowerCase().includes('service') ||
+      business.category?.name?.toLowerCase().includes('plumb') ||
+      business.category?.name?.toLowerCase().includes('account') ||
+      business.category?.name?.toLowerCase().includes('professional');
+    
+    if (isService) {
+      return {
+        type: 'appointment' as const,
+        message: 'Appointments available'
       };
     }
 
@@ -322,8 +381,10 @@ export default function BusinessDetail() {
             verified: business.verified,
             isInLoop: business.isInLoop,
             isFoundingMember: business.isFoundingMember,
+            isNonprofit: business.isNonprofit,
             loopTierId: business.loopTierId
           }}
+          isFoodTruck={business.isFoodTruck}
         />
 
         {/* Card 2: Today Status (Conditional) */}
@@ -336,6 +397,7 @@ export default function BusinessDetail() {
           isInLoop={business.isInLoop || false}
           pointsAvailable={pointsAvailable}
           rewardPreview={rewardPreview}
+          actionType={business.isNonprofit ? 'checkin' : 'scan'}
         />
 
         {/* Card 4: About */}

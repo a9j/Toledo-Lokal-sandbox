@@ -8,6 +8,7 @@ interface LoopActionCardProps {
   isInLoop: boolean;
   pointsAvailable?: number;
   rewardPreview?: string | null;
+  actionType?: 'scan' | 'checkin';
 }
 
 export function LoopActionCard({ 
@@ -15,47 +16,45 @@ export function LoopActionCard({
   businessName, 
   isInLoop, 
   pointsAvailable = 0,
-  rewardPreview 
+  rewardPreview,
+  actionType = 'scan'
 }: LoopActionCardProps) {
   if (!isInLoop) return null;
 
+  const actionLabel = actionType === 'checkin' ? 'Check in to volunteer' : 'Scan in store';
+
   return (
     <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-          <Infinity className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-medium text-foreground">Loop Points</h3>
-          <p className="text-sm text-muted-foreground">
-            Earn points when you visit {businessName}
-          </p>
-        </div>
-      </div>
-
-      {/* Points Available */}
+      {/* Points Available - prominent display matching examples */}
       {pointsAvailable > 0 && (
-        <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-primary/5">
-          <span className="text-2xl font-bold text-primary">{pointsAvailable}</span>
-          <span className="text-sm text-muted-foreground">points available</span>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Infinity className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Earn</p>
+            <p className="text-lg font-semibold text-foreground">
+              {pointsAvailable} Loop points
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Reward Preview */}
-      {rewardPreview && (
-        <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-          <Gift className="h-4 w-4" />
-          <span>{rewardPreview}</span>
-        </div>
-      )}
-
-      {/* Scan CTA */}
+      {/* Scan/Check-in CTA */}
       <Link to="/scan">
-        <Button className="w-full gap-2" size="lg">
+        <Button className="w-full gap-2 mb-3" size="lg">
           <QrCode className="h-4 w-4" />
-          Scan in store
+          {actionLabel}
         </Button>
       </Link>
+
+      {/* Reward Preview - subtle, at bottom */}
+      {rewardPreview && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t border-border/50">
+          <Gift className="h-4 w-4 flex-shrink-0" />
+          <span>Reward preview: {rewardPreview}</span>
+        </div>
+      )}
     </div>
   );
 }
