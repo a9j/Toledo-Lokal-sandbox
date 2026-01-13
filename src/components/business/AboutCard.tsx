@@ -5,9 +5,9 @@ interface AboutCardProps {
 export function AboutCard({ description }: AboutCardProps) {
   if (!description) return null;
 
-  // Limit to ~3 sentences worth - about 200 characters
-  const shortDescription = description.length > 250 
-    ? description.substring(0, 250).trim() + '...'
+  // Limit to 2-3 sentences worth - about 200 characters per spec
+  const shortDescription = description.length > 200 
+    ? description.substring(0, 200).trim() + '...'
     : description;
 
   return (

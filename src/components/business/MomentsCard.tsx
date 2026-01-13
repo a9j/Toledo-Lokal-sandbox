@@ -1,9 +1,9 @@
-import { Sparkles, Calendar, Award } from 'lucide-react';
+import { Sparkles, Calendar, Award, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Moment {
   id: string;
-  type: 'daily_drop' | 'event' | 'mission';
+  type: 'daily_drop' | 'event' | 'mission' | 'spotlight' | 'community';
   title: string;
   date: string;
 }
@@ -23,6 +23,10 @@ export function MomentsCard({ moments }: MomentsCardProps) {
         return Calendar;
       case 'mission':
         return Award;
+      case 'spotlight':
+        return Sparkles;
+      case 'community':
+        return Users;
       default:
         return Sparkles;
     }
@@ -35,7 +39,11 @@ export function MomentsCard({ moments }: MomentsCardProps) {
       case 'event':
         return 'Hosted Event';
       case 'mission':
-        return 'Mission Participant';
+        return 'Mission participant';
+      case 'spotlight':
+        return 'Founding Local spotlight';
+      case 'community':
+        return 'Community highlight';
       default:
         return 'Community Moment';
     }
@@ -47,23 +55,23 @@ export function MomentsCard({ moments }: MomentsCardProps) {
         Moments
       </h2>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {moments.slice(0, 5).map((moment) => {
           const Icon = getIcon(moment.type);
           return (
             <div 
               key={moment.id} 
-              className="flex items-start gap-3 p-3 rounded-xl bg-secondary/50"
+              className="flex items-start gap-3 py-2"
             >
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Icon className="h-4 w-4 text-primary" />
+              <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Icon className="h-3.5 w-3.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {moment.title}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {getLabel(moment.type)} · {formatDistanceToNow(new Date(moment.date), { addSuffix: true })}
+                <p className="text-sm text-foreground">
+                  • {moment.title}
+                  {moment.date && (
+                    <span className="text-muted-foreground"> — {formatDistanceToNow(new Date(moment.date), { addSuffix: false })}</span>
+                  )}
                 </p>
               </div>
             </div>
