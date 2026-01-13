@@ -1,19 +1,16 @@
-import { Header } from '@/components/layout/Header';
-import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletBalance } from '@/components/loop/WalletBalance';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { TransactionHistory } from '@/components/loop/TransactionHistory';
 import { RewardsList } from '@/components/loop/RewardsList';
-import { MissionsList } from '@/components/loop/MissionsList';
+import { LocalMissions } from '@/components/loop/LocalMissions';
 import { BadgesDisplay } from '@/components/loop/BadgesDisplay';
 import { CausesList } from '@/components/loop/CausesList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogIn, Gift, Target, Heart, History } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { LogIn, Gift, Compass, Heart, History } from 'lucide-react';
 
 export default function Loop() {
   const { user } = useAuth();
@@ -69,21 +66,21 @@ export default function Loop() {
           <UserWalletQR />
           <BadgesDisplay />
           
-          <Tabs defaultValue="rewards" className="w-full">
+          <Tabs defaultValue="missions" className="w-full">
             <TabsList className="w-full grid grid-cols-4 h-12 p-1 bg-muted/50 rounded-xl">
+              <TabsTrigger 
+                value="missions"
+                className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm flex flex-col gap-0.5 py-1.5"
+              >
+                <Compass className="h-4 w-4" />
+                <span className="text-[10px]">Missions</span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="rewards" 
                 className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm flex flex-col gap-0.5 py-1.5"
               >
                 <Gift className="h-4 w-4" />
                 <span className="text-[10px]">Rewards</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="missions"
-                className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm flex flex-col gap-0.5 py-1.5"
-              >
-                <Target className="h-4 w-4" />
-                <span className="text-[10px]">Missions</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="causes"
@@ -101,12 +98,12 @@ export default function Loop() {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="rewards" className="mt-4">
-              <RewardsList />
+            <TabsContent value="missions" className="mt-4">
+              <LocalMissions />
             </TabsContent>
             
-            <TabsContent value="missions" className="mt-4">
-              <MissionsList />
+            <TabsContent value="rewards" className="mt-4">
+              <RewardsList />
             </TabsContent>
             
             <TabsContent value="causes" className="mt-4">
