@@ -581,6 +581,185 @@ export type Database = {
           },
         ]
       }
+      daily_drop_highlights: {
+        Row: {
+          created_at: string
+          daily_drop_id: string
+          highlight_type: string
+          icon: string | null
+          id: string
+          link_text: string | null
+          link_url: string | null
+          sort_order: number
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          daily_drop_id: string
+          highlight_type: string
+          icon?: string | null
+          id?: string
+          link_text?: string | null
+          link_url?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          daily_drop_id?: string
+          highlight_type?: string
+          icon?: string | null
+          id?: string
+          link_text?: string | null
+          link_url?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_drop_highlights_daily_drop_id_fkey"
+            columns: ["daily_drop_id"]
+            isOneToOne: false
+            referencedRelation: "daily_drops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_drop_moments: {
+        Row: {
+          created_at: string
+          daily_drop_id: string
+          description: string | null
+          id: string
+          image_url: string | null
+          link_text: string | null
+          link_url: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          daily_drop_id: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_text?: string | null
+          link_url?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          daily_drop_id?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          link_text?: string | null
+          link_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_drop_moments_daily_drop_id_fkey"
+            columns: ["daily_drop_id"]
+            isOneToOne: false
+            referencedRelation: "daily_drops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_drop_spotlights: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          custom_description: string | null
+          custom_headline: string | null
+          daily_drop_id: string
+          id: string
+          sort_order: number
+          spotlight_type: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          custom_description?: string | null
+          custom_headline?: string | null
+          daily_drop_id: string
+          id?: string
+          sort_order?: number
+          spotlight_type: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          custom_description?: string | null
+          custom_headline?: string | null
+          daily_drop_id?: string
+          id?: string
+          sort_order?: number
+          spotlight_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_drop_spotlights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_drop_spotlights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_drop_spotlights_daily_drop_id_fkey"
+            columns: ["daily_drop_id"]
+            isOneToOne: false
+            referencedRelation: "daily_drops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_drops: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          drop_date: string
+          id: string
+          publish_time: string | null
+          status: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          drop_date: string
+          id?: string
+          publish_time?: string | null
+          status?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          drop_date?: string
+          id?: string
+          publish_time?: string | null
+          status?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           business_id: string
