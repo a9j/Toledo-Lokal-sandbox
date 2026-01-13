@@ -19,8 +19,11 @@ export function BottomNav() {
   if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-bottom">
-      <div className="flex items-center justify-around h-14 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+      {/* Frosted glass background */}
+      <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-t border-border/50" />
+      
+      <div className="relative flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -32,12 +35,33 @@ export function BottomNav() {
               key={item.path}
               to={to}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 py-2 transition-colors",
-                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                "flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200 relative group",
+                isActive 
+                  ? "text-foreground" 
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5px]")} />
-              <span className={cn("text-[10px] mt-1 font-medium", isActive && "font-semibold")}>
+              {/* Active indicator dot */}
+              {isActive && (
+                <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+              )}
+              
+              <div className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+                isActive 
+                  ? "bg-primary/10" 
+                  : "group-hover:bg-muted"
+              )}>
+                <Icon className={cn(
+                  "h-5 w-5 transition-all duration-200",
+                  isActive && "stroke-[2.25px] text-primary"
+                )} />
+              </div>
+              
+              <span className={cn(
+                "text-[10px] mt-0.5 font-medium transition-all duration-200",
+                isActive ? "font-semibold text-foreground" : ""
+              )}>
                 {item.label}
               </span>
             </NavLink>

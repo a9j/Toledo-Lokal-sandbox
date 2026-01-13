@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Clock, CheckCircle2, Infinity } from 'lucide-react';
+import { MapPin, Star, Clock, CheckCircle2, Infinity, ArrowUpRight } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Json } from '@/integrations/supabase/types';
 
@@ -62,9 +62,9 @@ const getTodayHoursStatus = (hours: Json | null): { text: string; isOpen: boolea
   const isOpen = isCurrentlyOpen(hours);
   
   if (isOpen && todayHours.close) {
-    return { text: `Open until ${formatTime12hr(todayHours.close)}`, isOpen: true };
+    return { text: `Until ${formatTime12hr(todayHours.close)}`, isOpen: true };
   } else if (!isOpen && todayHours.open) {
-    return { text: `Closed · Opens ${formatTime12hr(todayHours.open)}`, isOpen: false };
+    return { text: `Opens ${formatTime12hr(todayHours.open)}`, isOpen: false };
   }
   
   return { text: '', isOpen: false };
@@ -86,71 +86,82 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
     <Link to={`/business/${business.id}`} className="block group">
       <div className="card-elevated overflow-hidden hover-lift">
         {showImage && (
-          <div className="relative aspect-[4/3] overflow-hidden">
+          <div className="relative aspect-[16/10] overflow-hidden">
             <SecureImage
               storagePath={imageUrl}
               alt={business.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
             />
 
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 image-overlay" />
+            {/* Refined overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
-              {business.category && (
-                <span className="px-2.5 py-1 rounded-full bg-white/95 text-xs font-semibold text-foreground shadow-sm">
-                  {business.category.name}
-                </span>
-              )}
-              {business.featured && (
-                <span className="badge-featured">
-                  Featured
-                </span>
+            {/* Top badges row */}
+            <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+              <div className="flex gap-2 flex-wrap">
+                {business.category && (
+                  <span className="px-3 py-1.5 rounded-full bg-white/95 text-xs font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                    {business.category.name}
+                  </span>
+                )}
+                {business.featured && (
+                  <span className="badge-featured">
+                    Featured
+                  </span>
+                )}
+              </div>
+              
+              {/* Open status */}
+              {hoursStatus.text && (
+                <div>
+                  {hoursStatus.isOpen ? (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/90 text-success-foreground text-xs font-medium shadow-sm backdrop-blur-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse-soft" />
+                      Open
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1.5 rounded-full bg-muted/95 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm">
+                      Closed
+                    </span>
+                  )}
+                </div>
               )}
             </div>
-            
-            {/* Open status */}
-            {hoursStatus.text && (
-              <div className="absolute top-3 right-3">
-                {hoursStatus.isOpen ? (
-                  <span className="badge-open flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-soft" />
-                    Open Now
-                  </span>
-                ) : (
-                  <span className="px-2.5 py-1 rounded-full bg-muted/90 text-xs font-medium text-muted-foreground shadow-sm">
-                    Closed
-                  </span>
-                )}
-              </div>
-            )}
 
-            {/* Bottom info on image */}
-            <div className="absolute bottom-3 left-3 right-3">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-white font-bold text-lg leading-tight drop-shadow-md">
-                  {business.name}
-                </h3>
-                {business.isInLoop && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-medium">
-                    <Infinity className="h-2.5 w-2.5" />
-                    in the loop
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-3 text-white/90 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-toledo-gold text-toledo-gold" />
-                  <span className="font-medium">4.8</span>
-                </div>
-                {business.neighborhood && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span>{business.neighborhood.name}</span>
+            {/* Bottom content on image */}
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <div className="flex items-end justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <h3 className="text-white font-bold text-lg leading-tight truncate drop-shadow-md">
+                      {business.name}
+                    </h3>
+                    {business.isInLoop && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-semibold flex-shrink-0">
+                        <Infinity className="h-2.5 w-2.5" />
+                        Loop
+                      </span>
+                    )}
                   </div>
-                )}
+                  <div className="flex items-center gap-3 text-white/90 text-sm">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
+                      <span className="font-semibold">4.8</span>
+                    </div>
+                    {business.neighborhood && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5" />
+                        <span className="truncate">{business.neighborhood.name}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Arrow button */}
+                <div className="flex-shrink-0 ml-3 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300">
+                  <ArrowUpRight className="h-5 w-5 text-white" />
+                </div>
               </div>
             </div>
           </div>
@@ -158,19 +169,19 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
 
         {/* Card content */}
         <div className="p-4">
-        {!showImage && (
+          {!showImage && (
             <>
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-foreground">{business.name}</h3>
                     {business.verified && (
-                      <CheckCircle2 className="h-4 w-4 text-toledo-teal" />
+                      <CheckCircle2 className="h-4 w-4 text-success" />
                     )}
                     {business.isInLoop && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
                         <Infinity className="h-2.5 w-2.5" />
-                        in the loop
+                        Loop
                       </span>
                     )}
                   </div>
@@ -179,7 +190,7 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                   )}
                 </div>
                 <div className="flex items-center gap-1 text-sm">
-                  <Star className="h-4 w-4 fill-toledo-gold text-toledo-gold" />
+                  <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
                   <span className="font-semibold">4.8</span>
                 </div>
               </div>
@@ -187,7 +198,7 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
           )}
           
           {business.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
               {business.description}
             </p>
           )}
@@ -195,20 +206,23 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4 text-muted-foreground">
               {business.neighborhood && showImage && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5" />
                   <span>{business.neighborhood.name}</span>
                 </div>
               )}
               {hoursStatus.text && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5" />
                   <span>{hoursStatus.text}</span>
                 </div>
               )}
             </div>
             {business.verified && showImage && (
-              <CheckCircle2 className="h-5 w-5 text-toledo-teal" />
+              <div className="flex items-center gap-1.5 text-success">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="text-xs font-medium">Verified</span>
+              </div>
             )}
           </div>
         </div>
