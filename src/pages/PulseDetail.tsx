@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PulsePost } from '@/hooks/usePulse';
+import DOMPurify from 'dompurify';
 
 const CATEGORY_ICONS = {
   right_now: Zap,
@@ -240,7 +241,14 @@ export default function PulseDetail() {
                   {post.full_body && (
                     <div 
                       className="prose prose-sm max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: post.full_body }}
+                      dangerouslySetInnerHTML={{ 
+                        __html: DOMPurify.sanitize(post.full_body, {
+                          ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'blockquote'],
+                          ALLOWED_ATTR: ['href', 'target', 'rel'],
+                          FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input'],
+                          FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover']
+                        })
+                      }}
                     />
                   )}
                 </div>
