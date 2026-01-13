@@ -61,9 +61,20 @@ serve(async (req) => {
     });
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      logStep("Auth invalid, returning free tier", { message: claimsError?.message });
+    
+    // Handle expired or invalid JWTs gracefully - return free tier instead of error
+    let claimsData;
+    try {
+      const { data, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+      if (claimsError || !data?.claims) {
+        logStep("Auth invalid, returning free tier", { message: claimsError?.message });
+        return freeResponse();
+      }
+      claimsData = data;
+    } catch (authError) {
+      // JWT expired or malformed - this is expected, return free tier gracefully
+      const errorMsg = authError instanceof Error ? authError.message : String(authError);
+      logStep("JWT validation failed (likely expired), returning free tier", { error: errorMsg });
       return freeResponse();
     }
 
