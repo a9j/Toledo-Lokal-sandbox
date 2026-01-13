@@ -4,46 +4,26 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/ui/secure-image';
+import { ShareButton } from '@/components/sharing/ShareButton';
+import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
+import { IdentityCard } from '@/components/business/IdentityCard';
+import { TodayStatusCard } from '@/components/business/TodayStatusCard';
+import { LoopActionCard } from '@/components/business/LoopActionCard';
+import { AboutCard } from '@/components/business/AboutCard';
+import { CommunityImpactCard } from '@/components/business/CommunityImpactCard';
+import { MomentsCard } from '@/components/business/MomentsCard';
+import { ContactCard } from '@/components/business/ContactCard';
 import { DealCard } from '@/components/cards/DealCard';
 import { EventCard } from '@/components/cards/EventCard';
 import { BusinessMap } from '@/components/maps/BusinessMap';
-import { ReviewsSection } from '@/components/reviews/ReviewsSection';
-import { StarRating } from '@/components/reviews/StarRating';
-import { ShareButton } from '@/components/sharing/ShareButton';
-import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
-import { 
-  MapPin, 
-  Phone, 
-  Globe, 
-  Instagram, 
-  Clock, 
-  CheckCircle,
-  ArrowLeft,
-  Building2,
-  Heart,
-  Infinity
-} from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
-
-// Day order for displaying hours
-const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-const DAY_LABELS: Record<string, string> = {
-  monday: 'Mon',
-  tuesday: 'Tue',
-  wednesday: 'Wed',
-  thursday: 'Thu',
-  friday: 'Fri',
-  saturday: 'Sat',
-  sunday: 'Sun'
-};
+import { ArrowLeft } from 'lucide-react';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
 
-  // Public-safe columns that don't expose owner_user_id
+  // Public-safe columns
   const PUBLIC_BUSINESS_COLUMNS = `
     id,
     name,
@@ -78,17 +58,15 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      // Use businesses_public view which masks phone for unauthenticated users
       let query = supabase
         .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(name),
           category:categories(name, icon),
-          business_loop_settings(is_active, loop_tier_id)
+          business_loop_settings(is_active, loop_tier_id, is_founding_member)
         `);
       
-      // Query by UUID or slug
       if (isUUID) {
         query = query.eq('id', id);
       } else {
@@ -99,23 +77,25 @@ export default function BusinessDetail() {
       
       if (error) throw error;
       
-      // Add isInLoop flag
       return {
         ...data,
         isInLoop: data.business_loop_settings?.is_active && 
-          data.business_loop_settings?.loop_tier_id !== 'visible_only'
+          data.business_loop_settings?.loop_tier_id !== 'visible_only',
+        isFoundingMember: data.business_loop_settings?.is_founding_member,
+        loopTierId: data.business_loop_settings?.loop_tier_id
       };
     },
     enabled: !!id,
   });
 
+  // Fetch active deals for Today Status
   const { data: deals } = useQuery({
-    queryKey: ['business-deals', id],
+    queryKey: ['business-deals', business?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')
         .select('*')
-        .eq('business_id', id)
+        .eq('business_id', business!.id)
         .eq('status', 'approved')
         .gte('end_date', new Date().toISOString().split('T')[0])
         .order('created_at', { ascending: false });
@@ -123,16 +103,17 @@ export default function BusinessDetail() {
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!business?.id,
   });
 
+  // Fetch upcoming events
   const { data: events } = useQuery({
-    queryKey: ['business-events', id],
+    queryKey: ['business-events', business?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('business_id', id)
+        .eq('business_id', business!.id)
         .eq('status', 'approved')
         .gte('start_date_time', new Date().toISOString())
         .order('start_date_time', { ascending: true });
@@ -140,38 +121,115 @@ export default function BusinessDetail() {
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!business?.id,
   });
 
-  const getIcon = (iconName?: string) => {
-    if (!iconName) return Building2;
-    const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, any>)[name] || Building2;
-  };
+  // Fetch Loop rewards for this business
+  const { data: rewards } = useQuery({
+    queryKey: ['business-loop-rewards-public', business?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('loop_rewards')
+        .select('*')
+        .eq('business_id', business!.id)
+        .eq('is_active', true)
+        .order('points_cost', { ascending: true })
+        .limit(1);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!business?.id && business?.isInLoop,
+  });
 
-  // Convert 24hr to 12hr format
-  const formatTime12hr = (time24: string): string => {
-    const [hours, minutes] = time24.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const hours12 = hours % 12 || 12;
-    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
-  };
+  // Fetch Loop QR codes for points available
+  const { data: qrCodes } = useQuery({
+    queryKey: ['business-qr-public', business?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('loop_qr_codes')
+        .select('points_value')
+        .eq('business_id', business!.id)
+        .eq('is_active', true)
+        .order('points_value', { ascending: false })
+        .limit(1);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!business?.id && business?.isInLoop,
+  });
 
-  // Parse hours if available
+  // Parse hours
   const parseHours = (hours: unknown): Record<string, { open: string; close: string; closed?: boolean } | null> | null => {
     if (!hours || typeof hours !== 'object') return null;
     return hours as Record<string, { open: string; close: string; closed?: boolean } | null>;
+  };
+
+  // Determine today status
+  const getTodayStatus = () => {
+    if (!business) return null;
+
+    const parsedHours = parseHours(business.hours);
+    const today = new Date();
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const todayName = dayNames[today.getDay()];
+    
+    // Check if open today
+    if (parsedHours && parsedHours[todayName] && !parsedHours[todayName]?.closed) {
+      const hours = parsedHours[todayName]!;
+      const formatTime = (t: string) => {
+        const [h, m] = t.split(':').map(Number);
+        const period = h >= 12 ? 'pm' : 'am';
+        const h12 = h % 12 || 12;
+        return `${h12}${m > 0 ? ':' + m.toString().padStart(2, '0') : ''}${period}`;
+      };
+      return {
+        type: 'open' as const,
+        message: `Open today · ${formatTime(hours.open)}–${formatTime(hours.close)}`
+      };
+    }
+
+    // Check for today's deal
+    if (deals && deals.length > 0) {
+      return {
+        type: 'deal' as const,
+        message: deals[0].title,
+        subMessage: 'Deal active today'
+      };
+    }
+
+    // Check for today's event
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    
+    const todaysEvent = events?.find(e => {
+      const eventDate = new Date(e.start_date_time);
+      return eventDate >= todayStart && eventDate <= todayEnd;
+    });
+
+    if (todaysEvent) {
+      return {
+        type: 'event' as const,
+        message: todaysEvent.title,
+        subMessage: 'Event today'
+      };
+    }
+
+    return null;
   };
 
   if (isLoading) {
     return (
       <>
         <Header title="Business" />
-        <PageContainer>
-          <Skeleton className="h-56 rounded-2xl mb-4" />
-          <Skeleton className="h-24 rounded-xl mb-4" />
-          <Skeleton className="h-20 rounded-xl mb-2" />
-          <Skeleton className="h-20 rounded-xl" />
+        <PageContainer className="space-y-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-16 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-20 rounded-2xl" />
         </PageContainer>
       </>
     );
@@ -193,10 +251,12 @@ export default function BusinessDetail() {
     );
   }
 
-  const Icon = getIcon(business.category?.icon);
   const photos = business.photos && business.photos.length > 0 ? business.photos : [];
   const hasPhotos = photos.length > 0;
   const parsedHours = parseHours(business.hours);
+  const todayStatus = getTodayStatus();
+  const pointsAvailable = qrCodes?.[0]?.points_value || 0;
+  const rewardPreview = rewards?.[0]?.name || null;
 
   return (
     <>
@@ -227,244 +287,97 @@ export default function BusinessDetail() {
       />
       <Header title={business.name} />
       
-      <PageContainer className="space-y-6">
-        <Link to="/explore" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Explore
-        </Link>
+      <PageContainer className="space-y-4">
+        {/* Back + Share */}
+        <div className="flex items-center justify-between">
+          <Link to="/explore" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Link>
+          <ShareButton 
+            title={business.name}
+            text={business.description || `Check out ${business.name} on ToledoLokal`}
+          />
+        </div>
 
-        {/* Main Photo */}
-        {hasPhotos ? (
-          <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-secondary">
+        {/* Hero Photo (if exists) */}
+        {hasPhotos && (
+          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-secondary">
             <SecureImage
               storagePath={photos[0]}
               alt={`${business.name} photo`}
               className="w-full h-full object-cover"
             />
-            {business.featured && (
-              <Badge className="absolute top-3 left-3 bg-warning text-warning-foreground">
-                Featured
-              </Badge>
-            )}
-          </div>
-        ) : (
-          /* Fallback header when no photos */
-          <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-primary/10 to-secondary flex items-center justify-center">
-            <div className="text-center">
-              {business.logo_url ? (
-                <SecureImage
-                  storagePath={business.logo_url}
-                  alt={business.name}
-                  className="w-24 h-24 rounded-2xl object-cover mx-auto mb-3"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-3">
-                  <Icon className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              {business.featured && (
-                <Badge className="bg-warning text-warning-foreground">Featured</Badge>
-              )}
-            </div>
           </div>
         )}
 
-        {/* Business Info Header */}
-        <div className="flex items-start gap-4">
-          {hasPhotos && (
-            <div className="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 border-2 border-background shadow-md -mt-10 relative z-10">
-              {business.logo_url ? (
-                <SecureImage
-                  storagePath={business.logo_url}
-                  alt={business.name}
-                  className="w-full h-full object-cover rounded-xl"
-                  loading="lazy"
-                />
-              ) : (
-                <Icon className="h-6 w-6 text-foreground" />
-              )}
-            </div>
-          )}
-          
-          <div className={`flex-1 min-w-0 ${hasPhotos ? '-mt-2' : ''}`}>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-xl font-bold truncate">{business.name}</h1>
-              {business.verified && (
-                <CheckCircle className="h-5 w-5 text-success flex-shrink-0" />
-              )}
-              {business.isInLoop && (
-                <Badge variant="secondary" className="bg-primary/10 text-primary text-xs px-2 py-0.5 flex items-center gap-1">
-                  <Infinity className="h-3 w-3" />
-                  in the loop
-                </Badge>
-              )}
-              <ShareButton 
-                title={business.name}
-                text={business.description || `Check out ${business.name} on Toledo Connect`}
-                className="ml-auto"
-              />
-            </div>
-            
-            {/* Rating display */}
-            {(business.review_count ?? 0) > 0 && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <StarRating rating={business.average_rating ?? 0} size="sm" />
-                <span className="text-sm text-muted-foreground">
-                  ({business.review_count})
-                </span>
-              </div>
-            )}
-            
-            {business.category && (
-              <p className="text-muted-foreground">{business.category.name}</p>
-            )}
-            
-            {business.neighborhood && (
-              <span className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                <MapPin className="h-3 w-3" />
-                {business.neighborhood.name}
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Card 1: Identity Header */}
+        <IdentityCard 
+          business={{
+            name: business.name,
+            logo_url: business.logo_url,
+            address: business.address,
+            category: business.category,
+            neighborhood: business.neighborhood,
+            verified: business.verified,
+            isInLoop: business.isInLoop,
+            isFoundingMember: business.isFoundingMember,
+            loopTierId: business.loopTierId
+          }}
+        />
 
-        {/* Description */}
-        {business.description && (
-          <p className="text-foreground leading-relaxed">{business.description}</p>
-        )}
+        {/* Card 2: Today Status (Conditional) */}
+        <TodayStatusCard status={todayStatus} />
 
-        {/* Our Story Section */}
-        {business.story && (
-          <section className="card-elevated p-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold text-lg">Our Story</h2>
-            </div>
-            <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
-              {business.story}
-            </p>
-          </section>
-        )}
+        {/* Card 3: Loop Action */}
+        <LoopActionCard 
+          businessId={business.id}
+          businessName={business.name}
+          isInLoop={business.isInLoop || false}
+          pointsAvailable={pointsAvailable}
+          rewardPreview={rewardPreview}
+        />
 
-        {/* Hours */}
-        {parsedHours && (
-          <section className="card-elevated p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <h2 className="font-semibold">Hours</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-              {DAY_ORDER.map(day => {
-                const dayHours = parsedHours[day];
-                const isClosed = !dayHours || dayHours.closed;
-                return (
-                  <div key={day} className="contents">
-                    <span className="text-muted-foreground">{DAY_LABELS[day]}</span>
-                    <span className="text-foreground">
-                      {isClosed ? 'Closed' : `${formatTime12hr(dayHours.open)} - ${formatTime12hr(dayHours.close)}`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        {/* Card 4: About */}
+        <AboutCard description={business.description} />
+
+        {/* Card 5: Community Impact */}
+        <CommunityImpactCard />
+
+        {/* Card 6: Moments */}
+        <MomentsCard />
+
+        {/* Contact & Hours Card */}
+        <ContactCard 
+          business={{
+            address: business.address,
+            phone: business.phone,
+            website: business.website,
+            instagram: business.instagram,
+            tiktok: business.tiktok,
+            facebook: business.facebook
+          }}
+          hours={parsedHours}
+        />
 
         {/* Map */}
         {business.address && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Location</h2>
+          <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50">
             <BusinessMap 
               address={business.address} 
               businessName={business.name}
-              className="h-48"
+              className="h-40"
             />
-          </section>
+          </div>
         )}
-
-        {/* Contact info */}
-        <div className="space-y-3">
-          {business.address && (
-            <a 
-              href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <MapPin className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm">{business.address}</span>
-            </a>
-          )}
-          
-          {business.phone && (
-            <a 
-              href={`tel:${business.phone}`}
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <Phone className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm">{business.phone}</span>
-            </a>
-          )}
-          
-          {business.website && (
-            <a 
-              href={business.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <Globe className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm truncate">{business.website.replace(/^https?:\/\//, '')}</span>
-            </a>
-          )}
-          
-          {business.instagram && (
-            <a 
-              href={`https://instagram.com/${business.instagram.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <Instagram className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm">{business.instagram}</span>
-            </a>
-          )}
-          
-          {(business as any).tiktok && (
-            <a 
-              href={`https://tiktok.com/@${(business as any).tiktok.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <svg className="h-5 w-5 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-              </svg>
-              <span className="text-sm">{(business as any).tiktok}</span>
-            </a>
-          )}
-          
-          {(business as any).facebook && (
-            <a 
-              href={`https://facebook.com/${(business as any).facebook.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <svg className="h-5 w-5 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              <span className="text-sm">{(business as any).facebook}</span>
-            </a>
-          )}
-        </div>
 
         {/* Active Deals */}
         {deals && deals.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Active Deals</h2>
-            <div className="space-y-3">
+          <section className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              Active Deals
+            </h2>
+            <div className="space-y-2">
               {deals.map(deal => (
                 <DealCard key={deal.id} deal={{ ...deal, business }} />
               ))}
@@ -474,23 +387,17 @@ export default function BusinessDetail() {
 
         {/* Upcoming Events */}
         {events && events.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Upcoming Events</h2>
-            <div className="space-y-3">
+          <section className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              Upcoming Events
+            </h2>
+            <div className="space-y-2">
               {events.map(event => (
                 <EventCard key={event.id} event={{ ...event, business }} compact />
               ))}
             </div>
           </section>
         )}
-
-        {/* Reviews Section */}
-        <ReviewsSection 
-          businessId={business.id}
-          businessOwnerId={(business as any).owner_user_id}
-          averageRating={business.average_rating ?? 0}
-          reviewCount={business.review_count ?? 0}
-        />
       </PageContainer>
     </>
   );
