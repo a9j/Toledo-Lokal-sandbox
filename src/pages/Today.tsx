@@ -12,6 +12,7 @@ import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboardi
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { MapPin, QrCode, Compass } from 'lucide-react';
+import logoImage from '@/assets/tl-logo.png';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
@@ -52,9 +53,11 @@ export default function Today() {
         {/* Brand Header */}
         <header className="flex items-center justify-between py-4">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-lg">T</span>
-            </div>
+            <img 
+              src={logoImage} 
+              alt="ToledoLokal" 
+              className="w-9 h-9 rounded-lg object-contain"
+            />
             <div>
               <h1 className="text-lg font-bold text-foreground tracking-tight">
                 Toledo<span className="text-primary">Lokal</span>
