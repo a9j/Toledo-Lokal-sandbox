@@ -8,6 +8,7 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import Home from "./pages/Home";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import Auth from "./pages/Auth";
@@ -62,7 +63,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Pulse />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/pulse" element={<Pulse />} />
                 <Route path="/pulse/:pulseId" element={<PulseDetail />} />
                 <Route path="/discover" element={<Index />} />
