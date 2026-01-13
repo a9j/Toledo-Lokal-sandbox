@@ -2582,8 +2582,8 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: never
-          phone?: string | null
+          owner_user_id?: string | null
+          phone?: never
           photos?: string[] | null
           review_count?: number | null
           slug?: string | null
@@ -2609,8 +2609,8 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: never
-          phone?: string | null
+          owner_user_id?: string | null
+          phone?: never
           photos?: string[] | null
           review_count?: number | null
           slug?: string | null
@@ -2828,6 +2828,7 @@ export type Database = {
         }
         Returns: string
       }
+      mask_phone: { Args: { phone_number: string }; Returns: string }
       redeem_loop_points: {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: Json
