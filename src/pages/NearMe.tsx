@@ -1,24 +1,22 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { 
   MapPin, 
   List, 
   Map as MapIcon, 
-  Clock, 
   Store, 
   Truck,
   Gift,
   QrCode,
-  Navigation,
-  X
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -34,12 +32,27 @@ interface NearbyBusiness {
   has_active_deal: boolean;
   has_loop_rewards: boolean;
   is_food_truck_today: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const toledoCenter = {
+  lat: 41.6528,
+  lng: -83.5379,
+};
+
 export default function NearMe() {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'open' | 'rewards' | 'deals'>('all');
-  const { apiKey: mapsApiKey } = useGoogleMapsKey();
+  const [selectedBusiness, setSelectedBusiness] = useState<NearbyBusiness | null>(null);
+  const [geocodedLocations, setGeocodedLocations] = useState<Map<string, { lat: number; lng: number }>>(new Map());
+  const { apiKey: mapsApiKey, isLoading: mapsLoading, error: mapsError } = useGoogleMapsKey();
   
   const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -122,6 +135,42 @@ export default function NearMe() {
     };
   }, [businesses]);
 
+  // Geocode addresses when map is visible
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    if (!filteredBusinesses.length) return;
+    
+    const geocoder = new google.maps.Geocoder();
+    const newLocations = new Map(geocodedLocations);
+    
+    filteredBusinesses.forEach(business => {
+      if (!business.address || geocodedLocations.has(business.id)) return;
+      
+      geocoder.geocode(
+        { address: `${business.address}, Toledo, OH` },
+        (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            const location = results[0].geometry.location;
+            setGeocodedLocations(prev => {
+              const updated = new Map(prev);
+              updated.set(business.id, { lat: location.lat(), lng: location.lng() });
+              return updated;
+            });
+          }
+        }
+      );
+    });
+  }, [filteredBusinesses, geocodedLocations]);
+
+  // Calculate map bounds
+  const mapCenter = useMemo(() => {
+    const locations = Array.from(geocodedLocations.values());
+    if (locations.length === 0) return toledoCenter;
+    
+    const avgLat = locations.reduce((sum, loc) => sum + loc.lat, 0) / locations.length;
+    const avgLng = locations.reduce((sum, loc) => sum + loc.lng, 0) / locations.length;
+    return { lat: avgLat, lng: avgLng };
+  }, [geocodedLocations]);
+
   return (
     <>
       <SEOHead
@@ -198,9 +247,9 @@ export default function NearMe() {
         </div>
 
         {/* Content */}
-        <div className="px-4 py-4">
+        <div className={cn("px-4 py-4", viewMode === 'map' && "p-0 h-[calc(100vh-180px)]")}>
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 px-4">
               {[1, 2, 3, 4, 5].map(i => (
                 <Skeleton key={i} className="h-20 rounded-xl" />
               ))}
@@ -218,12 +267,103 @@ export default function NearMe() {
                 </div>
               )}
             </div>
-          ) : (
-            <div className="text-center py-12 card-elevated rounded-xl">
-              <MapIcon className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground mb-2">Map view coming soon</p>
-              <p className="text-xs text-muted-foreground">Switch to list view to browse</p>
+          ) : mapsLoading ? (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <div className="text-center">
+                <Skeleton className="h-8 w-8 rounded-full mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Loading map...</p>
+              </div>
             </div>
+          ) : mapsError || !mapsApiKey ? (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <div className="text-center p-6">
+                <MapIcon className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-muted-foreground mb-2">Map unavailable</p>
+                <p className="text-xs text-muted-foreground">Please sign in to view the map</p>
+              </div>
+            </div>
+          ) : (
+            <LoadScript googleMapsApiKey={mapsApiKey}>
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={mapCenter}
+                zoom={12}
+                onLoad={onMapLoad}
+                options={{
+                  disableDefaultUI: true,
+                  zoomControl: true,
+                  mapTypeControl: false,
+                  streetViewControl: false,
+                  fullscreenControl: false,
+                  styles: [
+                    {
+                      featureType: 'poi',
+                      elementType: 'labels',
+                      stylers: [{ visibility: 'off' }],
+                    },
+                  ],
+                }}
+              >
+                {filteredBusinesses.map(business => {
+                  const location = geocodedLocations.get(business.id);
+                  if (!location) return null;
+                  
+                  return (
+                    <Marker
+                      key={business.id}
+                      position={location}
+                      title={business.name}
+                      onClick={() => setSelectedBusiness(business)}
+                      icon={{
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: business.is_food_truck_today ? '#F59E0B' : business.has_loop_rewards ? '#8B5CF6' : '#3B82F6',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2,
+                      }}
+                    />
+                  );
+                })}
+
+                {selectedBusiness && geocodedLocations.get(selectedBusiness.id) && (
+                  <InfoWindow
+                    position={geocodedLocations.get(selectedBusiness.id)!}
+                    onCloseClick={() => setSelectedBusiness(null)}
+                  >
+                    <div className="p-2 min-w-[200px]">
+                      <h3 className="font-semibold text-sm mb-1">{selectedBusiness.name}</h3>
+                      {selectedBusiness.category && (
+                        <p className="text-xs text-gray-600 mb-1">{selectedBusiness.category.name}</p>
+                      )}
+                      <div className="flex gap-1 mb-2">
+                        {selectedBusiness.has_loop_rewards && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px]">
+                            <QrCode className="h-2.5 w-2.5" /> Rewards
+                          </span>
+                        )}
+                        {selectedBusiness.has_active_deal && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px]">
+                            <Gift className="h-2.5 w-2.5" /> Deal
+                          </span>
+                        )}
+                        {selectedBusiness.is_food_truck_today && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px]">
+                            <Truck className="h-2.5 w-2.5" /> Today
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => navigate(selectedBusiness.slug ? `/business/${selectedBusiness.slug}` : `/business/${selectedBusiness.id}`)}
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                      >
+                        View Profile <ExternalLink className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
+            </LoadScript>
           )}
         </div>
       </div>
