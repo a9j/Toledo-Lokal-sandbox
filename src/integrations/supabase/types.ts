@@ -2843,6 +2843,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      user_owns_business: { Args: { biz_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:
