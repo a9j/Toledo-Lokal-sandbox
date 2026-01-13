@@ -31,15 +31,15 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
   return useQuery({
     queryKey: ['businesses', options],
     queryFn: async () => {
+      // Use businesses_public view which masks phone for unauthenticated users
       let query = supabase
-        .from('businesses')
+        .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(id, name),
           category:categories(id, name, icon),
           business_loop_settings(is_active, loop_tier_id)
         `)
-        .eq('status', 'approved')
         .order('created_at', { ascending: false });
       
       if (options?.featured) {

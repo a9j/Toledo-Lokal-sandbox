@@ -78,8 +78,9 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
+      // Use businesses_public view which masks phone for unauthenticated users
       let query = supabase
-        .from('businesses')
+        .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(name),

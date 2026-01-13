@@ -341,12 +341,24 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
     });
   }
 
-  // 2. Verify staff is business owner
-  if (scan.qr_code?.business?.owner_user_id !== staffUserId) {
-    return new Response(JSON.stringify({ error: 'Not authorized to confirm this scan' }), {
-      status: 403,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // 2. Verify staff is business owner OR staff member
+  const isOwner = scan.qr_code?.business?.owner_user_id === staffUserId;
+  
+  if (!isOwner) {
+    // Check if user is a staff member for this business
+    const { data: staffCheck } = await supabase
+      .from('business_staff')
+      .select('id')
+      .eq('business_id', scan.qr_code.business_id)
+      .eq('user_id', staffUserId)
+      .maybeSingle();
+    
+    if (!staffCheck) {
+      return new Response(JSON.stringify({ error: 'Not authorized to confirm this scan' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   // 3. Check scan status
