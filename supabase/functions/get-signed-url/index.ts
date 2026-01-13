@@ -17,34 +17,24 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // SECURITY: Require authentication
+    // Check for authentication (optional for public content)
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      console.error("Missing or invalid Authorization header");
-      return new Response(
-        JSON.stringify({ error: "Authentication required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let userId: string | null = null;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      // Verify the user's token if provided
+      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData, error: authError } = await supabaseAuth.auth.getUser(token);
+      
+      if (!authError && userData?.user) {
+        userId = userData.user.id;
+        console.log(`Authenticated request from user: ${userId}`);
+      }
     }
-
-    // Verify the user's token
-    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: authError } = await supabaseAuth.auth.getUser(token);
-    
-    if (authError || !userData?.user) {
-      console.error("Invalid authentication:", authError?.message);
-      return new Response(
-        JSON.stringify({ error: "Invalid authentication" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const userId = userData.user.id;
-    console.log(`Authenticated request from user: ${userId}`);
 
     // Parse request body
     const { filePath, expiresIn = 3600 } = await req.json();
@@ -66,10 +56,12 @@ serve(async (req) => {
       );
     }
 
+    const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
+    
     // SECURITY: Validate file access permissions
     // File paths are expected to follow patterns like:
     // - avatars/{userId}/... - user's own avatar
-    // - businesses/{businessId}/... - business photos
+    // - businesses/{businessId}/... - business photos (public for approved businesses)
     // - {userId}/... - user's own files
     const pathParts = filePath.split('/');
     const rootFolder = pathParts[0];
@@ -77,30 +69,23 @@ serve(async (req) => {
     // Check if user has permission to access this file
     let hasAccess = false;
     
-    // Check if it's user's own file (path starts with their user ID)
-    if (rootFolder === userId) {
-      hasAccess = true;
-    }
-    // Check avatars folder
-    else if (rootFolder === 'avatars' && pathParts[1] === userId) {
-      hasAccess = true;
-    }
-    // Check if user is admin
-    else {
-      const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
-      const { data: adminCheck } = await supabaseService.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin'
-      });
+    // Allow access to business photos for approved businesses (public content)
+    if (rootFolder === 'businesses' && pathParts[1]) {
+      const businessId = pathParts[1];
       
-      if (adminCheck) {
+      // Check if business is approved (public content anyone can view)
+      const { data: publicBusiness } = await supabaseService
+        .from('businesses')
+        .select('id')
+        .eq('id', businessId)
+        .eq('status', 'approved')
+        .maybeSingle();
+      
+      if (publicBusiness) {
         hasAccess = true;
       }
-      // Check if file belongs to a business the user owns/works for
-      else if (rootFolder === 'businesses' && pathParts[1]) {
-        const businessId = pathParts[1];
-        
-        // Check if user owns or is staff of this business
+      // Also allow if user owns or is staff of this business
+      else if (userId) {
         const { data: businessAccess } = await supabaseService
           .from('businesses')
           .select('id')
@@ -123,26 +108,29 @@ serve(async (req) => {
           }
         }
       }
-      // For public business photos that any authenticated user can view
-      // Check if the file is in a public-facing context (like listing photos)
-      else {
-        // Allow authenticated users to view business listing photos
-        // These are typically stored with business_id in the path
-        const { data: publicBusiness } = await supabaseService
-          .from('businesses')
-          .select('id')
-          .eq('status', 'approved')
-          .eq('id', rootFolder)
-          .maybeSingle();
-        
-        if (publicBusiness) {
-          hasAccess = true;
-        }
+    }
+    // Check if it's user's own file (path starts with their user ID)
+    else if (userId && rootFolder === userId) {
+      hasAccess = true;
+    }
+    // Check avatars folder
+    else if (userId && rootFolder === 'avatars' && pathParts[1] === userId) {
+      hasAccess = true;
+    }
+    // Check if user is admin (they can access everything)
+    else if (userId) {
+      const { data: adminCheck } = await supabaseService.rpc('has_role', {
+        _user_id: userId,
+        _role: 'admin'
+      });
+      
+      if (adminCheck) {
+        hasAccess = true;
       }
     }
 
     if (!hasAccess) {
-      console.error(`Access denied for user ${userId} to path: ${filePath}`);
+      console.error(`Access denied for user ${userId || 'anonymous'} to path: ${filePath}`);
       return new Response(
         JSON.stringify({ error: "Access denied" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -152,13 +140,10 @@ serve(async (req) => {
     // Validate expiration time (max 1 hour for security)
     const safeExpiresIn = Math.min(Math.max(60, expiresIn), 3600);
 
-    console.log(`Generating signed URL for: ${filePath}, expires in: ${safeExpiresIn}s, user: ${userId}`);
-
-    // Use service role to generate signed URLs (required for private buckets)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    console.log(`Generating signed URL for: ${filePath}, expires in: ${safeExpiresIn}s, user: ${userId || 'anonymous'}`);
 
     // Generate signed URL
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseService.storage
       .from("uploads")
       .createSignedUrl(filePath, safeExpiresIn);
 
@@ -170,7 +155,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Signed URL generated successfully for user:", userId);
+    console.log("Signed URL generated successfully");
     
     return new Response(
       JSON.stringify({ signedUrl: data.signedUrl }),
