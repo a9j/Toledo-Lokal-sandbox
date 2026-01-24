@@ -12,6 +12,7 @@ export interface PulsePost {
   expires_at: string;
   user_id: string | null;
   business_id: string | null;
+  nonprofit_id: string | null;
   location_text: string | null;
   status: 'active' | 'hidden' | 'removed' | 'expired';
   is_pinned: boolean;
@@ -30,6 +31,11 @@ export interface PulsePost {
   hero_image: string | null;
   // Joined data
   business?: {
+    id: string;
+    name: string;
+    logo_url: string | null;
+  } | null;
+  nonprofit?: {
     id: string;
     name: string;
     logo_url: string | null;
@@ -56,7 +62,8 @@ export function usePulse(options: UsePulseOptions = {}) {
         .from('pulse_posts')
         .select(`
           *,
-          business:businesses(id, name, logo_url)
+          business:businesses(id, name, logo_url),
+          nonprofit:nonprofits(id, name, logo_url)
         `)
         .eq('status', 'active')
         .gt('expires_at', new Date().toISOString())

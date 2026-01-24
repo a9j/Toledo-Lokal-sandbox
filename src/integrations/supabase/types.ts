@@ -1819,6 +1819,95 @@ export type Database = {
         }
         Relationships: []
       }
+      nonprofits: {
+        Row: {
+          address: string | null
+          cause_category: Database["public"]["Enums"]["cause_category"]
+          claimed: boolean | null
+          claimed_at: string | null
+          claimed_by: string | null
+          community_support_types:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url: string | null
+          created_at: string
+          email: string | null
+          founding_community_partner: boolean | null
+          human_note: string | null
+          id: string
+          logo_url: string | null
+          mission_statement: string
+          name: string
+          neighborhood_id: string | null
+          phone: string | null
+          slug: string | null
+          status: string
+          updated_at: string
+          website: string | null
+          what_this_helps: string | null
+        }
+        Insert: {
+          address?: string | null
+          cause_category: Database["public"]["Enums"]["cause_category"]
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          community_support_types?:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url?: string | null
+          created_at?: string
+          email?: string | null
+          founding_community_partner?: boolean | null
+          human_note?: string | null
+          id?: string
+          logo_url?: string | null
+          mission_statement: string
+          name: string
+          neighborhood_id?: string | null
+          phone?: string | null
+          slug?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+          what_this_helps?: string | null
+        }
+        Update: {
+          address?: string | null
+          cause_category?: Database["public"]["Enums"]["cause_category"]
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          community_support_types?:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url?: string | null
+          created_at?: string
+          email?: string | null
+          founding_community_partner?: boolean | null
+          human_note?: string | null
+          id?: string
+          logo_url?: string | null
+          mission_statement?: string
+          name?: string
+          neighborhood_id?: string | null
+          phone?: string | null
+          slug?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+          what_this_helps?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nonprofits_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           boost_credits_per_month: number | null
@@ -2123,6 +2212,7 @@ export type Database = {
           id: string
           is_pinned: boolean
           location_text: string | null
+          nonprofit_id: string | null
           preview_text: string | null
           pulse_id: string | null
           resharing_allowed: boolean | null
@@ -2147,6 +2237,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          nonprofit_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
           resharing_allowed?: boolean | null
@@ -2171,6 +2262,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          nonprofit_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
           resharing_allowed?: boolean | null
@@ -2191,6 +2283,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_posts_nonprofit_id_fkey"
+            columns: ["nonprofit_id"]
+            isOneToOne: false
+            referencedRelation: "nonprofits"
             referencedColumns: ["id"]
           },
         ]
@@ -3032,6 +3131,25 @@ export type Database = {
         | "organizer"
         | "nonprofit"
         | "partner"
+      cause_category:
+        | "food_insecurity"
+        | "housing"
+        | "youth"
+        | "health"
+        | "arts_culture"
+        | "education"
+        | "community_support"
+        | "environment"
+        | "animal_welfare"
+        | "veterans"
+        | "seniors"
+        | "disability_services"
+      community_support_type:
+        | "volunteers"
+        | "donations"
+        | "supplies"
+        | "events"
+        | "awareness"
       loop_mission_type:
         | "visits"
         | "category"
@@ -3190,6 +3308,27 @@ export const Constants = {
         "organizer",
         "nonprofit",
         "partner",
+      ],
+      cause_category: [
+        "food_insecurity",
+        "housing",
+        "youth",
+        "health",
+        "arts_culture",
+        "education",
+        "community_support",
+        "environment",
+        "animal_welfare",
+        "veterans",
+        "seniors",
+        "disability_services",
+      ],
+      community_support_type: [
+        "volunteers",
+        "donations",
+        "supplies",
+        "events",
+        "awareness",
       ],
       loop_mission_type: [
         "visits",

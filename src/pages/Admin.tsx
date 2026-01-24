@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,8 @@ import {
   Award,
   Briefcase,
   Truck,
-  Crown
+  Crown,
+  Heart
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -431,6 +433,10 @@ export default function Admin() {
                 <Badge variant="secondary" className="ml-1">{pendingFoodLocations.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="nonprofits" className="flex-1 gap-1.5">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Community</span>
+            </TabsTrigger>
             <TabsTrigger value="manage" className="flex-1 gap-1.5">
               <ImageIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Manage</span>
@@ -439,6 +445,10 @@ export default function Admin() {
 
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="nonprofits">
+            <NonprofitAdmin />
           </TabsContent>
 
           <TabsContent value="businesses" className="space-y-3">

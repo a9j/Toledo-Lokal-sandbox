@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, MapPin, Compass, Repeat } from 'lucide-react';
+import { Newspaper, MapPin, Compass, Heart, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -7,6 +7,7 @@ const navItems = [
   { path: '/', icon: Newspaper, label: 'Today' },
   { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/discover', icon: Compass, label: 'Discover' },
+  { path: '/community', icon: Heart, label: 'Community' },
   { path: '/loop', icon: Repeat, label: 'Loop' },
 ];
 

@@ -35,16 +35,16 @@ const features = [
     gradient: 'from-toledo-rose to-toledo-lavender',
   },
   {
+    icon: Users,
+    title: 'Community & Causes',
+    description: 'Explore local nonprofits and find causes you care about in Toledo.',
+    gradient: 'from-rose-500 to-rose-400',
+  },
+  {
     icon: Tag,
     title: 'Exclusive Deals',
     description: 'Get special offers and discounts from local businesses near you.',
     gradient: 'from-toledo-sage to-toledo-teal',
-  },
-  {
-    icon: Users,
-    title: 'Support Local',
-    description: 'Connect with your community and help local businesses thrive.',
-    gradient: 'from-accent to-accent/70',
   },
 ];
 
