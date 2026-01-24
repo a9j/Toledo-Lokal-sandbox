@@ -126,10 +126,10 @@ export function useCreateJob() {
         description: 'Your job listing is pending approval.',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error posting job',
-        description: error.message,
+        description: 'Failed to post job. Please try again.',
         variant: 'destructive',
       });
     },
@@ -159,10 +159,10 @@ export function useUpdateJob() {
         title: 'Job updated',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error updating job',
-        description: error.message,
+        description: 'Failed to update job. Please try again.',
         variant: 'destructive',
       });
     },
@@ -189,10 +189,10 @@ export function useDeleteJob() {
         title: 'Job deleted',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error deleting job',
-        description: error.message,
+        description: 'Failed to delete job. Please try again.',
         variant: 'destructive',
       });
     },

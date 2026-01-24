@@ -118,7 +118,7 @@ export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0,
       if (isRateLimit) {
         toast.error('Slow down! You can only post 5 reviews per day, and new accounts must wait 1 hour before reviewing.');
       } else {
-        toast.error(error.message || 'Failed to submit review');
+        toast.error('Failed to submit review. Please try again.');
       }
     },
   });

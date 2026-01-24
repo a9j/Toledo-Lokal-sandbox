@@ -162,11 +162,11 @@ export default function EditBusiness() {
       });
       navigate('/dashboard');
     },
-    onError: (error) => {
+    onError: () => {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to update business. Please try again.' 
       });
     },
   });
@@ -203,11 +203,11 @@ export default function EditBusiness() {
         description: isInLoop ? 'Your business is now visible in Loop.' : 'Your business is no longer in Loop.',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to update Loop settings. Please try again.' 
       });
       // Revert the toggle
       setIsInLoop(!isInLoop);

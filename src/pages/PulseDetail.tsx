@@ -243,10 +243,12 @@ export default function PulseDetail() {
                       className="prose prose-sm max-w-none text-foreground"
                       dangerouslySetInnerHTML={{ 
                         __html: DOMPurify.sanitize(post.full_body, {
-                          ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'blockquote'],
-                          ALLOWED_ATTR: ['href', 'target', 'rel'],
-                          FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input'],
-                          FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover']
+                          // Minimal safe tag set - only basic formatting
+                          ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li'],
+                          ALLOWED_ATTR: [],
+                          FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'a', 'img', 'svg', 'video', 'audio', 'object', 'embed'],
+                          FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onblur', 'href', 'src', 'style'],
+                          KEEP_CONTENT: true,
                         })
                       }}
                     />

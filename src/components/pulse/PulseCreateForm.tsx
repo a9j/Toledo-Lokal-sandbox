@@ -130,7 +130,7 @@ export function PulseCreateForm() {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to create post. Please try again.' 
       });
     }
   };

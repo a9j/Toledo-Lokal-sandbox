@@ -61,11 +61,11 @@ export default function Programs() {
       queryClient.invalidateQueries({ queryKey: ['program-signups'] });
       toast({ title: 'Successfully enrolled!' });
     },
-    onError: (error) => {
+    onError: () => {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to enroll. Please try again.' 
       });
     },
   });

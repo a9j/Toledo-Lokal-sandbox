@@ -64,11 +64,11 @@ export default function CreateBusiness() {
       });
       navigate('/profile');
     },
-    onError: (error) => {
+    onError: () => {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to create business. Please try again.' 
       });
     },
   });

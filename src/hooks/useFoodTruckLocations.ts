@@ -110,10 +110,10 @@ export function useCreateFoodLocation() {
         description: 'Your location is now visible to customers.',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error posting location',
-        description: error.message,
+        description: 'Failed to post location. Please try again.',
         variant: 'destructive',
       });
     },
@@ -143,10 +143,10 @@ export function useUpdateFoodLocation() {
         title: 'Location updated',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error updating location',
-        description: error.message,
+        description: 'Failed to update location. Please try again.',
         variant: 'destructive',
       });
     },
@@ -173,10 +173,10 @@ export function useDeleteFoodLocation() {
         title: 'Location deleted',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error deleting location',
-        description: error.message,
+        description: 'Failed to delete location. Please try again.',
         variant: 'destructive',
       });
     },
