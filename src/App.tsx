@@ -17,7 +17,8 @@ import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
-import Programs from "./pages/Programs";
+import Community from "./pages/Community";
+import NonprofitDetail from "./pages/NonprofitDetail";
 import Deals from "./pages/Deals";
 import Requests from "./pages/Requests";
 import Profile from "./pages/Profile";
@@ -76,7 +77,8 @@ const App = () => (
                 <Route path="/explore" element={<Explore />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/events/:id" element={<EventDetail />} />
-                <Route path="/programs" element={<Programs />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/:slug" element={<NonprofitDetail />} />
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/requests" element={<Requests />} />
                 <Route path="/profile" element={<Profile />} />
