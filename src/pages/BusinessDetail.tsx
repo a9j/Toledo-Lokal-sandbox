@@ -9,6 +9,7 @@ import { SecureImage } from '@/components/ui/secure-image';
 import { ShareButton } from '@/components/sharing/ShareButton';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { IdentityCard } from '@/components/business/IdentityCard';
+import { Founding5Banner } from '@/components/business/Founding5Banner';
 import { TodayStatusCard } from '@/components/business/TodayStatusCard';
 import { LoopActionCard } from '@/components/business/LoopActionCard';
 import { AboutCard } from '@/components/business/AboutCard';
@@ -362,11 +363,27 @@ export default function BusinessDetail() {
         {/* Hero Photo (if exists) */}
         {hasPhotos && (
           <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-secondary">
+            {business.isFoundingMember && <Founding5Banner />}
             <SecureImage
               storagePath={photos[0]}
               alt={`${business.name} photo`}
               className="w-full h-full object-cover"
             />
+          </div>
+        )}
+
+        {/* Founding 5 Banner (when no photos) */}
+        {!hasPhotos && business.isFoundingMember && (
+          <div className="relative p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-yellow-400/10 to-amber-500/10 border border-amber-500/30">
+            <div className="flex items-center justify-center gap-2 py-2">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-white shadow-lg shadow-amber-500/30">
+                <span className="text-lg">👑</span>
+                <span className="font-bold tracking-wide">FOUNDING 5 MEMBER</span>
+              </div>
+            </div>
+            <p className="text-center text-sm text-amber-700 dark:text-amber-400 mt-1">
+              One of the first five businesses supporting local Toledo
+            </p>
           </div>
         )}
 
