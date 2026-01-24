@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -19,6 +19,9 @@ const CACHE_BUFFER_MS = 5 * 60 * 1000; // 5 min buffer
 
 // Pending requests to avoid duplicate fetches
 const pendingRequests = new Map<string, Promise<string | null>>();
+
+// Supabase project URL for public bucket access
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ixupthihhfeikeydvvir.supabase.co';
 
 function getCachedUrl(filePath: string): string | null {
   const entry = imageCache.get(filePath);
@@ -47,10 +50,21 @@ function isSupabaseStorageUrl(url: string): boolean {
   return url.includes('/storage/v1/object/');
 }
 
+// Check if this is an external URL (Unsplash, etc.)
+function isExternalUrl(url: string): boolean {
+  return url.startsWith('http') && !url.includes('supabase.co');
+}
+
 // Extract file path from Supabase storage URL
 function extractPathFromUrl(url: string): string | null {
   const match = url.match(/\/storage\/v1\/object\/(?:public|sign)\/uploads\/(.+?)(?:\?|$)/);
   return match ? match[1] : null;
+}
+
+// Generate a direct public URL for the uploads bucket
+// This works for approved business images that have public RLS policies
+function getPublicUrl(filePath: string): string {
+  return `${SUPABASE_URL}/storage/v1/object/public/uploads/${filePath}`;
 }
 
 async function fetchSignedUrl(filePath: string, expiresIn: number): Promise<string | null> {
@@ -94,7 +108,25 @@ export function SecureImage({
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [useSignedFallback, setUseSignedFallback] = useState(false);
   const mountedRef = useRef(true);
+
+  // Determine if this is a public/external image that doesn't need signing
+  const immediateUrl = useMemo(() => {
+    if (!storagePath) return null;
+    
+    // External URLs (Unsplash, etc.) - use directly
+    if (isExternalUrl(storagePath)) {
+      return storagePath;
+    }
+    
+    // Already a full Supabase URL with signature
+    if (storagePath.includes('/storage/v1/object/sign/')) {
+      return storagePath;
+    }
+    
+    return null;
+  }, [storagePath]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -102,6 +134,13 @@ export function SecureImage({
   }, []);
 
   useEffect(() => {
+    // If we have an immediate URL, use it
+    if (immediateUrl) {
+      setSignedUrl(immediateUrl);
+      setLoading(false);
+      return;
+    }
+
     if (!storagePath) {
       setLoading(false);
       return;
@@ -136,7 +175,15 @@ export function SecureImage({
       return;
     }
 
-    // Fetch signed URL
+    // Try public URL first for business images (fast path)
+    if (filePath.startsWith('businesses/') && !useSignedFallback) {
+      const publicUrl = getPublicUrl(filePath);
+      setSignedUrl(publicUrl);
+      setLoading(false);
+      return;
+    }
+
+    // Fetch signed URL for private content
     setLoading(true);
     setError(false);
     
@@ -149,7 +196,17 @@ export function SecureImage({
       }
       setLoading(false);
     });
-  }, [storagePath, expiresIn]);
+  }, [storagePath, expiresIn, immediateUrl, useSignedFallback]);
+
+  // Handle image load error - fallback to signed URL if public URL fails
+  const handleError = () => {
+    if (!useSignedFallback && storagePath && (isStoragePath(storagePath) || isSupabaseStorageUrl(storagePath))) {
+      // The public URL failed, try getting a signed URL
+      setUseSignedFallback(true);
+    } else {
+      setError(true);
+    }
+  };
 
   if (loading) {
     return <Skeleton className={className} />;
@@ -164,8 +221,8 @@ export function SecureImage({
       src={signedUrl}
       alt={alt}
       className={className}
-      loading="eager"
-      onError={() => setError(true)}
+      loading="lazy"
+      onError={handleError}
       {...props}
     />
   );
