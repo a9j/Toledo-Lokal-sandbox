@@ -80,11 +80,11 @@ export default function Requests() {
       setIsOpen(false);
       toast({ title: 'Request posted successfully!' });
     },
-    onError: (error) => {
+    onError: () => {
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
-        description: error.message 
+        description: 'Failed to post request. Please try again.' 
       });
     },
   });

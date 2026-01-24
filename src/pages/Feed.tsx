@@ -79,7 +79,7 @@ export default function Feed() {
       toast({ 
         variant: 'destructive', 
         title: isRateLimit ? 'Slow down!' : 'Error', 
-        description: isRateLimit ? 'You can only post 10 times per day. Please try again later.' : error.message 
+        description: isRateLimit ? 'You can only post 10 times per day. Please try again later.' : 'Failed to create post. Please try again.' 
       });
     },
   });

@@ -115,8 +115,8 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
         },
       });
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to send invitation');
+    onError: () => {
+      toast.error('Failed to send invitation. Please try again.');
     },
   });
 
@@ -134,8 +134,8 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
       queryClient.invalidateQueries({ queryKey: ['business-staff', businessId] });
       toast.success('Staff member removed');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to remove staff');
+    onError: () => {
+      toast.error('Failed to remove staff member. Please try again.');
     },
   });
 

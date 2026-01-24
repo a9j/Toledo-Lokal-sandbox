@@ -119,8 +119,8 @@ export function NonprofitAdmin() {
       setIsCreateOpen(false);
       setFormData(initialFormData);
     },
-    onError: (err) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to create nonprofit. Please try again.', variant: 'destructive' });
     },
   });
 
@@ -152,8 +152,8 @@ export function NonprofitAdmin() {
       setEditingId(null);
       setFormData(initialFormData);
     },
-    onError: (err) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    onError: () => {
+      toast({ title: 'Error', description: 'Failed to update nonprofit. Please try again.', variant: 'destructive' });
     },
   });
 

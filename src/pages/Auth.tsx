@@ -125,10 +125,14 @@ export default function Auth() {
         }
       }
     } catch (error) {
+      // Check for specific auth errors that are safe to show
+      const errorMsg = error instanceof Error ? error.message : '';
+      const isInvalidCredentials = errorMsg.toLowerCase().includes('invalid') || 
+                                   errorMsg.toLowerCase().includes('credentials');
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Something went wrong',
+        description: isInvalidCredentials ? 'Invalid email or password' : 'Authentication failed. Please try again.',
       });
     } finally {
       setIsLoading(false);
