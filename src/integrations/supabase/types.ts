@@ -2920,10 +2920,9 @@ export type Database = {
         Row: {
           business_id: string | null
           contact_info: string | null
-          contact_info_masked: string | null
           created_at: string | null
           id: string | null
-          message: string | null
+          message_preview: string | null
           name: string | null
           request_id: string | null
           status: string | null
@@ -2933,11 +2932,10 @@ export type Database = {
         Insert: {
           business_id?: string | null
           contact_info?: never
-          contact_info_masked?: never
           created_at?: string | null
           id?: string | null
-          message?: string | null
-          name?: string | null
+          message_preview?: never
+          name?: never
           request_id?: string | null
           status?: string | null
           type?: string | null
@@ -2946,11 +2944,10 @@ export type Database = {
         Update: {
           business_id?: string | null
           contact_info?: never
-          contact_info_masked?: never
           created_at?: string | null
           id?: string | null
-          message?: string | null
-          name?: string | null
+          message_preview?: never
+          name?: never
           request_id?: string | null
           status?: string | null
           type?: string | null
@@ -3003,6 +3000,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      can_view_lead: {
+        Args: { _business_id: string; _user_id?: string }
+        Returns: boolean
       }
       check_ai_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_first_review_cooldown: {
