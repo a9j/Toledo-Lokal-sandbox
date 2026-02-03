@@ -5,21 +5,21 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SecureImage } from '@/components/ui/secure-image';
-import { ShareButton } from '@/components/sharing/ShareButton';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
-import { IdentityCard } from '@/components/business/IdentityCard';
-import { Founding5Banner } from '@/components/business/Founding5Banner';
-import { TodayStatusCard } from '@/components/business/TodayStatusCard';
-import { LoopActionCard } from '@/components/business/LoopActionCard';
-import { AboutCard } from '@/components/business/AboutCard';
-import { CommunityImpactCard } from '@/components/business/CommunityImpactCard';
-import { MomentsCard } from '@/components/business/MomentsCard';
-import { ContactCard } from '@/components/business/ContactCard';
-import { DealCard } from '@/components/cards/DealCard';
-import { EventCard } from '@/components/cards/EventCard';
-import { BusinessMap } from '@/components/maps/BusinessMap';
 import { ArrowLeft } from 'lucide-react';
+
+// New modular profile components
+import { HeroCard } from '@/components/business/profile/HeroCard';
+import { TrustStrip } from '@/components/business/profile/TrustStrip';
+import { AboutSection } from '@/components/business/profile/AboutSection';
+import { CurrentPerkCard } from '@/components/business/profile/CurrentPerkCard';
+import { BusinessPulseSection } from '@/components/business/profile/BusinessPulseSection';
+import { UpcomingEventsSection } from '@/components/business/profile/UpcomingEventsSection';
+import { LocalImpactMeter } from '@/components/business/profile/LocalImpactMeter';
+import { PhotosSection } from '@/components/business/profile/PhotosSection';
+import { StickyActionDock } from '@/components/business/profile/StickyActionDock';
+import { ContactCard } from '@/components/business/ContactCard';
+import { BusinessMap } from '@/components/maps/BusinessMap';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
@@ -99,7 +99,7 @@ export default function BusinessDetail() {
     enabled: !!id,
   });
 
-  // Fetch active deals for Today Status
+  // Fetch active deals for Current Perk
   const { data: deals } = useQuery({
     queryKey: ['business-deals', business?.id],
     queryFn: async () => {
@@ -109,7 +109,8 @@ export default function BusinessDetail() {
         .eq('business_id', business!.id)
         .eq('status', 'approved')
         .gte('end_date', new Date().toISOString().split('T')[0])
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(1);
       
       if (error) throw error;
       return data;
@@ -127,31 +128,13 @@ export default function BusinessDetail() {
         .eq('business_id', business!.id)
         .eq('status', 'approved')
         .gte('start_date_time', new Date().toISOString())
-        .order('start_date_time', { ascending: true });
+        .order('start_date_time', { ascending: true })
+        .limit(5);
       
       if (error) throw error;
       return data;
     },
     enabled: !!business?.id,
-  });
-
-  // Fetch food truck locations for today (if food truck)
-  const { data: foodTruckLocations } = useQuery({
-    queryKey: ['business-food-truck-today', business?.id],
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('food_truck_locations')
-        .select('*')
-        .eq('business_id', business!.id)
-        .eq('location_date', today)
-        .eq('status', 'active')
-        .order('start_time', { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!business?.id && business?.isFoodTruck,
   });
 
   // Fetch Loop rewards for this business
@@ -172,113 +155,10 @@ export default function BusinessDetail() {
     enabled: !!business?.id && business?.isInLoop,
   });
 
-  // Fetch Loop QR codes for points available
-  const { data: qrCodes } = useQuery({
-    queryKey: ['business-qr-public', business?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('loop_qr_codes')
-        .select('points_value')
-        .eq('business_id', business!.id)
-        .eq('is_active', true)
-        .order('points_value', { ascending: false })
-        .limit(1);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!business?.id && business?.isInLoop,
-  });
-
   // Parse hours
   const parseHours = (hours: unknown): Record<string, { open: string; close: string; closed?: boolean } | null> | null => {
     if (!hours || typeof hours !== 'object') return null;
     return hours as Record<string, { open: string; close: string; closed?: boolean } | null>;
-  };
-
-  // Determine today status - matches example spec
-  const getTodayStatus = () => {
-    if (!business) return null;
-
-    const parsedHours = parseHours(business.hours);
-    const today = new Date();
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const todayName = dayNames[today.getDay()];
-    
-    const formatTime = (t: string) => {
-      const [h, m] = t.split(':').map(Number);
-      const period = h >= 12 ? 'pm' : 'am';
-      const h12 = h % 12 || 12;
-      return `${h12}:${m > 0 ? ':' + m.toString().padStart(2, '0') : ''}${period}`;
-    };
-
-    // Food truck: Show location if here today
-    if (business.isFoodTruck && foodTruckLocations && foodTruckLocations.length > 0) {
-      const loc = foodTruckLocations[0];
-      return {
-        type: 'food_truck' as const,
-        message: `Here today · ${loc.location_name} · ${formatTime(loc.start_time)}–${formatTime(loc.end_time)}`
-      };
-    }
-
-    // Check for today's event (volunteer for nonprofits)
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-    
-    const todaysEvent = events?.find(e => {
-      const eventDate = new Date(e.start_date_time);
-      return eventDate >= todayStart && eventDate <= todayEnd;
-    });
-
-    if (todaysEvent) {
-      // Format event time
-      const eventTime = new Date(todaysEvent.start_date_time);
-      const timeStr = formatTime(`${eventTime.getHours()}:${eventTime.getMinutes().toString().padStart(2, '0')}`);
-      
-      // Check if this is a volunteer event (for nonprofits)
-      const isVolunteer = business.isNonprofit || 
-        todaysEvent.title.toLowerCase().includes('volunteer');
-      
-      return {
-        type: isVolunteer ? 'volunteer' as const : 'event' as const,
-        message: `${todaysEvent.title} · ${timeStr}`
-      };
-    }
-
-    // Check for today's deal with timing
-    if (deals && deals.length > 0) {
-      return {
-        type: 'deal' as const,
-        message: deals[0].title,
-        subMessage: deals[0].description?.substring(0, 50) || undefined
-      };
-    }
-    
-    // Check if open today
-    if (parsedHours && parsedHours[todayName] && !parsedHours[todayName]?.closed) {
-      const hours = parsedHours[todayName]!;
-      return {
-        type: 'open' as const,
-        message: `Open today · ${formatTime(hours.open)}–${formatTime(hours.close)}`
-      };
-    }
-
-    // Professional services: appointments available
-    const isService = business.category?.name?.toLowerCase().includes('service') ||
-      business.category?.name?.toLowerCase().includes('plumb') ||
-      business.category?.name?.toLowerCase().includes('account') ||
-      business.category?.name?.toLowerCase().includes('professional');
-    
-    if (isService) {
-      return {
-        type: 'appointment' as const,
-        message: 'Appointments available'
-      };
-    }
-
-    return null;
   };
 
   if (isLoading) {
@@ -286,9 +166,10 @@ export default function BusinessDetail() {
       <>
         <Header title="Business" />
         <PageContainer className="space-y-4">
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-16 rounded-2xl" />
+          <Skeleton className="h-48 rounded-3xl" />
+          <Skeleton className="h-10 rounded-full w-48" />
           <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
           <Skeleton className="h-20 rounded-2xl" />
         </PageContainer>
       </>
@@ -312,11 +193,9 @@ export default function BusinessDetail() {
   }
 
   const photos = business.photos && business.photos.length > 0 ? business.photos : [];
-  const hasPhotos = photos.length > 0;
   const parsedHours = parseHours(business.hours);
-  const todayStatus = getTodayStatus();
-  const pointsAvailable = qrCodes?.[0]?.points_value || 0;
-  const rewardPreview = rewards?.[0]?.name || null;
+  const currentDeal = deals?.[0] || null;
+  const currentReward = rewards?.[0] || null;
 
   return (
     <>
@@ -347,86 +226,66 @@ export default function BusinessDetail() {
       />
       <Header title={business.name} />
       
-      <PageContainer className="space-y-4">
-        {/* Back + Share */}
-        <div className="flex items-center justify-between">
-          <Link to="/explore" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Link>
-          <ShareButton 
-            title={business.name}
-            text={business.description || `Check out ${business.name} on ToledoLokal`}
-          />
-        </div>
+      <PageContainer className="space-y-4 pb-24">
+        {/* Back button - minimal */}
+        <Link 
+          to="/explore" 
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Link>
 
-        {/* Hero Photo (if exists) */}
-        {hasPhotos && (
-          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-secondary">
-            {business.isFoundingMember && <Founding5Banner />}
-            <SecureImage
-              storagePath={photos[0]}
-              alt={`${business.name} photo`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
-        {/* Founding 5 Banner (when no photos) */}
-        {!hasPhotos && business.isFoundingMember && (
-          <div className="relative p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-yellow-400/10 to-amber-500/10 border border-amber-500/30">
-            <div className="flex items-center justify-center gap-2 py-2">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-white shadow-lg shadow-amber-500/30">
-                <span className="text-lg">👑</span>
-                <span className="font-bold tracking-wide">FOUNDING 5 MEMBER</span>
-              </div>
-            </div>
-            <p className="text-center text-sm text-amber-700 dark:text-amber-400 mt-1">
-              One of the first five businesses supporting local Toledo
-            </p>
-          </div>
-        )}
-
-        {/* Card 1: Identity Header */}
-        <IdentityCard 
+        {/* 1. Hero Card - Above the fold */}
+        <HeroCard 
           business={{
             name: business.name,
             logo_url: business.logo_url,
-            address: business.address,
             category: business.category,
             neighborhood: business.neighborhood,
-            verified: business.verified,
-            isInLoop: business.isInLoop,
-            isFoundingMember: business.isFoundingMember,
-            isNonprofit: business.isNonprofit,
-            loopTierId: business.loopTierId
+            photos: photos,
           }}
           isFoodTruck={business.isFoodTruck}
+          isNonprofit={business.isNonprofit}
         />
 
-        {/* Card 2: Today Status (Conditional) */}
-        <TodayStatusCard status={todayStatus} />
+        {/* 2. Trust Strip - Horizontal swipe badges */}
+        <TrustStrip 
+          businessId={business.id}
+          isFoundingMember={business.isFoundingMember}
+          isLocallyOwned={true}
+          isCommunityPartner={business.isNonprofit}
+          isNonprofit={business.isNonprofit}
+        />
 
-        {/* Card 3: Loop Action */}
-        <LoopActionCard 
+        {/* 3. Current Local Perk (deal or reward) */}
+        <CurrentPerkCard 
+          deal={currentDeal} 
+          reward={currentReward}
+        />
+
+        {/* 4. About - max 3 short lines */}
+        <AboutSection description={business.description} />
+
+        {/* 5. Business Pulse - Recent activity */}
+        <BusinessPulseSection 
           businessId={business.id}
           businessName={business.name}
-          isInLoop={business.isInLoop || false}
-          pointsAvailable={pointsAvailable}
-          rewardPreview={rewardPreview}
-          actionType={business.isNonprofit ? 'checkin' : 'scan'}
         />
 
-        {/* Card 4: About */}
-        <AboutCard description={business.description} />
+        {/* 6. Upcoming Events */}
+        <UpcomingEventsSection events={events} />
 
-        {/* Card 5: Community Impact */}
-        <CommunityImpactCard />
+        {/* 7. Local Impact Meter */}
+        <LocalImpactMeter businessId={business.id} />
 
-        {/* Card 6: Moments */}
-        <MomentsCard />
+        {/* 8. Photos */}
+        <PhotosSection 
+          photos={photos} 
+          businessName={business.name}
+        />
 
-        {/* Contact & Hours Card */}
+        {/* 9. Contact & Hours */}
         <ContactCard 
           business={{
             address: business.address,
@@ -439,7 +298,7 @@ export default function BusinessDetail() {
           hours={parsedHours}
         />
 
-        {/* Map */}
+        {/* 10. Map */}
         {business.address && (
           <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border/50">
             <BusinessMap 
@@ -449,35 +308,17 @@ export default function BusinessDetail() {
             />
           </div>
         )}
-
-        {/* Active Deals */}
-        {deals && deals.length > 0 && (
-          <section className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-              Active Deals
-            </h2>
-            <div className="space-y-2">
-              {deals.map(deal => (
-                <DealCard key={deal.id} deal={{ ...deal, business }} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Upcoming Events */}
-        {events && events.length > 0 && (
-          <section className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-              Upcoming Events
-            </h2>
-            <div className="space-y-2">
-              {events.map(event => (
-                <EventCard key={event.id} event={{ ...event, business }} compact />
-              ))}
-            </div>
-          </section>
-        )}
       </PageContainer>
+
+      {/* Sticky Bottom Action Dock */}
+      <StickyActionDock 
+        businessId={business.id}
+        businessName={business.name}
+        address={business.address}
+        phone={business.phone}
+        website={business.website}
+        isNonprofit={business.isNonprofit}
+      />
     </>
   );
 }
