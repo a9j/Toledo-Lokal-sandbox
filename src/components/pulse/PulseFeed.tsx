@@ -2,8 +2,7 @@ import { usePulse } from '@/hooks/usePulse';
 import { PulsePostCard } from './PulsePostCard';
 import { PULSE_CATEGORIES, PulseCategory } from '@/lib/pulse-config';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Zap, AlertTriangle, Activity, HelpCircle, Heart, Radio } from 'lucide-react';
+import { Zap, AlertTriangle, Activity, HelpCircle, Heart, Radio, Building2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -15,6 +14,8 @@ const CATEGORY_ICONS = {
   good_stuff: Heart,
 };
 
+type AuthorFilter = 'all' | 'business' | 'user';
+
 interface PulseFeedProps {
   limit?: number;
   showFilters?: boolean;
@@ -22,9 +23,16 @@ interface PulseFeedProps {
 
 export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
   const [selectedCategory, setSelectedCategory] = useState<PulseCategory | null>(null);
+  const [authorFilter, setAuthorFilter] = useState<AuthorFilter>('all');
   const { data: posts, isLoading, error } = usePulse({ 
     category: selectedCategory || undefined,
     limit 
+  });
+
+  // Filter posts by author type
+  const filteredPosts = posts?.filter(post => {
+    if (authorFilter === 'all') return true;
+    return post.author_type === authorFilter;
   });
 
   if (isLoading) {
@@ -47,6 +55,48 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
 
   return (
     <div className="space-y-4">
+      {/* Author type filter */}
+      {showFilters && (
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setAuthorFilter('all')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
+              authorFilter === 'all' 
+                ? "border-primary bg-primary text-primary-foreground" 
+                : "border-border hover:bg-secondary"
+            )}
+          >
+            <Radio className="h-3.5 w-3.5" />
+            All
+          </button>
+          <button
+            onClick={() => setAuthorFilter('business')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
+              authorFilter === 'business' 
+                ? "border-primary bg-primary/10 text-primary" 
+                : "border-border hover:bg-secondary"
+            )}
+          >
+            <Building2 className="h-3.5 w-3.5" />
+            Businesses
+          </button>
+          <button
+            onClick={() => setAuthorFilter('user')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
+              authorFilter === 'user' 
+                ? "border-muted-foreground bg-secondary text-foreground" 
+                : "border-border hover:bg-secondary"
+            )}
+          >
+            <User className="h-3.5 w-3.5" />
+            Residents
+          </button>
+        </div>
+      )}
+
       {/* Category filters */}
       {showFilters && (
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
@@ -59,8 +109,7 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
                 : "border-border hover:bg-secondary"
             )}
           >
-            <Radio className="h-3.5 w-3.5" />
-            All
+            All Categories
           </button>
           {Object.values(PULSE_CATEGORIES).map((cat) => {
             const Icon = CATEGORY_ICONS[cat.id];
@@ -86,9 +135,9 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
       )}
 
       {/* Posts */}
-      {posts && posts.length > 0 ? (
+      {filteredPosts && filteredPosts.length > 0 ? (
         <div className="space-y-3">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <PulsePostCard key={post.id} post={post} />
           ))}
         </div>
@@ -97,7 +146,10 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
           <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
           <h3 className="text-lg font-medium text-foreground mb-1">Nothing on The Pulse</h3>
           <p className="text-sm text-muted-foreground">
-            Be the first to share what's happening in Toledo
+            {authorFilter !== 'all' 
+              ? `No ${authorFilter === 'business' ? 'business' : 'resident'} posts right now`
+              : 'Be the first to share what\'s happening in Toledo'
+            }
           </p>
         </div>
       )}

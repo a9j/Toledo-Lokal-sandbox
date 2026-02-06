@@ -113,9 +113,26 @@ export function useSavedItems(itemType?: SavedItemType) {
         });
 
       if (error) throw error;
+      
+      // Generate user pulse for saves (business only)
+      if (itemType === 'business') {
+        try {
+          await supabase.rpc('generate_user_pulse', {
+            p_user_id: user.id,
+            p_activity_type: 'save',
+            p_reference_id: itemId,
+            p_business_id: itemId,
+            p_content: null,
+          });
+        } catch (pulseError) {
+          // Don't fail the save if pulse generation fails
+          console.error('Failed to generate pulse:', pulseError);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-items'] });
+      queryClient.invalidateQueries({ queryKey: ['pulse'] });
       toast.success('Saved!');
       // Trigger PWA install prompt after favorites threshold
       triggerPWAFavoriteEvent();
