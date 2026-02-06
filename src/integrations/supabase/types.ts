@@ -2196,8 +2196,10 @@ export type Database = {
       }
       pulse_posts: {
         Row: {
+          activity_type: string | null
           anonymous: boolean | null
           author_type: string | null
+          auto_generated: boolean | null
           business_id: string | null
           business_tier: string | null
           category: Database["public"]["Enums"]["pulse_category"]
@@ -2215,14 +2217,17 @@ export type Database = {
           nonprofit_id: string | null
           preview_text: string | null
           pulse_id: string | null
+          reference_id: string | null
           resharing_allowed: boolean | null
           share_enabled: boolean | null
           status: Database["public"]["Enums"]["pulse_post_status"]
           user_id: string | null
         }
         Insert: {
+          activity_type?: string | null
           anonymous?: boolean | null
           author_type?: string | null
+          auto_generated?: boolean | null
           business_id?: string | null
           business_tier?: string | null
           category: Database["public"]["Enums"]["pulse_category"]
@@ -2240,14 +2245,17 @@ export type Database = {
           nonprofit_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
+          reference_id?: string | null
           resharing_allowed?: boolean | null
           share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
           user_id?: string | null
         }
         Update: {
+          activity_type?: string | null
           anonymous?: boolean | null
           author_type?: string | null
+          auto_generated?: boolean | null
           business_id?: string | null
           business_tier?: string | null
           category?: Database["public"]["Enums"]["pulse_category"]
@@ -2265,6 +2273,7 @@ export type Database = {
           nonprofit_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
+          reference_id?: string | null
           resharing_allowed?: boolean | null
           share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
@@ -2806,8 +2815,10 @@ export type Database = {
           moved_date: string | null
           onboarding_completed: boolean | null
           preferred_neighborhoods: string[] | null
+          pulse_visibility: string | null
           updated_at: string
           user_id: string
+          user_pulse_enabled: boolean | null
         }
         Insert: {
           created_at?: string
@@ -2817,8 +2828,10 @@ export type Database = {
           moved_date?: string | null
           onboarding_completed?: boolean | null
           preferred_neighborhoods?: string[] | null
+          pulse_visibility?: string | null
           updated_at?: string
           user_id: string
+          user_pulse_enabled?: boolean | null
         }
         Update: {
           created_at?: string
@@ -2828,8 +2841,10 @@ export type Database = {
           moved_date?: string | null
           onboarding_completed?: boolean | null
           preferred_neighborhoods?: string[] | null
+          pulse_visibility?: string | null
           updated_at?: string
           user_id?: string
+          user_pulse_enabled?: boolean | null
         }
         Relationships: []
       }
@@ -3062,6 +3077,16 @@ export type Database = {
         Returns: string
       }
       generate_collection_slug: { Args: { user_name: string }; Returns: string }
+      generate_user_pulse: {
+        Args: {
+          p_activity_type: string
+          p_business_id?: string
+          p_content?: string
+          p_reference_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       get_business_by_id: {
         Args: { business_id: string }
         Returns: {

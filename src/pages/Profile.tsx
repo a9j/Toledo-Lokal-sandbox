@@ -12,6 +12,7 @@ import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
+import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isBusiness } = useAuth();
@@ -108,6 +109,9 @@ export default function Profile() {
         {/* Loop Wallet Card */}
         <ProfileWalletCard />
         <UserWalletQR />
+        
+        {/* User Pulse Settings */}
+        <UserPulseToggle />
 
         {/* Business section */}
         {userBusiness ? (

@@ -18,17 +18,21 @@ export interface PulsePost {
   is_pinned: boolean;
   helpful_count: number;
   flag_count: number;
-  // New sharing fields
+  // Sharing fields
   pulse_id: string;
   headline: string | null;
   preview_text: string | null;
   full_body: string | null;
-  author_type: string;
+  author_type: 'user' | 'business' | 'admin';
   business_tier: string;
   share_enabled: boolean;
   resharing_allowed: boolean;
   anonymous: boolean;
   hero_image: string | null;
+  // User Pulse fields
+  activity_type: string | null;
+  reference_id: string | null;
+  auto_generated: boolean;
   // Joined data
   business?: {
     id: string;
