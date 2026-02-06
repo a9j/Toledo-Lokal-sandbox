@@ -2911,7 +2911,7 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: string | null
+          owner_user_id?: never
           phone?: never
           photos?: string[] | null
           review_count?: number | null
@@ -2938,7 +2938,7 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: string | null
+          owner_user_id?: never
           phone?: never
           photos?: string[] | null
           review_count?: number | null

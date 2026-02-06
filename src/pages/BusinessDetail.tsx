@@ -25,7 +25,7 @@ import { NeighborhoodPopularityBadge } from '@/components/discovery/Neighborhood
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-// Public-safe columns
+// Public-safe columns - owner_user_id is now masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
   id,
   name,
@@ -50,8 +50,7 @@ const PUBLIC_BUSINESS_COLUMNS = `
   story,
   status,
   created_at,
-  updated_at,
-  owner_user_id
+  updated_at
 `;
 
 export default function BusinessDetail() {
