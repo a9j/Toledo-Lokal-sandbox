@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface StickyActionDockProps {
   businessId: string;
@@ -11,6 +12,7 @@ interface StickyActionDockProps {
   phone?: string | null;
   website?: string | null;
   isNonprofit?: boolean;
+  className?: string;
 }
 
 export function StickyActionDock({ 
@@ -19,7 +21,8 @@ export function StickyActionDock({
   address,
   phone,
   website,
-  isNonprofit
+  isNonprofit,
+  className
 }: StickyActionDockProps) {
   const { user } = useAuth();
   const { savedItems, toggleSave } = useSavedItems();
@@ -76,19 +79,19 @@ export function StickyActionDock({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+    <div className={cn("fixed bottom-0 left-0 right-0 z-50 safe-area-bottom", className)}>
       {/* Gradient fade */}
-      <div className="absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none" />
       
       {/* Action bar */}
-      <div className="bg-card/95 backdrop-blur-lg border-t border-border/50 px-4 py-3">
+      <div className="bg-card/95 backdrop-blur-xl border-t border-border/50 px-4 py-3 shadow-lg">
         <div className="max-w-lg mx-auto flex items-center gap-2">
           {/* Save */}
           <Button
             variant={isSaved ? "default" : "outline"}
             size="sm"
             onClick={handleSave}
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 rounded-full"
           >
             <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
             {isSaved ? 'Saved' : 'Save'}
@@ -99,7 +102,7 @@ export function StickyActionDock({
             variant="outline"
             size="sm"
             onClick={handleVisit}
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 rounded-full"
           >
             <Navigation className="h-4 w-4" />
             Visit
@@ -110,7 +113,7 @@ export function StickyActionDock({
             variant="default"
             size="sm"
             onClick={handleSupport}
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 rounded-full"
           >
             {isNonprofit ? (
               <>
@@ -135,7 +138,7 @@ export function StickyActionDock({
             variant="ghost"
             size="icon"
             onClick={handleShare}
-            className="flex-shrink-0"
+            className="flex-shrink-0 rounded-full"
           >
             <Share2 className="h-4 w-4" />
           </Button>
