@@ -2414,6 +2414,8 @@ export type Database = {
           id: string
           item_id: string
           item_type: string
+          note: string | null
+          sort_order: number | null
           user_id: string
         }
         Insert: {
@@ -2421,6 +2423,8 @@ export type Database = {
           id?: string
           item_id: string
           item_type: string
+          note?: string | null
+          sort_order?: number | null
           user_id: string
         }
         Update: {
@@ -2428,6 +2432,8 @@ export type Database = {
           id?: string
           item_id?: string
           item_type?: string
+          note?: string | null
+          sort_order?: number | null
           user_id?: string
         }
         Relationships: []
@@ -2761,6 +2767,36 @@ export type Database = {
           },
         ]
       }
+      user_collection_settings: {
+        Row: {
+          collection_name: string | null
+          created_at: string
+          id: string
+          is_public: boolean | null
+          public_slug: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          collection_name?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          public_slug?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          collection_name?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          public_slug?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -3025,6 +3061,7 @@ export type Database = {
         Args: { business_name: string }
         Returns: string
       }
+      generate_collection_slug: { Args: { user_name: string }; Returns: string }
       get_business_by_id: {
         Args: { business_id: string }
         Returns: {

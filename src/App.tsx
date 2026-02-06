@@ -33,6 +33,8 @@ import Stories from "./pages/Stories";
 import CreateStory from "./pages/CreateStory";
 import Subscription from "./pages/Subscription";
 import Saved from "./pages/Saved";
+import MyToledo from "./pages/MyToledo";
+import PublicCollection from "./pages/PublicCollection";
 import LoopWallet from "./pages/LoopWallet";
 import BusinessQRCodes from "./pages/BusinessQRCodes";
 import BusinessRewards from "./pages/BusinessRewards";
@@ -102,6 +104,8 @@ const App = () => (
                 <Route path="/stories/create" element={<CreateStory />} />
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/saved" element={<Saved />} />
+                <Route path="/my-toledo" element={<MyToledo />} />
+                <Route path="/c/:slug" element={<PublicCollection />} />
                 <Route path="/loop-wallet" element={<LoopWallet />} />
                 <Route path="/wallet" element={<LoopWallet />} />
                 <Route path="/scan/:qrCodeId" element={<ScanQR />} />

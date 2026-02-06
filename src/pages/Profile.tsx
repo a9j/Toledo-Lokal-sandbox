@@ -6,7 +6,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share } from 'lucide-react';
+import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share, Heart } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
@@ -72,6 +72,7 @@ export default function Profile() {
   const queryClient = useQueryClient();
 
   const menuItems = [
+    { icon: Heart, label: 'My Toledo', href: '/my-toledo' },
     { icon: Bookmark, label: 'Saved Places', href: '/saved' },
     { icon: FileText, label: 'My Requests', href: '/requests' },
   ];
@@ -141,11 +142,11 @@ export default function Profile() {
           </Link>
         )}
 
-        {/* Saved Places Preview */}
+        {/* My Toledo Preview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Saved Places</h3>
-            <Link to="/saved" className="text-sm text-primary">View All</Link>
+            <h3 className="font-semibold">My Toledo</h3>
+            <Link to="/my-toledo" className="text-sm text-primary">View All</Link>
           </div>
           <SavedPlacesList compact maxItems={3} />
         </div>
