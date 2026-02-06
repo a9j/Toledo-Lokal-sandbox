@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { triggerPWAFavoriteEvent } from '@/components/pwa/InstallPrompt';
 
 export type SavedItemType = 'business' | 'event' | 'post';
 
@@ -116,6 +117,8 @@ export function useSavedItems(itemType?: SavedItemType) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-items'] });
       toast.success('Saved!');
+      // Trigger PWA install prompt after favorites threshold
+      triggerPWAFavoriteEvent();
     },
     onError: () => {
       toast.error('Failed to save');
