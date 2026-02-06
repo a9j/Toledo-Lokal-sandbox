@@ -1,32 +1,63 @@
 import { useState, useEffect } from 'react';
-import { Download, X, Share, Plus, Smartphone } from 'lucide-react';
+import { Download, X, Share, Plus, Smartphone, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+
+const FAVORITES_THRESHOLD = 2; // Show after 2-3 favorites
+const STORAGE_KEY = 'pwa-prompt-dismissed';
+const FAVORITES_COUNT_KEY = 'pwa-favorites-trigger-count';
 
 export function InstallPrompt() {
   const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
   const [dismissed, setDismissed] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
+  const [hasMetThreshold, setHasMetThreshold] = useState(false);
 
-  // Check localStorage for dismissal and show banner after brief delay
+  // Check localStorage for dismissal and threshold on mount
   useEffect(() => {
-    const wasDismissed = localStorage.getItem('pwa-prompt-dismissed');
+    const wasDismissed = localStorage.getItem(STORAGE_KEY);
     if (wasDismissed) {
       setDismissed(true);
-    } else {
+      return;
+    }
+
+    // Check if threshold was already met
+    const savedCount = parseInt(localStorage.getItem(FAVORITES_COUNT_KEY) || '0', 10);
+    if (savedCount >= FAVORITES_THRESHOLD) {
+      setHasMetThreshold(true);
       // Show after a short delay for better UX
       const timer = setTimeout(() => setShowBanner(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
 
+  // Listen for favorite events to track count
+  useEffect(() => {
+    const handleFavorite = () => {
+      if (dismissed || isInstalled) return;
+      
+      const currentCount = parseInt(localStorage.getItem(FAVORITES_COUNT_KEY) || '0', 10);
+      const newCount = currentCount + 1;
+      localStorage.setItem(FAVORITES_COUNT_KEY, newCount.toString());
+      
+      if (newCount >= FAVORITES_THRESHOLD && !hasMetThreshold) {
+        setHasMetThreshold(true);
+        // Show after a short delay
+        setTimeout(() => setShowBanner(true), 1000);
+      }
+    };
+
+    window.addEventListener('pwa-favorite-added', handleFavorite);
+    return () => window.removeEventListener('pwa-favorite-added', handleFavorite);
+  }, [dismissed, isInstalled, hasMetThreshold]);
+
   const handleDismiss = () => {
     setDismissed(true);
-    localStorage.setItem('pwa-prompt-dismissed', 'true');
+    localStorage.setItem(STORAGE_KEY, 'true');
   };
 
-  // Don't show if already installed or dismissed
+  // Don't show if already installed, dismissed, or banner not ready
   if (isInstalled || dismissed || !showBanner) return null;
 
   // Show iOS instructions modal
@@ -35,7 +66,7 @@ export function InstallPrompt() {
       <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4">
         <div className="w-full max-w-md bg-background rounded-2xl p-6 animate-slide-up">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-lg">Install Toledo Connect</h3>
+            <h3 className="font-semibold text-lg">Add to Home Screen</h3>
             <Button
               variant="ghost"
               size="icon"
@@ -47,7 +78,7 @@ export function InstallPrompt() {
           </div>
           
           <p className="text-sm text-muted-foreground mb-4">
-            Add Toledo Connect to your home screen for the best experience:
+            Get quick access to your favorite spots:
           </p>
           
           <ol className="space-y-3 text-sm">
@@ -79,46 +110,46 @@ export function InstallPrompt() {
     );
   }
 
-  // Show prominent install banner
+  // Show install banner (triggered after favorites threshold)
   if (canInstall || isIOS) {
     return (
       <div className="fixed bottom-20 left-0 right-0 z-40 px-4 animate-in slide-in-from-bottom duration-500">
-        <div className="max-w-md mx-auto bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl p-4 shadow-xl">
+        <div className="max-w-md mx-auto bg-card border border-border rounded-2xl p-4 shadow-xl">
           <div className="flex items-start gap-3">
-            <div className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0">
-              <Smartphone className="h-7 w-7" />
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Home className="h-6 w-6 text-primary" />
             </div>
             
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-base">Get the App!</p>
-              <p className="text-sm opacity-90 mt-0.5">
-                Install Toledo Connect for instant access, notifications & offline mode
+              <p className="font-semibold text-foreground">Make Toledo Lokal an app</p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Add Toledo Lokal to your home screen for quick access to your favorite spots.
               </p>
               
               <div className="flex gap-2 mt-3">
                 <Button
                   size="sm"
-                  variant="secondary"
-                  className="rounded-full font-semibold"
+                  className="rounded-full font-medium"
                   onClick={() => {
                     if (isIOS) {
                       setShowIOSInstructions(true);
                     } else {
                       promptInstall();
+                      handleDismiss();
                     }
                   }}
                 >
                   <Download className="h-4 w-4 mr-1.5" />
-                  Install Free
+                  Add to Home Screen
                 </Button>
                 
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="rounded-full text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
+                  className="rounded-full text-muted-foreground"
                   onClick={handleDismiss}
                 >
-                  Maybe Later
+                  Not now
                 </Button>
               </div>
             </div>
@@ -126,7 +157,7 @@ export function InstallPrompt() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 flex-shrink-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/10 -mt-1 -mr-1"
+              className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-foreground -mt-1 -mr-1"
               onClick={handleDismiss}
             >
               <X className="h-4 w-4" />
@@ -138,4 +169,9 @@ export function InstallPrompt() {
   }
 
   return null;
+}
+
+// Helper function to trigger the PWA prompt from anywhere in the app
+export function triggerPWAFavoriteEvent() {
+  window.dispatchEvent(new CustomEvent('pwa-favorite-added'));
 }
