@@ -3,9 +3,11 @@ import { MapPin, Building2, Truck, Heart, Star, Users, Sparkles, Shield } from '
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FlipCard } from '../FlipCard';
+import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
+import { NeighborhoodPopularityBadge } from '@/components/discovery/NeighborhoodPopularityBadge';
 import * as LucideIcons from 'lucide-react';
 
-interface IdentityCardProps {
+export interface IdentityCardProps {
   business: {
     id: string;
     name: string;
@@ -24,6 +26,8 @@ interface IdentityCardProps {
   onSupport?: () => void;
   onSave?: () => void;
   isSaved?: boolean;
+  savedCount?: number;
+  neighborhoodPopularity?: number;
 }
 
 export function IdentityCard({ 
@@ -36,7 +40,9 @@ export function IdentityCard({
   onVisit,
   onSupport,
   onSave,
-  isSaved
+  isSaved,
+  savedCount = 0,
+  neighborhoodPopularity = 0
 }: IdentityCardProps) {
   const getIcon = (iconName?: string | null) => {
     if (!iconName) return Building2;
@@ -110,8 +116,20 @@ export function IdentityCard({
               )}
             </div>
 
-            {/* Trust Badges */}
+            {/* Trust Badges + Discovery Signals */}
             <div className="flex flex-wrap gap-2 mb-6">
+              {/* Discovery Signal: Saved Count */}
+              {savedCount >= 2 && (
+                <SavedCountBadge count={savedCount} size="md" />
+              )}
+              {/* Discovery Signal: Neighborhood Popularity */}
+              {neighborhoodPopularity >= 3 && business.neighborhood?.name && (
+                <NeighborhoodPopularityBadge 
+                  count={neighborhoodPopularity} 
+                  neighborhoodName={business.neighborhood.name}
+                  size="md"
+                />
+              )}
               {isFoundingMember && (
                 <Badge className="bg-lokal-amber/20 text-foreground border-lokal-amber/30 gap-1">
                   <Star className="h-3 w-3 fill-current text-lokal-amber" />

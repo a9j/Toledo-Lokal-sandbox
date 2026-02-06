@@ -19,6 +19,9 @@ import {
 } from '@/components/business/profile/cards';
 import { StickyActionDock } from '@/components/business/profile/StickyActionDock';
 import { useSavedItems } from '@/hooks/useSavedItems';
+import { useBusinessSavedCount, useNeighborhoodPopularity } from '@/hooks/useDiscoverySignals';
+import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
+import { NeighborhoodPopularityBadge } from '@/components/discovery/NeighborhoodPopularityBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -55,7 +58,7 @@ export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { savedItems, toggleSave } = useSavedItems();
-
+  const { data: savedCount = 0 } = useBusinessSavedCount(id || '');
   // Check if id is a UUID or a slug
   const isUUID = id ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) : false;
 
@@ -101,6 +104,9 @@ export default function BusinessDetail() {
     },
     enabled: !!id,
   });
+
+  // Neighborhood popularity
+  const { data: neighborhoodPopularity = 0 } = useNeighborhoodPopularity(business?.neighborhood_id || null);
 
   // Parse hours
   const parseHours = (hours: unknown): Record<string, { open: string; close: string; closed?: boolean } | null> | null => {
@@ -235,6 +241,8 @@ export default function BusinessDetail() {
             onSupport={handleSupport}
             onSave={handleSave}
             isSaved={isSaved}
+            savedCount={savedCount}
+            neighborhoodPopularity={neighborhoodPopularity}
           />
 
           {/* Card 2: Known For */}

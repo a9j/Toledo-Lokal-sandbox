@@ -3052,6 +3052,14 @@ export type Database = {
           website: string
         }[]
       }
+      get_business_saved_count: {
+        Args: { business_id: string }
+        Returns: number
+      }
+      get_neighborhood_popularity: {
+        Args: { neighborhood_id: string }
+        Returns: number
+      }
       get_or_create_loop_wallet: {
         Args: { p_city?: string; p_user_id: string }
         Returns: string
