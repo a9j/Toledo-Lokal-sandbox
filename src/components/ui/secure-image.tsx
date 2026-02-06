@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface SecureImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   storagePath?: string | null;
   fallback?: React.ReactNode;
   expiresIn?: number;
+  /** Image size hint for responsive loading */
+  size?: 'thumb' | 'medium' | 'large' | 'full';
+  /** Use blur-up loading effect */
+  blurUp?: boolean;
 }
 
 // In-memory cache for signed URLs with expiration tracking
@@ -22,6 +27,14 @@ const pendingRequests = new Map<string, Promise<string | null>>();
 
 // Supabase project URL for public bucket access
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ixupthihhfeikeydvvir.supabase.co';
+
+// Size presets for responsive images
+const SIZE_PRESETS = {
+  thumb: { width: 150, quality: 75 },
+  medium: { width: 600, quality: 80 },
+  large: { width: 1200, quality: 85 },
+  full: { width: 1920, quality: 90 },
+};
 
 function getCachedUrl(filePath: string): string | null {
   const entry = imageCache.get(filePath);
@@ -62,9 +75,14 @@ function extractPathFromUrl(url: string): string | null {
 }
 
 // Generate a direct public URL for the uploads bucket
-// This works for approved business images that have public RLS policies
 function getPublicUrl(filePath: string): string {
   return `${SUPABASE_URL}/storage/v1/object/public/uploads/${filePath}`;
+}
+
+// Generate a transformed image URL with size optimization
+function getTransformedUrl(filePath: string, size: keyof typeof SIZE_PRESETS): string {
+  const preset = SIZE_PRESETS[size];
+  return `${SUPABASE_URL}/storage/v1/render/image/public/uploads/${filePath}?width=${preset.width}&quality=${preset.quality}`;
 }
 
 async function fetchSignedUrl(filePath: string, expiresIn: number): Promise<string | null> {
@@ -101,15 +119,20 @@ export function SecureImage({
   storagePath,
   fallback,
   expiresIn = 3600,
+  size = 'medium',
+  blurUp = true,
   className,
   alt = '',
+  loading = 'lazy',
   ...props
 }: SecureImageProps) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [useSignedFallback, setUseSignedFallback] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const mountedRef = useRef(true);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // Determine if this is a public/external image that doesn't need signing
   const immediateUrl = useMemo(() => {
@@ -137,12 +160,12 @@ export function SecureImage({
     // If we have an immediate URL, use it
     if (immediateUrl) {
       setSignedUrl(immediateUrl);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
     if (!storagePath) {
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
@@ -156,14 +179,14 @@ export function SecureImage({
       if (!extracted) {
         // Can't extract, use as-is (might be signed already)
         setSignedUrl(storagePath);
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
       filePath = extracted;
     } else {
       // External URL, use as-is
       setSignedUrl(storagePath);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
@@ -171,20 +194,23 @@ export function SecureImage({
     const cached = getCachedUrl(filePath);
     if (cached) {
       setSignedUrl(cached);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
     // Try public URL first for business images (fast path)
+    // Use transformed URL for size optimization
     if (filePath.startsWith('businesses/') && !useSignedFallback) {
-      const publicUrl = getPublicUrl(filePath);
+      const publicUrl = size !== 'full' 
+        ? getTransformedUrl(filePath, size)
+        : getPublicUrl(filePath);
       setSignedUrl(publicUrl);
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
 
     // Fetch signed URL for private content
-    setLoading(true);
+    setIsLoading(true);
     setError(false);
     
     fetchSignedUrl(filePath, expiresIn).then((url) => {
@@ -194,21 +220,25 @@ export function SecureImage({
       } else {
         setError(true);
       }
-      setLoading(false);
+      setIsLoading(false);
     });
-  }, [storagePath, expiresIn, immediateUrl, useSignedFallback]);
+  }, [storagePath, expiresIn, immediateUrl, useSignedFallback, size]);
 
   // Handle image load error - fallback to signed URL if public URL fails
   const handleError = () => {
     if (!useSignedFallback && storagePath && (isStoragePath(storagePath) || isSupabaseStorageUrl(storagePath))) {
-      // The public URL failed, try getting a signed URL
+      // The public/transformed URL failed, try getting a signed URL
       setUseSignedFallback(true);
     } else {
       setError(true);
     }
   };
 
-  if (loading) {
+  const handleLoad = () => {
+    setImageLoaded(true);
+  };
+
+  if (isLoading) {
     return <Skeleton className={className} />;
   }
 
@@ -217,13 +247,28 @@ export function SecureImage({
   }
 
   return (
-    <img
-      src={signedUrl}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      onError={handleError}
-      {...props}
-    />
+    <div className={cn("relative overflow-hidden", className)}>
+      {/* Blur placeholder while loading */}
+      {blurUp && !imageLoaded && (
+        <div 
+          className="absolute inset-0 bg-muted animate-pulse"
+          style={{ backdropFilter: 'blur(10px)' }}
+        />
+      )}
+      <img
+        ref={imgRef}
+        src={signedUrl}
+        alt={alt}
+        loading={loading}
+        onError={handleError}
+        onLoad={handleLoad}
+        className={cn(
+          "w-full h-full",
+          blurUp && !imageLoaded && "opacity-0",
+          blurUp && imageLoaded && "opacity-100 transition-opacity duration-300"
+        )}
+        {...props}
+      />
+    </div>
   );
 }
