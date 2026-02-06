@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SearchBar } from '@/components/home/SearchBar';
@@ -6,6 +6,7 @@ import { BusinessCard } from '@/components/cards/BusinessCard';
 import { useBusinesses } from '@/hooks/useBusinesses';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
+import { useBusinessesSavedCounts } from '@/hooks/useDiscoverySignals';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import * as LucideIcons from 'lucide-react';
@@ -23,6 +24,10 @@ export default function Discover() {
   });
   const { data: categories } = useCategories();
   const { data: neighborhoods } = useNeighborhoods();
+
+  // Get saved counts for businesses
+  const businessIds = useMemo(() => businesses?.map(b => b.id) || [], [businesses]);
+  const { data: savedCounts = {} } = useBusinessesSavedCounts(businessIds);
 
   const filteredBusinesses = businesses?.filter(biz => {
     if (!searchQuery) return true;
@@ -161,7 +166,10 @@ export default function Discover() {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${index * 40}ms` }}
               >
-                <BusinessCard business={business} />
+                <BusinessCard 
+                  business={business} 
+                  savedCount={savedCounts[business.id] || 0}
+                />
               </div>
             ))}
           </div>

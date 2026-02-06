@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, CheckCircle, Infinity, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SecureImage } from '@/components/ui/secure-image';
+import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
 import * as LucideIcons from 'lucide-react';
 
 interface BusinessCardProps {
@@ -16,9 +17,10 @@ interface BusinessCardProps {
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
   };
+  savedCount?: number;
 }
 
-export function BusinessCard({ business }: BusinessCardProps) {
+export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
   // Get the icon component dynamically (fallback when no logo)
   const iconName = business.category?.icon 
     ? business.category.icon.charAt(0).toUpperCase() + business.category.icon.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase())
@@ -71,8 +73,11 @@ export function BusinessCard({ business }: BusinessCardProps) {
             )}
             
             {/* Tags row */}
-            {(business.featured || business.isInLoop) && (
-              <div className="flex items-center gap-2 mt-2.5">
+            {(business.featured || business.isInLoop || savedCount >= 2) && (
+              <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                {savedCount >= 2 && (
+                  <SavedCountBadge count={savedCount} size="sm" />
+                )}
                 {business.featured && (
                   <Badge className="bg-lokal-amber/15 text-lokal-amber border-0 text-[10px] px-2 py-0.5 font-medium">
                     Featured
