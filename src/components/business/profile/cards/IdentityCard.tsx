@@ -1,4 +1,5 @@
-import { SecureImage } from '@/components/ui/secure-image';
+import { useEffect } from 'react';
+import { SecureImage, prefetchSignedUrls } from '@/components/ui/secure-image';
 import { MapPin, Building2, Truck, Heart, Star, Users, Sparkles, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,16 @@ export function IdentityCard({
   const CategoryIcon = isFoodTruck ? Truck : isNonprofit ? Heart : getIcon(business.category?.icon);
   const heroPhoto = business.photos?.[0];
 
+  // Prefetch all business images on mount for faster loading
+  useEffect(() => {
+    const imagesToPrefetch: string[] = [];
+    if (business.logo_url) imagesToPrefetch.push(business.logo_url);
+    if (business.photos) imagesToPrefetch.push(...business.photos);
+    if (imagesToPrefetch.length > 0) {
+      prefetchSignedUrls(imagesToPrefetch);
+    }
+  }, [business.logo_url, business.photos]);
+
   return (
     <FlipCard>
       <div className="h-full flex flex-col">
@@ -62,10 +73,12 @@ export function IdentityCard({
           <div className="absolute inset-0">
             {heroPhoto ? (
               <>
-                <SecureImage
+              <SecureImage
                   storagePath={heroPhoto}
                   alt=""
                   className="w-full h-full object-cover"
+                  priority
+                  blurUp={false}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
               </>
@@ -83,7 +96,8 @@ export function IdentityCard({
                   storagePath={business.logo_url}
                   alt={business.name}
                   className="w-full h-full object-contain"
-                  loading="eager"
+                  priority
+                  blurUp={false}
                 />
               ) : (
                 <CategoryIcon className="h-8 w-8 text-muted-foreground" />
