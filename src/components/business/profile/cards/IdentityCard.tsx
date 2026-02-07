@@ -77,12 +77,12 @@ export function IdentityCard({
           {/* Content Overlay */}
           <div className="relative h-full flex flex-col justify-end p-6">
             {/* Logo */}
-            <div className="w-20 h-20 rounded-2xl bg-card shadow-xl flex items-center justify-center overflow-hidden border-2 border-background mb-4">
+            <div className="w-20 h-20 rounded-2xl bg-card shadow-xl flex items-center justify-center overflow-hidden border-2 border-background mb-4 p-2">
               {business.logo_url ? (
                 <SecureImage
                   storagePath={business.logo_url}
                   alt={business.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   loading="eager"
                 />
               ) : (
