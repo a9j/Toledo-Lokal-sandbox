@@ -48,19 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // First, get the initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          fetchUserRoles(session.user.id);
-        }
-        setIsLoading(false);
-      }
-    });
-
-    // Then set up the listener for auth changes
+    // Set up the listener for auth changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         if (!mounted) return;
@@ -79,8 +67,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === 'SIGNED_OUT') {
           setRoles([]);
         }
+        
+        setIsLoading(false);
       }
     );
+
+    // THEN get the initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchUserRoles(session.user.id);
+        }
+        setIsLoading(false);
+      }
+    });
 
     return () => {
       mounted = false;
