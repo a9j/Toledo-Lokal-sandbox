@@ -55,6 +55,7 @@ import DashboardFoodTruck from "./pages/DashboardFoodTruck";
 import { AskToledoChat } from "./components/chat/AskToledoChat";
 import Pulse from "./pages/Pulse";
 import PulseDetail from "./pages/PulseDetail";
+import BusinessGuide from "./pages/BusinessGuide";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,7 @@ const App = () => (
                 <Route path="/food-today" element={<FoodToday />} />
                 <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                 <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
+                <Route path="/business-guide" element={<BusinessGuide />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <BottomNav />
