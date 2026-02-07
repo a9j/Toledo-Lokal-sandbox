@@ -50,7 +50,6 @@ const features = [
 
 export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) {
   const [step, setStep] = useState(0);
-  const [isReady, setIsReady] = useState(false);
   const { canInstall, isIOS, isInstalled, promptInstall } = usePWAInstall();
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   
@@ -71,10 +70,6 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
 
   useEffect(() => {
     if (!emblaApi) return;
-    
-    // Wait for embla to be ready and scroll to start
-    emblaApi.scrollTo(0, true);
-    setIsReady(true);
     
     emblaApi.on('select', onSelect);
     return () => {
@@ -156,16 +151,6 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
     );
   }
 
-  // Show loading state until embla is ready
-  if (!isReady) {
-    return (
-      <div className="fixed inset-0 z-50 bg-background flex items-center justify-center">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse">
-          <Sparkles className="h-8 w-8 text-white" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden touch-none">
