@@ -50,6 +50,7 @@ const features = [
 
 export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) {
   const [step, setStep] = useState(0);
+  const [isReady, setIsReady] = useState(false);
   const { canInstall, isIOS, isInstalled, promptInstall } = usePWAInstall();
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   
@@ -60,6 +61,7 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     dragFree: false,
+    startIndex: 0,
   });
 
   const onSelect = useCallback(() => {
@@ -69,6 +71,11 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
 
   useEffect(() => {
     if (!emblaApi) return;
+    
+    // Wait for embla to be ready and scroll to start
+    emblaApi.scrollTo(0, true);
+    setIsReady(true);
+    
     emblaApi.on('select', onSelect);
     return () => {
       emblaApi.off('select', onSelect);
@@ -106,7 +113,7 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
   // iOS instructions modal
   if (showIOSInstructions) {
     return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+      <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden touch-none">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h3 className="font-semibold">Install Toledo Connect</h3>
           <Button variant="ghost" size="icon" onClick={() => setShowIOSInstructions(false)}>
@@ -149,10 +156,21 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
     );
   }
 
+  // Show loading state until embla is ready
+  if (!isReady) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse">
+          <Sparkles className="h-8 w-8 text-white" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden touch-none">
       {/* Progress bar */}
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-4 flex-shrink-0">
         <div className="flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <button
