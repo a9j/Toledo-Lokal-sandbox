@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import heic2any from 'heic2any';
 
 interface UploadOptions {
   bucket?: string;
@@ -15,11 +16,12 @@ interface UploadResult {
   url: string;
 }
 
+// Include HEIC/HEIF in allowed types - we'll convert them automatically
 const DEFAULT_OPTIONS: UploadOptions = {
   bucket: 'uploads',
   folder: '',
   maxSizeMB: 10,
-  allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'],
 };
 
 export function useImageUpload() {
@@ -69,6 +71,26 @@ export function useImageUpload() {
     });
   }, []);
 
+  const convertHeicToJpeg = useCallback(async (file: File): Promise<File> => {
+    try {
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9,
+      });
+      
+      // heic2any can return an array of blobs for multi-page HEIC, we take the first
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      
+      // Create a new File object with .jpg extension
+      const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+      return new File([blob], newFileName, { type: 'image/jpeg' });
+    } catch (err) {
+      console.error('HEIC conversion failed:', err);
+      throw new Error('Failed to convert HEIC image. Please try a JPG or PNG file.');
+    }
+  }, []);
+
   const upload = useCallback(async (
     file: File,
     options: UploadOptions = {}
@@ -80,47 +102,63 @@ export function useImageUpload() {
     setError(null);
 
     try {
-      // Validate file type
-      if (opts.allowedTypes && !opts.allowedTypes.includes(file.type)) {
-        throw new Error(`Invalid file type. Allowed: ${opts.allowedTypes.join(', ')}`);
+      let processedFile = file;
+      
+      // Check if HEIC/HEIF and convert to JPEG
+      const isHeic = file.type === 'image/heic' || 
+                     file.type === 'image/heif' || 
+                     file.name.toLowerCase().endsWith('.heic') ||
+                     file.name.toLowerCase().endsWith('.heif');
+      
+      if (isHeic) {
+        setProgress(5);
+        toast.info('Converting HEIC to JPEG...');
+        processedFile = await convertHeicToJpeg(file);
+        setProgress(15);
+      }
+
+      // Validate file type (after potential conversion)
+      const allowedTypes = [...(opts.allowedTypes || [])];
+      if (!allowedTypes.includes(processedFile.type) && !isHeic) {
+        throw new Error(`Invalid file type. Allowed: ${allowedTypes.join(', ')}`);
       }
 
       // Validate file size
       const maxBytes = (opts.maxSizeMB || 10) * 1024 * 1024;
-      if (file.size > maxBytes) {
+      if (processedFile.size > maxBytes) {
         throw new Error(`File too large. Max: ${opts.maxSizeMB}MB`);
       }
 
       // Create immediate preview
-      const localPreview = URL.createObjectURL(file);
+      const localPreview = URL.createObjectURL(processedFile);
       setPreviewUrl(localPreview);
-      setProgress(10);
+      setProgress(20);
 
       // Compress image client-side
       let uploadBlob: Blob;
-      if (file.type.startsWith('image/') && file.size > 500 * 1024) {
-        setProgress(20);
-        uploadBlob = await compressImage(file);
-        setProgress(40);
+      if (processedFile.type.startsWith('image/') && processedFile.size > 500 * 1024) {
+        setProgress(30);
+        uploadBlob = await compressImage(processedFile);
+        setProgress(50);
       } else {
-        uploadBlob = file;
-        setProgress(40);
+        uploadBlob = processedFile;
+        setProgress(50);
       }
 
-      // Generate unique filename
-      const ext = file.name.split('.').pop() || 'jpg';
+      // Generate unique filename with correct extension
+      const ext = processedFile.name.split('.').pop() || 'jpg';
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
       const fileName = `${timestamp}-${randomStr}.${ext}`;
       const path = opts.folder ? `${opts.folder}/${fileName}` : fileName;
 
-      setProgress(50);
+      setProgress(60);
 
       // Upload to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
         .from(opts.bucket || 'uploads')
         .upload(path, uploadBlob, {
-          contentType: file.type,
+          contentType: processedFile.type,
           upsert: false,
         });
 
@@ -128,7 +166,7 @@ export function useImageUpload() {
         throw uploadError;
       }
 
-      setProgress(90);
+      setProgress(95);
 
       // Get signed URL for display
       const { data: urlData } = await supabase.storage
@@ -149,7 +187,7 @@ export function useImageUpload() {
     } finally {
       setIsUploading(false);
     }
-  }, [compressImage]);
+  }, [compressImage, convertHeicToJpeg]);
 
   const reset = useCallback(() => {
     setIsUploading(false);
