@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Image, X, Heart, MessageCircle, Grid3X3 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Image, X, Heart, MessageCircle } from 'lucide-react';
 import { FlipCard } from '../FlipCard';
-import { SecureImage } from '@/components/ui/secure-image';
+import { SecureImage, prefetchSignedUrls } from '@/components/ui/secure-image';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -17,6 +17,13 @@ export function MediaCard({ photos, businessName }: MediaCardProps) {
   // Skip the first photo since it's used as the hero/backdrop image
   const galleryPhotos = photos?.slice(1) || [];
   const hasPhotos = galleryPhotos.length > 0;
+
+  // Prefetch gallery images for instant loading
+  useEffect(() => {
+    if (galleryPhotos.length > 0) {
+      prefetchSignedUrls(galleryPhotos.slice(0, 9)); // Prefetch visible grid
+    }
+  }, [galleryPhotos]);
 
   const handlePhotoClick = (photo: string, index: number) => {
     setSelectedPhoto(photo);

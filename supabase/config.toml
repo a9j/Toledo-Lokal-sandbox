@@ -1,5 +1,8 @@
 project_id = "ixupthihhfeikeydvvir"
 
+[functions.get-signed-urls-batch]
+verify_jwt = false
+
 [functions.moderate-content]
 verify_jwt = false
 
