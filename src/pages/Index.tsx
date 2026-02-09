@@ -19,25 +19,19 @@ import { SEOHead, createWebsiteJsonLd, createOrganizationJsonLd } from '@/compon
 export default function Index() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('onboarding-completed');
+  });
   const { data: upcomingEvents, isLoading: eventsLoading } = useEvents({ limit: 6 });
   const { data: deals, isLoading: dealsLoading } = useDeals({ limit: 4 });
   const { data: featuredBusinesses, isLoading: featuredLoading } = useBusinesses({ featured: true, limit: 4 });
   const { data: newBusinesses, isLoading: newLoading } = useBusinesses({ limit: 6 });
 
   useEffect(() => {
-    // Skip onboarding for logged-in users or if already completed
     if (authLoading) return;
-    
     if (user) {
-      // User is logged in, mark onboarding as complete and skip
       localStorage.setItem('onboarding-completed', 'true');
       setShowOnboarding(false);
-    } else {
-      const hasSeenOnboarding = localStorage.getItem('onboarding-completed');
-      if (!hasSeenOnboarding) {
-        setShowOnboarding(true);
-      }
     }
   }, [user, authLoading]);
 
