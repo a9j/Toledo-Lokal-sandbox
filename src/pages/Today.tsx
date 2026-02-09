@@ -16,7 +16,10 @@ import logoImage from '@/assets/tl-logo.png';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    // Check localStorage synchronously so first-time visitors see onboarding instantly
+    return !localStorage.getItem('onboarding-completed');
+  });
   const today = new Date();
   const { data: dailyDrop, isLoading } = useDailyDrop(today);
 
@@ -25,15 +28,10 @@ export default function Today() {
 
   useEffect(() => {
     if (authLoading) return;
-    
+    // Logged-in users skip onboarding
     if (user) {
       localStorage.setItem('onboarding-completed', 'true');
       setShowOnboarding(false);
-    } else {
-      const hasSeenOnboarding = localStorage.getItem('onboarding-completed');
-      if (!hasSeenOnboarding) {
-        setShowOnboarding(true);
-      }
     }
   }, [user, authLoading]);
 
