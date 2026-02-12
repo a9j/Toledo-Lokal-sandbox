@@ -19,6 +19,8 @@ interface SecureImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   priority?: boolean;
   /** Use blur-up loading effect */
   blurUp?: boolean;
+  /** Classes applied directly to the <img> element (e.g. object-cover, object-contain) */
+  imgClassName?: string;
 }
 
 export function SecureImage({
@@ -27,6 +29,7 @@ export function SecureImage({
   expiresIn = 3600,
   priority = false,
   blurUp = true,
+  imgClassName,
   className,
   alt = '',
   ...props
@@ -131,6 +134,7 @@ export function SecureImage({
         onLoad={handleLoad}
         className={cn(
           "w-full h-full",
+          imgClassName,
           blurUp && !imageLoaded && "opacity-0",
           blurUp && imageLoaded && "opacity-100 transition-opacity duration-200"
         )}

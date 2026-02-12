@@ -68,7 +68,7 @@ export function IdentityCard({
     <FlipCard>
       <div className="h-full flex flex-col">
         {/* Hero Background */}
-        <div className="relative flex-1 min-h-0 rounded-3xl overflow-hidden">
+        <div className="relative flex-1 min-h-[280px] rounded-3xl overflow-hidden">
           {/* Background Image or Gradient */}
           <div className="absolute inset-0">
             {heroPhoto ? (
@@ -76,7 +76,8 @@ export function IdentityCard({
               <SecureImage
                   storagePath={heroPhoto}
                   alt=""
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  imgClassName="object-cover"
                   priority
                   blurUp={false}
                 />
@@ -95,7 +96,8 @@ export function IdentityCard({
                 <SecureImage
                   storagePath={business.logo_url}
                   alt={business.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full"
+                  imgClassName="object-contain"
                   priority
                   blurUp={false}
                 />
