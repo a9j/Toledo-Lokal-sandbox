@@ -33,7 +33,8 @@ export function HeroCard({ business, isFoodTruck, isNonprofit }: HeroCardProps) 
             <SecureImage
               storagePath={heroPhoto}
               alt=""
-              className="w-full h-full object-cover blur-xl opacity-40 scale-110"
+              className="w-full h-full blur-xl opacity-40 scale-110"
+              imgClassName="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
           </>
@@ -50,7 +51,8 @@ export function HeroCard({ business, isFoodTruck, isNonprofit }: HeroCardProps) 
             <SecureImage
               storagePath={business.logo_url}
               alt={business.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
+              imgClassName="object-cover"
               loading="eager"
             />
           ) : (
