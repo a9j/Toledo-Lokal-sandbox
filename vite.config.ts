@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-popover',
             '@radix-ui/react-select',
           ],
-          'ui-charts': ['recharts'],
+          
         },
       },
     },
