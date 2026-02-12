@@ -56,6 +56,8 @@ import { AskToledoChat } from "./components/chat/AskToledoChat";
 import Pulse from "./pages/Pulse";
 import PulseDetail from "./pages/PulseDetail";
 import BusinessGuide from "./pages/BusinessGuide";
+import ConnectorProfile from "./pages/ConnectorProfile";
+import ConnectorDashboard from "./pages/ConnectorDashboard";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +119,8 @@ const App = () => (
                 <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                 <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                 <Route path="/business-guide" element={<BusinessGuide />} />
+                <Route path="/connector/:slug" element={<ConnectorProfile />} />
+                <Route path="/connector-dashboard" element={<ConnectorDashboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <BottomNav />

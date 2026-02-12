@@ -329,6 +329,7 @@ export type Database = {
           address: string | null
           average_rating: number | null
           category_id: string | null
+          connected_by_connector_id: string | null
           created_at: string
           description: string | null
           editor_pick_image: string | null
@@ -343,6 +344,7 @@ export type Database = {
           owner_user_id: string
           phone: string | null
           photos: string[] | null
+          referral_source: string | null
           review_count: number | null
           slug: string | null
           status: string
@@ -356,6 +358,7 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          connected_by_connector_id?: string | null
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
@@ -370,6 +373,7 @@ export type Database = {
           owner_user_id: string
           phone?: string | null
           photos?: string[] | null
+          referral_source?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string
@@ -383,6 +387,7 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          connected_by_connector_id?: string | null
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
@@ -397,6 +402,7 @@ export type Database = {
           owner_user_id?: string
           phone?: string | null
           photos?: string[] | null
+          referral_source?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string
@@ -412,6 +418,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_connected_by_connector_id_fkey"
+            columns: ["connected_by_connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
             referencedColumns: ["id"]
           },
           {
@@ -580,6 +593,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      connector_followers: {
+        Row: {
+          connector_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          connector_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          connector_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connector_followers_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connector_referrals: {
+        Row: {
+          business_id: string
+          connector_id: string
+          created_at: string
+          id: string
+          status: string | null
+        }
+        Insert: {
+          business_id: string
+          connector_id: string
+          created_at?: string
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          business_id?: string
+          connector_id?: string
+          created_at?: string
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connector_referrals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connector_referrals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connector_referrals_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connectors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          follower_count: number | null
+          id: string
+          is_founding: boolean | null
+          profile_views: number | null
+          referral_code: string | null
+          referral_slug: string | null
+          revenue_share_rate: number | null
+          social_links: Json | null
+          tier: string | null
+          title: string | null
+          total_earned: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          follower_count?: number | null
+          id?: string
+          is_founding?: boolean | null
+          profile_views?: number | null
+          referral_code?: string | null
+          referral_slug?: string | null
+          revenue_share_rate?: number | null
+          social_links?: Json | null
+          tier?: string | null
+          title?: string | null
+          total_earned?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          follower_count?: number | null
+          id?: string
+          is_founding?: boolean | null
+          profile_views?: number | null
+          referral_code?: string | null
+          referral_slug?: string | null
+          revenue_share_rate?: number | null
+          social_links?: Json | null
+          tier?: string | null
+          title?: string | null
+          total_earned?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       daily_drop_highlights: {
         Row: {
@@ -923,6 +1065,7 @@ export type Database = {
       events: {
         Row: {
           business_id: string | null
+          connector_id: string | null
           created_at: string
           description: string | null
           end_date_time: string | null
@@ -937,6 +1080,7 @@ export type Database = {
         }
         Insert: {
           business_id?: string | null
+          connector_id?: string | null
           created_at?: string
           description?: string | null
           end_date_time?: string | null
@@ -951,6 +1095,7 @@ export type Database = {
         }
         Update: {
           business_id?: string | null
+          connector_id?: string | null
           created_at?: string
           description?: string | null
           end_date_time?: string | null
@@ -976,6 +1121,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
             referencedColumns: ["id"]
           },
         ]
@@ -3202,6 +3354,7 @@ export type Database = {
         | "organizer"
         | "nonprofit"
         | "partner"
+        | "connector"
       cause_category:
         | "food_insecurity"
         | "housing"
@@ -3379,6 +3532,7 @@ export const Constants = {
         "organizer",
         "nonprofit",
         "partner",
+        "connector",
       ],
       cause_category: [
         "food_insecurity",
