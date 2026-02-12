@@ -72,17 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN get the initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          fetchUserRoles(session.user.id);
-        }
-        setIsLoading(false);
-      }
-    });
+    // getSession is no longer needed — onAuthStateChange fires INITIAL_SESSION
+    // which covers the initial load. Removing this eliminates duplicate API calls.
 
     return () => {
       mounted = false;

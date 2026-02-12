@@ -8,8 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Subscription() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { refreshSubscription } = useSubscription();
+  const { refreshSubscription, ensureLoaded } = useSubscription();
   const { toast } = useToast();
+  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
 
   useEffect(() => {
     const status = searchParams.get('subscription');

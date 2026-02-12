@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -13,10 +14,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
+import { useLoop } from '@/contexts/LoopContext';
 
 export default function LoopWallet() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { ensureLoaded } = useLoop();
+  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
 
   if (!user) {
     return (
