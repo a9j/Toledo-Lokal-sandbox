@@ -32,10 +32,14 @@ export default function Founding5Guide() {
         <div className="min-h-[10in] flex flex-col items-center justify-center text-center print:break-after-page">
           <img src={tlLogo} alt="Toledo Lokal" className="h-16 mb-10" />
 
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-50 border border-amber-200/60 mb-8">
-            <span className="text-amber-500 text-xs">&#9733;</span>
-            <span className="text-amber-700 font-semibold tracking-widest uppercase text-[11px]">Founding 5 Member</span>
-            <span className="text-amber-500 text-xs">&#9733;</span>
+          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 shadow-lg shadow-amber-500/20">
+            <div className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">★</span>
+            </div>
+            <span className="text-white font-bold tracking-[0.2em] uppercase text-[11px]">Founding 5 Member</span>
+            <div className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">★</span>
+            </div>
           </div>
 
           <h1 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight leading-tight">
@@ -252,11 +256,11 @@ export default function Founding5Guide() {
               <Feature text="Event analytics" />
             </FeatureCategory>
 
-            <FeatureCategory title="Jobs & Hiring">
-              <Feature text="Unlimited active job postings" />
-              <Feature text="60-day job listing duration" />
-              <Feature text="Priority placement in job feed" />
-              <Feature text="'Top Employer' badge on listings" />
+            <FeatureCategory title="Community & Events">
+              <Feature text="Post and promote community events" />
+              <Feature text="Featured event placement" />
+              <Feature text="Event analytics & RSVP tracking" />
+              <Feature text="Priority visibility in event feeds" />
             </FeatureCategory>
 
             <FeatureCategory title="Pulse (Community Updates)">
@@ -289,6 +293,29 @@ export default function Founding5Guide() {
             Loop Lokal is Toledo Lokal's built-in loyalty program. As a Founding 5 member,
             you get the full <strong className="text-gray-900">Loop Pro</strong> tier — our most powerful rewards package.
           </p>
+
+          <div className="bg-gradient-to-br from-amber-50/60 to-white border border-amber-100 rounded-2xl p-8 mb-10">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Points Beyond Your Business</h3>
+            <p className="text-gray-600 leading-relaxed mb-3">
+              Loop Lokal points aren't limited to in-store rewards. Customers can also use their points for:
+            </p>
+            <ul className="space-y-2.5">
+              {[
+                'City-wide special events and festivals hosted on Toledo Lokal',
+                'Exclusive seasonal occasions and community celebrations',
+                'Cross-business promotions and collaborative rewards',
+                'Priority access to limited-capacity local experiences',
+              ].map(item => (
+                <li key={item} className="flex items-center gap-3 text-gray-600 text-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-gray-400 mt-4">
+              This means more foot traffic for you — customers earning points at your business can redeem them across the entire Toledo Lokal ecosystem.
+            </p>
+          </div>
 
           <h3 className="text-lg font-semibold mb-6 text-gray-900">How It Works</h3>
           <div className="grid grid-cols-3 gap-4 mb-12">
@@ -361,10 +388,14 @@ export default function Founding5Guide() {
         <div className="min-h-[10in] flex flex-col items-center justify-center text-center">
           <img src={tlLogo} alt="Toledo Lokal" className="h-12 mb-8 opacity-60" />
 
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-50 border border-amber-200/60 mb-8">
-            <span className="text-amber-500 text-xs">&#9733;</span>
-            <span className="text-amber-700 font-semibold tracking-widest uppercase text-[11px]">Founding 5</span>
-            <span className="text-amber-500 text-xs">&#9733;</span>
+          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 shadow-lg shadow-amber-500/20">
+            <div className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">★</span>
+            </div>
+            <span className="text-white font-bold tracking-[0.2em] uppercase text-[11px]">Founding 5</span>
+            <div className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">★</span>
+            </div>
           </div>
 
           <p className="text-lg text-gray-300 max-w-xs leading-relaxed font-light">
