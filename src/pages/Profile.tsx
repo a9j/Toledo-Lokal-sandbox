@@ -6,7 +6,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share, Heart } from 'lucide-react';
+import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share, Heart, Crown } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
@@ -16,7 +16,7 @@ import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
 import { useLoop } from '@/contexts/LoopContext';
 
 export default function Profile() {
-  const { user, signOut, isAdmin, isBusiness } = useAuth();
+  const { user, signOut, isAdmin, isBusiness, isConnector } = useAuth();
   const { ensureLoaded } = useLoop();
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
@@ -169,6 +169,16 @@ export default function Profile() {
               </div>
             </Link>
           ))}
+          
+          {isConnector && (
+            <Link to="/connector-dashboard">
+              <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+                <Crown className="h-5 w-5 text-amber-500" />
+                <span className="flex-1 font-medium">Connector Hub</span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </Link>
+          )}
           
           {isAdmin && (
             <Link to="/admin">

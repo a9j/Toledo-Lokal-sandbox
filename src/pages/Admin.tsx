@@ -13,6 +13,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
+import { UsersAdmin } from '@/components/admin/UsersAdmin';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +38,8 @@ import {
   Briefcase,
   Truck,
   Crown,
-  Heart
+  Heart,
+  Users
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -441,6 +443,10 @@ export default function Admin() {
               <ImageIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Manage</span>
             </TabsTrigger>
+            <TabsTrigger value="users" className="flex-1 gap-1.5">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -797,6 +803,9 @@ export default function Admin() {
             ) : (
               <p className="text-center text-muted-foreground py-8">No approved businesses yet</p>
             )}
+          </TabsContent>
+          <TabsContent value="users">
+            <UsersAdmin />
           </TabsContent>
         </Tabs>
       </PageContainer>

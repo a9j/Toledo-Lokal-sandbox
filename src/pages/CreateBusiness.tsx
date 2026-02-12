@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -19,7 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Crown } from 'lucide-react';
 
 export default function CreateBusiness() {
   const { user } = useAuth();
@@ -28,6 +28,44 @@ export default function CreateBusiness() {
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
   const { data: neighborhoods } = useNeighborhoods();
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get('ref');
+
+  // Look up connector from referral code
+  const { data: referralConnector } = useQuery({
+    queryKey: ['referral-connector', refCode],
+    queryFn: async () => {
+      if (!refCode) return null;
+      const { data } = await supabase
+        .from('connectors')
+        .select('id, user_id')
+        .eq('referral_code', refCode)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!refCode,
+  });
+
+  // Fetch all connectors for the dropdown
+  const { data: allConnectors } = useQuery({
+    queryKey: ['all-connectors-list'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('connectors')
+        .select('id, referral_code, user_id');
+      if (error) return [];
+      // Get names
+      const userIds = data.map(c => c.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, name')
+        .in('user_id', userIds);
+      return data.map(c => ({
+        ...c,
+        name: profiles?.find(p => p.user_id === c.user_id)?.name || 'Connector',
+      }));
+    },
+  });
 
   const createBusiness = useMutation({
     mutationFn: async (formData: {
@@ -39,14 +77,20 @@ export default function CreateBusiness() {
       website?: string;
       instagram?: string;
       address?: string;
+      referral_source?: string;
+      connected_by_connector_id?: string;
     }) => {
       if (!user) throw new Error('Must be logged in');
+
+      const connectorId = formData.connected_by_connector_id || referralConnector?.id || undefined;
       
-      const { error } = await supabase.from('businesses').insert({
+      const { data: biz, error } = await supabase.from('businesses').insert({
         ...formData,
         owner_user_id: user.id,
         status: 'pending',
-      });
+        connected_by_connector_id: connectorId || null,
+        referral_source: formData.referral_source || (refCode ? 'referral_link' : null),
+      }).select('id').single();
       
       if (error) throw error;
       
@@ -55,6 +99,14 @@ export default function CreateBusiness() {
         user_id: user.id,
         role: 'business',
       });
+
+      // Create connector referral record if connected
+      if (connectorId && biz) {
+        await supabase.from('connector_referrals').insert({
+          connector_id: connectorId,
+          business_id: biz.id,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-business'] });
@@ -86,6 +138,8 @@ export default function CreateBusiness() {
       website: formData.get('website') as string || undefined,
       instagram: formData.get('instagram') as string || undefined,
       address: formData.get('address') as string || undefined,
+      referral_source: formData.get('referral_source') as string || undefined,
+      connected_by_connector_id: formData.get('connector_id') as string || undefined,
     });
   };
 
@@ -208,6 +262,53 @@ export default function CreateBusiness() {
               maxLength={100}
             />
           </div>
+
+          {/* How did you hear about us */}
+          <div className="space-y-2">
+            <Label>How did you hear about Toledo Lokal?</Label>
+            <Select name="referral_source">
+              <SelectTrigger>
+                <SelectValue placeholder="Select (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="search">Search / Google</SelectItem>
+                <SelectItem value="social_media">Social Media</SelectItem>
+                <SelectItem value="word_of_mouth">Word of Mouth</SelectItem>
+                <SelectItem value="connector">A Connector</SelectItem>
+                <SelectItem value="event">An Event</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Connector selection */}
+          {(refCode || allConnectors?.length) ? (
+            <div className="space-y-2">
+              <Label>Connected by</Label>
+              {referralConnector ? (
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+                  <Crown className="h-4 w-4 text-amber-600" />
+                  <span className="text-sm text-amber-700">
+                    Referred by connector (code: {refCode})
+                  </span>
+                  <input type="hidden" name="connector_id" value={referralConnector.id} />
+                </div>
+              ) : (
+                <Select name="connector_id">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select connector (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allConnectors?.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} ({c.referral_code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          ) : null}
           
           <Button 
             type="submit" 
