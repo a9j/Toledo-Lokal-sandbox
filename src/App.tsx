@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,59 +9,88 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
-import Today from "./pages/Today";
-import NearMe from "./pages/NearMe";
-import Discover from "./pages/Discover";
-import Loop from "./pages/Loop";
-import Feed from "./pages/Feed";
-import Auth from "./pages/Auth";
-import Explore from "./pages/Explore";
-import Events from "./pages/Events";
-import EventDetail from "./pages/EventDetail";
-import Community from "./pages/Community";
-import NonprofitDetail from "./pages/NonprofitDetail";
-import Deals from "./pages/Deals";
-import Requests from "./pages/Requests";
-import Profile from "./pages/Profile";
-import BusinessDetail from "./pages/BusinessDetail";
-import EditBusiness from "./pages/EditBusiness";
-import CreateBusiness from "./pages/CreateBusiness";
-import Dashboard from "./pages/Dashboard";
-import Admin from "./pages/Admin";
-import Tours from "./pages/Tours";
-import Challenges from "./pages/Challenges";
-import Stories from "./pages/Stories";
-import CreateStory from "./pages/CreateStory";
-import Subscription from "./pages/Subscription";
-import Saved from "./pages/Saved";
-import MyToledo from "./pages/MyToledo";
-import PublicCollection from "./pages/PublicCollection";
-import LoopWallet from "./pages/LoopWallet";
-import BusinessQRCodes from "./pages/BusinessQRCodes";
-import BusinessRewards from "./pages/BusinessRewards";
-import ScanQR from "./pages/ScanQR";
-import PendingScans from "./pages/PendingScans";
-import DashboardStaff from "./pages/DashboardStaff";
-import DashboardDeals from "./pages/DashboardDeals";
-import DashboardEvents from "./pages/DashboardEvents";
-import DashboardLeads from "./pages/DashboardLeads";
-import DashboardBoost from "./pages/DashboardBoost";
-import ScannerMode from "./pages/ScannerMode";
-import AcceptInvitation from "./pages/AcceptInvitation";
-import NotFound from "./pages/NotFound";
-import Jobs from "./pages/Jobs";
-import FoodToday from "./pages/FoodToday";
-import DashboardJobs from "./pages/DashboardJobs";
-import DashboardFoodTruck from "./pages/DashboardFoodTruck";
-import { AskToledoChat } from "./components/chat/AskToledoChat";
-import Pulse from "./pages/Pulse";
-import PulseDetail from "./pages/PulseDetail";
-import BusinessGuide from "./pages/BusinessGuide";
-import Founding5Guide from "./pages/Founding5Guide";
-import ConnectorProfile from "./pages/ConnectorProfile";
-import ConnectorDashboard from "./pages/ConnectorDashboard";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const queryClient = new QueryClient();
+// Critical path: eagerly loaded (landing page)
+import Today from "./pages/Today";
+
+// Everything else: lazy-loaded
+const NearMe = lazy(() => import("./pages/NearMe"));
+const Discover = lazy(() => import("./pages/Discover"));
+const Loop = lazy(() => import("./pages/Loop"));
+const Feed = lazy(() => import("./pages/Feed"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Explore = lazy(() => import("./pages/Explore"));
+const Events = lazy(() => import("./pages/Events"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const Community = lazy(() => import("./pages/Community"));
+const NonprofitDetail = lazy(() => import("./pages/NonprofitDetail"));
+const Deals = lazy(() => import("./pages/Deals"));
+const Requests = lazy(() => import("./pages/Requests"));
+const Profile = lazy(() => import("./pages/Profile"));
+const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
+const EditBusiness = lazy(() => import("./pages/EditBusiness"));
+const CreateBusiness = lazy(() => import("./pages/CreateBusiness"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Tours = lazy(() => import("./pages/Tours"));
+const Challenges = lazy(() => import("./pages/Challenges"));
+const Stories = lazy(() => import("./pages/Stories"));
+const CreateStory = lazy(() => import("./pages/CreateStory"));
+const Subscription = lazy(() => import("./pages/Subscription"));
+const Saved = lazy(() => import("./pages/Saved"));
+const MyToledo = lazy(() => import("./pages/MyToledo"));
+const PublicCollection = lazy(() => import("./pages/PublicCollection"));
+const LoopWallet = lazy(() => import("./pages/LoopWallet"));
+const BusinessQRCodes = lazy(() => import("./pages/BusinessQRCodes"));
+const BusinessRewards = lazy(() => import("./pages/BusinessRewards"));
+const ScanQR = lazy(() => import("./pages/ScanQR"));
+const PendingScans = lazy(() => import("./pages/PendingScans"));
+const DashboardStaff = lazy(() => import("./pages/DashboardStaff"));
+const DashboardDeals = lazy(() => import("./pages/DashboardDeals"));
+const DashboardEvents = lazy(() => import("./pages/DashboardEvents"));
+const DashboardLeads = lazy(() => import("./pages/DashboardLeads"));
+const DashboardBoost = lazy(() => import("./pages/DashboardBoost"));
+const ScannerMode = lazy(() => import("./pages/ScannerMode"));
+const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Jobs = lazy(() => import("./pages/Jobs"));
+const FoodToday = lazy(() => import("./pages/FoodToday"));
+const DashboardJobs = lazy(() => import("./pages/DashboardJobs"));
+const DashboardFoodTruck = lazy(() => import("./pages/DashboardFoodTruck"));
+const Pulse = lazy(() => import("./pages/Pulse"));
+const PulseDetail = lazy(() => import("./pages/PulseDetail"));
+const BusinessGuide = lazy(() => import("./pages/BusinessGuide"));
+const Founding5Guide = lazy(() => import("./pages/Founding5Guide"));
+const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
+const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
+
+// Lazy-load the chat widget since it's non-critical
+const AskToledoChat = lazy(() =>
+  import("./components/chat/AskToledoChat").then((m) => ({ default: m.AskToledoChat }))
+);
+
+// Optimized QueryClient with aggressive caching
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 min - avoid refetching on every mount
+      gcTime: 30 * 60 * 1000, // 30 min garbage collection
+      refetchOnWindowFocus: false, // Don't refetch when user tabs back
+      retry: 1, // Single retry on failure
+    },
+  },
+});
+
+function PageFallback() {
+  return (
+    <div className="min-h-screen bg-background p-4 space-y-4">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+      <Skeleton className="h-32 w-full rounded-xl" />
+    </div>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -71,62 +101,66 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Today />} />
-                <Route path="/near-me" element={<NearMe />} />
-                <Route path="/discover" element={<Discover />} />
-                <Route path="/loop" element={<Loop />} />
-                <Route path="/pulse" element={<Pulse />} />
-                <Route path="/pulse/:pulseId" element={<PulseDetail />} />
-                <Route path="/feed" element={<Feed />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/events/:id" element={<EventDetail />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/community/:slug" element={<NonprofitDetail />} />
-                <Route path="/deals" element={<Deals />} />
-                <Route path="/requests" element={<Requests />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/business/:id" element={<BusinessDetail />} />
-                <Route path="/business/:id/edit" element={<EditBusiness />} />
-                <Route path="/create-business" element={<CreateBusiness />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
-                <Route path="/dashboard/rewards" element={<BusinessRewards />} />
-                <Route path="/dashboard/pending-scans" element={<PendingScans />} />
-                <Route path="/dashboard/staff" element={<DashboardStaff />} />
-                <Route path="/dashboard/subscription" element={<Subscription />} />
-                <Route path="/dashboard/deals" element={<DashboardDeals />} />
-                <Route path="/dashboard/events" element={<DashboardEvents />} />
-                <Route path="/dashboard/leads" element={<DashboardLeads />} />
-                <Route path="/dashboard/boost" element={<DashboardBoost />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/tours" element={<Tours />} />
-                <Route path="/challenges" element={<Challenges />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/stories/create" element={<CreateStory />} />
-                <Route path="/subscription" element={<Subscription />} />
-                <Route path="/saved" element={<Saved />} />
-                <Route path="/my-toledo" element={<MyToledo />} />
-                <Route path="/c/:slug" element={<PublicCollection />} />
-                <Route path="/loop-wallet" element={<LoopWallet />} />
-                <Route path="/wallet" element={<LoopWallet />} />
-                <Route path="/scan/:qrCodeId" element={<ScanQR />} />
-                <Route path="/scanner-mode" element={<ScannerMode />} />
-                <Route path="/accept-invitation" element={<AcceptInvitation />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/food-today" element={<FoodToday />} />
-                <Route path="/dashboard/jobs" element={<DashboardJobs />} />
-                <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
-                <Route path="/business-guide" element={<BusinessGuide />} />
-                <Route path="/founding-5-guide" element={<Founding5Guide />} />
-                <Route path="/connector/:slug" element={<ConnectorProfile />} />
-                <Route path="/connector-dashboard" element={<ConnectorDashboard />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  <Route path="/" element={<Today />} />
+                  <Route path="/near-me" element={<NearMe />} />
+                  <Route path="/discover" element={<Discover />} />
+                  <Route path="/loop" element={<Loop />} />
+                  <Route path="/pulse" element={<Pulse />} />
+                  <Route path="/pulse/:pulseId" element={<PulseDetail />} />
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/explore" element={<Explore />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/events/:id" element={<EventDetail />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/community/:slug" element={<NonprofitDetail />} />
+                  <Route path="/deals" element={<Deals />} />
+                  <Route path="/requests" element={<Requests />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/business/:id" element={<BusinessDetail />} />
+                  <Route path="/business/:id/edit" element={<EditBusiness />} />
+                  <Route path="/create-business" element={<CreateBusiness />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
+                  <Route path="/dashboard/rewards" element={<BusinessRewards />} />
+                  <Route path="/dashboard/pending-scans" element={<PendingScans />} />
+                  <Route path="/dashboard/staff" element={<DashboardStaff />} />
+                  <Route path="/dashboard/subscription" element={<Subscription />} />
+                  <Route path="/dashboard/deals" element={<DashboardDeals />} />
+                  <Route path="/dashboard/events" element={<DashboardEvents />} />
+                  <Route path="/dashboard/leads" element={<DashboardLeads />} />
+                  <Route path="/dashboard/boost" element={<DashboardBoost />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/tours" element={<Tours />} />
+                  <Route path="/challenges" element={<Challenges />} />
+                  <Route path="/stories" element={<Stories />} />
+                  <Route path="/stories/create" element={<CreateStory />} />
+                  <Route path="/subscription" element={<Subscription />} />
+                  <Route path="/saved" element={<Saved />} />
+                  <Route path="/my-toledo" element={<MyToledo />} />
+                  <Route path="/c/:slug" element={<PublicCollection />} />
+                  <Route path="/loop-wallet" element={<LoopWallet />} />
+                  <Route path="/wallet" element={<LoopWallet />} />
+                  <Route path="/scan/:qrCodeId" element={<ScanQR />} />
+                  <Route path="/scanner-mode" element={<ScannerMode />} />
+                  <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                  <Route path="/jobs" element={<Jobs />} />
+                  <Route path="/food-today" element={<FoodToday />} />
+                  <Route path="/dashboard/jobs" element={<DashboardJobs />} />
+                  <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
+                  <Route path="/business-guide" element={<BusinessGuide />} />
+                  <Route path="/founding-5-guide" element={<Founding5Guide />} />
+                  <Route path="/connector/:slug" element={<ConnectorProfile />} />
+                  <Route path="/connector-dashboard" element={<ConnectorDashboard />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
               <BottomNav />
-              <AskToledoChat />
+              <Suspense fallback={null}>
+                <AskToledoChat />
+              </Suspense>
               <InstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
