@@ -153,9 +153,9 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
 
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden touch-none">
+    <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-hidden touch-none">
       {/* Progress bar */}
-      <div className="flex items-center justify-between p-4 flex-shrink-0">
+      <div className="flex items-center justify-between p-4 pt-[calc(1rem+env(safe-area-inset-top))] flex-shrink-0">
         <div className="flex gap-1.5">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <button
@@ -247,7 +247,7 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
       </div>
 
       {/* Navigation */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-border">
         <div className="flex gap-3">
           {step > 0 && (
             <Button 
