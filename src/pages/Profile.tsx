@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -13,9 +13,12 @@ import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
+import { useLoop } from '@/contexts/LoopContext';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isBusiness } = useAuth();
+  const { ensureLoaded } = useLoop();
+  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
   const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);

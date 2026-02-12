@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,8 @@ import { PricingCard } from './PricingCard';
 
 export function SubscriptionManager() {
   const { user, session } = useAuth();
-  const { tier, tierConfig, subscriptionEnd, refreshSubscription, isLoading: subscriptionLoading } = useSubscription();
+  const { tier, tierConfig, subscriptionEnd, refreshSubscription, isLoading: subscriptionLoading, ensureLoaded } = useSubscription();
+  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const { toast } = useToast();

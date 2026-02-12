@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletBalance } from '@/components/loop/WalletBalance';
@@ -11,10 +12,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, Gift, Compass, Heart, History } from 'lucide-react';
+import { useLoop } from '@/contexts/LoopContext';
 
 export default function Loop() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { ensureLoaded } = useLoop();
+  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
 
   if (!user) {
     return (

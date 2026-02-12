@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
@@ -133,7 +133,8 @@ export default function DashboardJobs() {
   const { data: features, isLoading: featuresLoading } = useBusinessFeatures(business?.id);
   const { data: jobs, isLoading: jobsLoading } = useBusinessJobs(business?.id);
   const jobLimits = useJobLimits(business?.id);
-  const { tier, tierConfig } = useSubscription();
+  const { tier, tierConfig, ensureLoaded: ensureSubLoaded } = useSubscription();
+  useEffect(() => { ensureSubLoaded(); }, [ensureSubLoaded]);
   const updateFeatures = useUpdateBusinessFeatures();
   const createJob = useCreateJob();
   const updateJob = useUpdateJob();

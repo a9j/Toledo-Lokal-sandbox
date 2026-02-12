@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Building2, 
@@ -28,6 +30,8 @@ import { StaffManagement } from '@/components/staff/StaffManagement';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { ensureLoaded: ensureSubLoaded } = useSubscription();
+  useEffect(() => { ensureSubLoaded(); }, [ensureSubLoaded]);
   const navigate = useNavigate();
 
   const { data: business, isLoading } = useQuery({

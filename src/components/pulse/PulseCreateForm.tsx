@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useCreatePulsePost, useUserPulsePostsToday, useBusinessPulsePostsToday } from '@/hooks/usePulse';
@@ -47,7 +47,8 @@ const CATEGORY_ICONS = {
 
 export function PulseCreateForm() {
   const { user } = useAuth();
-  const { tier } = useSubscription();
+  const { tier, ensureLoaded: ensureSubLoaded } = useSubscription();
+  useEffect(() => { ensureSubLoaded(); }, [ensureSubLoaded]);
   const { toast } = useToast();
   const createPost = useCreatePulsePost();
 
