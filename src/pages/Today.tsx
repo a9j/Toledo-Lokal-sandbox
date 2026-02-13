@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { format, parseISO, isToday as dateFnsIsToday } from 'date-fns';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { parseISO, isToday as dateFnsIsToday } from 'date-fns';
 import { useDailyDrop } from '@/hooks/useDailyDrop';
 import { DailyDropHeader } from '@/components/today/DailyDropHeader';
 import { TodayInToledo } from '@/components/today/TodayInToledo';
@@ -8,8 +8,10 @@ import { CommunityMoment } from '@/components/today/CommunityMoment';
 import { EmptyDailyDrop } from '@/components/today/EmptyDailyDrop';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboarding';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Lazy-load onboarding — only shown to first-time visitors
+const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
 import { MapPin, QrCode, Compass, Sparkles, ChevronRight } from 'lucide-react';
 import logoImage from '@/assets/tl-logo.png';
@@ -36,7 +38,11 @@ export default function Today() {
   }, [user, authLoading]);
 
   if (showOnboarding) {
-    return <FirstVisitOnboarding onComplete={() => setShowOnboarding(false)} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <FirstVisitOnboarding onComplete={() => setShowOnboarding(false)} />
+      </Suspense>
+    );
   }
 
   return (
