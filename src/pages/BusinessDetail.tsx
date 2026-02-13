@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { ArrowLeft } from 'lucide-react';
 
@@ -146,12 +146,7 @@ export default function BusinessDetail() {
       <>
         <Header title="Business" />
         <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
-          <div className="space-y-4 w-full max-w-md px-4">
-            <Skeleton className="h-64 rounded-3xl" />
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
+          <LogoLoader size="lg" text="Loading business..." />
         </div>
       </>
     );

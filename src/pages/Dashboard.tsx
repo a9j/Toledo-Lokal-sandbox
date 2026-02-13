@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
 import { StaffManagement } from '@/components/staff/StaffManagement';
+import { LogoLoader } from '@/components/ui/logo-loader';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -66,11 +67,8 @@ export default function Dashboard() {
     return (
       <>
         <Header title="Dashboard" />
-        <PageContainer>
-          <div className="animate-pulse space-y-4">
-            <div className="h-20 bg-secondary rounded-2xl" />
-            <div className="h-20 bg-secondary rounded-2xl" />
-          </div>
+        <PageContainer className="flex items-center justify-center min-h-[60vh]">
+          <LogoLoader size="lg" text="Loading your dashboard..." />
         </PageContainer>
       </>
     );

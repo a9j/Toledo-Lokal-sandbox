@@ -146,6 +146,14 @@ export default {
           from: { backgroundPosition: "-200% 0" },
           to: { backgroundPosition: "200% 0" },
         },
+        "logo-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.08)", opacity: "0.85" },
+        },
+        "logo-ripple": {
+          "0%": { transform: "scale(1)", opacity: "0.6" },
+          "100%": { transform: "scale(2.2)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -155,6 +163,8 @@ export default {
         "slide-up": "slide-up 0.3s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "shimmer": "shimmer 2s linear infinite",
+        "logo-pulse": "logo-pulse 1.6s ease-in-out infinite",
+        "logo-ripple": "logo-ripple 1.6s ease-out infinite",
       },
       spacing: {
         "safe-bottom": "env(safe-area-inset-bottom, 0)",
