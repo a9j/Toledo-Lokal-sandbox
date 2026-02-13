@@ -6,7 +6,7 @@ import { BusinessCard } from '@/components/cards/BusinessCard';
 import { useBusinesses } from '@/hooks/useBusinesses';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { Button } from '@/components/ui/button';
 import * as LucideIcons from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -132,10 +132,8 @@ export default function Explore() {
 
         {/* Businesses list */}
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-24 rounded-2xl" />
-            ))}
+          <div className="flex items-center justify-center py-20">
+            <LogoLoader size="lg" text="Finding local businesses..." />
           </div>
         ) : filteredBusinesses?.length ? (
           <div className="space-y-3">

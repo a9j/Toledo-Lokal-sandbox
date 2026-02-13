@@ -3,7 +3,7 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { EventCard } from '@/components/cards/EventCard';
 import { useEvents } from '@/hooks/useEvents';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { Button } from '@/components/ui/button';
 import { format, isToday, isThisWeek, isWeekend, startOfDay, endOfDay, addDays } from 'date-fns';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -74,10 +74,8 @@ export default function Events() {
 
         {/* Events list */}
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-28 rounded-2xl" />
-            ))}
+          <div className="flex items-center justify-center py-20">
+            <LogoLoader size="lg" text="Loading events..." />
           </div>
         ) : groupedEvents && Object.keys(groupedEvents).length > 0 ? (
           <div className="space-y-6">
