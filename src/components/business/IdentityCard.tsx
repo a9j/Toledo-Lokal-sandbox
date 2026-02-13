@@ -46,7 +46,7 @@ export function IdentityCard({ business, isFoodTruck }: IdentityCardProps) {
       };
     }
     // Local Pro
-    if (business.loopTierId === 'loop_growth' || business.loopTierId === 'loop_partner') {
+    if (business.loopTierId === 'growth' || business.loopTierId === 'pro') {
       return {
         label: 'Local Pro',
         icon: Briefcase,

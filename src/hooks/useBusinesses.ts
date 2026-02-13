@@ -65,7 +65,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       return data?.map(business => ({
         ...business,
         isInLoop: business.business_loop_settings?.is_active && 
-          business.business_loop_settings?.loop_tier_id !== 'visible_only'
+          ['community', 'growth', 'pro'].includes(business.business_loop_settings?.loop_tier_id)
       }));
     },
   });

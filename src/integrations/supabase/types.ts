@@ -222,8 +222,11 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string
+          founding_50_expires_at: string | null
+          founding_50_start_date: string | null
           id: string
           is_active: boolean | null
+          is_founding_50: boolean | null
           is_founding_member: boolean | null
           loop_tier_id: string
           month_reset_at: string | null
@@ -231,12 +234,17 @@ export type Database = {
           stripe_subscription_id: string | null
           subscription_status: string | null
           updated_at: string
+          wallet_frozen: boolean | null
+          wallet_frozen_reason: string | null
         }
         Insert: {
           business_id: string
           created_at?: string
+          founding_50_expires_at?: string | null
+          founding_50_start_date?: string | null
           id?: string
           is_active?: boolean | null
+          is_founding_50?: boolean | null
           is_founding_member?: boolean | null
           loop_tier_id?: string
           month_reset_at?: string | null
@@ -244,12 +252,17 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_status?: string | null
           updated_at?: string
+          wallet_frozen?: boolean | null
+          wallet_frozen_reason?: string | null
         }
         Update: {
           business_id?: string
           created_at?: string
+          founding_50_expires_at?: string | null
+          founding_50_start_date?: string | null
           id?: string
           is_active?: boolean | null
+          is_founding_50?: boolean | null
           is_founding_member?: boolean | null
           loop_tier_id?: string
           month_reset_at?: string | null
@@ -257,6 +270,8 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_status?: string | null
           updated_at?: string
+          wallet_frozen?: boolean | null
+          wallet_frozen_reason?: string | null
         }
         Relationships: [
           {
@@ -1408,6 +1423,33 @@ export type Database = {
         }
         Relationships: []
       }
+      loop_daily_caps: {
+        Row: {
+          cap_date: string
+          created_at: string
+          id: string
+          points_earned: number | null
+          referrals_today: number | null
+          user_id: string
+        }
+        Insert: {
+          cap_date?: string
+          created_at?: string
+          id?: string
+          points_earned?: number | null
+          referrals_today?: number | null
+          user_id: string
+        }
+        Update: {
+          cap_date?: string
+          created_at?: string
+          id?: string
+          points_earned?: number | null
+          referrals_today?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       loop_donations: {
         Row: {
           cause_id: string
@@ -1446,6 +1488,48 @@ export type Database = {
             columns: ["transaction_id"]
             isOneToOne: false
             referencedRelation: "loop_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_expiration_warnings: {
+        Row: {
+          batch_id: string | null
+          id: string
+          points_at_risk: number
+          sent_at: string
+          wallet_id: string
+          warning_type: string
+        }
+        Insert: {
+          batch_id?: string | null
+          id?: string
+          points_at_risk: number
+          sent_at?: string
+          wallet_id: string
+          warning_type: string
+        }
+        Update: {
+          batch_id?: string | null
+          id?: string
+          points_at_risk?: number
+          sent_at?: string
+          wallet_id?: string
+          warning_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_expiration_warnings_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "loop_point_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_expiration_warnings_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "loop_wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -1589,6 +1673,67 @@ export type Database = {
           },
         ]
       }
+      loop_point_batches: {
+        Row: {
+          created_at: string
+          expired_at: string | null
+          expires_at: string
+          id: string
+          original_amount: number
+          remaining_amount: number
+          source_business_id: string | null
+          source_type: string
+          status: string
+          wallet_id: string
+        }
+        Insert: {
+          created_at?: string
+          expired_at?: string | null
+          expires_at: string
+          id?: string
+          original_amount: number
+          remaining_amount: number
+          source_business_id?: string | null
+          source_type: string
+          status?: string
+          wallet_id: string
+        }
+        Update: {
+          created_at?: string
+          expired_at?: string | null
+          expires_at?: string
+          id?: string
+          original_amount?: number
+          remaining_amount?: number
+          source_business_id?: string | null
+          source_type?: string
+          status?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_point_batches_source_business_id_fkey"
+            columns: ["source_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_point_batches_source_business_id_fkey"
+            columns: ["source_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_point_batches_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "loop_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loop_qr_codes: {
         Row: {
           business_id: string
@@ -1696,6 +1841,54 @@ export type Database = {
             columns: ["transaction_id"]
             isOneToOne: false
             referencedRelation: "loop_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loop_redemption_settings: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          lp_per_dollar: number
+          max_discount_percent: number
+          min_spend_cents: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          lp_per_dollar?: number
+          max_discount_percent?: number
+          min_spend_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          lp_per_dollar?: number
+          max_discount_percent?: number
+          min_spend_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_redemption_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_redemption_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1820,6 +2013,45 @@ export type Database = {
           },
         ]
       }
+      loop_supply_tracking: {
+        Row: {
+          created_at: string
+          founding_5_issued: number | null
+          founding_50_issued: number | null
+          id: string
+          month_year: string
+          platform_pool_used: number | null
+          total_expired: number | null
+          total_issued: number | null
+          total_redeemed: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          founding_5_issued?: number | null
+          founding_50_issued?: number | null
+          id?: string
+          month_year: string
+          platform_pool_used?: number | null
+          total_expired?: number | null
+          total_issued?: number | null
+          total_redeemed?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          founding_5_issued?: number | null
+          founding_50_issued?: number | null
+          id?: string
+          month_year?: string
+          platform_pool_used?: number | null
+          total_expired?: number | null
+          total_issued?: number | null
+          total_redeemed?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       loop_tiers: {
         Row: {
           can_create_missions: boolean | null
@@ -1861,36 +2093,48 @@ export type Database = {
           business_id: string | null
           created_at: string
           description: string | null
+          device_id: string | null
           id: string
+          ip_address: string | null
           metadata: Json | null
           mission_id: string | null
           points: number
           qr_code_id: string | null
+          source_event: string | null
           transaction_type: Database["public"]["Enums"]["loop_transaction_type"]
+          tx_status: string | null
           wallet_id: string
         }
         Insert: {
           business_id?: string | null
           created_at?: string
           description?: string | null
+          device_id?: string | null
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           mission_id?: string | null
           points: number
           qr_code_id?: string | null
+          source_event?: string | null
           transaction_type: Database["public"]["Enums"]["loop_transaction_type"]
+          tx_status?: string | null
           wallet_id: string
         }
         Update: {
           business_id?: string | null
           created_at?: string
           description?: string | null
+          device_id?: string | null
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
           mission_id?: string | null
           points?: number
           qr_code_id?: string | null
+          source_event?: string | null
           transaction_type?: Database["public"]["Enums"]["loop_transaction_type"]
+          tx_status?: string | null
           wallet_id?: string
         }
         Relationships: [
@@ -1921,7 +2165,10 @@ export type Database = {
         Row: {
           city: string
           created_at: string
+          frozen_reason: string | null
           id: string
+          is_frozen: boolean | null
+          last_activity_at: string | null
           lifetime_donated: number
           lifetime_earned: number
           lifetime_redeemed: number
@@ -1932,7 +2179,10 @@ export type Database = {
         Insert: {
           city?: string
           created_at?: string
+          frozen_reason?: string | null
           id?: string
+          is_frozen?: boolean | null
+          last_activity_at?: string | null
           lifetime_donated?: number
           lifetime_earned?: number
           lifetime_redeemed?: number
@@ -1943,7 +2193,10 @@ export type Database = {
         Update: {
           city?: string
           created_at?: string
+          frozen_reason?: string | null
           id?: string
+          is_frozen?: boolean | null
+          last_activity_at?: string | null
           lifetime_donated?: number
           lifetime_earned?: number
           lifetime_redeemed?: number

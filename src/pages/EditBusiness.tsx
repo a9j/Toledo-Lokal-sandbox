@@ -189,7 +189,7 @@ export default function EditBusiness() {
           .from('business_loop_settings')
           .insert({
             business_id: id,
-            loop_tier_id: 'visible_only',
+            loop_tier_id: 'community',
             is_active: active,
           });
         
