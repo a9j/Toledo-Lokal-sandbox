@@ -96,7 +96,7 @@ export default function BusinessDetail() {
         isFoodTruck,
         isNonprofit,
         isInLoop: data.business_loop_settings?.is_active && 
-          data.business_loop_settings?.loop_tier_id !== 'visible_only',
+          ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
         isFoundingMember: data.business_loop_settings?.is_founding_member,
         loopTierId: data.business_loop_settings?.loop_tier_id
       };

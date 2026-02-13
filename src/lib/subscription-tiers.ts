@@ -61,10 +61,11 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 0,
       pulsePromoAllowed: false,
     },
-    loopTierId: 'visible_only',
+    loopTierId: 'community',
     loopFeatures: [
-      'Loop-Visible Only',
-      'No points issued or accepted'
+      'Community Loop tier',
+      '1,000 LP/month',
+      'Accept LP redemptions'
     ]
   },
   local_supporter: {
@@ -98,11 +99,11 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 0,
       pulsePromoAllowed: true,
     },
-    loopTierId: 'loop_starter',
+    loopTierId: 'community',
     loopFeatures: [
-      'Loop Starter included',
-      'Issue up to 500 points/month',
-      'Accept point redemptions',
+      'Community Loop tier',
+      '1,000 LP/month',
+      'Accept LP redemptions',
       'QR code issuance',
       'Basic rewards setup'
     ]
@@ -138,14 +139,14 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 1,
       pulsePromoAllowed: true,
     },
-    loopTierId: 'loop_growth',
+    loopTierId: 'growth',
     loopFeatures: [
       'Loop Growth included',
-      'Issue up to 2,000 points/month',
-      'Citywide missions participation',
-      'Featured discovery placement',
-      'Experience rewards',
-      'Advanced Loop analytics'
+      '7,500 LP/month',
+      'Citywide missions',
+      'Featured discovery',
+      'Referral rewards',
+      'Advanced analytics'
     ]
   },
   anchor_partner: {
@@ -180,14 +181,15 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 3,
       pulsePromoAllowed: true,
     },
-    loopTierId: 'loop_partner',
+    loopTierId: 'pro',
     loopFeatures: [
-      'Loop Partner included',
-      'Issue up to 5,000 points/month',
+      'Loop Pro included',
+      '25,000 LP/month',
+      'Priority placement',
       'Sponsored missions',
-      'Priority placement in Loop',
       'Event integrations',
-      'Quarterly impact reports'
+      'Co-branding',
+      'Quarterly reports'
     ]
   }
 };
@@ -232,5 +234,5 @@ export const getJobExpirationDays = (tier: SubscriptionTier): number => {
 };
 
 export const getLoopTierForSubscription = (tier: SubscriptionTier): LoopTierId => {
-  return SUBSCRIPTION_TIERS[tier].loopTierId || 'visible_only';
+  return SUBSCRIPTION_TIERS[tier].loopTierId || 'community';
 };

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { LoopTierId, LOOP_TIERS } from '@/lib/loop-tiers';
+import { LoopTierId, LOOP_TIERS, getEffectivePointsCap } from '@/lib/loop-tiers';
 
 export interface BusinessLoopSettings {
   id: string;
@@ -9,6 +9,11 @@ export interface BusinessLoopSettings {
   loop_tier_id: LoopTierId;
   is_active: boolean;
   is_founding_member?: boolean;
+  is_founding_50?: boolean;
+  founding_50_start_date?: string;
+  founding_50_expires_at?: string;
+  wallet_frozen?: boolean;
+  wallet_frozen_reason?: string;
   points_issued_this_month: number;
   month_reset_at: string;
   stripe_subscription_id: string | null;
@@ -49,7 +54,7 @@ export function useBusinessLoopSettings() {
           .from('business_loop_settings')
           .insert({
             business_id: business.id,
-            loop_tier_id: 'visible_only',
+            loop_tier_id: 'community',
             is_active: false,
           })
           .select()
@@ -84,12 +89,20 @@ export function useBusinessLoopSettings() {
   });
 
   const tierConfig = settings.data
-    ? LOOP_TIERS[settings.data.loop_tier_id as LoopTierId] || LOOP_TIERS.visible_only
-    : LOOP_TIERS.visible_only;
+    ? LOOP_TIERS[settings.data.loop_tier_id as LoopTierId] || LOOP_TIERS.community
+    : LOOP_TIERS.community;
 
-  const isLoopParticipant = settings.data?.is_active && settings.data?.loop_tier_id !== 'visible_only';
+  const isLoopParticipant = settings.data?.is_active === true;
 
-  const pointsRemaining = tierConfig.pointsCap - (settings.data?.points_issued_this_month || 0);
+  const effectivePointsCap = settings.data
+    ? getEffectivePointsCap(
+        settings.data.loop_tier_id,
+        !!settings.data.is_founding_member,
+        !!settings.data.is_founding_50
+      )
+    : tierConfig.pointsCap;
+
+  const pointsRemaining = effectivePointsCap - (settings.data?.points_issued_this_month || 0);
 
   return {
     settings: settings.data,
@@ -112,7 +125,7 @@ export function useLoopParticipants() {
           business:businesses(id, name, logo_url, category:categories(name), neighborhood:neighborhoods(name))
         `)
         .eq('is_active', true)
-        .neq('loop_tier_id', 'visible_only');
+        .in('loop_tier_id', ['community', 'growth', 'pro']);
 
       if (error) throw error;
       return data;

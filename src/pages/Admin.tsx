@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { LoopAnalyticsDashboard } from '@/components/admin/LoopAnalyticsDashboard';
 import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
 import { UsersAdmin } from '@/components/admin/UsersAdmin';
 import {
@@ -301,7 +302,7 @@ export default function Admin() {
           .update({ 
             is_founding_member: isFoundingMember,
             // If making founding member, ensure they're on partner tier and active
-            ...(isFoundingMember ? { loop_tier_id: 'loop_partner', is_active: true } : {})
+            ...(isFoundingMember ? { loop_tier_id: 'pro', is_active: true } : {})
           })
           .eq('business_id', businessId);
         if (error) throw error;
@@ -312,7 +313,7 @@ export default function Admin() {
           .insert({ 
             business_id: businessId,
             is_founding_member: isFoundingMember,
-            loop_tier_id: isFoundingMember ? 'loop_partner' : 'visible_only',
+            loop_tier_id: isFoundingMember ? 'pro' : 'community',
             is_active: isFoundingMember
           });
         if (error) throw error;
@@ -451,6 +452,9 @@ export default function Admin() {
 
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+            <div className="mt-8">
+              <LoopAnalyticsDashboard />
+            </div>
           </TabsContent>
 
           <TabsContent value="nonprofits">
