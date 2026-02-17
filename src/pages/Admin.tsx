@@ -40,7 +40,8 @@ import {
   Truck,
   Crown,
   Heart,
-  Users
+  Users,
+  Eye
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -80,7 +81,7 @@ export default function Admin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('*, category:categories(name), neighborhood:neighborhoods(name), business_loop_settings(is_founding_member, loop_tier_id)')
+        .select('*, category:categories(name), neighborhood:neighborhoods(name), business_loop_settings(is_founding_member, is_founding_50, loop_tier_id)')
         .eq('status', 'approved')
         .order('featured', { ascending: false })
         .order('name', { ascending: true });
@@ -91,8 +92,8 @@ export default function Admin() {
     enabled: isAdmin,
   });
 
-  // Count current founding members
   const foundingMemberCount = approvedBusinesses?.filter(b => b.business_loop_settings?.is_founding_member).length || 0;
+  const founding50Count = approvedBusinesses?.filter(b => b.tier_status === 'founding_50').length || 0;
 
   // Pending deals
   const { data: pendingDeals } = useQuery({
@@ -288,7 +289,6 @@ export default function Admin() {
   // Toggle Founding 5 status
   const toggleFoundingMember = useMutation({
     mutationFn: async ({ businessId, isFoundingMember }: { businessId: string; isFoundingMember: boolean }) => {
-      // Check if settings exist
       const { data: existing } = await supabase
         .from('business_loop_settings')
         .select('id')
@@ -296,18 +296,15 @@ export default function Admin() {
         .single();
 
       if (existing) {
-        // Update existing settings
         const { error } = await supabase
           .from('business_loop_settings')
           .update({ 
             is_founding_member: isFoundingMember,
-            // If making founding member, ensure they're on partner tier and active
             ...(isFoundingMember ? { loop_tier_id: 'pro', is_active: true } : {})
           })
           .eq('business_id', businessId);
         if (error) throw error;
       } else {
-        // Create new settings
         const { error } = await supabase
           .from('business_loop_settings')
           .insert({ 
@@ -318,6 +315,14 @@ export default function Admin() {
           });
         if (error) throw error;
       }
+
+      // Also update the tier_status on the business itself
+      await supabase.from('businesses').update({
+        tier_status: isFoundingMember ? 'founding_5' : 'community',
+        tier_badge_visible: true,
+        tier_assigned_at: new Date().toISOString(),
+        tier_assigned_by: user!.id,
+      }).eq('id', businessId);
     },
     onSuccess: (_, { isFoundingMember }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
@@ -325,6 +330,53 @@ export default function Admin() {
       toast({ 
         title: isFoundingMember ? '🏆 Founding 5 member added!' : 'Founding 5 status removed',
         description: isFoundingMember ? 'They now have all Loop benefits free for life.' : undefined
+      });
+    },
+  });
+
+  // Toggle Founding 50 status
+  const toggleFounding50 = useMutation({
+    mutationFn: async ({ businessId, isFounding50 }: { businessId: string; isFounding50: boolean }) => {
+      const { data: existing } = await supabase
+        .from('business_loop_settings')
+        .select('id')
+        .eq('business_id', businessId)
+        .single();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('business_loop_settings')
+          .update({ 
+            is_founding_50: isFounding50,
+            ...(isFounding50 ? { is_active: true } : {})
+          })
+          .eq('business_id', businessId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('business_loop_settings')
+          .insert({ 
+            business_id: businessId,
+            is_founding_50: isFounding50,
+            loop_tier_id: 'community',
+            is_active: isFounding50
+          });
+        if (error) throw error;
+      }
+
+      await supabase.from('businesses').update({
+        tier_status: isFounding50 ? 'founding_50' : 'community',
+        tier_badge_visible: true,
+        tier_assigned_at: new Date().toISOString(),
+        tier_assigned_by: user!.id,
+      }).eq('id', businessId);
+    },
+    onSuccess: (_, { isFounding50 }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      toast({ 
+        title: isFounding50 ? '🥈 Founding 50 member added!' : 'Founding 50 status removed',
+        description: isFounding50 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
       });
     },
   });
@@ -451,6 +503,34 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="analytics">
+            {/* Platform Overview */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              <div className="card-elevated p-3 text-center">
+                <p className="text-2xl font-bold">{approvedBusinesses?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Approved Businesses</p>
+              </div>
+              <div className="card-elevated p-3 text-center">
+                <p className="text-2xl font-bold text-lokal-terracotta">{pendingBusinesses?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Pending Approval</p>
+              </div>
+              <div className="card-elevated p-3 text-center">
+                <p className="text-2xl font-bold text-amber-500">{foundingMemberCount}/5</p>
+                <p className="text-xs text-muted-foreground">Founding 5</p>
+              </div>
+              <div className="card-elevated p-3 text-center">
+                <p className="text-2xl font-bold text-slate-400">{founding50Count}/50</p>
+                <p className="text-xs text-muted-foreground">Founding 50</p>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex gap-2 mb-6">
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate('/admin/businesses')}>
+                <Crown className="h-4 w-4" />
+                Full Business Management
+              </Button>
+            </div>
+
             <AnalyticsDashboard />
             <div className="mt-8">
               <LoopAnalyticsDashboard />
@@ -702,19 +782,36 @@ export default function Admin() {
 
           <TabsContent value="manage" className="space-y-3">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                Manage approved businesses - add Editor's Pick images and Founding 5 status.
-              </p>
-              <Badge variant="outline" className="gap-1 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
-                <Crown className="h-3 w-3 text-amber-600" />
-                <span className="text-amber-700">{foundingMemberCount}/5 Founding</span>
-              </Badge>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Manage tiers, images & featured status.
+                </p>
+                <Button variant="link" size="sm" className="px-0 h-auto text-xs" onClick={() => navigate('/admin/businesses')}>
+                  Full Business Management →
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Badge variant="outline" className="gap-1 bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 dark:from-amber-950/30 dark:to-yellow-950/30 dark:border-amber-800">
+                  <Crown className="h-3 w-3 text-amber-600" />
+                  <span className="text-amber-700 dark:text-amber-400">{foundingMemberCount}/5</span>
+                </Badge>
+                <Badge variant="outline" className="gap-1 bg-gradient-to-r from-slate-50 to-gray-50 border-slate-300 dark:from-slate-950/30 dark:to-gray-950/30 dark:border-slate-700">
+                  <Shield className="h-3 w-3 text-slate-500" />
+                  <span className="text-slate-600 dark:text-slate-400">{founding50Count}/50</span>
+                </Badge>
+              </div>
             </div>
             {approvedBusinesses?.length ? (
               approvedBusinesses.map(biz => {
                 const isFoundingMember = biz.business_loop_settings?.is_founding_member || false;
+                const isFounding50 = biz.tier_status === 'founding_50';
+                const highlightClass = isFoundingMember 
+                  ? 'ring-2 ring-amber-400/50 bg-gradient-to-r from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/20'
+                  : isFounding50
+                  ? 'ring-2 ring-slate-300/50 bg-gradient-to-r from-slate-50/50 to-gray-50/50 dark:from-slate-950/20 dark:to-gray-950/20'
+                  : '';
                 return (
-                  <div key={biz.id} className={`card-elevated p-4 ${isFoundingMember ? 'ring-2 ring-amber-400/50 bg-gradient-to-r from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/20' : ''}`}>
+                  <div key={biz.id} className={`card-elevated p-4 ${highlightClass}`}>
                     <div className="flex items-center gap-3">
                       {biz.photos?.[0] && (
                         <SecureImage
@@ -724,82 +821,107 @@ export default function Admin() {
                           loading="lazy"
                         />
                       )}
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold">{biz.name}</h3>
+                          <h3 className="font-semibold text-sm">{biz.name}</h3>
                           {isFoundingMember && (
-                            <Badge className="gap-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0">
+                            <Badge className="gap-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 text-[10px]">
                               <Crown className="h-3 w-3" />
                               Founding 5
                             </Badge>
                           )}
+                          {isFounding50 && (
+                            <Badge className="gap-1 bg-gradient-to-r from-slate-400 to-gray-400 text-white border-0 text-[10px]">
+                              <Shield className="h-3 w-3" />
+                              Founding 50
+                            </Badge>
+                          )}
                           {biz.featured && (
-                            <Badge variant="secondary" className="gap-1">
+                            <Badge variant="secondary" className="gap-1 text-[10px]">
                               <Star className="h-3 w-3" />
                               Featured
                             </Badge>
                           )}
-                          {biz.editor_pick_image && (
-                            <Badge variant="outline" className="gap-1">
-                              <ImageIcon className="h-3 w-3" />
-                              Editor's Pick
-                            </Badge>
-                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {biz.category?.name} · {biz.neighborhood?.name}
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant={isFoundingMember ? "secondary" : "ghost"}
-                          onClick={() => {
-                            // Prevent adding more than 5 founding members
-                            if (!isFoundingMember && foundingMemberCount >= 5) {
-                              toast({ 
-                                title: 'Founding 5 is full',
-                                description: 'Remove a founding member first to add a new one.',
-                                variant: 'destructive'
-                              });
-                              return;
-                            }
-                            toggleFoundingMember.mutate({ businessId: biz.id, isFoundingMember: !isFoundingMember });
-                          }}
-                          className={`gap-1 ${isFoundingMember ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600' : ''}`}
-                          title={isFoundingMember ? 'Remove from Founding 5' : 'Add to Founding 5'}
-                          disabled={toggleFoundingMember.isPending}
-                        >
-                          <Crown className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditDialog('business', biz)}
-                          className="gap-1"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={biz.editor_pick_image ? "secondary" : "ghost"}
-                          onClick={() => openEditDialog('business', biz)}
-                          className="gap-1"
-                          title="Editor's Pick"
-                        >
-                          <Award className={`h-4 w-4 ${biz.editor_pick_image ? 'fill-current text-primary' : ''}`} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={biz.featured ? "secondary" : "ghost"}
-                          onClick={() => updateBusinessStatus.mutate({ id: biz.id, featured: !biz.featured })}
-                          className="gap-1"
-                          title="Featured"
-                        >
-                          <Star className={`h-4 w-4 ${biz.featured ? 'fill-current' : ''}`} />
-                        </Button>
-                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {/* Founding 5 Toggle */}
+                      <Button
+                        size="sm"
+                        variant={isFoundingMember ? "secondary" : "ghost"}
+                        onClick={() => {
+                          if (!isFoundingMember && foundingMemberCount >= 5) {
+                            toast({ 
+                              title: 'Founding 5 is full',
+                              description: 'Remove a founding member first.',
+                              variant: 'destructive'
+                            });
+                            return;
+                          }
+                          toggleFoundingMember.mutate({ businessId: biz.id, isFoundingMember: !isFoundingMember });
+                        }}
+                        className={`h-7 text-xs gap-1 ${isFoundingMember ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600' : ''}`}
+                        title={isFoundingMember ? 'Remove from Founding 5' : 'Add to Founding 5'}
+                        disabled={toggleFoundingMember.isPending || isFounding50}
+                      >
+                        <Crown className="h-3 w-3" />
+                        F5
+                      </Button>
+
+                      {/* Founding 50 Toggle */}
+                      <Button
+                        size="sm"
+                        variant={isFounding50 ? "secondary" : "ghost"}
+                        onClick={() => {
+                          if (!isFounding50 && founding50Count >= 50) {
+                            toast({ 
+                              title: 'Founding 50 is full',
+                              description: 'Remove a member first.',
+                              variant: 'destructive'
+                            });
+                            return;
+                          }
+                          toggleFounding50.mutate({ businessId: biz.id, isFounding50: !isFounding50 });
+                        }}
+                        className={`h-7 text-xs gap-1 ${isFounding50 ? 'bg-gradient-to-r from-slate-400 to-gray-400 text-white hover:from-slate-500 hover:to-gray-500' : ''}`}
+                        title={isFounding50 ? 'Remove from Founding 50' : 'Add to Founding 50'}
+                        disabled={toggleFounding50.isPending || isFoundingMember}
+                      >
+                        <Shield className="h-3 w-3" />
+                        F50
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEditDialog('business', biz)}
+                        className="h-7 text-xs gap-1"
+                      >
+                        <Pencil className="h-3 w-3" />
+                        Images
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={biz.featured ? "secondary" : "ghost"}
+                        onClick={() => updateBusinessStatus.mutate({ id: biz.id, featured: !biz.featured })}
+                        className="h-7 text-xs gap-1"
+                        title="Featured"
+                      >
+                        <Star className={`h-3 w-3 ${biz.featured ? 'fill-current' : ''}`} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 text-xs gap-1 ml-auto"
+                        onClick={() => navigate(`/business/${biz.id}`)}
+                      >
+                        <Eye className="h-3 w-3" />
+                        View
+                      </Button>
                     </div>
                   </div>
                 );
