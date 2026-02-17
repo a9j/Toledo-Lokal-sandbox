@@ -81,6 +81,24 @@ export default function Dashboard() {
 
   const newLeadsCount = business.leads?.filter(l => l.status === 'new').length || 0;
 
+  // Pending scans count
+  const { data: pendingScanCount } = useQuery({
+    queryKey: ['pending-scan-count', business.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('loop_qr_scans')
+        .select('id', { count: 'exact', head: true })
+        .in('qr_code_id', 
+          (await supabase.from('loop_qr_codes').select('id').eq('business_id', business.id)).data?.map(q => q.id) || []
+        )
+        .eq('status', 'pending_confirmation');
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!business.id,
+    refetchInterval: 30000,
+  });
+
   const dashboardItems = [
     { 
       icon: Building2, 
@@ -143,7 +161,9 @@ export default function Dashboard() {
       icon: ClipboardCheck, 
       label: 'Pending Confirmations', 
       href: '/dashboard/pending-scans',
-      subtitle: 'Confirm customer scans'
+      subtitle: (pendingScanCount || 0) > 0 ? `${pendingScanCount} awaiting confirmation` : 'No pending scans',
+      badge: (pendingScanCount || 0) > 0 ? 'new' as const : undefined,
+      badgeCount: pendingScanCount || 0
     },
     { 
       icon: Users, 

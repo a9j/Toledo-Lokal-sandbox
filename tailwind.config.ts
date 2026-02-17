@@ -154,6 +154,11 @@ export default {
           "0%": { transform: "scale(1)", opacity: "0.6" },
           "100%": { transform: "scale(2.2)", opacity: "0" },
         },
+        "celebration": {
+          "0%": { transform: "translateY(0) scale(1)", opacity: "1" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(-400px) scale(0)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -165,6 +170,7 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "logo-pulse": "logo-pulse 1.6s ease-in-out infinite",
         "logo-ripple": "logo-ripple 1.6s ease-out infinite",
+        "celebration": "celebration 1.5s ease-out forwards",
       },
       spacing: {
         "safe-bottom": "env(safe-area-inset-bottom, 0)",
