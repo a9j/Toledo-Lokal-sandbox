@@ -28,6 +28,7 @@ export function BusinessPulseSection({ businessId, businessName }: BusinessPulse
         .from('pulse_posts')
         .select('*')
         .eq('business_id', businessId)
+        .eq('author_type', 'business')
         .eq('status', 'active')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
