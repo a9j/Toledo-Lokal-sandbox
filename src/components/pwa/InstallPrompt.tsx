@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, X, Share, Plus, Smartphone, Home } from 'lucide-react';
+import { Download, X, Share, Plus, Smartphone, Home, MoreVertical, EllipsisVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 
@@ -82,17 +82,25 @@ export function InstallPrompt() {
           </p>
           
           <ol className="space-y-3 text-sm">
-            <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold">1</div>
-              <span>Tap the <Share className="inline h-4 w-4 mx-1" /> Share button in Safari</span>
+            <li className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+              <span>
+                Tap the <EllipsisVertical className="inline h-4 w-4 mx-0.5" /> <strong>three dots</strong> menu (bottom or top of your browser)
+              </span>
             </li>
-            <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold">2</div>
-              <span>Scroll down and tap <Plus className="inline h-4 w-4 mx-1" /> "Add to Home Screen"</span>
+            <li className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+              <span>
+                Look for <Share className="inline h-4 w-4 mx-0.5" /> <strong>Share</strong> or <strong>"Add to Home Screen"</strong> and tap it
+              </span>
             </li>
-            <li className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold">3</div>
-              <span>Tap "Add" to confirm</span>
+            <li className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+              <span>If you tapped Share, scroll down and tap <Plus className="inline h-4 w-4 mx-0.5" /> <strong>"Add to Home Screen"</strong></span>
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold flex-shrink-0">4</div>
+              <span>Tap <strong>"Add"</strong> to confirm</span>
             </li>
           </ol>
           
