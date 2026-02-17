@@ -213,7 +213,6 @@ export default function CreateBusiness() {
             <Input 
               id="name" 
               placeholder="Your business name"
-              required 
               maxLength={200}
               value={name}
               onChange={e => setName(e.target.value)}
@@ -260,7 +259,6 @@ export default function CreateBusiness() {
               id="description" 
               placeholder="Tell people about your business..."
               rows={4}
-              required
               maxLength={5000}
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -282,7 +280,6 @@ export default function CreateBusiness() {
             <Label htmlFor="phone">Phone</Label>
             <Input 
               id="phone" 
-              type="tel"
               placeholder="(419) 555-0123"
               maxLength={50}
               value={phone}
@@ -294,7 +291,6 @@ export default function CreateBusiness() {
             <Label htmlFor="website">Website</Label>
             <Input 
               id="website" 
-              type="url"
               placeholder="https://yourbusiness.com"
               maxLength={500}
               value={website}
