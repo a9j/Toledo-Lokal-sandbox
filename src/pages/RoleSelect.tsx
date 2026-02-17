@@ -24,9 +24,14 @@ export default function RoleSelect() {
 
     try {
       // Mark role as selected in profile
+      // For business/nonprofit, also mark profile_completed since they don't need the resident wizard
+      const updateData: Record<string, boolean> = { role_selected: true };
+      if (selected === 'business' || selected === 'nonprofit') {
+        updateData.profile_completed = true;
+      }
       await supabase
         .from('profiles')
-        .update({ role_selected: true })
+        .update(updateData)
         .eq('user_id', user.id);
 
       if (selected === 'business') {
