@@ -361,6 +361,9 @@ export type Database = {
           onboarding_completed_at: string | null
           onboarding_step: number
           owner_user_id: string
+          ownership_review_notes: string | null
+          ownership_review_started_at: string | null
+          ownership_review_status: string
           phone: string | null
           photos: string[] | null
           profile_picture_url: string | null
@@ -401,6 +404,9 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_step?: number
           owner_user_id: string
+          ownership_review_notes?: string | null
+          ownership_review_started_at?: string | null
+          ownership_review_status?: string
           phone?: string | null
           photos?: string[] | null
           profile_picture_url?: string | null
@@ -441,6 +447,9 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_step?: number
           owner_user_id?: string
+          ownership_review_notes?: string | null
+          ownership_review_started_at?: string | null
+          ownership_review_status?: string
           phone?: string | null
           photos?: string[] | null
           profile_picture_url?: string | null
@@ -2739,6 +2748,13 @@ export type Database = {
             referencedRelation: "nonprofits"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pulse_posts_nonprofit_id_fkey"
+            columns: ["nonprofit_id"]
+            isOneToOne: false
+            referencedRelation: "nonprofits_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       requests: {
@@ -3377,6 +3393,7 @@ export type Database = {
           onboarding_completed: boolean | null
           onboarding_step: number | null
           owner_user_id: string | null
+          ownership_review_status: string | null
           phone: string | null
           photos: string[] | null
           profile_picture_url: string | null
@@ -3411,7 +3428,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           owner_user_id?: string | null
-          phone?: never
+          ownership_review_status?: string | null
+          phone?: string | null
           photos?: string[] | null
           profile_picture_url?: string | null
           review_count?: number | null
@@ -3445,7 +3463,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           owner_user_id?: string | null
-          phone?: never
+          ownership_review_status?: string | null
+          phone?: string | null
           photos?: string[] | null
           profile_picture_url?: string | null
           review_count?: number | null
@@ -3534,6 +3553,89 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nonprofits_public: {
+        Row: {
+          address: string | null
+          cause_category: Database["public"]["Enums"]["cause_category"] | null
+          claimed: boolean | null
+          claimed_at: string | null
+          claimed_by: string | null
+          community_support_types:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url: string | null
+          created_at: string | null
+          founding_community_partner: boolean | null
+          human_note: string | null
+          id: string | null
+          logo_url: string | null
+          mission_statement: string | null
+          name: string | null
+          neighborhood_id: string | null
+          slug: string | null
+          status: string | null
+          updated_at: string | null
+          website: string | null
+          what_this_helps: string | null
+        }
+        Insert: {
+          address?: string | null
+          cause_category?: Database["public"]["Enums"]["cause_category"] | null
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          community_support_types?:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          founding_community_partner?: boolean | null
+          human_note?: string | null
+          id?: string | null
+          logo_url?: string | null
+          mission_statement?: string | null
+          name?: string | null
+          neighborhood_id?: string | null
+          slug?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+          what_this_helps?: string | null
+        }
+        Update: {
+          address?: string | null
+          cause_category?: Database["public"]["Enums"]["cause_category"] | null
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          community_support_types?:
+            | Database["public"]["Enums"]["community_support_type"][]
+            | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          founding_community_partner?: boolean | null
+          human_note?: string | null
+          id?: string | null
+          logo_url?: string | null
+          mission_statement?: string | null
+          name?: string | null
+          neighborhood_id?: string | null
+          slug?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+          what_this_helps?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nonprofits_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
             referencedColumns: ["id"]
           },
         ]

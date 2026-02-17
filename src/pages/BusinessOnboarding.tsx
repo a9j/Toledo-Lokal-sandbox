@@ -75,7 +75,7 @@ export default function BusinessOnboarding() {
 
   const [step, setStep] = useState(1);
   const [businessId, setBusinessId] = useState<string | null>(null);
-  const [tierStatus, setTierStatus] = useState<string>('general');
+  const [tierStatus, setTierStatus] = useState<string>('community');
   const [tierAssignedAt, setTierAssignedAt] = useState<string | null>(null);
   const [data, setData] = useState<OnboardingData>({
     name: '',
@@ -112,7 +112,7 @@ export default function BusinessOnboarding() {
       if (biz) {
         setBusinessId(biz.id);
         setStep(biz.onboarding_step || 1);
-        setTierStatus(biz.tier_status || 'general');
+        setTierStatus(biz.tier_status || 'community');
         setTierAssignedAt(biz.tier_assigned_at);
         setData(prev => ({
           ...prev,
@@ -536,7 +536,7 @@ export default function BusinessOnboarding() {
               <p className="text-lg text-muted-foreground">Welcome to Toledo Lokal.</p>
             </div>
 
-            {tierStatus !== 'general' && (
+            {tierStatus !== 'community' && tierStatus !== 'growth' && (
               <div className="flex flex-col items-center gap-3 py-6">
                 <TierBadge tier={tierStatus as any} size="lg" />
                 <p className="text-sm text-muted-foreground">

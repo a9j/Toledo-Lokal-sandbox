@@ -145,9 +145,8 @@ serve(async (req) => {
       
       // Map product IDs to tiers
       const tierMap: Record<string, string> = {
-        'prod_TkuNmw1oP99cDB': 'local_supporter',
-        'prod_TkuOJkqlruAjiG': 'featured_local',
-        'prod_TkuOGiyIs7qK5U': 'anchor_partner',
+        'prod_TkuOJkqlruAjiG': 'growth',
+        'prod_TkuOGiyIs7qK5U': 'pro',
       };
       tier = tierMap[productId] || 'free';
       

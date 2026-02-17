@@ -60,7 +60,7 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
               <h3 className="font-semibold text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors">
                 {business.name}
               </h3>
-              {business.tier_status && business.tier_status !== 'general' && business.tier_badge_visible && (
+              {business.tier_status && business.tier_status !== 'community' && business.tier_status !== 'growth' && business.tier_badge_visible && (
                 <TierBadge tier={business.tier_status as any} size="sm" />
               )}
             </div>
