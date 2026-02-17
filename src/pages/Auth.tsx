@@ -229,6 +229,11 @@ export default function Auth() {
             {errors.password && (
               <p className="text-xs text-destructive">{errors.password}</p>
             )}
+            {isSignUp && (
+              <p className="text-xs text-muted-foreground">
+                Use 8+ characters with a mix of uppercase, lowercase, numbers & symbols.
+              </p>
+            )}
           </div>
 
           <Button
