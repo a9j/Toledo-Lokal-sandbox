@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, Clock, Loader2, Sparkles, Heart } from 'lucide-react';
+import { Check, Clock, Loader2, Sparkles, Heart, Zap } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 type ScanStatus = 'loading' | 'success' | 'pending' | 'paused' | 'already_earned';
 
 interface ScanResult {
   status: ScanStatus;
   points?: number;
+  basePoints?: number;
+  burstBonus?: number;
+  burstName?: string;
   business?: { id: string; name: string; logo_url?: string };
   qrName?: string;
   message?: string;
@@ -26,6 +30,7 @@ export default function ScanQR() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [result, setResult] = useState<ScanResult>({ status: 'loading' });
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     if (!qrCodeId) {
@@ -34,7 +39,6 @@ export default function ScanQR() {
     }
 
     if (!user || !session) {
-      // Save the scan URL to redirect back after login
       sessionStorage.setItem('pendingScan', qrCodeId);
       navigate('/auth');
       return;
@@ -47,54 +51,48 @@ export default function ScanQR() {
     try {
       const { data, error } = await supabase.functions.invoke('loop-scan-qr', {
         body: { qrCodeId, action: 'scan' },
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
       if (error) throw error;
 
       if (data.success) {
+        const scan = data.scan;
         setResult({
-          status: data.scan.requiresConfirmation ? 'pending' : 'success',
-          points: data.scan.points,
-          business: data.scan.business,
-          qrName: data.scan.qrName,
-          requiresConfirmation: data.scan.requiresConfirmation,
+          status: scan.requiresConfirmation ? 'pending' : 'success',
+          points: scan.points,
+          basePoints: scan.basePoints,
+          burstBonus: scan.burstBonus,
+          burstName: scan.burstName,
+          business: scan.business,
+          qrName: scan.qrName,
+          requiresConfirmation: scan.requiresConfirmation,
         });
 
-        if (!data.scan.requiresConfirmation) {
+        if (!scan.requiresConfirmation) {
+          setShowCelebration(true);
+          setTimeout(() => setShowCelebration(false), 2500);
           toast({
-            title: `+${data.scan.points} Bonus Points!`,
-            description: `Thanks for visiting ${data.scan.business?.name}`,
+            title: `+${scan.points} Bonus Points!`,
+            description: `Thanks for visiting ${scan.business?.name}`,
           });
         }
       } else if (data.paused) {
-        // Graceful "paused" state - no error feeling
-        setResult({ 
-          status: 'paused', 
-          message: data.error || 'Loop rewards are paused at this location — check back soon!'
+        setResult({
+          status: 'paused',
+          message: data.error || 'Loop rewards are paused at this location — check back soon!',
         });
       } else if (data.alreadyEarned) {
-        // Already earned - positive acknowledgment
-        setResult({ 
-          status: 'already_earned', 
-          message: data.error || 'You\'ve already earned bonus points here — thanks for visiting!'
+        setResult({
+          status: 'already_earned',
+          message: data.error || "You've already earned bonus points here — thanks for visiting!",
         });
       } else {
-        // Unexpected case - still friendly
-        setResult({ 
-          status: 'paused', 
-          message: 'Loop rewards are paused — check back soon!'
-        });
+        setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
       }
     } catch (error: any) {
       console.error('Scan error:', error);
-      // Never show technical errors to customers
-      setResult({ 
-        status: 'paused', 
-        message: 'Loop rewards are paused — check back soon!'
-      });
+      setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
     }
   };
 
@@ -102,7 +100,10 @@ export default function ScanQR() {
     <>
       <Header title="Loop Points" />
       <PageContainer className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-sm relative overflow-hidden">
+          {/* Celebration particles */}
+          {showCelebration && <CelebrationOverlay />}
+
           <CardContent className="p-6">
             {result.status === 'loading' && (
               <div className="flex flex-col items-center text-center py-8">
@@ -113,13 +114,22 @@ export default function ScanQR() {
             )}
 
             {result.status === 'success' && (
-              <div className="flex flex-col items-center text-center py-8">
-                <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+              <div className="flex flex-col items-center text-center py-8 animate-fade-in">
+                <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 animate-scale-in">
                   <Sparkles className="h-10 w-10 text-green-600 dark:text-green-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
-                  +{result.points} Bonus Points!
+                <h2 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
+                  +{result.points} Points!
                 </h2>
+
+                {/* Burst bonus callout */}
+                {result.burstBonus && result.burstBonus > 0 && (
+                  <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full text-sm font-medium mb-2 animate-fade-in">
+                    <Zap className="h-3.5 w-3.5" />
+                    Includes {result.burstName || 'Burst Bonus'}: +{result.burstBonus} pts
+                  </div>
+                )}
+
                 <p className="text-muted-foreground mb-4">
                   Thanks for visiting {result.business?.name}
                 </p>
@@ -133,7 +143,7 @@ export default function ScanQR() {
             )}
 
             {result.status === 'pending' && (
-              <div className="flex flex-col items-center text-center py-8">
+              <div className="flex flex-col items-center text-center py-8 animate-fade-in">
                 <div className="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
                   <Clock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
                 </div>
@@ -141,6 +151,14 @@ export default function ScanQR() {
                 <p className="text-muted-foreground mb-2">
                   {result.points} bonus points at {result.business?.name}
                 </p>
+
+                {result.burstBonus && result.burstBonus > 0 && (
+                  <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full text-xs font-medium mb-2">
+                    <Zap className="h-3 w-3" />
+                    {result.burstName || 'Burst Bonus'} active!
+                  </div>
+                )}
+
                 <p className="text-sm text-muted-foreground mb-6">
                   Show this screen to complete your visit
                 </p>
@@ -156,7 +174,7 @@ export default function ScanQR() {
             )}
 
             {result.status === 'paused' && (
-              <div className="flex flex-col items-center text-center py-8">
+              <div className="flex flex-col items-center text-center py-8 animate-fade-in">
                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
                   <Clock className="h-10 w-10 text-muted-foreground" />
                 </div>
@@ -174,7 +192,7 @@ export default function ScanQR() {
             )}
 
             {result.status === 'already_earned' && (
-              <div className="flex flex-col items-center text-center py-8">
+              <div className="flex flex-col items-center text-center py-8 animate-fade-in">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                   <Heart className="h-10 w-10 text-primary" />
                 </div>
@@ -194,5 +212,39 @@ export default function ScanQR() {
         </Card>
       </PageContainer>
     </>
+  );
+}
+
+/** Lightweight celebration particles using pure CSS */
+function CelebrationOverlay() {
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 0.5}s`,
+    duration: `${1 + Math.random() * 1.5}s`,
+    size: `${4 + Math.random() * 6}px`,
+    color: ['hsl(var(--accent))', 'hsl(var(--success))', 'hsl(var(--primary))', 'hsl(158 55% 32%)'][
+      Math.floor(Math.random() * 4)
+    ],
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="absolute rounded-full animate-celebration"
+          style={{
+            left: p.left,
+            bottom: '-10px',
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+            animationDelay: p.delay,
+            animationDuration: p.duration,
+          }}
+        />
+      ))}
+    </div>
   );
 }
