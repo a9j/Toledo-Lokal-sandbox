@@ -30,19 +30,19 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
 
+    const jsonResponse = (body: object, status = 200) =>
+      new Response(JSON.stringify(body), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status,
+      });
+
     const freeResponse = () =>
-      new Response(
-        JSON.stringify({
-          subscribed: false,
-          tier: "free",
-          product_id: null,
-          subscription_end: null,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
+      jsonResponse({
+        subscribed: false,
+        tier: "free",
+        product_id: null,
+        subscription_end: null,
+      });
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -62,7 +62,6 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     
-    // Handle expired or invalid JWTs gracefully - return free tier instead of error
     let claimsData;
     try {
       const { data, error: claimsError } = await supabaseAuth.auth.getClaims(token);
@@ -72,9 +71,8 @@ serve(async (req) => {
       }
       claimsData = data;
     } catch (authError) {
-      // JWT expired or malformed - this is expected, return free tier gracefully
       const errorMsg = authError instanceof Error ? authError.message : String(authError);
-      logStep("JWT validation failed (likely expired), returning free tier", { error: errorMsg });
+      logStep("JWT validation failed, returning free tier", { error: errorMsg });
       return freeResponse();
     }
 
@@ -87,7 +85,30 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId, email });
 
-    // Check if user is an early adopter (first 6 businesses get free Anchor Partner)
+    // 1. Check business tier_status directly (handles founding_5, founding_50, admin-assigned tiers)
+    const { data: business } = await supabaseAdmin
+      .from("businesses")
+      .select("tier_status, tier_badge_visible")
+      .eq("owner_user_id", userId)
+      .maybeSingle();
+
+    if (business) {
+      const dbTier = business.tier_status;
+      // Founding tiers and admin-assigned pro/growth are authoritative from the DB
+      if (dbTier === 'founding_5' || dbTier === 'founding_50') {
+        logStep("Founding tier from DB", { tier: dbTier });
+        return jsonResponse({
+          subscribed: true,
+          tier: dbTier === 'founding_5' ? 'pro' : 'growth', // Map to subscription tier for feature access
+          product_id: dbTier,
+          subscription_end: null,
+          founding_tier: dbTier,
+          is_founding: true,
+        });
+      }
+    }
+
+    // 2. Check early adopter table (legacy)
     const { data: earlyAdopter } = await supabaseAdmin
       .from("early_adopters")
       .select("tier")
@@ -96,32 +117,22 @@ serve(async (req) => {
 
     if (earlyAdopter) {
       logStep("User is early adopter", { tier: earlyAdopter.tier });
-      return new Response(JSON.stringify({
+      return jsonResponse({
         subscribed: true,
         tier: earlyAdopter.tier,
         product_id: 'early_adopter',
         subscription_end: null,
-        is_early_adopter: true
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        is_early_adopter: true,
       });
     }
 
+    // 3. Check Stripe subscription
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: email, limit: 1 });
 
     if (customers.data.length === 0) {
       logStep("No customer found, returning free tier");
-      return new Response(JSON.stringify({ 
-        subscribed: false, 
-        tier: 'free',
-        product_id: null,
-        subscription_end: null 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return freeResponse();
     }
 
     const customerId = customers.data[0].id;
@@ -143,7 +154,6 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       productId = subscription.items.data[0].price.product as string;
       
-      // Map product IDs to tiers
       const tierMap: Record<string, string> = {
         'prod_TkuOJkqlruAjiG': 'growth',
         'prod_TkuOGiyIs7qK5U': 'pro',
@@ -155,14 +165,11 @@ serve(async (req) => {
       logStep("No active subscription found");
     }
 
-    return new Response(JSON.stringify({
+    return jsonResponse({
       subscribed: hasActiveSub,
       tier,
       product_id: productId,
-      subscription_end: subscriptionEnd
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
+      subscription_end: subscriptionEnd,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
