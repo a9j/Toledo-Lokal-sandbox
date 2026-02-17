@@ -27,8 +27,6 @@ export interface TierConfig {
     pulsePromoAllowed: boolean;
     // Offers/rewards
     maxActiveOffers: number;
-    maxActiveBursts: number;
-    maxMultiplier: number;
   };
   // Loop Lokal integration
   loopTierId: LoopTierId | null;
@@ -67,8 +65,6 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 0,
       pulsePromoAllowed: false,
       maxActiveOffers: 1,
-      maxActiveBursts: 1,
-      maxMultiplier: 2,
     },
     loopTierId: 'community',
     loopFeatures: [
@@ -110,15 +106,12 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 1,
       pulsePromoAllowed: true,
       maxActiveOffers: 4,
-      maxActiveBursts: 3,
-      maxMultiplier: 3,
     },
     loopTierId: 'growth',
     loopFeatures: [
       '7,500 LP/month',
       'All participation modes',
-      'Up to 3 active bursts',
-      'Multipliers up to 3x',
+      'Custom Loop Challenges',
     ],
     tierStatus: 'growth',
   },
@@ -155,15 +148,11 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePinnedPerDay: 3,
       pulsePromoAllowed: true,
       maxActiveOffers: -1,
-      maxActiveBursts: 5,
-      maxMultiplier: 5,
     },
     loopTierId: 'pro',
     loopFeatures: [
       '25,000 LP/month',
       'All participation modes',
-      'Up to 5 active bursts',
-      'Multipliers up to 5x',
       'Sponsored missions',
     ],
     tierStatus: 'pro',
@@ -176,8 +165,6 @@ export const FOUNDING_TIERS = {
     name: 'Founding 5',
     lpMonthly: 30000,
     maxActiveOffers: -1,
-    maxActiveBursts: -1,
-    maxMultiplier: 10,
     subscriptionPrice: 0,
   },
   founding_50: {
@@ -185,8 +172,6 @@ export const FOUNDING_TIERS = {
     lpMonthlyLaunch: 15000,
     discountPercentage: 50,
     maxActiveOffers: 4,
-    maxActiveBursts: 3,
-    maxMultiplier: 5,
     subscriptionPrice: 0,
   },
 } as const;

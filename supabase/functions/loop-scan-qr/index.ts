@@ -55,67 +55,6 @@ Deno.serve(async (req) => {
   }
 });
 
-// ─── Burst helper: find the most generous active burst ───
-async function findBestBurst(
-  supabase: any,
-  businessId: string,
-  basePoints: number,
-  isFirstVisit: boolean
-): Promise<{ burstId: string | null; totalPoints: number; bonusPoints: number; burstName: string | null }> {
-  const now = new Date().toISOString();
-
-  const { data: bursts } = await supabase
-    .from('loop_bursts')
-    .select('*')
-    .eq('business_id', businessId)
-    .eq('is_active', true)
-    .lte('starts_at', now)
-    .gte('ends_at', now);
-
-  if (!bursts || bursts.length === 0) {
-    return { burstId: null, totalPoints: basePoints, bonusPoints: 0, burstName: null };
-  }
-
-  let best: { id: string; total: number; bonus: number; name: string } | null = null;
-
-  for (const burst of bursts) {
-    // Check max redemptions
-    if (burst.max_redemptions && burst.total_redemptions >= burst.max_redemptions) continue;
-    // first_visit only applies to first-time visitors
-    if (burst.burst_type === 'first_visit' && !isFirstVisit) continue;
-
-    let total = basePoints;
-    if (burst.burst_type === 'multiplier') {
-      total = Math.round(basePoints * Number(burst.multiplier));
-    } else {
-      total = basePoints + (burst.bonus_points || 0);
-    }
-
-    if (!best || total > best.total) {
-      best = { id: burst.id, total, bonus: total - basePoints, name: burst.name };
-    }
-  }
-
-  if (!best) return { burstId: null, totalPoints: basePoints, bonusPoints: 0, burstName: null };
-  return { burstId: best.id, totalPoints: best.total, bonusPoints: best.bonus, burstName: best.name };
-}
-
-// Increment burst total_redemptions
-async function incrementBurstRedemptions(supabase: any, burstId: string) {
-  const { data: burst } = await supabase
-    .from('loop_bursts')
-    .select('total_redemptions')
-    .eq('id', burstId)
-    .single();
-
-  if (burst) {
-    await supabase
-      .from('loop_bursts')
-      .update({ total_redemptions: (burst.total_redemptions || 0) + 1 })
-      .eq('id', burstId);
-  }
-}
-
 const PAUSED_MSG = 'Loop rewards are paused at this location — check back soon!';
 
 async function handleScan(supabase: any, qrCodeId: string, userId: string) {
@@ -200,11 +139,9 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     });
   }
 
-  // 9. Find best active burst (no stacking — most generous wins)
-  const burstResult = await findBestBurst(supabase, qrCode.business_id, qrCode.points_value, isFirstVisit);
-  const effectivePoints = burstResult.totalPoints;
+  const effectivePoints = qrCode.points_value;
 
-  // 10. Monthly cap check (using effective points)
+  // 9. Monthly cap check
   const { data: tierData } = await supabase
     .from('loop_tiers')
     .select('points_cap_monthly')
@@ -218,7 +155,7 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     });
   }
 
-  // 11. Get or create wallet
+  // 10. Get or create wallet
   let { data: wallet, error: walletError } = await supabase
     .from('loop_wallets')
     .select('*')
@@ -240,7 +177,7 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     wallet = newWallet;
   }
 
-  // 12. Create scan record
+  // 11. Create scan record
   const scanStatus = qrCode.requires_staff_confirm ? 'pending_confirmation' : 'completed';
   const { data: scan, error: scanError } = await supabase
     .from('loop_qr_scans')
@@ -254,12 +191,8 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     });
   }
 
-  // 13. If no staff confirmation needed, issue points immediately
+  // 12. If no staff confirmation needed, issue points immediately
   if (!qrCode.requires_staff_confirm) {
-    const burstDescription = burstResult.burstName
-      ? ` (${burstResult.burstName}: +${burstResult.bonusPoints} bonus)`
-      : '';
-
     const { data: transaction, error: txError } = await supabase
       .from('loop_transactions')
       .insert({
@@ -268,38 +201,28 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
         points: effectivePoints,
         business_id: qrCode.business_id,
         qr_code_id: qrCodeId,
-        description: `Earned from ${qrCode.name} at ${qrCode.business?.name}${burstDescription}`,
-        metadata: burstResult.burstId ? { burst_id: burstResult.burstId, base_points: qrCode.points_value, bonus_points: burstResult.bonusPoints } : null,
+        description: `Earned from ${qrCode.name} at ${qrCode.business?.name}`,
       })
       .select()
       .single();
 
     if (!txError && transaction) {
-      // Update wallet
       await supabase.from('loop_wallets').update({
         points_balance: wallet.points_balance + effectivePoints,
         lifetime_earned: wallet.lifetime_earned + effectivePoints,
       }).eq('id', wallet.id);
 
-      // Update business monthly issued
       await supabase.from('business_loop_settings').update({
         points_issued_this_month: (businessSettings.points_issued_this_month || 0) + effectivePoints,
       }).eq('id', businessSettings.id);
 
-      // Update QR scans
       await supabase.from('loop_qr_codes').update({
         total_scans: (qrCode.total_scans || 0) + 1,
       }).eq('id', qrCodeId);
 
-      // Link transaction to scan
       await supabase.from('loop_qr_scans').update({
         transaction_id: transaction.id, status: 'completed',
       }).eq('id', scan.id);
-
-      // Increment burst redemptions
-      if (burstResult.burstId) {
-        await incrementBurstRedemptions(supabase, burstResult.burstId);
-      }
     }
   }
 
@@ -310,8 +233,6 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
       status: scanStatus,
       points: effectivePoints,
       basePoints: qrCode.points_value,
-      bonusPoints: burstResult.bonusPoints,
-      burstName: burstResult.burstName,
       requiresConfirmation: qrCode.requires_staff_confirm,
       business: qrCode.business,
       qrName: qrCode.name,
@@ -372,30 +293,16 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
     });
   }
 
-  // 5. Check for previous scans to determine first visit
-  const { data: prevScans } = await supabase
-    .from('loop_qr_scans')
-    .select('id')
-    .eq('qr_code_id', scan.qr_code_id)
-    .eq('user_id', scan.user_id)
-    .neq('id', scanId)
-    .limit(1);
+  const effectivePoints = scan.qr_code.points_value;
 
-  const isFirstVisit = !prevScans || prevScans.length === 0;
-
-  // 6. Find best burst
-  const burstResult = await findBestBurst(supabase, scan.qr_code.business_id, scan.qr_code.points_value, isFirstVisit);
-  const effectivePoints = burstResult.totalPoints;
-
-  // 7. Business settings
+  // 5. Business settings
   const { data: businessSettings } = await supabase
     .from('business_loop_settings')
     .select('*')
     .eq('business_id', scan.qr_code.business_id)
     .single();
 
-  // 8. Create transaction
-  const burstDescription = burstResult.burstName ? ` (${burstResult.burstName}: +${burstResult.bonusPoints} bonus)` : '';
+  // 6. Create transaction
   const { data: transaction, error: txError } = await supabase
     .from('loop_transactions')
     .insert({
@@ -404,8 +311,7 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
       points: effectivePoints,
       business_id: scan.qr_code.business_id,
       qr_code_id: scan.qr_code.id,
-      description: `Earned from ${scan.qr_code.name} at ${scan.qr_code.business?.name}${burstDescription}`,
-      metadata: burstResult.burstId ? { burst_id: burstResult.burstId, base_points: scan.qr_code.points_value, bonus_points: burstResult.bonusPoints } : null,
+      description: `Earned from ${scan.qr_code.name} at ${scan.qr_code.business?.name}`,
     })
     .select()
     .single();
@@ -416,43 +322,35 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
     });
   }
 
-  // 9. Update wallet
+  // 7. Update wallet
   await supabase.from('loop_wallets').update({
     points_balance: wallet.points_balance + effectivePoints,
     lifetime_earned: wallet.lifetime_earned + effectivePoints,
   }).eq('id', wallet.id);
 
-  // 10. Update business monthly cap
+  // 8. Update business monthly cap
   if (businessSettings) {
     await supabase.from('business_loop_settings').update({
       points_issued_this_month: (businessSettings.points_issued_this_month || 0) + effectivePoints,
     }).eq('id', businessSettings.id);
   }
 
-  // 11. Update QR stats
+  // 9. Update QR stats
   await supabase.from('loop_qr_codes').update({
     total_scans: (scan.qr_code.total_scans || 0) + 1,
   }).eq('id', scan.qr_code.id);
 
-  // 12. Update scan record
+  // 10. Update scan record
   await supabase.from('loop_qr_scans').update({
     transaction_id: transaction.id,
     status: 'completed',
     staff_confirmed_at: new Date().toISOString(),
   }).eq('id', scanId);
 
-  // 13. Increment burst
-  if (burstResult.burstId) {
-    await incrementBurstRedemptions(supabase, burstResult.burstId);
-  }
-
   return new Response(JSON.stringify({
     success: true,
     message: `${effectivePoints} points issued successfully`,
     points: effectivePoints,
-    basePoints: scan.qr_code.points_value,
-    bonusPoints: burstResult.bonusPoints,
-    burstName: burstResult.burstName,
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
