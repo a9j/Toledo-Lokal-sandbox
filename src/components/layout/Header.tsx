@@ -1,4 +1,5 @@
-import { Search, Bell, ArrowLeft, Sparkles, UserCircle, LogIn } from 'lucide-react';
+import { Search, Bell, ArrowLeft, UserCircle, LogIn } from 'lucide-react';
+import logoImage from '@/assets/tl-logo.png';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -34,13 +35,13 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
           {showBack && title ? (
             <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
+            <div className="flex items-center gap-0">
+              <img src={logoImage} alt="ToledoLokal" className="w-[100px] h-[100px] rounded-2xl object-contain" />
+              <div className="-ml-3">
+                <h1 className="text-lg font-bold tracking-tight">
+                  Toledo<span className="text-primary">Lokal</span>
+                </h1>
               </div>
-              <h1 className="text-lg font-bold tracking-tight">
-                Toledo<span className="text-primary">Lokal</span>
-              </h1>
             </div>
           )}
         </div>

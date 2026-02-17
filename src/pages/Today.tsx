@@ -86,7 +86,7 @@ export default function Today() {
         <header className="flex items-center justify-between py-5">
           <div className="flex items-center gap-0">
             <img src={logoImage} alt="ToledoLokal" className="w-[100px] h-[100px] rounded-2xl object-contain" />
-            <div className="-ml-2">
+            <div className="-ml-3">
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 Toledo<span className="text-primary">Lokal</span>
               </h1>
