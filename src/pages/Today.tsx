@@ -85,14 +85,7 @@ export default function Today() {
         {/* Premium Brand Header */}
         <header className="flex items-center justify-between py-5">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-lokal-amber border-2 border-background flex items-center justify-center">
-                <span className="text-[8px] font-bold text-foreground">✦</span>
-              </div>
-            </div>
+            <img src={logoImage} alt="ToledoLokal" className="w-11 h-11 rounded-2xl object-contain" />
             <div>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 Toledo<span className="text-primary">Lokal</span>
