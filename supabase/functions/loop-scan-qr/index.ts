@@ -5,6 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function isValidUUID(value: unknown): value is string {
+  return typeof value === 'string' && UUID_REGEX.test(value);
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -34,17 +39,35 @@ Deno.serve(async (req) => {
     }
 
     const { qrCodeId, action, scanId } = await req.json();
-    console.log(`Processing QR action: ${action} for QR: ${qrCodeId}, user: ${user.id}`);
 
-    if (action === 'scan') {
-      return await handleScan(supabase, qrCodeId, user.id);
-    } else if (action === 'confirm') {
-      return await handleStaffConfirm(supabase, scanId, user.id);
-    } else {
+    // Validate action
+    if (action !== 'scan' && action !== 'confirm') {
       return new Response(JSON.stringify({ error: 'Invalid action' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Validate required IDs are valid UUIDs
+    if (action === 'scan' && !isValidUUID(qrCodeId)) {
+      return new Response(JSON.stringify({ error: 'Invalid QR code ID' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    if (action === 'confirm' && !isValidUUID(scanId)) {
+      return new Response(JSON.stringify({ error: 'Invalid scan ID' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`Processing QR action: ${action} for QR: ${qrCodeId}, user: ${user.id}`);
+
+    if (action === 'scan') {
+      return await handleScan(supabase, qrCodeId, user.id);
+    } else {
+      return await handleStaffConfirm(supabase, scanId, user.id);
     }
   } catch (error) {
     console.error('Error processing QR scan:', error);

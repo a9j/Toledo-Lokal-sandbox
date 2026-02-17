@@ -46,9 +46,24 @@ serve(async (req) => {
     // Parse request body
     const { filePath, expiresIn = 3600 } = await req.json();
 
-    if (!filePath) {
-      console.error("Missing filePath parameter");
+    if (!filePath || typeof filePath !== 'string') {
       return new Response(JSON.stringify({ error: "filePath is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate expiresIn is a reasonable number
+    if (typeof expiresIn !== 'number' || !Number.isFinite(expiresIn)) {
+      return new Response(JSON.stringify({ error: "Invalid expiresIn value" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate file path length to prevent abuse
+    if (filePath.length > 500) {
+      return new Response(JSON.stringify({ error: "Invalid file path" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
