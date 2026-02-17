@@ -175,7 +175,7 @@ export default function Auth() {
           />
           <h1 className="text-2xl font-bold tracking-tight">ToledoLokal</h1>
           <p className="text-muted-foreground text-sm">
-            {isSignUp ? 'Create your free account — resident or business' : 'Welcome back'}
+            {isSignUp ? 'Sign up with your business email for faster approval' : 'Welcome back'}
           </p>
         </div>
 

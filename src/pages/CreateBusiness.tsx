@@ -19,7 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Crown, Instagram } from 'lucide-react';
+import { ArrowLeft, Crown, Instagram, AlertTriangle } from 'lucide-react';
+import { isFreeEmailProvider } from '@/lib/email-utils';
 
 export default function CreateBusiness() {
   const { user } = useAuth();
@@ -147,6 +148,9 @@ export default function CreateBusiness() {
     });
   };
 
+  const userEmail = user?.email || '';
+  const hasFreeEmail = isFreeEmailProvider(userEmail);
+
   if (!user) {
     navigate('/auth');
     return null;
@@ -166,6 +170,20 @@ export default function CreateBusiness() {
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
+
+        {hasFreeEmail && (
+          <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 mb-4">
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                You're signed up with a personal email ({userEmail})
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                Business listings from personal email accounts require admin approval before going live. For faster approval, sign up with your business email.
+              </p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">

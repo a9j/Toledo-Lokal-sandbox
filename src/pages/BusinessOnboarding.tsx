@@ -30,7 +30,9 @@ import {
   PartyPopper,
   Instagram,
   Copy,
+  AlertTriangle,
 } from 'lucide-react';
+import { isFreeEmailProvider } from '@/lib/email-utils';
 
 interface OnboardingData {
   name: string;
@@ -281,6 +283,20 @@ export default function BusinessOnboarding() {
               <h1 className="text-2xl font-bold mb-1">Welcome to Toledo Lokal!</h1>
               <p className="text-muted-foreground text-sm">Let's get your business set up. This takes about 5 minutes. You can always update everything later.</p>
             </div>
+
+            {user?.email && isFreeEmailProvider(user.email) && (
+              <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700">
+                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    You're using a personal email ({user.email})
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                    Business listings from personal email accounts require admin approval before going live. For faster approval, use a business email.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div className="space-y-2">
