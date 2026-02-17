@@ -16,7 +16,8 @@ import { useNavigate } from 'react-router-dom';
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
-import { MapPin, QrCode, Compass, Sparkles, ChevronRight } from 'lucide-react';
+import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
 
 export default function Today() {
@@ -108,6 +109,25 @@ export default function Today() {
             >
               <QrCode className="h-4.5 w-4.5 text-muted-foreground" />
             </Link>
+            {user ? (
+              <Link 
+                to="/profile"
+                className="w-10 h-10 rounded-xl bg-card border border-border/40 flex items-center justify-center hover:bg-muted/50 hover:border-border transition-all duration-200 shadow-sm"
+              >
+                <UserCircle className="h-4.5 w-4.5 text-muted-foreground" />
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="text-xs rounded-xl h-10 px-3 gap-1.5"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </header>
 
