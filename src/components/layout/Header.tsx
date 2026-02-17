@@ -1,4 +1,4 @@
-import { Search, Bell, ArrowLeft, Sparkles } from 'lucide-react';
+import { Search, Bell, ArrowLeft, Sparkles, UserCircle, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -87,6 +87,29 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
                 className="text-xs rounded-xl h-8 px-3 border-border/60 hover:bg-muted"
               >
                 Dashboard
+              </Button>
+            </Link>
+          )}
+
+          {user ? (
+            <Link to="/profile">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-9 w-9 rounded-xl hover:bg-muted"
+              >
+                <UserCircle className="h-5 w-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="text-xs rounded-xl h-8 px-3 gap-1.5"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                Sign In
               </Button>
             </Link>
           )}
