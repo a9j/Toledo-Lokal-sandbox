@@ -76,12 +76,19 @@ export default function Dashboard() {
     refetchInterval: 30000,
   });
 
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && user && !business) {
+      navigate('/create-business');
+    }
+  }, [isLoading, user, business, navigate]);
+
+  if (!user || isLoading || !business) {
     return (
       <>
         <Header title="Dashboard" />
@@ -90,11 +97,6 @@ export default function Dashboard() {
         </PageContainer>
       </>
     );
-  }
-
-  if (!business) {
-    navigate('/create-business');
-    return null;
   }
 
   const newLeadsCount = business.leads?.filter(l => l.status === 'new').length || 0;
