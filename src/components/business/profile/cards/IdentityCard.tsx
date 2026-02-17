@@ -191,9 +191,6 @@ export function IdentityCard({
               <Button onClick={onVisit} className="flex-1">
                 Visit
               </Button>
-              <Button onClick={onSupport} variant="secondary" className="flex-1">
-                {isNonprofit ? 'Donate' : 'Support'}
-              </Button>
               <Button 
                 onClick={onSave} 
                 variant={isSaved ? "default" : "outline"} 
