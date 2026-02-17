@@ -3376,6 +3376,7 @@ export type Database = {
           neighborhood_id: string | null
           onboarding_completed: boolean | null
           onboarding_step: number | null
+          owner_user_id: string | null
           phone: string | null
           photos: string[] | null
           profile_picture_url: string | null
@@ -3409,6 +3410,7 @@ export type Database = {
           neighborhood_id?: string | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
+          owner_user_id?: string | null
           phone?: never
           photos?: string[] | null
           profile_picture_url?: string | null
@@ -3442,6 +3444,7 @@ export type Database = {
           neighborhood_id?: string | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
+          owner_user_id?: string | null
           phone?: never
           photos?: string[] | null
           profile_picture_url?: string | null

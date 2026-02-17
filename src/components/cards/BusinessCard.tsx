@@ -3,6 +3,7 @@ import { MapPin, CheckCircle, Infinity, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SecureImage } from '@/components/ui/secure-image';
 import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
+import { TierBadge } from '@/components/business/TierBadge';
 import * as LucideIcons from 'lucide-react';
 
 interface BusinessCardProps {
@@ -16,6 +17,8 @@ interface BusinessCardProps {
     logo_url?: string | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
+    tier_status?: string | null;
+    tier_badge_visible?: boolean | null;
   };
   savedCount?: number;
 }
@@ -57,6 +60,9 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
               <h3 className="font-semibold text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors">
                 {business.name}
               </h3>
+              {business.tier_status && business.tier_status !== 'general' && business.tier_badge_visible && (
+                <TierBadge tier={business.tier_status as any} size="sm" />
+              )}
             </div>
             
             {business.category && (

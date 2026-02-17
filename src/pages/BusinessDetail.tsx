@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { ArrowLeft } from 'lucide-react';
+import { TierBadge, TierLabel } from '@/components/business/TierBadge';
 
 // Flip Profile Components
 import { FlipProfileContainer } from '@/components/business/profile/FlipProfileContainer';
@@ -49,6 +50,11 @@ const PUBLIC_BUSINESS_COLUMNS = `
   editor_pick_image,
   story,
   status,
+  tier_status,
+  tier_badge_visible,
+  tier_assigned_at,
+  profile_picture_url,
+  cover_image_url,
   created_at,
   updated_at
 `;
@@ -98,7 +104,10 @@ export default function BusinessDetail() {
         isInLoop: data.business_loop_settings?.is_active && 
           ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
         isFoundingMember: data.business_loop_settings?.is_founding_member,
-        loopTierId: data.business_loop_settings?.loop_tier_id
+        loopTierId: data.business_loop_settings?.loop_tier_id,
+        tierStatus: data.tier_status,
+        tierBadgeVisible: data.tier_badge_visible,
+        tierAssignedAt: data.tier_assigned_at,
       };
     },
     enabled: !!id,
@@ -229,6 +238,9 @@ export default function BusinessDetail() {
             isFoodTruck={business.isFoodTruck}
             isNonprofit={business.isNonprofit}
             isFoundingMember={business.isFoundingMember}
+            tierStatus={business.tierStatus}
+            tierBadgeVisible={business.tierBadgeVisible}
+            tierAssignedAt={business.tierAssignedAt}
             isLocallyOwned={true}
             activeThisWeek={true}
             onVisit={handleVisit}

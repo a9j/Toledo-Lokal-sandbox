@@ -64,6 +64,8 @@ const BusinessGuide = lazy(() => import("./pages/BusinessGuide"));
 const Founding5Guide = lazy(() => import("./pages/Founding5Guide"));
 const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
 const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
+const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
+const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 
 // Lazy-load the chat widget since it's non-critical
 const AskToledoChat = lazy(() =>
@@ -154,6 +156,8 @@ const App = () => (
                   <Route path="/founding-5-guide" element={<Founding5Guide />} />
                   <Route path="/connector/:slug" element={<ConnectorProfile />} />
                   <Route path="/connector-dashboard" element={<ConnectorDashboard />} />
+                  <Route path="/business-onboarding" element={<BusinessOnboarding />} />
+                  <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
