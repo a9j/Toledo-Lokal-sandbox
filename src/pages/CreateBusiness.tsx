@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +32,20 @@ export default function CreateBusiness() {
   const [searchParams] = useSearchParams();
   const refCode = searchParams.get('ref');
 
+  // Controlled form state
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [neighborhoodId, setNeighborhoodId] = useState('');
+  const [phone, setPhone] = useState('');
+  const [website, setWebsite] = useState('');
+  const [address, setAddress] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
+  const [tiktok, setTiktok] = useState('');
+  const [facebook, setFacebook] = useState('');
+  const [referralSource, setReferralSource] = useState('');
+  const [connectorId, setConnectorId] = useState('');
+
   // Look up connector from referral code
   const { data: referralConnector } = useQuery({
     queryKey: ['referral-connector', refCode],
@@ -55,7 +69,6 @@ export default function CreateBusiness() {
         .from('connectors')
         .select('id, referral_code, user_id');
       if (error) return [];
-      // Get names
       const userIds = data.map(c => c.user_id);
       const { data: profiles } = await supabase
         .from('profiles')
@@ -85,13 +98,13 @@ export default function CreateBusiness() {
     }) => {
       if (!user) throw new Error('Must be logged in');
 
-      const connectorId = formData.connected_by_connector_id || referralConnector?.id || undefined;
+      const finalConnectorId = formData.connected_by_connector_id || referralConnector?.id || undefined;
       
       const { data: biz, error } = await supabase.from('businesses').insert({
         ...formData,
         owner_user_id: user.id,
         status: 'pending',
-        connected_by_connector_id: connectorId || null,
+        connected_by_connector_id: finalConnectorId || null,
         referral_source: formData.referral_source || (refCode ? 'referral_link' : null),
       }).select('id').single();
       
@@ -104,9 +117,9 @@ export default function CreateBusiness() {
       });
 
       // Create connector referral record if connected
-      if (connectorId && biz) {
+      if (finalConnectorId && biz) {
         await supabase.from('connector_referrals').insert({
-          connector_id: connectorId,
+          connector_id: finalConnectorId,
           business_id: biz.id,
         });
       }
@@ -119,7 +132,8 @@ export default function CreateBusiness() {
       });
       navigate('/profile');
     },
-    onError: () => {
+    onError: (err) => {
+      console.error('Create business error:', err);
       toast({ 
         variant: 'destructive', 
         title: 'Error', 
@@ -130,21 +144,29 @@ export default function CreateBusiness() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
     
+    if (!name.trim() || !description.trim() || !categoryId || !neighborhoodId) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing fields',
+        description: 'Please fill in all required fields.',
+      });
+      return;
+    }
+
     createBusiness.mutate({
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      category_id: formData.get('category_id') as string,
-      neighborhood_id: formData.get('neighborhood_id') as string,
-      phone: formData.get('phone') as string || undefined,
-      website: formData.get('website') as string || undefined,
-      instagram: formData.get('instagram') as string || undefined,
-      address: formData.get('address') as string || undefined,
-      referral_source: formData.get('referral_source') as string || undefined,
-      connected_by_connector_id: formData.get('connector_id') as string || undefined,
-      tiktok: formData.get('tiktok') as string || undefined,
-      facebook: formData.get('facebook') as string || undefined,
+      name: name.trim(),
+      description: description.trim(),
+      category_id: categoryId,
+      neighborhood_id: neighborhoodId,
+      phone: phone || undefined,
+      website: website || undefined,
+      instagram: instagramHandle || undefined,
+      address: address || undefined,
+      referral_source: referralSource || undefined,
+      connected_by_connector_id: connectorId || undefined,
+      tiktok: tiktok || undefined,
+      facebook: facebook || undefined,
     });
   };
 
@@ -190,17 +212,18 @@ export default function CreateBusiness() {
             <Label htmlFor="name">Business Name *</Label>
             <Input 
               id="name" 
-              name="name" 
               placeholder="Your business name"
               required 
               maxLength={200}
+              value={name}
+              onChange={e => setName(e.target.value)}
             />
           </div>
           
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Category *</Label>
-              <Select name="category_id" required>
+              <Select value={categoryId} onValueChange={setCategoryId} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -216,7 +239,7 @@ export default function CreateBusiness() {
             
             <div className="space-y-2">
               <Label>Neighborhood *</Label>
-              <Select name="neighborhood_id" required>
+              <Select value={neighborhoodId} onValueChange={setNeighborhoodId} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -235,11 +258,12 @@ export default function CreateBusiness() {
             <Label htmlFor="description">Description *</Label>
             <Textarea 
               id="description" 
-              name="description" 
               placeholder="Tell people about your business..."
               rows={4}
               required
               maxLength={5000}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
             />
           </div>
           
@@ -247,9 +271,10 @@ export default function CreateBusiness() {
             <Label htmlFor="address">Address</Label>
             <Input 
               id="address" 
-              name="address" 
               placeholder="123 Main St, Toledo, OH"
               maxLength={500}
+              value={address}
+              onChange={e => setAddress(e.target.value)}
             />
           </div>
           
@@ -257,10 +282,11 @@ export default function CreateBusiness() {
             <Label htmlFor="phone">Phone</Label>
             <Input 
               id="phone" 
-              name="phone" 
               type="tel"
               placeholder="(419) 555-0123"
               maxLength={50}
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
             />
           </div>
           
@@ -268,10 +294,11 @@ export default function CreateBusiness() {
             <Label htmlFor="website">Website</Label>
             <Input 
               id="website" 
-              name="website" 
               type="url"
               placeholder="https://yourbusiness.com"
               maxLength={500}
+              value={website}
+              onChange={e => setWebsite(e.target.value)}
             />
           </div>
           
@@ -286,9 +313,10 @@ export default function CreateBusiness() {
               </Label>
               <Input 
                 id="instagram" 
-                name="instagram" 
                 placeholder="@yourbusiness"
                 maxLength={100}
+                value={instagramHandle}
+                onChange={e => setInstagramHandle(e.target.value)}
               />
             </div>
 
@@ -301,9 +329,10 @@ export default function CreateBusiness() {
               </Label>
               <Input 
                 id="tiktok" 
-                name="tiktok" 
                 placeholder="@yourbusiness"
                 maxLength={100}
+                value={tiktok}
+                onChange={e => setTiktok(e.target.value)}
               />
             </div>
 
@@ -316,9 +345,10 @@ export default function CreateBusiness() {
               </Label>
               <Input 
                 id="facebook" 
-                name="facebook" 
                 placeholder="YourBusinessPage"
                 maxLength={100}
+                value={facebook}
+                onChange={e => setFacebook(e.target.value)}
               />
             </div>
           </div>
@@ -326,7 +356,7 @@ export default function CreateBusiness() {
           {/* How did you hear about us */}
           <div className="space-y-2">
             <Label>How did you hear about Toledo Lokal?</Label>
-            <Select name="referral_source">
+            <Select value={referralSource} onValueChange={setReferralSource}>
               <SelectTrigger>
                 <SelectValue placeholder="Select (optional)" />
               </SelectTrigger>
@@ -351,10 +381,9 @@ export default function CreateBusiness() {
                   <span className="text-sm text-amber-700">
                     Referred by connector (code: {refCode})
                   </span>
-                  <input type="hidden" name="connector_id" value={referralConnector.id} />
                 </div>
               ) : (
-                <Select name="connector_id">
+                <Select value={connectorId} onValueChange={setConnectorId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select connector (optional)" />
                   </SelectTrigger>
