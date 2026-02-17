@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, Clock, Loader2, Sparkles, Heart, Zap } from 'lucide-react';
+import { Check, Clock, Loader2, Sparkles, Heart } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,6 @@ interface ScanResult {
   status: ScanStatus;
   points?: number;
   basePoints?: number;
-  burstBonus?: number;
-  burstName?: string;
   business?: { id: string; name: string; logo_url?: string };
   qrName?: string;
   message?: string;
@@ -62,8 +60,6 @@ export default function ScanQR() {
           status: scan.requiresConfirmation ? 'pending' : 'success',
           points: scan.points,
           basePoints: scan.basePoints,
-          burstBonus: scan.burstBonus,
-          burstName: scan.burstName,
           business: scan.business,
           qrName: scan.qrName,
           requiresConfirmation: scan.requiresConfirmation,
@@ -122,13 +118,7 @@ export default function ScanQR() {
                   +{result.points} Points!
                 </h2>
 
-                {/* Burst bonus callout */}
-                {result.burstBonus && result.burstBonus > 0 && (
-                  <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full text-sm font-medium mb-2 animate-fade-in">
-                    <Zap className="h-3.5 w-3.5" />
-                    Includes {result.burstName || 'Burst Bonus'}: +{result.burstBonus} pts
-                  </div>
-                )}
+
 
                 <p className="text-muted-foreground mb-4">
                   Thanks for visiting {result.business?.name}
@@ -152,12 +142,7 @@ export default function ScanQR() {
                   {result.points} bonus points at {result.business?.name}
                 </p>
 
-                {result.burstBonus && result.burstBonus > 0 && (
-                  <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full text-xs font-medium mb-2">
-                    <Zap className="h-3 w-3" />
-                    {result.burstName || 'Burst Bonus'} active!
-                  </div>
-                )}
+
 
                 <p className="text-sm text-muted-foreground mb-6">
                   Show this screen to complete your visit

@@ -152,12 +152,6 @@ export default function Dashboard() {
       subtitle: 'Set redemption options'
     },
     { 
-      icon: Zap, 
-      label: 'Point Bursts', 
-      href: '/dashboard/bursts',
-      subtitle: 'Scheduled point promotions'
-    },
-    { 
       icon: ClipboardCheck, 
       label: 'Pending Confirmations', 
       href: '/dashboard/pending-scans',

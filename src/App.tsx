@@ -66,7 +66,7 @@ const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
 const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
 const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
-const DashboardBursts = lazy(() => import("./pages/DashboardBursts"));
+
 
 // Lazy-load the chat widget since it's non-critical
 const AskToledoChat = lazy(() =>
@@ -135,7 +135,7 @@ const App = () => (
                   <Route path="/dashboard/events" element={<DashboardEvents />} />
                   <Route path="/dashboard/leads" element={<DashboardLeads />} />
                   <Route path="/dashboard/boost" element={<DashboardBoost />} />
-                  <Route path="/dashboard/bursts" element={<DashboardBursts />} />
+                  
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/tours" element={<Tours />} />
                   <Route path="/challenges" element={<Challenges />} />
