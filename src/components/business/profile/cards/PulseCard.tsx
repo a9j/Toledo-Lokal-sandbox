@@ -21,6 +21,7 @@ export function PulseCard({ businessId, businessName }: PulseCardProps) {
         .from('pulse_posts')
         .select('*')
         .eq('business_id', businessId)
+        .eq('author_type', 'business')
         .eq('status', 'active')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
@@ -65,7 +66,7 @@ export function PulseCard({ businessId, businessName }: PulseCardProps) {
     <FlipCard title="Business Pulse">
       <div className="flex flex-col h-full">
         {/* Community Activity Summary */}
-        {favoriteCount && favoriteCount > 0 && (
+        {favoriteCount != null && favoriteCount > 0 && (
           <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-primary/5 border border-primary/10">
             <Users className="h-4 w-4 text-primary" />
             <span className="text-sm text-muted-foreground">
