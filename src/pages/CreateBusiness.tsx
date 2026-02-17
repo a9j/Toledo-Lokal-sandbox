@@ -223,7 +223,7 @@ export default function CreateBusiness() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Category *</Label>
-              <Select value={categoryId} onValueChange={setCategoryId} required>
+              <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -239,7 +239,7 @@ export default function CreateBusiness() {
             
             <div className="space-y-2">
               <Label>Neighborhood *</Label>
-              <Select value={neighborhoodId} onValueChange={setNeighborhoodId} required>
+              <Select value={neighborhoodId} onValueChange={setNeighborhoodId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
