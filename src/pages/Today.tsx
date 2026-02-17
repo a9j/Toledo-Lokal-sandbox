@@ -9,6 +9,9 @@ import { EmptyDailyDrop } from '@/components/today/EmptyDailyDrop';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
@@ -18,24 +21,44 @@ import logoImage from '@/assets/tl-logo.png';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [showOnboarding, setShowOnboarding] = useState(() => {
-    // Check localStorage synchronously so first-time visitors see onboarding instantly
     return !localStorage.getItem('onboarding-completed');
   });
   const today = new Date();
   const { data: dailyDrop, isLoading } = useDailyDrop(today);
+
+  // Check if user needs role selection
+  const { data: profile } = useQuery({
+    queryKey: ['profile-role-check', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role_selected')
+        .eq('user_id', user!.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
 
   // Check if drop is from a previous day (stale)
   const isStale = dailyDrop && !dateFnsIsToday(parseISO(dailyDrop.drop_date));
 
   useEffect(() => {
     if (authLoading) return;
-    // Logged-in users skip onboarding
     if (user) {
       localStorage.setItem('onboarding-completed', 'true');
       setShowOnboarding(false);
     }
   }, [user, authLoading]);
+
+  // Redirect new users who haven't selected a role
+  useEffect(() => {
+    if (user && profile && profile.role_selected === false) {
+      navigate('/role-select', { replace: true });
+    }
+  }, [user, profile, navigate]);
 
   if (showOnboarding) {
     return (
