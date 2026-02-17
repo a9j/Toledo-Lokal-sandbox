@@ -106,6 +106,14 @@ export default function Profile() {
             {profile?.neighborhood && (
               <p className="text-sm text-muted-foreground">{profile.neighborhood.name}</p>
             )}
+            {userBusiness && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  <Building2 className="h-3 w-3" />
+                  Business Owner
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
