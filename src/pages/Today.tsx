@@ -85,7 +85,7 @@ export default function Today() {
         {/* Premium Brand Header */}
         <header className="flex items-center justify-between py-5">
           <div className="flex items-center gap-3">
-            <img src={logoImage} alt="ToledoLokal" className="w-11 h-11 rounded-2xl object-contain" />
+            <img src={logoImage} alt="ToledoLokal" className="w-14 h-14 rounded-2xl object-contain" />
             <div>
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 Toledo<span className="text-primary">Lokal</span>
