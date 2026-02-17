@@ -345,6 +345,7 @@ export type Database = {
           average_rating: number | null
           category_id: string | null
           connected_by_connector_id: string | null
+          cover_image_url: string | null
           created_at: string
           description: string | null
           editor_pick_image: string | null
@@ -356,14 +357,24 @@ export type Database = {
           logo_url: string | null
           name: string
           neighborhood_id: string | null
+          onboarding_completed: boolean
+          onboarding_completed_at: string | null
+          onboarding_step: number
           owner_user_id: string
           phone: string | null
           photos: string[] | null
+          profile_picture_url: string | null
           referral_source: string | null
           review_count: number | null
           slug: string | null
           status: string
           story: string | null
+          tier_assigned_at: string | null
+          tier_assigned_by: string | null
+          tier_badge_visible: boolean
+          tier_revoked_at: string | null
+          tier_revoked_by: string | null
+          tier_status: string
           tiktok: string | null
           updated_at: string
           verified: boolean | null
@@ -374,6 +385,7 @@ export type Database = {
           average_rating?: number | null
           category_id?: string | null
           connected_by_connector_id?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
@@ -385,14 +397,24 @@ export type Database = {
           logo_url?: string | null
           name: string
           neighborhood_id?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           owner_user_id: string
           phone?: string | null
           photos?: string[] | null
+          profile_picture_url?: string | null
           referral_source?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string
           story?: string | null
+          tier_assigned_at?: string | null
+          tier_assigned_by?: string | null
+          tier_badge_visible?: boolean
+          tier_revoked_at?: string | null
+          tier_revoked_by?: string | null
+          tier_status?: string
           tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
@@ -403,6 +425,7 @@ export type Database = {
           average_rating?: number | null
           category_id?: string | null
           connected_by_connector_id?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
           editor_pick_image?: string | null
@@ -414,14 +437,24 @@ export type Database = {
           logo_url?: string | null
           name?: string
           neighborhood_id?: string | null
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           owner_user_id?: string
           phone?: string | null
           photos?: string[] | null
+          profile_picture_url?: string | null
           referral_source?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string
           story?: string | null
+          tier_assigned_at?: string | null
+          tier_assigned_by?: string | null
+          tier_badge_visible?: boolean
+          tier_revoked_at?: string | null
+          tier_revoked_by?: string | null
+          tier_status?: string
           tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
@@ -3044,6 +3077,57 @@ export type Database = {
           },
         ]
       }
+      tier_change_log: {
+        Row: {
+          business_id: string
+          changed_by: string
+          created_at: string
+          id: string
+          new_badge_visible: boolean
+          new_tier: string
+          previous_badge_visible: boolean
+          previous_tier: string
+          reason: string | null
+        }
+        Insert: {
+          business_id: string
+          changed_by: string
+          created_at?: string
+          id?: string
+          new_badge_visible?: boolean
+          new_tier: string
+          previous_badge_visible?: boolean
+          previous_tier: string
+          reason?: string | null
+        }
+        Update: {
+          business_id?: string
+          changed_by?: string
+          created_at?: string
+          id?: string
+          new_badge_visible?: boolean
+          new_tier?: string
+          previous_badge_visible?: boolean
+          previous_tier?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tier_change_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tier_change_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tour_stops: {
         Row: {
           business_id: string | null
@@ -3278,6 +3362,7 @@ export type Database = {
           address: string | null
           average_rating: number | null
           category_id: string | null
+          cover_image_url: string | null
           created_at: string | null
           description: string | null
           editor_pick_image: string | null
@@ -3289,13 +3374,18 @@ export type Database = {
           logo_url: string | null
           name: string | null
           neighborhood_id: string | null
-          owner_user_id: string | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
           phone: string | null
           photos: string[] | null
+          profile_picture_url: string | null
           review_count: number | null
           slug: string | null
           status: string | null
           story: string | null
+          tier_assigned_at: string | null
+          tier_badge_visible: boolean | null
+          tier_status: string | null
           tiktok: string | null
           updated_at: string | null
           verified: boolean | null
@@ -3305,6 +3395,7 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           editor_pick_image?: string | null
@@ -3316,13 +3407,18 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: never
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           phone?: never
           photos?: string[] | null
+          profile_picture_url?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string | null
           story?: string | null
+          tier_assigned_at?: string | null
+          tier_badge_visible?: boolean | null
+          tier_status?: string | null
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
@@ -3332,6 +3428,7 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           editor_pick_image?: string | null
@@ -3343,13 +3440,18 @@ export type Database = {
           logo_url?: string | null
           name?: string | null
           neighborhood_id?: string | null
-          owner_user_id?: never
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           phone?: never
           photos?: string[] | null
+          profile_picture_url?: string | null
           review_count?: number | null
           slug?: string | null
           status?: string | null
           story?: string | null
+          tier_assigned_at?: string | null
+          tier_badge_visible?: boolean | null
+          tier_status?: string | null
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
