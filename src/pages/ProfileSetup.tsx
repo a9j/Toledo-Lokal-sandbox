@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import tlLogo from '@/assets/tl-logo.png';
 export default function ProfileSetup() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0); // 0: name, 1: neighborhood, 2: categories
   const [displayName, setDisplayName] = useState(user?.user_metadata?.name || '');
   const [neighborhoodId, setNeighborhoodId] = useState<string>('');
@@ -76,6 +77,9 @@ export default function ProfileSetup() {
 
       if (error) throw error;
 
+      // Invalidate profile cache so Today page sees profile_completed = true
+      queryClient.invalidateQueries({ queryKey: ['profile-role-check'] });
+
       toast.success('Profile set up! Welcome to ToledoLokal 🎉');
       navigate('/', { replace: true });
     } catch (error) {
@@ -91,6 +95,7 @@ export default function ProfileSetup() {
       .from('profiles')
       .update({ profile_completed: true })
       .eq('user_id', user.id);
+    queryClient.invalidateQueries({ queryKey: ['profile-role-check'] });
     navigate('/', { replace: true });
   };
 
