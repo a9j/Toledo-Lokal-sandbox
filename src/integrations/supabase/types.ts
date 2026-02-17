@@ -2568,9 +2568,11 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          favorite_categories: string[] | null
           id: string
           name: string | null
           neighborhood_id: string | null
+          profile_completed: boolean
           role_selected: boolean
           updated_at: string
           user_id: string
@@ -2578,9 +2580,11 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          favorite_categories?: string[] | null
           id?: string
           name?: string | null
           neighborhood_id?: string | null
+          profile_completed?: boolean
           role_selected?: boolean
           updated_at?: string
           user_id: string
@@ -2588,9 +2592,11 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          favorite_categories?: string[] | null
           id?: string
           name?: string | null
           neighborhood_id?: string | null
+          profile_completed?: boolean
           role_selected?: boolean
           updated_at?: string
           user_id?: string
@@ -3750,9 +3756,11 @@ export type Database = {
         Returns: {
           avatar_url: string | null
           created_at: string
+          favorite_categories: string[] | null
           id: string
           name: string | null
           neighborhood_id: string | null
+          profile_completed: boolean
           role_selected: boolean
           updated_at: string
           user_id: string

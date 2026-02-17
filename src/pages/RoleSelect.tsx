@@ -34,7 +34,7 @@ export default function RoleSelect() {
       } else if (selected === 'nonprofit') {
         navigate('/create-business?type=nonprofit', { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate('/profile-setup', { replace: true });
       }
     } catch (error) {
       console.error('Error saving role selection:', error);
