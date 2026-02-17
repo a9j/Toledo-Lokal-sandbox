@@ -121,7 +121,7 @@ export default function Auth() {
             title: 'Welcome to ToledoLokal!',
             description: 'Your account has been created.',
           });
-          navigate('/');
+          navigate('/role-select');
         }
       } else {
         const { error } = await signIn(email, password);
