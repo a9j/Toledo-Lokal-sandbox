@@ -188,15 +188,26 @@ export default function Dashboard() {
       <Header title="Dashboard" />
       
       <PageContainer className="space-y-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="-ml-2"
-          onClick={() => navigate('/profile')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Profile
-        </Button>
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="-ml-2"
+            onClick={() => navigate('/profile')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Profile
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate(`/business/${business.id}`)}
+          >
+            <Building2 className="h-4 w-4" />
+            View My Public Profile
+          </Button>
+        </div>
 
         {/* Business header */}
         <div className="card-elevated p-4">
