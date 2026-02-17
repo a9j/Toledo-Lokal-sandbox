@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,7 +15,6 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get auth token
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'No authorization header' }), {
@@ -25,12 +23,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verify JWT and get user
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
-      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -40,7 +36,6 @@ Deno.serve(async (req) => {
     const { qrCodeId, action, scanId } = await req.json();
     console.log(`Processing QR action: ${action} for QR: ${qrCodeId}, user: ${user.id}`);
 
-    // Handle different actions
     if (action === 'scan') {
       return await handleScan(supabase, qrCodeId, user.id);
     } else if (action === 'confirm') {
@@ -60,117 +55,139 @@ Deno.serve(async (req) => {
   }
 });
 
+// ─── Burst helper: find the most generous active burst ───
+async function findBestBurst(
+  supabase: any,
+  businessId: string,
+  basePoints: number,
+  isFirstVisit: boolean
+): Promise<{ burstId: string | null; totalPoints: number; bonusPoints: number; burstName: string | null }> {
+  const now = new Date().toISOString();
+
+  const { data: bursts } = await supabase
+    .from('loop_bursts')
+    .select('*')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+    .lte('starts_at', now)
+    .gte('ends_at', now);
+
+  if (!bursts || bursts.length === 0) {
+    return { burstId: null, totalPoints: basePoints, bonusPoints: 0, burstName: null };
+  }
+
+  let best: { id: string; total: number; bonus: number; name: string } | null = null;
+
+  for (const burst of bursts) {
+    // Check max redemptions
+    if (burst.max_redemptions && burst.total_redemptions >= burst.max_redemptions) continue;
+    // first_visit only applies to first-time visitors
+    if (burst.burst_type === 'first_visit' && !isFirstVisit) continue;
+
+    let total = basePoints;
+    if (burst.burst_type === 'multiplier') {
+      total = Math.round(basePoints * Number(burst.multiplier));
+    } else {
+      total = basePoints + (burst.bonus_points || 0);
+    }
+
+    if (!best || total > best.total) {
+      best = { id: burst.id, total, bonus: total - basePoints, name: burst.name };
+    }
+  }
+
+  if (!best) return { burstId: null, totalPoints: basePoints, bonusPoints: 0, burstName: null };
+  return { burstId: best.id, totalPoints: best.total, bonusPoints: best.bonus, burstName: best.name };
+}
+
+// Increment burst total_redemptions
+async function incrementBurstRedemptions(supabase: any, burstId: string) {
+  const { data: burst } = await supabase
+    .from('loop_bursts')
+    .select('total_redemptions')
+    .eq('id', burstId)
+    .single();
+
+  if (burst) {
+    await supabase
+      .from('loop_bursts')
+      .update({ total_redemptions: (burst.total_redemptions || 0) + 1 })
+      .eq('id', burstId);
+  }
+}
+
+const PAUSED_MSG = 'Loop rewards are paused at this location — check back soon!';
+
 async function handleScan(supabase: any, qrCodeId: string, userId: string) {
   // 1. Get QR code details
   const { data: qrCode, error: qrError } = await supabase
     .from('loop_qr_codes')
-    .select(`
-      *,
-      business:businesses(id, name, logo_url)
-    `)
+    .select('*, business:businesses(id, name, logo_url)')
     .eq('id', qrCodeId)
     .single();
 
   if (qrError || !qrCode) {
-    console.error('QR code not found:', qrError);
     return new Response(JSON.stringify({ error: 'QR code not found' }), {
-      status: 404,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  console.log('QR Code found:', qrCode.name, 'Business:', qrCode.business?.name);
-
-  // 2. Validate QR code is active
+  // 2. Validate active
   if (!qrCode.is_active) {
-    return new Response(JSON.stringify({ 
-      success: false,
-      paused: true,
-      error: 'Loop rewards are paused at this location — check back soon!'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, paused: true, error: PAUSED_MSG }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 3. Check validity dates
+  // 3. Validity dates
   const now = new Date();
   if (qrCode.valid_from && new Date(qrCode.valid_from) > now) {
-    return new Response(JSON.stringify({ 
-      success: false,
-      paused: true,
-      error: 'Loop rewards are paused at this location — check back soon!'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, paused: true, error: PAUSED_MSG }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
   if (qrCode.valid_until && new Date(qrCode.valid_until) < now) {
-    return new Response(JSON.stringify({ 
-      success: false,
-      paused: true,
-      error: 'Loop rewards are paused at this location — check back soon!'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, paused: true, error: PAUSED_MSG }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 4. Get user's previous scans for this QR
-  const { data: previousScans, error: scanHistoryError } = await supabase
+  // 4. Previous scans
+  const { data: previousScans } = await supabase
     .from('loop_qr_scans')
     .select('id, created_at, status')
     .eq('qr_code_id', qrCodeId)
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  if (scanHistoryError) {
-    console.error('Error fetching scan history:', scanHistoryError);
-  }
+  const isFirstVisit = !previousScans || previousScans.length === 0;
 
-  // 5. Check single-use (customer-friendly messaging)
-  if (qrCode.is_single_use && previousScans && previousScans.length > 0) {
-    return new Response(JSON.stringify({ 
-      success: false,
-      alreadyEarned: true,
-      error: 'You\'ve already earned bonus points here — thanks for visiting!'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  // 5. Single-use check
+  if (qrCode.is_single_use && !isFirstVisit) {
+    return new Response(JSON.stringify({ success: false, alreadyEarned: true, error: "You've already earned bonus points here — thanks for visiting!" }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 6. Check max scans per user (customer-friendly messaging)
+  // 6. Max scans per user
   if (qrCode.max_scans_per_user && previousScans && previousScans.length >= qrCode.max_scans_per_user) {
-    return new Response(JSON.stringify({ 
-      success: false,
-      alreadyEarned: true,
-      error: 'You\'ve already earned bonus points here — thanks for visiting!'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, alreadyEarned: true, error: "You've already earned bonus points here — thanks for visiting!" }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 7. Check cooldown period (customer-friendly messaging)
+  // 7. Cooldown
   if (qrCode.scan_cooldown_hours && previousScans && previousScans.length > 0) {
     const lastScan = new Date(previousScans[0].created_at);
     const cooldownMs = qrCode.scan_cooldown_hours * 60 * 60 * 1000;
-    const timeSinceLast = now.getTime() - lastScan.getTime();
-    
-    if (timeSinceLast < cooldownMs) {
-      return new Response(JSON.stringify({ 
-        success: false,
-        alreadyEarned: true,
-        error: 'You\'ve already earned bonus points recently — check back later!'
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (now.getTime() - lastScan.getTime() < cooldownMs) {
+      return new Response(JSON.stringify({ success: false, alreadyEarned: true, error: "You've already earned bonus points recently — check back later!" }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
   }
 
-  // 8. Check business Loop participation status
+  // 8. Business Loop settings
   const { data: businessSettings } = await supabase
     .from('business_loop_settings')
     .select('*')
@@ -178,18 +195,16 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     .single();
 
   if (!businessSettings || !businessSettings.is_active || businessSettings.loop_tier_id === 'visible_only') {
-    // Customer-friendly message - never expose internal details
-    return new Response(JSON.stringify({ 
-      success: false,
-      paused: true,
-      error: 'Loop rewards are paused at this location — check back soon!' 
-    }), {
-      status: 200, // Use 200 so it doesn't feel like an error
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: false, paused: true, error: PAUSED_MSG }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 9. Check monthly cap (customer never sees "limit reached")
+  // 9. Find best active burst (no stacking — most generous wins)
+  const burstResult = await findBestBurst(supabase, qrCode.business_id, qrCode.points_value, isFirstVisit);
+  const effectivePoints = burstResult.totalPoints;
+
+  // 10. Monthly cap check (using effective points)
   const { data: tierData } = await supabase
     .from('loop_tiers')
     .select('points_cap_monthly')
@@ -197,19 +212,13 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
     .single();
 
   const monthlyRemaining = (tierData?.points_cap_monthly || 0) - (businessSettings.points_issued_this_month || 0);
-  if (monthlyRemaining < qrCode.points_value) {
-    // Customer-friendly message - never mention caps or limits
-    return new Response(JSON.stringify({ 
-      success: false,
-      paused: true,
-      error: 'Loop rewards are paused at this location — check back soon!'
-    }), {
-      status: 200, // Use 200 so it doesn't feel like an error
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  if (monthlyRemaining < effectivePoints) {
+    return new Response(JSON.stringify({ success: false, paused: true, error: PAUSED_MSG }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 10. Get or create user wallet
+  // 11. Get or create wallet
   let { data: wallet, error: walletError } = await supabase
     .from('loop_wallets')
     .select('*')
@@ -223,96 +232,86 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
       .insert({ user_id: userId, city: 'toledo' })
       .select()
       .single();
-    
     if (createError) {
-      console.error('Error creating wallet:', createError);
       return new Response(JSON.stringify({ error: 'Failed to create wallet' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     wallet = newWallet;
   }
 
-  // 11. Create scan record
+  // 12. Create scan record
   const scanStatus = qrCode.requires_staff_confirm ? 'pending_confirmation' : 'completed';
-  
   const { data: scan, error: scanError } = await supabase
     .from('loop_qr_scans')
-    .insert({
-      qr_code_id: qrCodeId,
-      user_id: userId,
-      status: scanStatus,
-    })
+    .insert({ qr_code_id: qrCodeId, user_id: userId, status: scanStatus })
     .select()
     .single();
 
   if (scanError) {
-    console.error('Error creating scan:', scanError);
     return new Response(JSON.stringify({ error: 'Failed to record scan' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 12. If no staff confirmation needed, issue points immediately
+  // 13. If no staff confirmation needed, issue points immediately
   if (!qrCode.requires_staff_confirm) {
-    // Create transaction
+    const burstDescription = burstResult.burstName
+      ? ` (${burstResult.burstName}: +${burstResult.bonusPoints} bonus)`
+      : '';
+
     const { data: transaction, error: txError } = await supabase
       .from('loop_transactions')
       .insert({
         wallet_id: wallet.id,
         transaction_type: 'earn',
-        points: qrCode.points_value,
+        points: effectivePoints,
         business_id: qrCode.business_id,
         qr_code_id: qrCodeId,
-        description: `Earned from ${qrCode.name} at ${qrCode.business?.name}`,
+        description: `Earned from ${qrCode.name} at ${qrCode.business?.name}${burstDescription}`,
+        metadata: burstResult.burstId ? { burst_id: burstResult.burstId, base_points: qrCode.points_value, bonus_points: burstResult.bonusPoints } : null,
       })
       .select()
       .single();
 
-    if (txError) {
-      console.error('Error creating transaction:', txError);
-    } else {
-      // Update wallet balance
-      await supabase
-        .from('loop_wallets')
-        .update({ 
-          points_balance: wallet.points_balance + qrCode.points_value,
-          lifetime_earned: wallet.lifetime_earned + qrCode.points_value,
-        })
-        .eq('id', wallet.id);
+    if (!txError && transaction) {
+      // Update wallet
+      await supabase.from('loop_wallets').update({
+        points_balance: wallet.points_balance + effectivePoints,
+        lifetime_earned: wallet.lifetime_earned + effectivePoints,
+      }).eq('id', wallet.id);
 
       // Update business monthly issued
-      await supabase
-        .from('business_loop_settings')
-        .update({ 
-          points_issued_this_month: (businessSettings.points_issued_this_month || 0) + qrCode.points_value 
-        })
-        .eq('id', businessSettings.id);
+      await supabase.from('business_loop_settings').update({
+        points_issued_this_month: (businessSettings.points_issued_this_month || 0) + effectivePoints,
+      }).eq('id', businessSettings.id);
 
-      // Update QR total scans
-      await supabase
-        .from('loop_qr_codes')
-        .update({ total_scans: (qrCode.total_scans || 0) + 1 })
-        .eq('id', qrCodeId);
+      // Update QR scans
+      await supabase.from('loop_qr_codes').update({
+        total_scans: (qrCode.total_scans || 0) + 1,
+      }).eq('id', qrCodeId);
 
       // Link transaction to scan
-      await supabase
-        .from('loop_qr_scans')
-        .update({ transaction_id: transaction.id, status: 'completed' })
-        .eq('id', scan.id);
+      await supabase.from('loop_qr_scans').update({
+        transaction_id: transaction.id, status: 'completed',
+      }).eq('id', scan.id);
+
+      // Increment burst redemptions
+      if (burstResult.burstId) {
+        await incrementBurstRedemptions(supabase, burstResult.burstId);
+      }
     }
   }
-
-  console.log('Scan processed successfully:', scan.id);
 
   return new Response(JSON.stringify({
     success: true,
     scan: {
       id: scan.id,
       status: scanStatus,
-      points: qrCode.points_value,
+      points: effectivePoints,
+      basePoints: qrCode.points_value,
+      bonusPoints: burstResult.bonusPoints,
+      burstName: burstResult.burstName,
       requiresConfirmation: qrCode.requires_staff_confirm,
       business: qrCode.business,
       qrName: qrCode.name,
@@ -326,50 +325,40 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
   // 1. Get scan details
   const { data: scan, error: scanError } = await supabase
     .from('loop_qr_scans')
-    .select(`
-      *,
-      qr_code:loop_qr_codes(*, business:businesses(id, name, owner_user_id))
-    `)
+    .select('*, qr_code:loop_qr_codes(*, business:businesses(id, name, owner_user_id))')
     .eq('id', scanId)
     .single();
 
   if (scanError || !scan) {
-    console.error('Scan not found:', scanError);
     return new Response(JSON.stringify({ error: 'Scan not found' }), {
-      status: 404,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 2. Verify staff is business owner OR staff member
+  // 2. Verify staff authorization
   const isOwner = scan.qr_code?.business?.owner_user_id === staffUserId;
-  
   if (!isOwner) {
-    // Check if user is a staff member for this business
     const { data: staffCheck } = await supabase
       .from('business_staff')
       .select('id')
       .eq('business_id', scan.qr_code.business_id)
       .eq('user_id', staffUserId)
       .maybeSingle();
-    
     if (!staffCheck) {
-      return new Response(JSON.stringify({ error: 'Not authorized to confirm this scan' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ error: 'Not authorized' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
   }
 
-  // 3. Check scan status
+  // 3. Check status
   if (scan.status !== 'pending_confirmation') {
     return new Response(JSON.stringify({ error: 'Scan already processed' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 4. Get user wallet
+  // 4. Get wallet
   const { data: wallet } = await supabase
     .from('loop_wallets')
     .select('*')
@@ -379,81 +368,91 @@ async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: st
 
   if (!wallet) {
     return new Response(JSON.stringify({ error: 'User wallet not found' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 5. Get business settings
+  // 5. Check for previous scans to determine first visit
+  const { data: prevScans } = await supabase
+    .from('loop_qr_scans')
+    .select('id')
+    .eq('qr_code_id', scan.qr_code_id)
+    .eq('user_id', scan.user_id)
+    .neq('id', scanId)
+    .limit(1);
+
+  const isFirstVisit = !prevScans || prevScans.length === 0;
+
+  // 6. Find best burst
+  const burstResult = await findBestBurst(supabase, scan.qr_code.business_id, scan.qr_code.points_value, isFirstVisit);
+  const effectivePoints = burstResult.totalPoints;
+
+  // 7. Business settings
   const { data: businessSettings } = await supabase
     .from('business_loop_settings')
     .select('*')
     .eq('business_id', scan.qr_code.business_id)
     .single();
 
-  // 6. Create transaction
+  // 8. Create transaction
+  const burstDescription = burstResult.burstName ? ` (${burstResult.burstName}: +${burstResult.bonusPoints} bonus)` : '';
   const { data: transaction, error: txError } = await supabase
     .from('loop_transactions')
     .insert({
       wallet_id: wallet.id,
       transaction_type: 'earn',
-      points: scan.qr_code.points_value,
+      points: effectivePoints,
       business_id: scan.qr_code.business_id,
       qr_code_id: scan.qr_code.id,
-      description: `Earned from ${scan.qr_code.name} at ${scan.qr_code.business?.name}`,
+      description: `Earned from ${scan.qr_code.name} at ${scan.qr_code.business?.name}${burstDescription}`,
+      metadata: burstResult.burstId ? { burst_id: burstResult.burstId, base_points: scan.qr_code.points_value, bonus_points: burstResult.bonusPoints } : null,
     })
     .select()
     .single();
 
   if (txError) {
-    console.error('Error creating transaction:', txError);
     return new Response(JSON.stringify({ error: 'Failed to issue points' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  // 7. Update wallet
-  await supabase
-    .from('loop_wallets')
-    .update({ 
-      points_balance: wallet.points_balance + scan.qr_code.points_value,
-      lifetime_earned: wallet.lifetime_earned + scan.qr_code.points_value,
-    })
-    .eq('id', wallet.id);
+  // 9. Update wallet
+  await supabase.from('loop_wallets').update({
+    points_balance: wallet.points_balance + effectivePoints,
+    lifetime_earned: wallet.lifetime_earned + effectivePoints,
+  }).eq('id', wallet.id);
 
-  // 8. Update business monthly cap
+  // 10. Update business monthly cap
   if (businessSettings) {
-    await supabase
-      .from('business_loop_settings')
-      .update({ 
-        points_issued_this_month: (businessSettings.points_issued_this_month || 0) + scan.qr_code.points_value 
-      })
-      .eq('id', businessSettings.id);
+    await supabase.from('business_loop_settings').update({
+      points_issued_this_month: (businessSettings.points_issued_this_month || 0) + effectivePoints,
+    }).eq('id', businessSettings.id);
   }
 
-  // 9. Update QR stats
-  await supabase
-    .from('loop_qr_codes')
-    .update({ total_scans: (scan.qr_code.total_scans || 0) + 1 })
-    .eq('id', scan.qr_code.id);
+  // 11. Update QR stats
+  await supabase.from('loop_qr_codes').update({
+    total_scans: (scan.qr_code.total_scans || 0) + 1,
+  }).eq('id', scan.qr_code.id);
 
-  // 10. Update scan record
-  await supabase
-    .from('loop_qr_scans')
-    .update({ 
-      transaction_id: transaction.id, 
-      status: 'completed',
-      staff_confirmed_at: new Date().toISOString(),
-    })
-    .eq('id', scanId);
+  // 12. Update scan record
+  await supabase.from('loop_qr_scans').update({
+    transaction_id: transaction.id,
+    status: 'completed',
+    staff_confirmed_at: new Date().toISOString(),
+  }).eq('id', scanId);
 
-  console.log('Scan confirmed successfully:', scanId);
+  // 13. Increment burst
+  if (burstResult.burstId) {
+    await incrementBurstRedemptions(supabase, burstResult.burstId);
+  }
 
   return new Response(JSON.stringify({
     success: true,
-    message: `${scan.qr_code.points_value} points issued successfully`,
-    points: scan.qr_code.points_value,
+    message: `${effectivePoints} points issued successfully`,
+    points: effectivePoints,
+    basePoints: scan.qr_code.points_value,
+    bonusPoints: burstResult.bonusPoints,
+    burstName: burstResult.burstName,
   }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
