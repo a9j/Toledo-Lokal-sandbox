@@ -1429,6 +1429,84 @@ export type Database = {
           },
         ]
       }
+      loop_bursts: {
+        Row: {
+          bonus_points: number | null
+          burst_type: string
+          business_id: string
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          multiplier: number | null
+          name: string
+          recurrence: string | null
+          recurrence_days: number[] | null
+          recurrence_end_time: string | null
+          recurrence_start_time: string | null
+          starts_at: string
+          total_redemptions: number
+          updated_at: string
+        }
+        Insert: {
+          bonus_points?: number | null
+          burst_type: string
+          business_id: string
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          multiplier?: number | null
+          name: string
+          recurrence?: string | null
+          recurrence_days?: number[] | null
+          recurrence_end_time?: string | null
+          recurrence_start_time?: string | null
+          starts_at: string
+          total_redemptions?: number
+          updated_at?: string
+        }
+        Update: {
+          bonus_points?: number | null
+          burst_type?: string
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          multiplier?: number | null
+          name?: string
+          recurrence?: string | null
+          recurrence_days?: number[] | null
+          recurrence_end_time?: string | null
+          recurrence_start_time?: string | null
+          starts_at?: string
+          total_redemptions?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loop_bursts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_bursts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loop_causes: {
         Row: {
           category: string | null
