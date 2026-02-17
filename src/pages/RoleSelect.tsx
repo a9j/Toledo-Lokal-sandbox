@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Building2, User, Sparkles } from 'lucide-react';
+import { Building2, User, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import tlLogo from '@/assets/tl-logo.png';
@@ -10,7 +10,7 @@ import tlLogo from '@/assets/tl-logo.png';
 export default function RoleSelect() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<'resident' | 'business' | null>(null);
+  const [selected, setSelected] = useState<'resident' | 'business' | 'nonprofit' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!user) {
@@ -31,6 +31,8 @@ export default function RoleSelect() {
 
       if (selected === 'business') {
         navigate('/create-business', { replace: true });
+      } else if (selected === 'nonprofit') {
+        navigate('/create-business?type=nonprofit', { replace: true });
       } else {
         navigate('/', { replace: true });
       }
@@ -108,6 +110,29 @@ export default function RoleSelect() {
                 <span className="font-semibold text-base">List My Business</span>
                 <p className="text-sm text-muted-foreground mt-1">
                   Get your business on ToledoLokal — it only takes 2 minutes
+                </p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setSelected('nonprofit')}
+            className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${
+              selected === 'nonprofit'
+                ? 'border-primary bg-primary/5 shadow-sm'
+                : 'border-border hover:border-primary/40'
+            }`}
+          >
+            <div className="flex items-start gap-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                selected === 'nonprofit' ? 'bg-primary/15' : 'bg-secondary'
+              }`}>
+                <Heart className={`h-6 w-6 ${selected === 'nonprofit' ? 'text-primary' : 'text-muted-foreground'}`} />
+              </div>
+              <div>
+                <span className="font-semibold text-base">Register a Nonprofit</span>
+                <p className="text-sm text-muted-foreground mt-1">
+                  List your nonprofit organization & connect with the community
                 </p>
               </div>
             </div>
