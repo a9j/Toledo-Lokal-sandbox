@@ -23,6 +23,11 @@ const PUBLIC_BUSINESS_COLUMNS = `
   editor_pick_image,
   story,
   status,
+  tier_status,
+  tier_badge_visible,
+  tier_assigned_at,
+  profile_picture_url,
+  cover_image_url,
   created_at,
   updated_at
 `;
@@ -40,6 +45,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
           category:categories(id, name, icon),
           business_loop_settings(is_active, loop_tier_id)
         `)
+        .order('tier_status', { ascending: true })
         .order('created_at', { ascending: false });
       
       if (options?.featured) {

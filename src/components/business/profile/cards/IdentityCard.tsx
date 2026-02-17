@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { SecureImage, prefetchSignedUrls } from '@/components/ui/secure-image';
 import { MapPin, Building2, Truck, Heart, Star, Users, Sparkles, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { TierBadge, TierLabel } from '@/components/business/TierBadge';
 import { Button } from '@/components/ui/button';
 import { FlipCard } from '../FlipCard';
 import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
@@ -21,6 +22,9 @@ export interface IdentityCardProps {
   isFoodTruck?: boolean;
   isNonprofit?: boolean;
   isFoundingMember?: boolean;
+  tierStatus?: string | null;
+  tierBadgeVisible?: boolean | null;
+  tierAssignedAt?: string | null;
   isLocallyOwned?: boolean;
   activeThisWeek?: boolean;
   onVisit?: () => void;
@@ -36,6 +40,9 @@ export function IdentityCard({
   isFoodTruck, 
   isNonprofit,
   isFoundingMember,
+  tierStatus,
+  tierBadgeVisible = true,
+  tierAssignedAt,
   isLocallyOwned = true,
   activeThisWeek = true,
   onVisit,
@@ -106,10 +113,17 @@ export function IdentityCard({
               )}
             </div>
 
-            {/* Name */}
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              {business.name}
-            </h1>
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <h1 className="text-3xl font-bold text-foreground">
+                {business.name}
+              </h1>
+              {tierStatus && tierStatus !== 'general' && tierBadgeVisible && (
+                <TierBadge tier={tierStatus as any} size="md" />
+              )}
+            </div>
+            {tierStatus && tierStatus !== 'general' && tierBadgeVisible && (
+              <TierLabel tier={tierStatus} assignedAt={tierAssignedAt} />
+            )}
 
             {/* Description */}
             {business.description && (
