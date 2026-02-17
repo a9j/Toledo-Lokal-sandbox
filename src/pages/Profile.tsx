@@ -118,20 +118,29 @@ export default function Profile() {
 
         {/* Business section */}
         {userBusiness ? (
-          <Link to="/dashboard">
-            <div className="card-elevated p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary" />
+          <div className="space-y-2">
+            <Link to="/dashboard">
+              <div className="card-elevated p-4 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Building2 className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium">{userBusiness.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {userBusiness.status === 'approved' ? 'Active' : userBusiness.status} · Tap to manage
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-medium">{userBusiness.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {userBusiness.status === 'approved' ? 'Active' : userBusiness.status}
-                </p>
+            </Link>
+            <Link to={`/business/${userBusiness.id}`}>
+              <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+                <span className="flex-1 font-medium">View My Public Profile</span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </Link>
+            </Link>
+          </div>
         ) : (
           <Link to="/create-business">
             <div className="card-elevated p-4 flex items-center gap-3 border-dashed border-2">

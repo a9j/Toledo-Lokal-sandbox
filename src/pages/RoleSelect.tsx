@@ -59,9 +59,9 @@ export default function RoleSelect() {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-lokal-amber/60 flex items-center justify-center mx-auto">
             <Sparkles className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">How will you use ToledoLokal?</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Welcome! What brings you here?</h1>
           <p className="text-muted-foreground text-sm">
-            This helps us personalize your experience
+            Pick one to get started — you can always change later
           </p>
         </div>
 
@@ -82,9 +82,9 @@ export default function RoleSelect() {
                 <User className={`h-6 w-6 ${selected === 'resident' ? 'text-primary' : 'text-muted-foreground'}`} />
               </div>
               <div>
-                <span className="font-semibold text-base">I'm a Resident</span>
+                <span className="font-semibold text-base">Explore Toledo</span>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Discover local spots, events, deals & support Toledo businesses
+                  Find local spots, events, deals & earn rewards
                 </p>
               </div>
             </div>
@@ -105,9 +105,9 @@ export default function RoleSelect() {
                 <Building2 className={`h-6 w-6 ${selected === 'business' ? 'text-primary' : 'text-muted-foreground'}`} />
               </div>
               <div>
-                <span className="font-semibold text-base">I'm a Business Owner</span>
+                <span className="font-semibold text-base">List My Business</span>
                 <p className="text-sm text-muted-foreground mt-1">
-                  List your business, post deals & events, and reach local customers
+                  Get your business on ToledoLokal — it only takes 2 minutes
                 </p>
               </div>
             </div>
