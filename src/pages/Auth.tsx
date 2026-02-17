@@ -90,14 +90,31 @@ export default function Auth() {
       if (isSignUp) {
         const { error } = await signUp(email, password, name);
         if (error) {
-          if (error.message.includes('already registered')) {
+          const msg = error.message?.toLowerCase() || '';
+          if (msg.includes('already registered') || msg.includes('already been registered') || msg.includes('already exists')) {
             toast({
               variant: 'destructive',
               title: 'Account exists',
               description: 'This email is already registered. Please sign in instead.',
             });
+          } else if (msg.includes('email') && msg.includes('invalid')) {
+            toast({
+              variant: 'destructive',
+              title: 'Invalid email',
+              description: 'Please enter a valid email address.',
+            });
+          } else if (msg.includes('password')) {
+            toast({
+              variant: 'destructive',
+              title: 'Password issue',
+              description: error.message,
+            });
           } else {
-            throw error;
+            toast({
+              variant: 'destructive',
+              title: 'Sign up failed',
+              description: 'Could not create account. Please check your details and try again.',
+            });
           }
         } else {
           toast({
@@ -109,15 +126,26 @@ export default function Auth() {
       } else {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login')) {
-            setFailedAttempts(prev => prev + 1);
+          setFailedAttempts(prev => prev + 1);
+          const msg = error.message?.toLowerCase() || '';
+          if (msg.includes('invalid') || msg.includes('credentials')) {
             toast({
               variant: 'destructive',
               title: 'Invalid credentials',
               description: 'Please check your email and password.',
             });
+          } else if (msg.includes('email not confirmed')) {
+            toast({
+              variant: 'destructive',
+              title: 'Email not confirmed',
+              description: 'Please check your inbox and confirm your email first.',
+            });
           } else {
-            throw error;
+            toast({
+              variant: 'destructive',
+              title: 'Sign in failed',
+              description: 'Could not sign in. Please try again.',
+            });
           }
         } else {
           setFailedAttempts(0);
@@ -125,14 +153,10 @@ export default function Auth() {
         }
       }
     } catch (error) {
-      // Check for specific auth errors that are safe to show
-      const errorMsg = error instanceof Error ? error.message : '';
-      const isInvalidCredentials = errorMsg.toLowerCase().includes('invalid') || 
-                                   errorMsg.toLowerCase().includes('credentials');
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: isInvalidCredentials ? 'Invalid email or password' : 'Authentication failed. Please try again.',
+        description: 'Something went wrong. Please try again.',
       });
     } finally {
       setIsLoading(false);
