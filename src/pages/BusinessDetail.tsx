@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { TierBadge, TierLabel } from '@/components/business/TierBadge';
 
 // Flip Profile Components
@@ -113,6 +113,22 @@ export default function BusinessDetail() {
     enabled: !!id,
   });
 
+  // Check if current user is the business owner
+  const { data: isOwner } = useQuery({
+    queryKey: ['business-owner-check', id, user?.id],
+    queryFn: async () => {
+      if (!user || !id) return false;
+      const { data } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('id', business?.id || id)
+        .eq('owner_user_id', user.id)
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user && !!id,
+  });
+
   // Neighborhood popularity
   const { data: neighborhoodPopularity = 0 } = useNeighborhoodPopularity(business?.neighborhood_id || null);
 
@@ -210,7 +226,7 @@ export default function BusinessDetail() {
       
       {/* Minimal Header with Back */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <Link 
             to="/explore" 
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -218,6 +234,14 @@ export default function BusinessDetail() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Link>
+          {isOwner && (
+            <Link to="/dashboard">
+              <Button size="sm" variant="outline" className="gap-1.5">
+                <Settings className="h-4 w-4" />
+                Manage
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
