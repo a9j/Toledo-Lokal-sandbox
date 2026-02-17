@@ -175,21 +175,7 @@ export default function Today() {
           )}
 
           {/* Quick Access Cards */}
-          <div className="grid grid-cols-2 gap-3 pt-3">
-            <Link 
-              to="/near-me"
-              className="group card-elevated flex items-center gap-3 p-4 hover:bg-lokal-forest/5 hover:border-lokal-forest/20 transition-all duration-200"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-lokal-forest/15 to-lokal-forest/5 flex items-center justify-center group-hover:from-lokal-forest/20 group-hover:to-lokal-forest/10 transition-all duration-200">
-                <MapPin className="h-5 w-5 text-lokal-forest" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Near Me</p>
-                <p className="text-xs text-muted-foreground">Open now</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-lokal-forest group-hover:translate-x-0.5 transition-all" />
-            </Link>
-            
+          <div className="pt-3">
             <Link 
               to="/discover"
               className="group card-elevated flex items-center gap-3 p-4 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
@@ -198,8 +184,8 @@ export default function Today() {
                 <Compass className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Discover</p>
-                <p className="text-xs text-muted-foreground">Browse all</p>
+                <p className="font-semibold text-foreground text-sm">Discover Toledo</p>
+                <p className="text-xs text-muted-foreground">Browse all businesses & more</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </Link>
