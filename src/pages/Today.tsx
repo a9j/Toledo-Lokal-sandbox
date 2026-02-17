@@ -34,7 +34,7 @@ export default function Today() {
     queryFn: async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('role_selected')
+        .select('role_selected, profile_completed')
         .eq('user_id', user!.id)
         .single();
       return data;
@@ -53,10 +53,14 @@ export default function Today() {
     }
   }, [user, authLoading]);
 
-  // Redirect new users who haven't selected a role
+  // Redirect new users who haven't selected a role or completed profile
   useEffect(() => {
-    if (user && profile && profile.role_selected === false) {
-      navigate('/role-select', { replace: true });
+    if (user && profile) {
+      if (profile.role_selected === false) {
+        navigate('/role-select', { replace: true });
+      } else if (profile.profile_completed === false) {
+        navigate('/profile-setup', { replace: true });
+      }
     }
   }, [user, profile, navigate]);
 
