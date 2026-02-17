@@ -2,7 +2,7 @@ import { Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TierBadgeProps {
-  tier: 'founding_5' | 'founding_50' | 'general';
+  tier: 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
   size?: 'sm' | 'md' | 'lg';
   visible?: boolean;
   className?: string;
@@ -25,7 +25,23 @@ const tierConfig = {
     bg: 'bg-gradient-to-r from-slate-400 to-slate-300',
     shieldColor: 'text-slate-900',
   },
-  general: {
+  pro: {
+    label: 'Pro',
+    gradient: 'from-indigo-500 to-violet-500',
+    textColor: 'text-white',
+    border: 'border-indigo-400/50',
+    bg: 'bg-gradient-to-r from-indigo-500 to-violet-500',
+    shieldColor: 'text-white',
+  },
+  growth: {
+    label: '',
+    gradient: '',
+    textColor: '',
+    border: '',
+    bg: '',
+    shieldColor: '',
+  },
+  community: {
     label: '',
     gradient: '',
     textColor: '',
@@ -51,7 +67,7 @@ const sizeConfig = {
 };
 
 export function TierBadge({ tier, size = 'md', visible = true, className }: TierBadgeProps) {
-  if (tier === 'general' || !visible) return null;
+  if (tier === 'community' || tier === 'growth' || !visible) return null;
 
   const config = tierConfig[tier];
   const sizeStyle = sizeConfig[size];
@@ -74,7 +90,7 @@ export function TierBadge({ tier, size = 'md', visible = true, className }: Tier
 }
 
 export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: string | null }) {
-  if (tier === 'general') return null;
+  if (tier === 'community' || tier === 'growth') return null;
 
   const year = assignedAt ? new Date(assignedAt).getFullYear() : new Date().getFullYear();
 
@@ -90,6 +106,14 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
     return (
       <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
         Founding 50 Member — Est. {year}
+      </p>
+    );
+  }
+
+  if (tier === 'pro') {
+    return (
+      <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+        Pro Partner
       </p>
     );
   }

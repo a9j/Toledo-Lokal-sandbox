@@ -100,17 +100,8 @@ export const PULSE_TIER_LIMITS: Record<string, PulseTierLimits> = {
     canUsePromoLanguage: false,
     expirationMultiplier: 0.5, // Shorter expiration
   },
-  // Local Supporter tier
-  local_supporter: {
-    postsPerDay: 3,
-    allowedCategories: ['right_now', 'heads_up'],
-    canPin: false,
-    maxPinnedPerDay: 0,
-    canUsePromoLanguage: true,
-    expirationMultiplier: 1,
-  },
-  // Featured Local tier
-  featured_local: {
+  // Growth tier
+  growth: {
     postsPerDay: 5,
     allowedCategories: ['right_now', 'heads_up', 'energy_check', 'community_ask', 'good_stuff'],
     canPin: true,
@@ -118,8 +109,8 @@ export const PULSE_TIER_LIMITS: Record<string, PulseTierLimits> = {
     canUsePromoLanguage: true,
     expirationMultiplier: 1.5,
   },
-  // Anchor Partner tier
-  anchor_partner: {
+  // Pro / Anchor tier
+  pro: {
     postsPerDay: 10,
     allowedCategories: ['right_now', 'heads_up', 'energy_check', 'community_ask', 'good_stuff'],
     canPin: true,

@@ -14,14 +14,13 @@ interface PricingCardProps {
 
 const tierIcons: Record<SubscriptionTier, React.ReactNode> = {
   free: <Building2 className="h-6 w-6" />,
-  local_supporter: <Star className="h-6 w-6" />,
-  featured_local: <Star className="h-6 w-6 fill-current" />,
-  anchor_partner: <Crown className="h-6 w-6" />,
+  growth: <Star className="h-6 w-6 fill-current" />,
+  pro: <Crown className="h-6 w-6" />,
 };
 
 export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: PricingCardProps) {
   const isCurrentPlan = currentTier === tierConfig.id;
-  const isPopular = tierConfig.id === 'featured_local';
+  const isPopular = tierConfig.id === 'growth';
   const isFree = tierConfig.id === 'free';
   const hasLoopFeatures = tierConfig.loopFeatures && tierConfig.loopFeatures.length > 0;
 

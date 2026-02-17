@@ -117,11 +117,11 @@ export function IdentityCard({
               <h1 className="text-3xl font-bold text-foreground">
                 {business.name}
               </h1>
-              {tierStatus && tierStatus !== 'general' && tierBadgeVisible && (
+              {tierStatus && tierStatus !== 'community' && tierStatus !== 'growth' && tierBadgeVisible && (
                 <TierBadge tier={tierStatus as any} size="md" />
               )}
             </div>
-            {tierStatus && tierStatus !== 'general' && tierBadgeVisible && (
+            {tierStatus && tierStatus !== 'community' && tierStatus !== 'growth' && tierBadgeVisible && (
               <TierLabel tier={tierStatus} assignedAt={tierAssignedAt} />
             )}
 

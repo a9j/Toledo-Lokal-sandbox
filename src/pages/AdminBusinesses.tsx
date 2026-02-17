@@ -40,7 +40,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-type TierStatus = 'founding_5' | 'founding_50' | 'general';
+type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
 
 interface TierChangeLog {
   id: string;
@@ -65,7 +65,7 @@ export default function AdminBusinesses() {
 
   // Action modals
   const [assignModal, setAssignModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
-  const [selectedTier, setSelectedTier] = useState<TierStatus>('general');
+  const [selectedTier, setSelectedTier] = useState<TierStatus>('community');
   const [revokeModal, setRevokeModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
   const [reason, setReason] = useState('');
   const [logModal, setLogModal] = useState<{ open: boolean; businessId: string | null }>({ open: false, businessId: null });
@@ -168,14 +168,14 @@ export default function AdminBusinesses() {
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
-        new_tier: 'general',
+        new_tier: 'community',
         previous_badge_visible: business.tier_badge_visible,
         new_badge_visible: false,
         reason: reason || null,
       });
 
       await supabase.from('businesses').update({
-        tier_status: 'general',
+        tier_status: 'community',
         tier_badge_visible: false,
         tier_revoked_at: new Date().toISOString(),
         tier_revoked_by: user.id,
@@ -197,7 +197,7 @@ export default function AdminBusinesses() {
       await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
-        previous_tier: 'general',
+        previous_tier: 'community',
         new_tier: previousTier,
         previous_badge_visible: false,
         new_badge_visible: true,
@@ -219,7 +219,9 @@ export default function AdminBusinesses() {
   // Stats
   const founding5Count = businesses?.filter(b => b.tier_status === 'founding_5').length || 0;
   const founding50Count = businesses?.filter(b => b.tier_status === 'founding_50').length || 0;
-  const generalCount = businesses?.filter(b => b.tier_status === 'general').length || 0;
+  const proCount = businesses?.filter(b => b.tier_status === 'pro').length || 0;
+  const growthCount = businesses?.filter(b => b.tier_status === 'growth').length || 0;
+  const communityCount = businesses?.filter(b => b.tier_status === 'community').length || 0;
   const pendingOnboarding = businesses?.filter(b => !b.onboarding_completed).length || 0;
 
   // Filter
@@ -256,7 +258,7 @@ export default function AdminBusinesses() {
         </Button>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
           <div className="card-elevated p-3 text-center">
             <p className="text-2xl font-bold text-amber-500">{founding5Count}<span className="text-sm text-muted-foreground">/5</span></p>
             <p className="text-xs text-muted-foreground">Founding 5</p>
@@ -266,8 +268,16 @@ export default function AdminBusinesses() {
             <p className="text-xs text-muted-foreground">Founding 50</p>
           </div>
           <div className="card-elevated p-3 text-center">
-            <p className="text-2xl font-bold">{generalCount}</p>
-            <p className="text-xs text-muted-foreground">General</p>
+            <p className="text-2xl font-bold text-indigo-500">{proCount}</p>
+            <p className="text-xs text-muted-foreground">Pro</p>
+          </div>
+          <div className="card-elevated p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-500">{growthCount}</p>
+            <p className="text-xs text-muted-foreground">Growth</p>
+          </div>
+          <div className="card-elevated p-3 text-center">
+            <p className="text-2xl font-bold">{communityCount}</p>
+            <p className="text-xs text-muted-foreground">Community</p>
           </div>
           <div className="card-elevated p-3 text-center">
             <p className="text-2xl font-bold text-lokal-terracotta">{pendingOnboarding}</p>
@@ -288,7 +298,9 @@ export default function AdminBusinesses() {
                 <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="founding_5">Founding 5</SelectItem>
                 <SelectItem value="founding_50">Founding 50</SelectItem>
-                <SelectItem value="general">General</SelectItem>
+                <SelectItem value="pro">Pro</SelectItem>
+                <SelectItem value="growth">Growth</SelectItem>
+                <SelectItem value="community">Community</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterBadge} onValueChange={setFilterBadge}>
@@ -318,8 +330,8 @@ export default function AdminBusinesses() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{biz.name}</h3>
-                    <TierBadge tier={biz.tier_status as TierStatus} size="sm" visible={biz.tier_badge_visible} />
-                    {!biz.tier_badge_visible && biz.tier_status !== 'general' && (
+                    <TierBadge tier={biz.tier_status as any} size="sm" visible={biz.tier_badge_visible} />
+                    {!biz.tier_badge_visible && biz.tier_status !== 'community' && biz.tier_status !== 'growth' && (
                       <Badge variant="outline" className="text-[10px] gap-1"><EyeOff className="h-3 w-3" /> Hidden</Badge>
                     )}
                     {!biz.onboarding_completed && (
@@ -345,7 +357,7 @@ export default function AdminBusinesses() {
                 </Button>
 
                 {/* Toggle Badge */}
-                {biz.tier_status !== 'general' && (
+                {biz.tier_status !== 'community' && biz.tier_status !== 'growth' && (
                   <div className="flex items-center gap-1.5 px-2 h-7 rounded-md border border-border text-xs">
                     {biz.tier_badge_visible ? <Eye className="h-3 w-3 text-success" /> : <EyeOff className="h-3 w-3 text-muted-foreground" />}
                     <Switch
@@ -357,7 +369,7 @@ export default function AdminBusinesses() {
                 )}
 
                 {/* Revoke */}
-                {biz.tier_status !== 'general' && (
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_50' || biz.tier_status === 'pro') && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -369,7 +381,7 @@ export default function AdminBusinesses() {
                 )}
 
                 {/* Restore */}
-                {biz.tier_revoked_at && biz.tier_status === 'general' && (
+                {biz.tier_revoked_at && biz.tier_status === 'community' && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -422,7 +434,9 @@ export default function AdminBusinesses() {
                 <SelectContent>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
                   <SelectItem value="founding_50">Founding 50</SelectItem>
-                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="pro">Pro / Anchor</SelectItem>
+                  <SelectItem value="growth">Growth</SelectItem>
+                  <SelectItem value="community">Community</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -448,7 +462,7 @@ export default function AdminBusinesses() {
               <AlertTriangle className="h-5 w-5" /> Revoke Founding Status
             </DialogTitle>
             <DialogDescription>
-              This will remove {revokeModal.business?.name}'s founding status and badge. They will be moved to General tier. This action is logged and can be reversed.
+              This will remove {revokeModal.business?.name}'s status and badge. They will be moved to Community tier. This action is logged and can be reversed.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
@@ -476,9 +490,9 @@ export default function AdminBusinesses() {
             {tierLogs?.length ? tierLogs.map(log => (
               <div key={log.id} className="p-3 rounded-lg bg-secondary text-sm space-y-1">
                 <div className="flex items-center gap-2">
-                  <TierBadge tier={log.previous_tier as TierStatus} size="sm" />
+                  <TierBadge tier={log.previous_tier as any} size="sm" />
                   <span>→</span>
-                  <TierBadge tier={log.new_tier as TierStatus} size="sm" />
+                  <TierBadge tier={log.new_tier as any} size="sm" />
                 </div>
                 {log.reason && <p className="text-xs text-muted-foreground">{log.reason}</p>}
                 <p className="text-[10px] text-muted-foreground">{new Date(log.created_at).toLocaleString()}</p>

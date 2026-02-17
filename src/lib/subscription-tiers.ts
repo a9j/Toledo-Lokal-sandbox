@@ -1,6 +1,6 @@
 import { LoopTierId } from './loop-tiers';
 
-export type SubscriptionTier = 'free' | 'local_supporter' | 'featured_local' | 'anchor_partner';
+export type SubscriptionTier = 'free' | 'growth' | 'pro';
 
 export interface TierConfig {
   id: SubscriptionTier;
@@ -25,28 +25,34 @@ export interface TierConfig {
     pulsePostsPerDay: number;
     pulsePinnedPerDay: number;
     pulsePromoAllowed: boolean;
+    // Offers/rewards
+    maxActiveOffers: number;
+    maxActiveBursts: number;
+    maxMultiplier: number;
   };
   // Loop Lokal integration
   loopTierId: LoopTierId | null;
   loopFeatures: string[];
+  // Business tier_status this maps to
+  tierStatus: string;
 }
 
 export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
   free: {
     id: 'free',
-    name: 'Free',
+    name: 'Community',
     price: 0,
     priceId: null,
     productId: null,
     features: [
-      'Business name & category',
-      'Location on map',
-      'Basic listing',
-      '1 active job posting',
-      'Jobs auto-expire in 30 days'
+      'Business profile with photos, hours, contact',
+      'Category listing & search',
+      'Accept Loop Points from customers',
+      '1 active offer/reward',
+      'Basic analytics',
     ],
     limits: {
-      deals: 0,
+      deals: 1,
       events: 0,
       jobs: 1,
       jobExpirationDays: 30,
@@ -60,115 +66,83 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePostsPerDay: 1,
       pulsePinnedPerDay: 0,
       pulsePromoAllowed: false,
+      maxActiveOffers: 1,
+      maxActiveBursts: 1,
+      maxMultiplier: 2,
     },
     loopTierId: 'community',
     loopFeatures: [
-      'Community Loop tier',
       '1,000 LP/month',
-      'Accept LP redemptions'
-    ]
-  },
-  local_supporter: {
-    id: 'local_supporter',
-    name: 'Local Supporter',
-    price: 25,
-    priceId: 'price_1SnOZDL0YJBOxs9s3h1Cp9Za',
-    productId: 'prod_TkuNmw1oP99cDB',
-    features: [
-      'Everything in Free',
-      '1 deal per month',
-      'Support local badge',
-      'Enhanced listing',
-      '3 active job postings',
-      '"Local Employer" badge on jobs',
-      'Repost & duplicate jobs'
-    ],
-    limits: {
-      deals: 1,
-      events: 0,
-      jobs: 3,
-      jobExpirationDays: 0, // No expiration
-      featuredPlacement: false,
-      homepageFeatured: false,
-      analytics: false,
-      supportBadge: true,
-      prioritySupport: false,
-      jobBadge: true,
-      jobAnalytics: false,
-      pulsePostsPerDay: 3,
-      pulsePinnedPerDay: 0,
-      pulsePromoAllowed: true,
-    },
-    loopTierId: 'community',
-    loopFeatures: [
-      'Community Loop tier',
-      '1,000 LP/month',
+      'Always-On or Challenge-Only modes',
       'Accept LP redemptions',
-      'QR code issuance',
-      'Basic rewards setup'
-    ]
+    ],
+    tierStatus: 'community',
   },
-  featured_local: {
-    id: 'featured_local',
-    name: 'Featured Local',
-    price: 75,
+  growth: {
+    id: 'growth',
+    name: 'Growth',
+    price: 59,
     priceId: 'price_1SnOZWL0YJBOxs9siQddFtHi',
     productId: 'prod_TkuOJkqlruAjiG',
     features: [
-      'Everything in Local Supporter',
-      'Unlimited deals',
-      'Post events',
-      'Featured placement',
-      'Basic analytics',
-      '5 active job postings',
-      'Higher visibility in job feed'
+      'Everything in Community',
+      '4 active offers/rewards',
+      'Priority search placement',
+      'Featured category rotation',
+      'Custom Loop Challenges',
+      'Double Points Days',
+      'Customer insights dashboard',
+      'Email newsletter rotation',
     ],
     limits: {
-      deals: -1, // unlimited
-      events: -1, // unlimited
+      deals: -1,
+      events: -1,
       jobs: 5,
       jobExpirationDays: 0,
       featuredPlacement: true,
       homepageFeatured: false,
       analytics: true,
-      supportBadge: true,
+      supportBadge: false,
       prioritySupport: false,
       jobBadge: true,
       jobAnalytics: true,
       pulsePostsPerDay: 5,
       pulsePinnedPerDay: 1,
       pulsePromoAllowed: true,
+      maxActiveOffers: 4,
+      maxActiveBursts: 3,
+      maxMultiplier: 3,
     },
     loopTierId: 'growth',
     loopFeatures: [
-      'Loop Growth included',
       '7,500 LP/month',
-      'Citywide missions',
-      'Featured discovery',
-      'Referral rewards',
-      'Advanced analytics'
-    ]
+      'All participation modes',
+      'Up to 3 active bursts',
+      'Multipliers up to 3x',
+    ],
+    tierStatus: 'growth',
   },
-  anchor_partner: {
-    id: 'anchor_partner',
-    name: 'Anchor Partner',
-    price: 150,
+  pro: {
+    id: 'pro',
+    name: 'Pro / Anchor',
+    price: 149,
     priceId: 'price_1SnOZtL0YJBOxs9sJXuOYimJ',
     productId: 'prod_TkuOGiyIs7qK5U',
     features: [
-      'Everything in Featured Local',
-      'Homepage featured section',
-      'Exclusive placements',
+      'Everything in Growth',
+      'Top-of-category search placement',
+      'Homepage rotation',
+      '1 push notification/month',
+      'Sponsored challenge access',
       'Advanced analytics',
-      'Priority support',
-      'Unlimited job postings',
-      'Featured job placement',
-      'Job analytics dashboard'
+      'Pro badge on profile',
+      'Quarterly spotlight post',
+      'Unlimited offers/rewards',
     ],
     limits: {
       deals: -1,
       events: -1,
-      jobs: -1, // unlimited
+      jobs: -1,
       jobExpirationDays: 0,
       featuredPlacement: true,
       homepageFeatured: true,
@@ -180,19 +154,42 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
       pulsePostsPerDay: 10,
       pulsePinnedPerDay: 3,
       pulsePromoAllowed: true,
+      maxActiveOffers: -1,
+      maxActiveBursts: 5,
+      maxMultiplier: 5,
     },
     loopTierId: 'pro',
     loopFeatures: [
-      'Loop Pro included',
       '25,000 LP/month',
-      'Priority placement',
+      'All participation modes',
+      'Up to 5 active bursts',
+      'Multipliers up to 5x',
       'Sponsored missions',
-      'Event integrations',
-      'Co-branding',
-      'Quarterly reports'
-    ]
-  }
+    ],
+    tierStatus: 'pro',
+  },
 };
+
+// Founding tier configs (not subscription-based, admin-assigned)
+export const FOUNDING_TIERS = {
+  founding_5: {
+    name: 'Founding 5',
+    lpMonthly: 30000,
+    maxActiveOffers: -1,
+    maxActiveBursts: -1,
+    maxMultiplier: 10,
+    subscriptionPrice: 0,
+  },
+  founding_50: {
+    name: 'Founding 50',
+    lpMonthlyLaunch: 15000,
+    discountPercentage: 50,
+    maxActiveOffers: 4,
+    maxActiveBursts: 3,
+    maxMultiplier: 5,
+    subscriptionPrice: 0,
+  },
+} as const;
 
 export const getTierByProductId = (productId: string | null): SubscriptionTier => {
   if (!productId) return 'free';

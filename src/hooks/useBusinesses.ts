@@ -45,7 +45,6 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
           category:categories(id, name, icon),
           business_loop_settings(is_active, loop_tier_id)
         `)
-        .order('tier_status', { ascending: true })
         .order('created_at', { ascending: false });
       
       if (options?.featured) {
@@ -67,8 +66,24 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       const { data, error } = await query;
       if (error) throw error;
       
+      // Sort by tier priority: founding_5 > pro > founding_50 > growth > community
+      const tierPriority: Record<string, number> = {
+        founding_5: 1,
+        pro: 2,
+        founding_50: 3,
+        growth: 4,
+        community: 5,
+      };
+      
+      const sorted = data?.sort((a, b) => {
+        const aPriority = tierPriority[a.tier_status || 'community'] || 5;
+        const bPriority = tierPriority[b.tier_status || 'community'] || 5;
+        if (aPriority !== bPriority) return aPriority - bPriority;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
       // Transform to include isInLoop flag
-      return data?.map(business => ({
+      return sorted?.map(business => ({
         ...business,
         isInLoop: business.business_loop_settings?.is_active && 
           ['community', 'growth', 'pro'].includes(business.business_loop_settings?.loop_tier_id)
