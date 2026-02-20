@@ -1,6 +1,6 @@
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock } from 'lucide-react';
 
 export interface DayHours {
@@ -41,6 +41,17 @@ export const DEFAULT_BUSINESS_HOURS: BusinessHours = {
   sunday: { open: '10:00', close: '16:00', closed: true },
 };
 
+// Generate time options in 30-minute increments
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
+  const hours = Math.floor(i / 2);
+  const minutes = i % 2 === 0 ? '00' : '30';
+  const value = `${hours.toString().padStart(2, '0')}:${minutes}`;
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  const label = `${displayHour}:${minutes} ${period}`;
+  return { value, label };
+});
+
 interface HoursEditorProps {
   hours: BusinessHours;
   onChange: (hours: BusinessHours) => void;
@@ -77,19 +88,33 @@ export function HoursEditor({ hours, onChange }: HoursEditorProps) {
                 <span className="text-sm text-muted-foreground italic">Closed</span>
               ) : (
                 <>
-                  <Input
-                    type="time"
+                  <Select
                     value={hours[key].open}
-                    onChange={(e) => updateDay(key, 'open', e.target.value)}
-                    className="h-8 w-[100px] text-sm"
-                  />
+                    onValueChange={(val) => updateDay(key, 'open', val)}
+                  >
+                    <SelectTrigger className="h-8 w-[110px] text-sm bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50 max-h-60">
+                      {TIME_OPTIONS.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <span className="text-muted-foreground text-sm">–</span>
-                  <Input
-                    type="time"
+                  <Select
                     value={hours[key].close}
-                    onChange={(e) => updateDay(key, 'close', e.target.value)}
-                    className="h-8 w-[100px] text-sm"
-                  />
+                    onValueChange={(val) => updateDay(key, 'close', val)}
+                  >
+                    <SelectTrigger className="h-8 w-[110px] text-sm bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50 max-h-60">
+                      {TIME_OPTIONS.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </>
               )}
             </div>
@@ -108,7 +133,6 @@ export function HoursEditor({ hours, onChange }: HoursEditorProps) {
     </div>
   );
 }
-
 // Helper to parse hours from DB JSON
 export function parseBusinessHours(json: unknown): BusinessHours {
   if (!json || typeof json !== 'object') {

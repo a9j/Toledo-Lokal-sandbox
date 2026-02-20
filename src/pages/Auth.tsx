@@ -118,10 +118,10 @@ export default function Auth() {
           }
         } else {
           toast({
-            title: 'Welcome to ToledoLokal!',
-            description: 'Your account has been created.',
+            title: 'Check your email!',
+            description: 'We sent a confirmation link to your inbox. Please verify your email to complete sign-up.',
           });
-          navigate('/role-select');
+          // Don't navigate yet — user needs to confirm email first
         }
       } else {
         const { error } = await signIn(email, password);
