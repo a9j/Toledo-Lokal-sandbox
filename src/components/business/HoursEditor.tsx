@@ -41,14 +41,15 @@ export const DEFAULT_BUSINESS_HOURS: BusinessHours = {
   sunday: { open: '10:00', close: '16:00', closed: true },
 };
 
-// Generate time options in 30-minute increments
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
-  const hours = Math.floor(i / 2);
-  const minutes = i % 2 === 0 ? '00' : '30';
-  const value = `${hours.toString().padStart(2, '0')}:${minutes}`;
+// Generate time options in 1-hour increments from 12 AM to 12 AM
+const TIME_OPTIONS = Array.from({ length: 25 }, (_, i) => {
+  const hours = i % 24;
+  const value = `${hours.toString().padStart(2, '0')}:00`;
   const period = hours >= 12 ? 'PM' : 'AM';
-  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-  const label = `${displayHour}:${minutes} ${period}`;
+  const displayHour = hours === 0 || hours === 24 ? 12 : hours > 12 ? hours - 12 : hours;
+  const label = `${displayHour}:00 ${period}`;
+  // For the last entry (i=24), use "24:00" to represent end-of-day midnight
+  if (i === 24) return { value: '24:00', label: '12:00 AM' };
   return { value, label };
 });
 
