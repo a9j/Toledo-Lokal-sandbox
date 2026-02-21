@@ -39,9 +39,18 @@ export function AboutCard({ business, hours }: AboutCardProps) {
   const today = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
   const todayHours = hours?.[today];
 
+  const formatTime = (time: string) => {
+    const [hourStr, minStr] = time.split(':');
+    let hour = parseInt(hourStr, 10);
+    if (hour === 24) return '12:00 AM';
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minStr || '00'} ${period}`;
+  };
+
   const formatHours = (h: { open: string; close: string; closed?: boolean } | null) => {
     if (!h || h.closed) return 'Closed';
-    return `${h.open} - ${h.close}`;
+    return `${formatTime(h.open)} - ${formatTime(h.close)}`;
   };
 
   const handleOpenMaps = () => {
