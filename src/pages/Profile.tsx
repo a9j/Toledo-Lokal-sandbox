@@ -10,7 +10,7 @@ import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
-import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
+import { ProfileLoopSection } from '@/components/loop/ProfileLoopSection';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
 import { useLoop } from '@/contexts/LoopContext';
@@ -117,8 +117,8 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Loop Wallet Card */}
-        <ProfileWalletCard />
+        {/* Loop Points Section */}
+        <ProfileLoopSection />
         <UserWalletQR />
         
         {/* User Pulse Settings */}
