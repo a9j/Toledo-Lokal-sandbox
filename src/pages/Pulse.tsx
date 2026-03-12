@@ -22,7 +22,7 @@ export default function Pulse() {
       />
       <Header />
       <PageContainer>
-        <div className="pb-24">
+        <div>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">

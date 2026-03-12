@@ -35,13 +35,11 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
           {showBack && title ? (
             <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           ) : (
-            <div className="flex items-center gap-0">
-              <img src={logoImage} alt="ToledoLokal" className="w-[100px] h-[100px] rounded-2xl object-contain" />
-              <div className="-ml-3">
-                <h1 className="text-lg font-bold tracking-tight">
-                  Toledo<span className="text-primary">Lokal</span>
-                </h1>
-              </div>
+            <div className="flex items-center gap-2">
+              <img src={logoImage} alt="ToledoLokal" className="h-9 w-9 rounded-xl object-contain" />
+              <h1 className="text-lg font-bold tracking-tight">
+                Toledo<span className="text-primary">Lokal</span>
+              </h1>
             </div>
           )}
         </div>

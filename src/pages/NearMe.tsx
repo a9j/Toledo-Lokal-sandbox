@@ -440,7 +440,7 @@ function NearbyBusinessCard({ business }: NearbyBusinessCardProps) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2">
-          <h3 className="font-semibold text-foreground truncate">
+          <h3 className="font-semibold text-foreground truncate flex-1 min-w-0">
             {business.name}
           </h3>
           {business.is_food_truck_today && (

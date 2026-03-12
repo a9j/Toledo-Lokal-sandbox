@@ -77,7 +77,7 @@ export default function Discover() {
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
-                      "flex flex-col items-center gap-2.5 p-4 rounded-2xl",
+                      "flex flex-col items-center gap-2 p-2.5 rounded-2xl",
                       "bg-card border border-border/40",
                       "hover:border-primary/30 hover:bg-primary/5",
                       "transition-all duration-200 group",
@@ -85,10 +85,10 @@ export default function Discover() {
                     )}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200">
-                      <Icon className="h-5 w-5 text-primary" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200">
+                      <Icon className="h-4.5 w-4.5 text-primary" />
                     </div>
-                    <span className="text-xs text-center font-medium text-foreground line-clamp-1">
+                    <span className="text-[10px] text-center font-medium text-foreground line-clamp-1 w-full">
                       {category.name.split(' ')[0]}
                     </span>
                   </button>
