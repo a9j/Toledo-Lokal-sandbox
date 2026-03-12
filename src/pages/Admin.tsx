@@ -448,59 +448,61 @@ export default function Admin() {
         </Button>
 
         <Tabs defaultValue="analytics" className="w-full">
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="analytics" className="flex-1 gap-1.5">
+        <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 mb-4">
+          <TabsList className="w-max">
+            <TabsTrigger value="analytics" className="shrink-0 gap-1.5">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="businesses" className="flex-1 gap-1.5">
+            <TabsTrigger value="businesses" className="shrink-0 gap-1.5">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Businesses</span>
               {pendingBusinesses && pendingBusinesses.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingBusinesses.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="deals" className="flex-1 gap-1.5">
+            <TabsTrigger value="deals" className="shrink-0 gap-1.5">
               <Tag className="h-4 w-4" />
               <span className="hidden sm:inline">Deals</span>
               {pendingDeals && pendingDeals.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingDeals.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="events" className="flex-1 gap-1.5">
+            <TabsTrigger value="events" className="shrink-0 gap-1.5">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Events</span>
               {pendingEvents && pendingEvents.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingEvents.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="jobs" className="flex-1 gap-1.5">
+            <TabsTrigger value="jobs" className="shrink-0 gap-1.5">
               <Briefcase className="h-4 w-4" />
               <span className="hidden sm:inline">Jobs</span>
               {pendingJobs && pendingJobs.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingJobs.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="food" className="flex-1 gap-1.5">
+            <TabsTrigger value="food" className="shrink-0 gap-1.5">
               <Truck className="h-4 w-4" />
               <span className="hidden sm:inline">Food</span>
               {pendingFoodLocations && pendingFoodLocations.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingFoodLocations.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="nonprofits" className="flex-1 gap-1.5">
+            <TabsTrigger value="nonprofits" className="shrink-0 gap-1.5">
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Community</span>
             </TabsTrigger>
-            <TabsTrigger value="manage" className="flex-1 gap-1.5">
+            <TabsTrigger value="manage" className="shrink-0 gap-1.5">
               <ImageIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Manage</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex-1 gap-1.5">
+            <TabsTrigger value="users" className="shrink-0 gap-1.5">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
           </TabsList>
+        </div>
 
           <TabsContent value="analytics">
             {/* Platform Overview */}
