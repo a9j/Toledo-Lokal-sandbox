@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
-import { useNeighborhoods } from '@/hooks/useNeighborhoods';
+
 import { useSaveBusinessLocations, BusinessLocation, DEFAULT_LOCATION, NEIGHBORHOOD_OPTIONS } from '@/hooks/useBusinessLocations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
