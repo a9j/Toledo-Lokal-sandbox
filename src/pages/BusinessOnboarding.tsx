@@ -154,16 +154,18 @@ export default function BusinessOnboarding() {
     mutationFn: async (nextStep: number) => {
       if (!user) throw new Error('Not authenticated');
 
-      const fullAddress = data.address
-        ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim()
-        : '';
+      // Use primary location address for backwards compat
+      const primary = locations.find(l => l.is_primary) || locations[0];
+      const fullAddress = primary?.street_address
+        ? `${primary.street_address}, ${primary.city}, ${primary.state} ${primary.zip_code}`.trim()
+        : (data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim() : '');
 
       const payload: Record<string, any> = {
         name: data.name,
         description: data.description,
         category_id: data.category_id || null,
         neighborhood_id: data.neighborhood_id || null,
-        phone: data.phone || null,
+        phone: primary?.phone || data.phone || null,
         website: data.website || null,
         address: fullAddress || null,
         instagram: data.instagram || null,
@@ -182,11 +184,13 @@ export default function BusinessOnboarding() {
         payload.onboarding_completed_at = new Date().toISOString();
       }
 
-      if (businessId) {
+      let currentBusinessId = businessId;
+
+      if (currentBusinessId) {
         const { error } = await supabase
           .from('businesses')
           .update(payload)
-          .eq('id', businessId);
+          .eq('id', currentBusinessId);
         if (error) throw error;
       } else {
         const { data: newBiz, error } = await supabase
@@ -195,6 +199,7 @@ export default function BusinessOnboarding() {
           .select('id')
           .single();
         if (error) throw error;
+        currentBusinessId = newBiz.id;
         setBusinessId(newBiz.id);
 
         // Add business role
@@ -204,6 +209,29 @@ export default function BusinessOnboarding() {
             role: 'business' as any,
           });
         } catch {}
+      }
+
+      // Save locations when leaving step 2
+      if (nextStep > 2 && currentBusinessId && locations.some(l => l.street_address.trim())) {
+        const rows = locations.filter(l => l.street_address.trim()).map(loc => ({
+          business_id: currentBusinessId!,
+          label: loc.label || null,
+          street_address: loc.street_address,
+          city: loc.city,
+          state: loc.state,
+          zip_code: loc.zip_code,
+          neighborhood: loc.neighborhood || null,
+          phone: loc.phone || null,
+          hours: loc.hours,
+          is_primary: loc.is_primary,
+          is_active: loc.is_active,
+        }));
+
+        // Delete existing and re-insert
+        await supabase.from('business_locations').delete().eq('business_id', currentBusinessId);
+        if (rows.length > 0) {
+          await supabase.from('business_locations').insert(rows);
+        }
       }
     },
     onError: (err) => {
