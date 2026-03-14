@@ -104,6 +104,10 @@ export default function BusinessOnboarding() {
     tiktok: '',
   });
   const [charCount, setCharCount] = useState(0);
+  const [locations, setLocations] = useState<BusinessLocation[]>([
+    { ...DEFAULT_LOCATION, is_primary: true },
+  ]);
+  const saveLocationsMutation = useSaveBusinessLocations(businessId);
 
   // Check if user already has a business with incomplete onboarding
   useEffect(() => {
