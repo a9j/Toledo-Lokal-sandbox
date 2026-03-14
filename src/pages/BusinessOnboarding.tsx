@@ -78,7 +78,7 @@ export default function BusinessOnboarding() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
-  const { data: neighborhoods } = useNeighborhoods();
+  
 
   const [step, setStep] = useState(1);
   const [businessId, setBusinessId] = useState<string | null>(null);
