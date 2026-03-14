@@ -68,6 +68,7 @@ const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
+const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
 
 
 // Lazy-load the chat widget since it's non-critical
