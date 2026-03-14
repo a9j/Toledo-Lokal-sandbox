@@ -4,12 +4,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
-import { useNeighborhoods } from '@/hooks/useNeighborhoods';
+
+import { useSaveBusinessLocations, BusinessLocation, DEFAULT_LOCATION, NEIGHBORHOOD_OPTIONS } from '@/hooks/useBusinessLocations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -31,6 +33,9 @@ import {
   Instagram,
   Copy,
   AlertTriangle,
+  Plus,
+  X,
+  Star,
 } from 'lucide-react';
 import { isFreeEmailProvider } from '@/lib/email-utils';
 
@@ -73,7 +78,7 @@ export default function BusinessOnboarding() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
-  const { data: neighborhoods } = useNeighborhoods();
+  
 
   const [step, setStep] = useState(1);
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -99,6 +104,10 @@ export default function BusinessOnboarding() {
     tiktok: '',
   });
   const [charCount, setCharCount] = useState(0);
+  const [locations, setLocations] = useState<BusinessLocation[]>([
+    { ...DEFAULT_LOCATION, is_primary: true },
+  ]);
+  const saveLocationsMutation = useSaveBusinessLocations(businessId);
 
   // Check if user already has a business with incomplete onboarding
   useEffect(() => {
@@ -145,16 +154,18 @@ export default function BusinessOnboarding() {
     mutationFn: async (nextStep: number) => {
       if (!user) throw new Error('Not authenticated');
 
-      const fullAddress = data.address
-        ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim()
-        : '';
+      // Use primary location address for backwards compat
+      const primary = locations.find(l => l.is_primary) || locations[0];
+      const fullAddress = primary?.street_address
+        ? `${primary.street_address}, ${primary.city}, ${primary.state} ${primary.zip_code}`.trim()
+        : (data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim() : '');
 
       const payload: Record<string, any> = {
         name: data.name,
         description: data.description,
         category_id: data.category_id || null,
         neighborhood_id: data.neighborhood_id || null,
-        phone: data.phone || null,
+        phone: primary?.phone || data.phone || null,
         website: data.website || null,
         address: fullAddress || null,
         instagram: data.instagram || null,
@@ -173,11 +184,13 @@ export default function BusinessOnboarding() {
         payload.onboarding_completed_at = new Date().toISOString();
       }
 
-      if (businessId) {
+      let currentBusinessId = businessId;
+
+      if (currentBusinessId) {
         const { error } = await supabase
           .from('businesses')
           .update(payload)
-          .eq('id', businessId);
+          .eq('id', currentBusinessId);
         if (error) throw error;
       } else {
         const { data: newBiz, error } = await supabase
@@ -186,6 +199,7 @@ export default function BusinessOnboarding() {
           .select('id')
           .single();
         if (error) throw error;
+        currentBusinessId = newBiz.id;
         setBusinessId(newBiz.id);
 
         // Add business role
@@ -195,6 +209,29 @@ export default function BusinessOnboarding() {
             role: 'business' as any,
           });
         } catch {}
+      }
+
+      // Save locations when leaving step 2
+      if (nextStep > 2 && currentBusinessId && locations.some(l => l.street_address.trim())) {
+        const rows = locations.filter(l => l.street_address.trim()).map(loc => ({
+          business_id: currentBusinessId!,
+          label: loc.label || null,
+          street_address: loc.street_address,
+          city: loc.city,
+          state: loc.state,
+          zip_code: loc.zip_code,
+          neighborhood: loc.neighborhood || null,
+          phone: loc.phone || null,
+          hours: loc.hours,
+          is_primary: loc.is_primary,
+          is_active: loc.is_active,
+        }));
+
+        // Delete existing and re-insert
+        await supabase.from('business_locations').delete().eq('business_id', currentBusinessId);
+        if (rows.length > 0) {
+          await supabase.from('business_locations').insert(rows);
+        }
       }
     },
     onError: (err) => {
@@ -368,39 +405,161 @@ export default function BusinessOnboarding() {
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">Street Address *</Label>
-                <Input id="address" value={data.address} onChange={(e) => updateField('address', e.target.value)} placeholder="123 Main St" />
-              </div>
+              {locations.map((loc, i) => (
+                <div key={i} className="rounded-xl border border-border p-4 space-y-4 relative">
+                  {/* Location header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-muted-foreground">
+                        Location {i + 1}
+                      </span>
+                      {loc.is_primary && (
+                        <Badge variant="secondary" className="bg-primary/10 text-primary text-[10px] gap-1">
+                          <Star className="h-3 w-3" /> Primary
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {!loc.is_primary && locations.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-muted-foreground h-7"
+                          onClick={() => setLocations(locations.map((l, j) => ({ ...l, is_primary: j === i })))}
+                        >
+                          Set as primary
+                        </Button>
+                      )}
+                      {!loc.is_primary && locations.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          onClick={() => setLocations(locations.filter((_, j) => j !== i))}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <Input value={data.city} onChange={(e) => updateField('city', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Input value={data.state} onChange={(e) => updateField('state', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>ZIP *</Label>
-                  <Input value={data.zip} onChange={(e) => updateField('zip', e.target.value)} placeholder="43604" />
-                </div>
-              </div>
+                  {/* Nickname for additional locations */}
+                  {(locations.length > 1 || i > 0) && (
+                    <div className="space-y-1">
+                      <Label className="text-sm">Location nickname</Label>
+                      <Input
+                        value={loc.label}
+                        onChange={(e) => {
+                          const next = [...locations];
+                          next[i] = { ...loc, label: e.target.value };
+                          setLocations(next);
+                        }}
+                        placeholder="e.g. Downtown, Perrysburg, West Side"
+                        className="h-9"
+                      />
+                    </div>
+                  )}
 
-              <div className="space-y-2">
-                <Label>Neighborhood</Label>
-                <Select value={data.neighborhood_id} onValueChange={(v) => updateField('neighborhood_id', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {neighborhoods?.map(n => (
-                      <SelectItem key={n.id} value={n.id}>{n.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label className="text-sm">Street Address *</Label>
+                      <Input
+                        value={loc.street_address}
+                        onChange={(e) => {
+                          const next = [...locations];
+                          next[i] = { ...loc, street_address: e.target.value };
+                          setLocations(next);
+                        }}
+                        placeholder="123 Main St"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-sm">City</Label>
+                        <Input
+                          value={loc.city}
+                          onChange={(e) => {
+                            const next = [...locations];
+                            next[i] = { ...loc, city: e.target.value };
+                            setLocations(next);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-sm">State</Label>
+                        <Input
+                          value={loc.state}
+                          onChange={(e) => {
+                            const next = [...locations];
+                            next[i] = { ...loc, state: e.target.value };
+                            setLocations(next);
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-sm">ZIP *</Label>
+                        <Input
+                          value={loc.zip_code}
+                          onChange={(e) => {
+                            const next = [...locations];
+                            next[i] = { ...loc, zip_code: e.target.value };
+                            setLocations(next);
+                          }}
+                          placeholder="43604"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-sm">Neighborhood</Label>
+                      <Select
+                        value={loc.neighborhood}
+                        onValueChange={(v) => {
+                          const next = [...locations];
+                          next[i] = { ...loc, neighborhood: v };
+                          setLocations(next);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {NEIGHBORHOOD_OPTIONS.map(n => (
+                            <SelectItem key={n} value={n}>{n}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-sm">Phone (this location)</Label>
+                      <Input
+                        value={loc.phone}
+                        onChange={(e) => {
+                          const next = [...locations];
+                          next[i] = { ...loc, phone: e.target.value };
+                          setLocations(next);
+                        }}
+                        placeholder="(419) 555-0123"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {locations.length < 10 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full gap-2 text-muted-foreground"
+                  onClick={() => setLocations([...locations, { ...DEFAULT_LOCATION }])}
+                >
+                  <Plus className="h-4 w-4" /> Add another location
+                </Button>
+              )}
             </div>
           </div>
         )}

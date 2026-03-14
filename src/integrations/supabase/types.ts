@@ -218,6 +218,75 @@ export type Database = {
           },
         ]
       }
+      business_locations: {
+        Row: {
+          business_id: string
+          city: string
+          created_at: string
+          hours: Json | null
+          id: string
+          is_active: boolean
+          is_primary: boolean
+          label: string | null
+          latitude: number | null
+          longitude: number | null
+          neighborhood: string | null
+          phone: string | null
+          state: string
+          street_address: string
+          zip_code: string
+        }
+        Insert: {
+          business_id: string
+          city?: string
+          created_at?: string
+          hours?: Json | null
+          id?: string
+          is_active?: boolean
+          is_primary?: boolean
+          label?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          neighborhood?: string | null
+          phone?: string | null
+          state?: string
+          street_address: string
+          zip_code: string
+        }
+        Update: {
+          business_id?: string
+          city?: string
+          created_at?: string
+          hours?: Json | null
+          id?: string
+          is_active?: boolean
+          is_primary?: boolean
+          label?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          neighborhood?: string | null
+          phone?: string | null
+          state?: string
+          street_address?: string
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_loop_settings: {
         Row: {
           business_id: string

@@ -7,6 +7,7 @@ import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { ArrowLeft, Settings } from 'lucide-react';
 import { TierBadge, TierLabel } from '@/components/business/TierBadge';
+import { LocationsSection } from '@/components/business/LocationsSection';
 
 // Flip Profile Components
 import { FlipProfileContainer } from '@/components/business/profile/FlipProfileContainer';
@@ -311,6 +312,11 @@ export default function BusinessDetail() {
             hours={parsedHours}
           />
         </FlipProfileContainer>
+
+        {/* Locations section - only shows if multiple locations */}
+        <div className="max-w-lg mx-auto px-4 mt-4">
+          <LocationsSection businessId={business.id} />
+        </div>
       </div>
 
       {/* Sticky Bottom Action Dock */}

@@ -68,6 +68,7 @@ const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
+const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
 
 
 // Lazy-load the chat widget since it's non-critical
@@ -156,6 +157,7 @@ const App = () => (
                   <Route path="/food-today" element={<FoodToday />} />
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
+                  <Route path="/dashboard/locations" element={<DashboardLocations />} />
                   <Route path="/business-guide" element={<BusinessGuide />} />
                   <Route path="/founding-5-guide" element={<Founding5Guide />} />
                   <Route path="/connector/:slug" element={<ConnectorProfile />} />
