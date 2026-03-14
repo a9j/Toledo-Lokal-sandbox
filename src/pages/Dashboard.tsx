@@ -111,6 +111,12 @@ export default function Dashboard() {
       badge: business.status === 'pending' ? 'warning' : undefined
     },
     { 
+      icon: MapPin, 
+      label: 'Locations', 
+      href: '/dashboard/locations',
+      subtitle: 'Manage your business locations'
+    },
+    {
       icon: Briefcase, 
       label: 'Hiring & Jobs', 
       href: '/dashboard/jobs',
