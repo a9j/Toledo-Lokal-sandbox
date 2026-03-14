@@ -55,7 +55,7 @@ export function useBusinessLocations(businessId: string | null | undefined) {
         .order('is_primary', { ascending: false })
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return data as BusinessLocation[];
+      return (data as unknown) as BusinessLocation[];
     },
     enabled: !!businessId,
   });
