@@ -312,6 +312,11 @@ export default function BusinessDetail() {
             hours={parsedHours}
           />
         </FlipProfileContainer>
+
+        {/* Locations section - only shows if multiple locations */}
+        <div className="max-w-lg mx-auto px-4 mt-4">
+          <LocationsSection businessId={business.id} />
+        </div>
       </div>
 
       {/* Sticky Bottom Action Dock */}
