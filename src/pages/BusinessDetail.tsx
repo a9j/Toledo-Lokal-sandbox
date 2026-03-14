@@ -7,6 +7,7 @@ import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { ArrowLeft, Settings } from 'lucide-react';
 import { TierBadge, TierLabel } from '@/components/business/TierBadge';
+import { LocationsSection } from '@/components/business/LocationsSection';
 
 // Flip Profile Components
 import { FlipProfileContainer } from '@/components/business/profile/FlipProfileContainer';
