@@ -63,8 +63,49 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         query = query.limit(options.limit);
       }
       
-      const { data, error } = await query;
+      let { data, error } = await query;
       if (error) throw error;
+
+      // If filtering by neighborhood, also include businesses with locations in that neighborhood
+      if (options?.neighborhoodId && data) {
+        // Get the neighborhood name for location matching
+        const { data: neighborhood } = await supabase
+          .from('neighborhoods')
+          .select('name')
+          .eq('id', options.neighborhoodId)
+          .single();
+
+        if (neighborhood?.name) {
+          const existingIds = new Set(data.map(b => b.id));
+          const { data: locationMatches } = await supabase
+            .from('business_locations')
+            .select('business_id')
+            .eq('neighborhood', neighborhood.name)
+            .eq('is_active', true);
+
+          if (locationMatches && locationMatches.length > 0) {
+            const extraIds = locationMatches
+              .map(l => l.business_id)
+              .filter(id => !existingIds.has(id));
+
+            if (extraIds.length > 0) {
+              const { data: extraBiz } = await supabase
+                .from('businesses_public')
+                .select(`
+                  ${PUBLIC_BUSINESS_COLUMNS},
+                  neighborhood:neighborhoods(id, name),
+                  category:categories(id, name, icon),
+                  business_loop_settings(is_active, loop_tier_id)
+                `)
+                .in('id', extraIds);
+
+              if (extraBiz) {
+                data = [...data, ...extraBiz];
+              }
+            }
+          }
+        }
+      }
       
       // Sort by tier priority: founding_5 > pro > founding_50 > growth > community
       const tierPriority: Record<string, number> = {
