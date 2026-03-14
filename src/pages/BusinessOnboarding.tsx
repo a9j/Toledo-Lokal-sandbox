@@ -33,6 +33,9 @@ import {
   Instagram,
   Copy,
   AlertTriangle,
+  Plus,
+  X,
+  Star,
 } from 'lucide-react';
 import { isFreeEmailProvider } from '@/lib/email-utils';
 
