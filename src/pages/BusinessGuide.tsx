@@ -94,7 +94,7 @@ export default function BusinessGuide() {
           
           <h3 className="text-xl font-semibold mt-6 mb-3">Creating Your Account</h3>
           <ol className="list-decimal list-inside space-y-2 ml-4">
-            <li>Visit <strong>toledo-hub-connect.lovable.app</strong></li>
+            <li>Visit <strong>toledolokal.com</strong></li>
             <li>Click "Sign In" in the top right corner</li>
             <li>Choose "Sign Up" and enter your email address</li>
             <li>Check your email for a verification link</li>

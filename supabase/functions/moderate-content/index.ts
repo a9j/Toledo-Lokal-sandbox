@@ -42,7 +42,7 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
-    
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
@@ -51,11 +51,11 @@ serve(async (req) => {
     }
 
     const { text, imageUrl } = await req.json();
-    
-    console.log('Moderating content:', { 
-      hasText: !!text, 
+
+    console.log('Moderating content:', {
+      hasText: !!text,
       textLength: text?.length,
-      hasImage: !!imageUrl 
+      hasImage: !!imageUrl
     });
 
     const result: ModerationResult = {
@@ -92,7 +92,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Moderation error:', error);
+    console.error('Moderation error:', errorMessage);
     return new Response(
       JSON.stringify({ error: "Content moderation unavailable. Please try again." }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -101,26 +101,28 @@ serve(async (req) => {
 });
 
 async function moderateText(text: string): Promise<{ safe: boolean; issues: string[] }> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  
-  if (!LOVABLE_API_KEY) {
-    console.warn('LOVABLE_API_KEY not set, skipping AI moderation');
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+
+  if (!ANTHROPIC_API_KEY) {
+    console.warn('ANTHROPIC_API_KEY not set, skipping AI moderation');
     // Fallback to basic word filtering
     return basicTextModeration(text);
   }
 
   try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 200,
         messages: [
           {
-            role: 'system',
+            role: 'user',
             content: `You are a content moderation AI. Analyze the following text and determine if it contains:
 - Profanity or vulgar language
 - Hate speech or discrimination
@@ -129,27 +131,24 @@ async function moderateText(text: string): Promise<{ safe: boolean; issues: stri
 - Personal attacks or harassment
 
 Respond with a JSON object ONLY (no markdown, no explanation):
-{"safe": true/false, "issues": ["issue1", "issue2"]}`
-          },
-          {
-            role: 'user',
-            content: text
+{"safe": true/false, "issues": ["issue1", "issue2"]}
+
+Text to analyze:
+${text}`
           }
         ],
-        temperature: 0.1,
-        max_tokens: 200
       })
     });
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '{"safe": true, "issues": []}';
-    
+    const content = data.content?.[0]?.text || '{"safe": true, "issues": []}';
+
     // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    
+
     return { safe: true, issues: [] };
   } catch (error) {
     console.error('AI text moderation failed:', error);
@@ -160,7 +159,7 @@ Respond with a JSON object ONLY (no markdown, no explanation):
 function basicTextModeration(text: string): { safe: boolean; issues: string[] } {
   const lowerText = text.toLowerCase();
   const issues: string[] = [];
-  
+
   // Basic profanity list (minimal for example)
   const profanityPatterns = [
     /\bf+u+c+k+/i,
@@ -170,19 +169,19 @@ function basicTextModeration(text: string): { safe: boolean; issues: string[] } 
     /\bd+a+m+n+/i,
     /\bc+r+a+p+/i,
   ];
-  
+
   for (const pattern of profanityPatterns) {
     if (pattern.test(lowerText)) {
       issues.push('Contains profanity');
       break;
     }
   }
-  
+
   // Check for spam patterns
   if (/(.)\1{4,}/.test(text)) {
     issues.push('Contains repetitive characters (possible spam)');
   }
-  
+
   return {
     safe: issues.length === 0,
     issues
@@ -190,10 +189,10 @@ function basicTextModeration(text: string): { safe: boolean; issues: string[] } 
 }
 
 async function moderateImage(imageUrl: string): Promise<{ safe: boolean; issues: string[] }> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  
-  if (!LOVABLE_API_KEY) {
-    console.warn('LOVABLE_API_KEY not set, skipping image moderation');
+  const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+
+  if (!ANTHROPIC_API_KEY) {
+    console.warn('ANTHROPIC_API_KEY not set, skipping image moderation');
     return { safe: true, issues: [] };
   }
 
@@ -202,32 +201,35 @@ async function moderateImage(imageUrl: string): Promise<{ safe: boolean; issues:
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       signal: controller.signal,
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 100,
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Is this image safe for a business directory? Check for nudity, violence, hate symbols, or inappropriate content. Respond with JSON only: {"safe": true/false, "issues": []}`
+                text: 'Is this image safe for a business directory? Check for nudity, violence, hate symbols, or inappropriate content. Respond with JSON only: {"safe": true/false, "issues": []}'
               },
               {
-                type: 'image_url',
-                image_url: { url: imageUrl }
+                type: 'image',
+                source: {
+                  type: 'url',
+                  url: imageUrl,
+                },
               }
             ]
           }
         ],
-        temperature: 0.1,
-        max_tokens: 100
       })
     });
 
@@ -239,16 +241,16 @@ async function moderateImage(imageUrl: string): Promise<{ safe: boolean; issues:
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '{"safe": true, "issues": []}';
-    
+    const content = data.content?.[0]?.text || '{"safe": true, "issues": []}';
+
     console.log('Image moderation response:', content);
-    
+
     // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    
+
     return { safe: true, issues: [] };
   } catch (error) {
     console.error('AI image moderation failed:', error);
