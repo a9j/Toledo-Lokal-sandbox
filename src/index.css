@@ -99,62 +99,85 @@
   }
 
   .dark {
-    --background: 220 25% 7%;
-    --foreground: 40 15% 96%;
+    /* Editorial civic dark — deep charcoal/navy */
+    --background: 213 28% 6%;
+    --foreground: 0 0% 92%;
 
-    --card: 220 22% 10%;
-    --card-foreground: 40 15% 96%;
+    /* Soft dark surface cards with subtle warmth */
+    --card: 213 22% 11%;
+    --card-foreground: 0 0% 92%;
 
-    --popover: 220 22% 10%;
-    --popover-foreground: 40 15% 96%;
+    --popover: 213 22% 11%;
+    --popover-foreground: 0 0% 92%;
 
-    --primary: 218 50% 58%;
-    --primary-foreground: 220 25% 7%;
+    /* Primary — warm Toledo amber (brick, warm lights) */
+    --primary: 36 66% 54%;
+    --primary-foreground: 213 28% 6%;
 
-    --secondary: 220 18% 14%;
-    --secondary-foreground: 40 15% 92%;
+    --secondary: 213 18% 15%;
+    --secondary-foreground: 0 0% 92%;
 
-    --muted: 220 18% 14%;
-    --muted-foreground: 40 12% 58%;
+    --muted: 213 18% 14%;
+    --muted-foreground: 213 11% 65%;
 
-    --accent: 40 90% 58%;
-    --accent-foreground: 220 25% 8%;
+    /* Accent — warm amber */
+    --accent: 36 66% 54%;
+    --accent-foreground: 213 28% 6%;
 
-    --destructive: 0 60% 48%;
+    --destructive: 0 60% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 18% 18%;
-    --input: 220 18% 18%;
-    --ring: 218 50% 58%;
+    --success: 119 21% 45%;
+    --success-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 25% 8%;
-    --sidebar-foreground: 40 15% 96%;
-    --sidebar-primary: 218 50% 58%;
-    --sidebar-primary-foreground: 220 25% 7%;
-    --sidebar-accent: 220 18% 14%;
-    --sidebar-accent-foreground: 40 15% 92%;
-    --sidebar-border: 220 18% 18%;
-    --sidebar-ring: 218 50% 58%;
+    --warning: 36 66% 54%;
+    --warning-foreground: 213 28% 6%;
 
-    --lokal-midnight: 218 50% 58%;
-    --lokal-midnight-light: 218 25% 15%;
-    --lokal-amber: 40 85% 58%;
-    --lokal-amber-light: 40 45% 15%;
-    --lokal-terracotta: 18 48% 54%;
-    --lokal-terracotta-light: 18 35% 15%;
-    --lokal-forest: 158 48% 42%;
-    --lokal-forest-light: 158 28% 15%;
+    --border: 213 18% 18%;
+    --input: 213 18% 16%;
+    --ring: 36 66% 54%;
 
-    --toledo-coral: 18 48% 54%;
-    --toledo-coral-light: 18 35% 15%;
-    --toledo-teal: 158 48% 42%;
-    --toledo-teal-light: 158 28% 15%;
-    --toledo-sage: 158 48% 42%;
-    --toledo-sage-light: 158 28% 15%;
-    --toledo-rose: 18 48% 54%;
-    --toledo-rose-light: 18 35% 15%;
+    --sidebar-background: 213 28% 6%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 36 66% 54%;
+    --sidebar-primary-foreground: 213 28% 6%;
+    --sidebar-accent: 213 18% 14%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 213 18% 18%;
+    --sidebar-ring: 36 66% 54%;
+
+    /* ToledoLokal brand — civic editorial */
+    --lokal-midnight: 213 28% 6%;
+    --lokal-midnight-light: 213 22% 11%;
+    --lokal-amber: 36 66% 54%;
+    --lokal-amber-light: 36 50% 18%;
+    --lokal-terracotta: 18 52% 50%;
+    --lokal-terracotta-light: 18 30% 16%;
+    --lokal-forest: 119 21% 45%;
+    --lokal-forest-light: 119 18% 14%;
+    --lokal-sand: 36 22% 70%;
+    --lokal-cream: 36 20% 92%;
+
+    /* Community lake blue */
+    --toledo-coral: 18 52% 50%;
+    --toledo-coral-light: 18 30% 16%;
+    --toledo-teal: 208 75% 64%;
+    --toledo-teal-light: 208 35% 16%;
+    --toledo-navy: 213 28% 6%;
+    --toledo-gold: 36 66% 54%;
+    --toledo-purple: 265 38% 62%;
+    --toledo-sage: 119 21% 45%;
+    --toledo-sage-light: 119 18% 14%;
+    --toledo-rose: 18 52% 50%;
+    --toledo-rose-light: 18 30% 16%;
     --toledo-lavender: 265 38% 62%;
     --toledo-lavender-light: 265 25% 15%;
+    --toledo-clay: 18 52% 50%;
+    --toledo-clay-light: 18 30% 16%;
+    --toledo-cream: 36 20% 92%;
+
+    --featured: 36 66% 54%;
+    --verified: 119 21% 45%;
   }
 }
 
@@ -283,11 +306,27 @@
     @apply text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground;
   }
 
-  /* Display heading - Space Grotesk */
+  /* Editorial display heading — Instrument Serif */
   .heading-display {
-    font-family: 'Space Grotesk', sans-serif;
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
-    letter-spacing: -0.02em;
+    font-family: 'Instrument Serif', 'Canela', Georgia, serif;
+    @apply text-4xl md:text-5xl font-normal tracking-tight;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+
+  /* Editorial section eyebrow */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  /* Cinematic image gradient overlay */
+  .cinematic-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 15, 20, 0.15) 0%,
+      rgba(11, 15, 20, 0.55) 55%,
+      rgba(11, 15, 20, 0.92) 100%
+    );
   }
 
   /* Rich listing card image */
