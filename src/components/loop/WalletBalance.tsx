@@ -30,52 +30,65 @@ export function WalletBalance() {
 
   return (
     <div className="space-y-3">
-      <Card className="bg-gradient-to-br from-primary via-primary/90 to-primary/75 text-primary-foreground overflow-hidden relative">
-        {/* Decorative circles */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-primary-foreground/5 rounded-full -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-28 h-28 bg-primary-foreground/5 rounded-full translate-y-1/2 -translate-x-1/3" />
+      {/* Civic membership card — embossed warm card, not neon/tech */}
+      <Card className="relative overflow-hidden border-border/50 bg-card">
+        {/* Warm embossed wash */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(120% 80% at 90% 10%, hsl(36 66% 32% / 0.35) 0%, transparent 55%), radial-gradient(80% 60% at 10% 100%, hsl(208 75% 22% / 0.28) 0%, transparent 60%)',
+          }}
+        />
+        {/* Subtle map iconography */}
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='0.6'%3E%3Cpath d='M0 40 L80 40 M40 0 L40 80 M0 0 L80 80 M80 0 L0 80'/%3E%3Ccircle cx='40' cy='40' r='12'/%3E%3C/g%3E%3C/svg%3E\")",
+          }}
+        />
 
-        <CardContent className="relative z-10 pt-5 pb-5">
+        <CardContent className="relative z-10 pt-6 pb-6">
           <div className="flex items-center gap-5">
-            {/* Balance Ring */}
+            {/* Balance Ring — lake blue, civic */}
             <div className="relative flex-shrink-0">
-              <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
+              <svg width="104" height="104" viewBox="0 0 104 104" className="transform -rotate-90">
+                <circle cx="52" cy="52" r="46" fill="none" stroke="hsl(var(--foreground) / 0.08)" strokeWidth="4" />
                 <circle
-                  cx="48" cy="48" r="42"
+                  cx="52" cy="52" r="46"
                   fill="none"
-                  stroke="hsl(var(--primary-foreground) / 0.15)"
-                  strokeWidth="5"
-                />
-                <circle
-                  cx="48" cy="48" r="42"
-                  fill="none"
-                  stroke="hsl(var(--accent))"
-                  strokeWidth="5"
+                  stroke="hsl(var(--toledo-teal))"
+                  strokeWidth="4"
                   strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
+                  strokeDasharray={2 * Math.PI * 46}
+                  strokeDashoffset={(2 * Math.PI * 46) - (ringProgress / 100) * (2 * Math.PI * 46)}
                   className="transition-all duration-700 ease-out"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <Coins className="h-4 w-4 text-primary-foreground/70 mb-0.5" />
-                <span className="text-xl font-bold leading-none">{balance.toLocaleString()}</span>
-                <span className="text-[9px] text-primary-foreground/60 uppercase tracking-wider mt-0.5">points</span>
+                <span
+                  className="font-normal leading-none text-foreground"
+                  style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: '1.6rem', letterSpacing: '-0.02em' }}
+                >
+                  {balance.toLocaleString()}
+                </span>
+                <span className="text-[9px] text-muted-foreground uppercase tracking-[0.15em] mt-1">Loop</span>
               </div>
             </div>
 
             {/* Stats */}
             <div className="flex-1 space-y-3">
               <div>
-                <p className="text-xs text-primary-foreground/60 uppercase tracking-wide">Community Balance</p>
-                <p className="text-sm text-primary-foreground/80 mt-0.5">
+                <p className="eyebrow">Your Membership</p>
+                <p className="text-sm text-muted-foreground mt-1">
                   {nextMilestone - balance > 0
-                    ? `${(nextMilestone - balance).toLocaleString()} pts to next milestone`
-                    : 'Milestone reached!'}
+                    ? `${(nextMilestone - balance).toLocaleString()} to next milestone`
+                    : 'Milestone reached'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <StatPill icon={Sparkles} label="Earned" value={lifetimeEarned} />
                 <StatPill icon={Gift} label="Used" value={wallet?.lifetime_redeemed || 0} />
                 <StatPill icon={Heart} label="Given" value={wallet?.lifetime_donated || 0} />
@@ -119,10 +132,10 @@ export function WalletBalance() {
 
 function StatPill({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
   return (
-    <div className="text-center bg-primary-foreground/10 rounded-lg py-1.5 px-1">
-      <Icon className="h-3 w-3 mx-auto text-primary-foreground/60 mb-0.5" />
-      <p className="text-xs font-semibold">{value.toLocaleString()}</p>
-      <p className="text-[9px] text-primary-foreground/50">{label}</p>
+    <div className="text-center bg-foreground/[0.04] border border-border/40 rounded-xl py-2 px-1">
+      <Icon className="h-3 w-3 mx-auto text-muted-foreground mb-1" />
+      <p className="text-sm font-semibold text-foreground">{value.toLocaleString()}</p>
+      <p className="text-[9px] uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
     </div>
   );
 }
