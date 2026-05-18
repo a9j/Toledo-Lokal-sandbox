@@ -189,7 +189,7 @@ export default function BusinessOnboarding() {
       if (currentBusinessId) {
         const { error } = await supabase
           .from('businesses')
-          .update(payload)
+          .update(payload as any)
           .eq('id', currentBusinessId);
         if (error) throw error;
       } else {

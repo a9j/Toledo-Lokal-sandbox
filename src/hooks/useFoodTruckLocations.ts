@@ -128,7 +128,7 @@ export function useUpdateFoodLocation() {
     mutationFn: async ({ id, ...updates }: Partial<FoodTruckLocation> & { id: string }) => {
       const { data, error } = await supabase
         .from('food_truck_locations')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
