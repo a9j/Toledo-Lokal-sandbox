@@ -144,7 +144,7 @@ export function useUpdateJob() {
     mutationFn: async ({ id, ...updates }: Partial<Job> & { id: string }) => {
       const { data, error } = await supabase
         .from('jobs')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();

@@ -102,7 +102,7 @@ export function useUpdatePulseSharing() {
 
       const { error } = await supabase
         .from('pulse_posts')
-        .update(updates)
+        .update(updates as any)
         .eq('id', postId);
 
       if (error) throw error;

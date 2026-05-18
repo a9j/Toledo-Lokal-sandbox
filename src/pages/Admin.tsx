@@ -167,7 +167,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('businesses')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;
@@ -188,7 +188,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('businesses')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;
@@ -211,7 +211,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('deals')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;
@@ -233,7 +233,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('events')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;
@@ -254,7 +254,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('jobs')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;
@@ -274,7 +274,7 @@ export default function Admin() {
       
       const { error } = await supabase
         .from('food_truck_locations')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id);
       
       if (error) throw error;

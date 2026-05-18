@@ -80,11 +80,11 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
   const authorInitial = authorName.charAt(0).toUpperCase();
 
   return (
-    <div className={cn(
-      "relative p-4 rounded-xl border transition-all",
-      post.is_pinned 
-        ? "border-primary/30 bg-primary/5" 
-        : "border-border bg-card hover:bg-secondary/30"
+    <article className={cn(
+      "relative p-6 md:p-7 rounded-2xl border transition-all",
+      post.is_pinned
+        ? "border-primary/30 bg-primary/[0.04]"
+        : "border-border/50 bg-card hover:border-border"
     )}>
       {/* Pinned indicator */}
       {post.is_pinned && (
@@ -134,7 +134,15 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
 
           {/* Link to detail page */}
           <Link to={`/pulse/${post.pulse_id || post.id}`} className="block">
-            <p className="text-foreground text-sm leading-relaxed mb-2 hover:text-primary transition-colors">
+            <p
+              className="text-foreground leading-snug mb-3 hover:text-primary transition-colors"
+              style={{
+                fontFamily: "'Instrument Serif', Georgia, serif",
+                fontSize: '1.35rem',
+                lineHeight: 1.35,
+                letterSpacing: '-0.005em',
+              }}
+            >
               {post.content}
             </p>
           </Link>
@@ -207,6 +215,6 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
         {/* Share button */}
         <PulseShareButton post={post} />
       </div>
-    </div>
+    </article>
   );
 }

@@ -31,7 +31,7 @@ export default function RoleSelect() {
       }
       await supabase
         .from('profiles')
-        .update(updateData)
+        .update(updateData as any)
         .eq('user_id', user.id);
 
       if (selected === 'business') {

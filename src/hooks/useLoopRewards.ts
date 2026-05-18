@@ -127,7 +127,7 @@ export function useBusinessRewards() {
     mutationFn: async ({ id, ...updates }: Partial<LoopReward> & { id: string }) => {
       const { data, error } = await supabase
         .from('loop_rewards')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
