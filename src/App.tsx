@@ -1,4 +1,19 @@
-import { lazy, Suspense } from "react";
+import { lazy as reactLazy, Suspense, ComponentType } from "react";
+
+// Reload once on stale chunk errors (common after a redeploy)
+const lazy = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) =>
+  reactLazy(() =>
+    factory().catch((err) => {
+      const msg = String(err?.message || err);
+      if (/import.*module|Failed to fetch dynamically imported module|Loading chunk|Importing a module script failed/i.test(msg)) {
+        if (!sessionStorage.getItem("__chunk_reloaded__")) {
+          sessionStorage.setItem("__chunk_reloaded__", "1");
+          window.location.reload();
+        }
+      }
+      throw err;
+    })
+  );
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
