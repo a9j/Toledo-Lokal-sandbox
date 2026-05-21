@@ -181,9 +181,6 @@ const App = () => (
                 </Routes>
               </Suspense>
               <BottomNav />
-              <Suspense fallback={null}>
-                <AskToledoChat />
-              </Suspense>
               <InstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
