@@ -86,10 +86,6 @@ const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
 
 
-// Lazy-load the chat widget since it's non-critical
-const AskToledoChat = lazy(() =>
-  import("./components/chat/AskToledoChat").then((m) => ({ default: m.AskToledoChat }))
-);
 
 // Optimized QueryClient with aggressive caching
 const queryClient = new QueryClient({
@@ -185,9 +181,6 @@ const App = () => (
                 </Routes>
               </Suspense>
               <BottomNav />
-              <Suspense fallback={null}>
-                <AskToledoChat />
-              </Suspense>
               <InstallPrompt />
             </BrowserRouter>
           </TooltipProvider>
