@@ -30,17 +30,17 @@ const FirstVisitOnboarding = lazy(() =>
 
 // ---------- mock data shaped like the mockup ----------
 const happeningNow = [
-  { id: 1, badge: 'LIVE NOW', badgeTone: 'green', title: 'Live on the Docks', place: 'Promenade Park', meta: 'Ends 10:00 PM', metaTone: 'green', tint: 'from-amber-200 to-orange-300' },
-  { id: 2, badge: 'STARTS SOON', badgeTone: 'orange', title: 'Food Truck Rally', place: 'Hensville Park', meta: 'Starts 5:30 PM', metaTone: 'orange', tint: 'from-yellow-200 to-amber-300' },
-  { id: 3, badge: 'HAPPENING', badgeTone: 'purple', title: 'Art Loop', place: 'Downtown Toledo', meta: 'Until 9:00 PM', metaTone: 'purple', tint: 'from-slate-200 to-slate-300' },
-  { id: 4, badge: 'RIGHT NOW', badgeTone: 'blue', title: 'New Menu Launch', place: 'Grindhrs Coffee Co.', meta: 'Just launched', metaTone: 'blue', tint: 'from-amber-100 to-orange-200' },
+  { id: 1, badge: 'LIVE NOW', badgeTone: 'green', title: 'Live on the Docks', place: 'Promenade Park', meta: 'Ends 10:00 PM', metaTone: 'green', tint: 'from-orange-300 via-amber-400 to-rose-500', emoji: '🎤' },
+  { id: 2, badge: 'STARTS SOON', badgeTone: 'orange', title: 'Food Truck Rally', place: 'Hensville Park', meta: 'Starts 5:30 PM', metaTone: 'orange', tint: 'from-yellow-300 via-amber-400 to-orange-500', emoji: '🌮' },
+  { id: 3, badge: 'HAPPENING', badgeTone: 'purple', title: 'Art Loop', place: 'Downtown Toledo', meta: 'Until 9:00 PM', metaTone: 'purple', tint: 'from-stone-200 via-stone-300 to-stone-400', emoji: '🖼️' },
+  { id: 4, badge: 'RIGHT NOW', badgeTone: 'blue', title: 'New Menu Launch', place: 'Grindhrs Coffee Co.', meta: 'Just launched', metaTone: 'blue', tint: 'from-amber-100 via-orange-200 to-amber-300', emoji: '☕' },
 ];
 
 const forYou = [
-  { id: 1, title: 'Poetry Night at Finch & Fern', meta: '7:00 PM • Sylvania', chip: 'Because you like Bookstores', chipTone: 'violet', tint: 'from-amber-700 to-amber-900' },
-  { id: 2, title: 'Lavender Honey Latte is back 🤎', meta: 'Grindhrs Coffee Co.', chip: 'New for you', chipTone: 'amber', tint: 'from-stone-200 to-stone-400' },
-  { id: 3, title: 'Volunteer at Saturday Food Drive', meta: 'Food For Thought', chip: 'You care about this', chipTone: 'rose', tint: 'from-emerald-300 to-emerald-500' },
-  { id: 4, title: 'New Plant Arrivals', meta: 'Plant House LLC', chip: "You've been here", chipTone: 'green', tint: 'from-green-300 to-emerald-400' },
+  { id: 1, title: 'Poetry Night at Finch & Fern', meta: '7:00 PM • Sylvania', chip: 'Because you like Bookstores', chipTone: 'violet', tint: 'from-amber-800 via-amber-900 to-stone-900', emoji: '📚' },
+  { id: 2, title: 'Lavender Honey Latte is back 🤎', meta: 'Grindhrs Coffee Co.', chip: 'New for you', chipTone: 'amber', tint: 'from-stone-200 via-stone-300 to-stone-400', emoji: '☕' },
+  { id: 3, title: 'Volunteer at Saturday Food Drive', meta: 'Food For Thought', chip: 'You care about this', chipTone: 'rose', tint: 'from-emerald-300 via-teal-400 to-emerald-500', emoji: '🤝' },
+  { id: 4, title: 'New Plant Arrivals', meta: 'Plant House LLC', chip: "You've been here", chipTone: 'green', tint: 'from-green-300 via-emerald-400 to-emerald-500', emoji: '🪴' },
 ];
 
 const timeline = [
@@ -211,7 +211,8 @@ export default function Today() {
           <HScroll>
             {happeningNow.map((e) => (
               <article key={e.id} className="w-[150px] shrink-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
-                <div className={`relative h-[88px] bg-gradient-to-br ${e.tint}`}>
+                <div className={`relative h-[88px] bg-gradient-to-br ${e.tint} flex items-center justify-center`}>
+                  <span className="text-4xl drop-shadow-sm" aria-hidden>{e.emoji}</span>
                   <span className={`absolute top-2 left-2 text-[9px] font-bold tracking-wide px-2 py-0.5 rounded-md ${badgeToneClass[e.badgeTone]}`}>
                     {e.badge}
                   </span>
@@ -233,7 +234,8 @@ export default function Today() {
           <HScroll>
             {forYou.map((e) => (
               <article key={e.id} className="w-[155px] shrink-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
-                <div className={`relative h-[100px] bg-gradient-to-br ${e.tint}`}>
+                <div className={`relative h-[100px] bg-gradient-to-br ${e.tint} flex items-center justify-center`}>
+                  <span className="text-5xl drop-shadow-sm" aria-hidden>{e.emoji}</span>
                   <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 flex items-center justify-center shadow-sm">
                     <Bookmark className="h-3.5 w-3.5 text-foreground/70" />
                   </button>
@@ -373,20 +375,26 @@ function Section({
   actionTo?: string;
   children: React.ReactNode;
 }) {
+  const subtitleBelow = !!icon; // sections with icon (Circle, Picks) stack subtitle below
   return (
     <section className="mt-5">
-      <div className="flex items-end justify-between mb-2.5">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
+      <div className="flex items-end justify-between mb-2.5 gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 min-w-0">
             {emoji && <span className="text-base leading-none">{emoji}</span>}
             {icon}
-            <h3 className="text-[15px] font-bold text-foreground">{title}</h3>
-            {subtitle && (
+            <h3 className="text-[15px] font-bold text-foreground whitespace-nowrap">{title}</h3>
+            {subtitle && !subtitleBelow && (
               <span className="text-[11px] text-muted-foreground font-medium ml-1 truncate">
                 {subtitle}
               </span>
             )}
           </div>
+          {subtitle && subtitleBelow && (
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5 truncate">
+              {subtitle}
+            </p>
+          )}
         </div>
         {actionTo ? (
           <Link to={actionTo} className="text-[12px] font-semibold text-primary shrink-0">
