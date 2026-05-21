@@ -74,7 +74,7 @@ export default function Today() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 pb-24">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead
         title="Today | ToledoLokal"
         description="Your daily edition of Toledo - events, businesses, and community moments"
@@ -82,40 +82,37 @@ export default function Today() {
       />
 
       <div className="px-4 pt-safe-top">
-        {/* Premium Brand Header */}
-        <header className="flex items-center justify-between py-5">
-          <div className="flex items-center gap-0">
-            <img src={logoImage} alt="ToledoLokal" className="w-[100px] h-[100px] rounded-2xl object-contain" />
-            <div className="-ml-3">
-              <h1 className="text-xl font-bold text-foreground tracking-tight">
+        {/* Brand header — matches Discover */}
+        <header className="flex items-center justify-between py-4">
+          <Link to="/" className="flex items-center gap-0">
+            <img src={logoImage} alt="ToledoLokal" className="w-[60px] h-[60px] rounded-2xl object-contain" />
+            <div className="-ml-1.5">
+              <h1 className="text-xl font-bold text-foreground tracking-tight leading-none">
                 Toledo<span className="text-primary">Lokal</span>
               </h1>
-              <p className="text-xs text-muted-foreground font-medium">The Glass City</p>
+              <p className="text-[11px] text-muted-foreground font-medium mt-1">The Glass City</p>
             </div>
-          </div>
-          
-          {/* Quick actions */}
+          </Link>
+
           <div className="flex items-center gap-2">
-            <Link 
+            <Link
               to="/loop-wallet"
-              className="w-10 h-10 rounded-xl bg-card border border-border/40 flex items-center justify-center hover:bg-muted/50 hover:border-border transition-all duration-200 shadow-sm"
+              aria-label="Loop wallet"
+              className="w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center text-foreground/80 hover:border-primary/40 hover:text-primary transition-all"
             >
-              <QrCode className="h-4.5 w-4.5 text-muted-foreground" />
+              <QrCode className="h-4 w-4" />
             </Link>
             {user ? (
-              <Link 
+              <Link
                 to="/profile"
-                className="w-10 h-10 rounded-xl bg-card border border-border/40 flex items-center justify-center hover:bg-muted/50 hover:border-border transition-all duration-200 shadow-sm"
+                aria-label="Profile"
+                className="w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center text-foreground/80 hover:border-primary/40 hover:text-primary transition-all"
               >
-                <UserCircle className="h-4.5 w-4.5 text-muted-foreground" />
+                <UserCircle className="h-4 w-4" />
               </Link>
             ) : (
               <Link to="/auth">
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="text-xs rounded-xl h-10 px-3 gap-1.5"
-                >
+                <Button size="sm" className="text-xs rounded-full h-10 px-4 gap-1.5 shadow-glow-blue">
                   <LogIn className="h-3.5 w-3.5" />
                   Sign In
                 </Button>
@@ -125,37 +122,35 @@ export default function Today() {
         </header>
 
         {/* Content */}
-        <div className="space-y-5 pb-4">
+        <div className="space-y-4 pb-4">
           {isLoading ? (
-            // Loading skeleton with stagger
             <div className="space-y-4">
-              <Skeleton className="h-36 rounded-2xl animate-pulse" />
-              <Skeleton className="h-52 rounded-2xl animate-pulse" style={{ animationDelay: '100ms' }} />
-              <Skeleton className="h-40 rounded-2xl animate-pulse" style={{ animationDelay: '200ms' }} />
+              <Skeleton className="h-36 rounded-3xl animate-pulse" />
+              <Skeleton className="h-52 rounded-3xl animate-pulse" style={{ animationDelay: '100ms' }} />
+              <Skeleton className="h-40 rounded-3xl animate-pulse" style={{ animationDelay: '200ms' }} />
             </div>
           ) : dailyDrop ? (
-            // Daily Drop content
             <div className="space-y-4">
               <div className="animate-fade-in-up">
-                <DailyDropHeader 
-                  date={parseISO(dailyDrop.drop_date)} 
+                <DailyDropHeader
+                  date={parseISO(dailyDrop.drop_date)}
                   title={dailyDrop.title}
                   isStale={isStale}
                 />
               </div>
-              
+
               {dailyDrop.highlights.length > 0 && (
                 <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                   <TodayInToledo highlights={dailyDrop.highlights} />
                 </div>
               )}
-              
+
               {dailyDrop.spotlights.length > 0 && (
                 <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                   <LiveLocalSpotlight spotlights={dailyDrop.spotlights} />
                 </div>
               )}
-              
+
               {dailyDrop.moment && (
                 <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
                   <CommunityMoment moment={dailyDrop.moment} />
@@ -163,26 +158,23 @@ export default function Today() {
               )}
             </div>
           ) : (
-            // No daily drop available
             <EmptyDailyDrop date={today} />
           )}
 
-          {/* Quick Access Cards */}
-          <div className="pt-3">
-            <Link 
-              to="/discover"
-              className="group card-elevated flex items-center gap-3 p-4 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200">
-                <Compass className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Discover Toledo</p>
-                <p className="text-xs text-muted-foreground">Browse all businesses & more</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-            </Link>
-          </div>
+          {/* Discover Toledo quick card */}
+          <Link
+            to="/discover"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <Compass className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">Discover Toledo</p>
+              <p className="text-[12px] text-muted-foreground">Browse all businesses & more</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
         </div>
       </div>
     </div>
