@@ -375,20 +375,26 @@ function Section({
   actionTo?: string;
   children: React.ReactNode;
 }) {
+  const subtitleBelow = !!icon; // sections with icon (Circle, Picks) stack subtitle below
   return (
     <section className="mt-5">
-      <div className="flex items-end justify-between mb-2.5">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
+      <div className="flex items-end justify-between mb-2.5 gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 min-w-0">
             {emoji && <span className="text-base leading-none">{emoji}</span>}
             {icon}
-            <h3 className="text-[15px] font-bold text-foreground">{title}</h3>
-            {subtitle && (
+            <h3 className="text-[15px] font-bold text-foreground whitespace-nowrap">{title}</h3>
+            {subtitle && !subtitleBelow && (
               <span className="text-[11px] text-muted-foreground font-medium ml-1 truncate">
                 {subtitle}
               </span>
             )}
           </div>
+          {subtitle && subtitleBelow && (
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5 truncate">
+              {subtitle}
+            </p>
+          )}
         </div>
         {actionTo ? (
           <Link to={actionTo} className="text-[12px] font-semibold text-primary shrink-0">
