@@ -476,41 +476,44 @@ export default function Discover() {
           </div>
         )}
 
-        {/* Business List */}
-        <section>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-28 rounded-2xl" />
-              ))}
-            </div>
-          ) : filteredBusinesses?.length ? (
-            <div className="space-y-3">
-              {filteredBusinesses.map((business, index) => (
-                <div
-                  key={business.id}
-                  className="animate-fade-in-up"
-                  style={{ animationDelay: `${index * 40}ms` }}
-                >
-                  <BusinessCard business={business} savedCount={savedCounts[business.id] || 0} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8 text-muted-foreground/50" />
+        {/* Business List — only shown when actively searching/filtering */}
+        {(searchQuery || selectedCategory || selectedNeighborhood) && (
+          <section>
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-28 rounded-2xl" />
+                ))}
               </div>
-              <p className="text-muted-foreground font-medium mb-1">No businesses found</p>
-              <p className="text-sm text-muted-foreground/70 mb-4">Try adjusting your filters</p>
-              {searchQuery && (
-                <Button variant="outline" onClick={() => setSearchQuery('')} className="rounded-full">
-                  Clear search
-                </Button>
-              )}
-            </div>
-          )}
-        </section>
+            ) : filteredBusinesses?.length ? (
+              <div className="space-y-3">
+                {filteredBusinesses.map((business, index) => (
+                  <div
+                    key={business.id}
+                    className="animate-fade-in-up"
+                    style={{ animationDelay: `${index * 40}ms` }}
+                  >
+                    <BusinessCard business={business} savedCount={savedCounts[business.id] || 0} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-8 w-8 text-muted-foreground/50" />
+                </div>
+                <p className="text-muted-foreground font-medium mb-1">No businesses found</p>
+                <p className="text-sm text-muted-foreground/70 mb-4">Try adjusting your filters</p>
+                {searchQuery && (
+                  <Button variant="outline" onClick={() => setSearchQuery('')} className="rounded-full">
+                    Clear search
+                  </Button>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
       </div>
     </div>
   );
