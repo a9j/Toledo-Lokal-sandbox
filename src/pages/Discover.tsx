@@ -354,30 +354,43 @@ export default function Discover() {
           </section>
         )}
 
-        {/* Explore by Map */}
+        {/* Explore by Map — dark stylized card */}
         <section className="pb-6">
           <Link
             to="/near-me"
-            className="block relative overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/40 transition-all group"
+            className="block relative overflow-hidden rounded-3xl border border-border hover:border-primary/40 transition-all group"
+            style={{ backgroundColor: 'hsl(220 30% 8%)' }}
           >
             <div
-              className="absolute inset-0 opacity-90"
+              className="absolute inset-0"
               style={{
                 background: `
-                  radial-gradient(circle at 70% 50%, hsl(var(--primary) / 0.18), transparent 55%),
-                  radial-gradient(circle at 30% 80%, hsl(var(--primary) / 0.10), transparent 50%),
-                  linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)
+                  radial-gradient(circle at 72% 55%, hsl(217 92% 56% / 0.35), transparent 50%),
+                  radial-gradient(circle at 30% 85%, hsl(217 92% 56% / 0.18), transparent 55%)
                 `,
               }}
             />
-            <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 400 200" fill="none" aria-hidden>
-              <path d="M50 100 Q150 60 200 100 T350 100" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.3" />
-              <path d="M80 140 Q180 100 250 140 T380 140" stroke="hsl(var(--primary))" strokeWidth="0.5" opacity="0.3" />
+            {/* Network grid lines */}
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none" aria-hidden>
+              <g stroke="hsl(217 92% 56%)" strokeWidth="0.4" opacity="0.35">
+                <path d="M280 100 L340 60" />
+                <path d="M280 100 L360 130" />
+                <path d="M280 100 L220 140" />
+                <path d="M280 100 L240 70" />
+                <path d="M280 100 L380 95" />
+              </g>
+              <g fill="hsl(217 92% 56%)" opacity="0.5">
+                <circle cx="340" cy="60" r="1.5" />
+                <circle cx="360" cy="130" r="1.5" />
+                <circle cx="220" cy="140" r="1.5" />
+                <circle cx="240" cy="70" r="1.5" />
+                <circle cx="380" cy="95" r="1.5" />
+              </g>
             </svg>
             <div className="relative p-5 flex items-center gap-4">
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground tracking-tight">Explore by Map</h3>
-                <p className="mt-1 text-[13px] text-muted-foreground leading-snug max-w-[200px]">
+                <h3 className="text-xl font-bold text-white tracking-tight">Explore by Map</h3>
+                <p className="mt-1 text-[13px] text-white/65 leading-snug max-w-[180px]">
                   Find local favorites near you.
                 </p>
                 <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground font-semibold text-[13px] pl-4 pr-3 py-2 shadow-glow-blue">
@@ -385,15 +398,16 @@ export default function Discover() {
                   <ChevronRight className="h-3.5 w-3.5" />
                 </div>
               </div>
-              <div className="relative w-[42%] h-[120px] shrink-0">
-                <MapPin className="absolute top-2 left-6 h-4 w-4 text-primary/60 fill-primary/30" />
-                <MapPin className="absolute top-5 right-2 h-4 w-4 text-primary/60 fill-primary/30" />
-                <MapPin className="absolute bottom-4 left-2 h-4 w-4 text-primary/60 fill-primary/30" />
+              <div className="relative w-[44%] h-[120px] shrink-0">
+                <MapPin className="absolute top-1 left-4 h-5 w-5 text-primary fill-primary/60" />
+                <MapPin className="absolute top-6 right-1 h-5 w-5 text-primary fill-primary/60" />
+                <MapPin className="absolute bottom-2 left-1 h-5 w-5 text-primary fill-primary/60" />
+                <MapPin className="absolute bottom-6 right-6 h-4 w-4 text-primary fill-primary/60" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
-                    <div className="relative w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-glow-blue">
-                      <Heart className="h-5 w-5 text-primary-foreground fill-primary-foreground" />
+                    <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+                    <div className="relative w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-glow-blue">
+                      <Heart className="h-6 w-6 text-primary-foreground fill-primary-foreground" />
                     </div>
                   </div>
                 </div>
@@ -401,6 +415,7 @@ export default function Discover() {
             </div>
           </Link>
         </section>
+
 
         {/* Trending Now */}
         <section className="pb-6">
