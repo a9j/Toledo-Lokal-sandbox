@@ -30,17 +30,17 @@ const FirstVisitOnboarding = lazy(() =>
 
 // ---------- mock data shaped like the mockup ----------
 const happeningNow = [
-  { id: 1, badge: 'LIVE NOW', badgeTone: 'green', title: 'Live on the Docks', place: 'Promenade Park', meta: 'Ends 10:00 PM', metaTone: 'green', tint: 'from-amber-200 to-orange-300' },
-  { id: 2, badge: 'STARTS SOON', badgeTone: 'orange', title: 'Food Truck Rally', place: 'Hensville Park', meta: 'Starts 5:30 PM', metaTone: 'orange', tint: 'from-yellow-200 to-amber-300' },
-  { id: 3, badge: 'HAPPENING', badgeTone: 'purple', title: 'Art Loop', place: 'Downtown Toledo', meta: 'Until 9:00 PM', metaTone: 'purple', tint: 'from-slate-200 to-slate-300' },
-  { id: 4, badge: 'RIGHT NOW', badgeTone: 'blue', title: 'New Menu Launch', place: 'Grindhrs Coffee Co.', meta: 'Just launched', metaTone: 'blue', tint: 'from-amber-100 to-orange-200' },
+  { id: 1, badge: 'LIVE NOW', badgeTone: 'green', title: 'Live on the Docks', place: 'Promenade Park', meta: 'Ends 10:00 PM', metaTone: 'green', tint: 'from-orange-300 via-amber-400 to-rose-500', emoji: '🎤' },
+  { id: 2, badge: 'STARTS SOON', badgeTone: 'orange', title: 'Food Truck Rally', place: 'Hensville Park', meta: 'Starts 5:30 PM', metaTone: 'orange', tint: 'from-yellow-300 via-amber-400 to-orange-500', emoji: '🌮' },
+  { id: 3, badge: 'HAPPENING', badgeTone: 'purple', title: 'Art Loop', place: 'Downtown Toledo', meta: 'Until 9:00 PM', metaTone: 'purple', tint: 'from-stone-200 via-stone-300 to-stone-400', emoji: '🖼️' },
+  { id: 4, badge: 'RIGHT NOW', badgeTone: 'blue', title: 'New Menu Launch', place: 'Grindhrs Coffee Co.', meta: 'Just launched', metaTone: 'blue', tint: 'from-amber-100 via-orange-200 to-amber-300', emoji: '☕' },
 ];
 
 const forYou = [
-  { id: 1, title: 'Poetry Night at Finch & Fern', meta: '7:00 PM • Sylvania', chip: 'Because you like Bookstores', chipTone: 'violet', tint: 'from-amber-700 to-amber-900' },
-  { id: 2, title: 'Lavender Honey Latte is back 🤎', meta: 'Grindhrs Coffee Co.', chip: 'New for you', chipTone: 'amber', tint: 'from-stone-200 to-stone-400' },
-  { id: 3, title: 'Volunteer at Saturday Food Drive', meta: 'Food For Thought', chip: 'You care about this', chipTone: 'rose', tint: 'from-emerald-300 to-emerald-500' },
-  { id: 4, title: 'New Plant Arrivals', meta: 'Plant House LLC', chip: "You've been here", chipTone: 'green', tint: 'from-green-300 to-emerald-400' },
+  { id: 1, title: 'Poetry Night at Finch & Fern', meta: '7:00 PM • Sylvania', chip: 'Because you like Bookstores', chipTone: 'violet', tint: 'from-amber-800 via-amber-900 to-stone-900', emoji: '📚' },
+  { id: 2, title: 'Lavender Honey Latte is back 🤎', meta: 'Grindhrs Coffee Co.', chip: 'New for you', chipTone: 'amber', tint: 'from-stone-200 via-stone-300 to-stone-400', emoji: '☕' },
+  { id: 3, title: 'Volunteer at Saturday Food Drive', meta: 'Food For Thought', chip: 'You care about this', chipTone: 'rose', tint: 'from-emerald-300 via-teal-400 to-emerald-500', emoji: '🤝' },
+  { id: 4, title: 'New Plant Arrivals', meta: 'Plant House LLC', chip: "You've been here", chipTone: 'green', tint: 'from-green-300 via-emerald-400 to-emerald-500', emoji: '🪴' },
 ];
 
 const timeline = [
