@@ -211,7 +211,8 @@ export default function Today() {
           <HScroll>
             {happeningNow.map((e) => (
               <article key={e.id} className="w-[150px] shrink-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
-                <div className={`relative h-[88px] bg-gradient-to-br ${e.tint}`}>
+                <div className={`relative h-[88px] bg-gradient-to-br ${e.tint} flex items-center justify-center`}>
+                  <span className="text-4xl drop-shadow-sm" aria-hidden>{e.emoji}</span>
                   <span className={`absolute top-2 left-2 text-[9px] font-bold tracking-wide px-2 py-0.5 rounded-md ${badgeToneClass[e.badgeTone]}`}>
                     {e.badge}
                   </span>
