@@ -161,12 +161,12 @@ export default function Discover() {
                 <Link
                   key={cat?.id || i}
                   to={cat ? `/explore?category=${cat.id}` : '/explore'}
-                  className="flex flex-col items-center gap-2 shrink-0 w-[64px]"
+                  className="flex flex-col items-center gap-2 shrink-0 w-[76px]"
                 >
                   <div className="w-14 h-14 rounded-full border border-white/15 bg-white/[0.04] flex items-center justify-center hover:border-primary/50 transition-all">
                     <Icon className="h-6 w-6 text-primary" strokeWidth={1.6} />
                   </div>
-                  <span className="text-[11px] font-medium text-white/85 text-center line-clamp-1 w-full">
+                  <span className="text-[11px] font-medium text-white/85 text-center leading-tight line-clamp-2 w-full">
                     {cat?.name || '—'}
                   </span>
                 </Link>
