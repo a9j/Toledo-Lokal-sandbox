@@ -61,15 +61,11 @@ export default function Profile() {
     queryKey: ['profile-stats', user?.id],
     queryFn: async () => {
       if (!user) return { saved: 0, supported: 0, checkins: 0 };
-      const [{ count: saved }, { count: checkins }] = await Promise.all([
-        supabase.from('saved_items').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('loop_transactions').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      ]);
-      return {
-        saved: saved ?? 0,
-        supported: 0,
-        checkins: checkins ?? 0,
-      };
+      const { count: saved } = await supabase
+        .from('saved_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      return { saved: saved ?? 0, supported: 0, checkins: 0 };
     },
     enabled: !!user,
   });
