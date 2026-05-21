@@ -261,7 +261,7 @@ export default function Discover() {
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-6 gap-2">
             {visibleCategories?.map((category, index) => {
               const Icon = getIcon(category.icon || 'building2');
               const isActive = selectedCategory === category.id;
@@ -270,21 +270,22 @@ export default function Discover() {
                   key={category.id}
                   onClick={() => setSelectedCategory(isActive ? null : category.id)}
                   className={cn(
-                    'flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl border transition-all duration-200 animate-fade-in-up',
+                    'flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-2xl border transition-all duration-200 animate-fade-in-up',
                     isActive
                       ? 'border-primary bg-primary/10'
                       : 'bg-card border-border hover:border-primary/40 hover:bg-primary/5'
                   )}
-                  style={{ animationDelay: `${index * 25}ms` }}
+                  style={{ animationDelay: `${index * 20}ms` }}
                 >
-                  <Icon className="h-5 w-5 text-primary" strokeWidth={1.8} />
-                  <span className="text-[12px] font-semibold text-foreground/85 line-clamp-1">
+                  <Icon className="h-[18px] w-[18px] text-primary" strokeWidth={1.8} />
+                  <span className="text-[10px] font-semibold text-foreground/85 line-clamp-1">
                     {category.name.split(' ')[0]}
                   </span>
                 </button>
               );
             })}
           </div>
+
         </section>
 
         {/* Featured in Toledo */}
