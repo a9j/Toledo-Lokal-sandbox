@@ -16,9 +16,10 @@ import { useNavigate } from 'react-router-dom';
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
-import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } from 'lucide-react';
+import { QrCode, Compass, ChevronRight, UserCircle, LogIn, Heart, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
+import heroSkyline from '@/assets/hero-toledo-skyline.jpg';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
