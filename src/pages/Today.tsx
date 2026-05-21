@@ -234,7 +234,8 @@ export default function Today() {
           <HScroll>
             {forYou.map((e) => (
               <article key={e.id} className="w-[155px] shrink-0 rounded-2xl border border-border/60 bg-card overflow-hidden">
-                <div className={`relative h-[100px] bg-gradient-to-br ${e.tint}`}>
+                <div className={`relative h-[100px] bg-gradient-to-br ${e.tint} flex items-center justify-center`}>
+                  <span className="text-5xl drop-shadow-sm" aria-hidden>{e.emoji}</span>
                   <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 flex items-center justify-center shadow-sm">
                     <Bookmark className="h-3.5 w-3.5 text-foreground/70" />
                   </button>
