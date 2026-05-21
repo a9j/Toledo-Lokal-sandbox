@@ -19,7 +19,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const iconMap: Record<string, any> = {
   'utensils': Utensils,
   'shopping-bag': ShoppingBag,
   'building-2': Building2,
