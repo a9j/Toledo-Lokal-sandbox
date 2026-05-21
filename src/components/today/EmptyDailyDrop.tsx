@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 import { Newspaper, Calendar, MapPin, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 
 interface EmptyDailyDropProps {
   date: Date;
@@ -9,46 +8,40 @@ interface EmptyDailyDropProps {
 
 export function EmptyDailyDrop({ date }: EmptyDailyDropProps) {
   return (
-    <div className="space-y-6">
-      {/* Header Card */}
-      <div className="card-elevated-lg p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-          <Newspaper className="h-8 w-8 text-muted-foreground" />
+    <div className="space-y-5">
+      <div className="rounded-3xl border border-border/60 bg-card p-7 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+          <Newspaper className="h-6 w-6 text-primary" strokeWidth={1.8} />
         </div>
-        <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+        <h2
+          className="text-[26px] uppercase text-foreground mb-2"
+          style={{ fontFamily: "'Anton', 'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.01em', lineHeight: 0.95 }}
+        >
           No Daily Drop Yet
         </h2>
-        <p className="text-muted-foreground max-w-sm mx-auto">
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           Today's edition is being prepared. In the meantime, explore what Toledo has to offer.
         </p>
       </div>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-3 gap-3">
-        <Link to="/events" className="card-elevated p-4 text-center hover:bg-muted/50 transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2">
-            <Calendar className="h-6 w-6 text-primary" />
-          </div>
-          <span className="text-sm font-medium text-foreground">Events</span>
-        </Link>
-        
-        <Link to="/near-me" className="card-elevated p-4 text-center hover:bg-muted/50 transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-lokal-forest/10 flex items-center justify-center mx-auto mb-2">
-            <MapPin className="h-6 w-6 text-lokal-forest" />
-          </div>
-          <span className="text-sm font-medium text-foreground">Near Me</span>
-        </Link>
-        
-        <Link to="/deals" className="card-elevated p-4 text-center hover:bg-muted/50 transition-colors">
-          <div className="w-12 h-12 rounded-xl bg-toledo-rose/10 flex items-center justify-center mx-auto mb-2">
-            <Gift className="h-6 w-6 text-toledo-rose" />
-          </div>
-          <span className="text-sm font-medium text-foreground">Deals</span>
-        </Link>
+      <div className="grid grid-cols-3 gap-2.5">
+        {[
+          { to: '/events', label: 'Events', Icon: Calendar },
+          { to: '/near-me', label: 'Near Me', Icon: MapPin },
+          { to: '/deals', label: 'Deals', Icon: Gift },
+        ].map(({ to, label, Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <Icon className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            <span className="text-[11px] font-semibold text-foreground/90">{label}</span>
+          </Link>
+        ))}
       </div>
 
-      {/* Date Info */}
-      <p className="text-center text-xs text-muted-foreground">
+      <p className="text-center text-[11px] text-muted-foreground">
         {format(date, 'EEEE, MMMM d, yyyy')}
       </p>
     </div>
