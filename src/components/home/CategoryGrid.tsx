@@ -1,60 +1,40 @@
 import { Link } from 'react-router-dom';
 import { useCategories } from '@/hooks/useCategories';
-import { 
-  Utensils, 
-  ShoppingBag, 
-  Building2, 
-  Landmark, 
-  Dumbbell, 
-  Music, 
-  Heart, 
-  Sparkles,
+import {
+  Utensils,
+  ShoppingBag,
+  Building2,
+  Dumbbell,
+  Heart,
   Car,
-  Briefcase,
   Calendar,
   Home,
   HeartHandshake,
   HeartPulse,
-  Scissors,
   Palette,
   GraduationCap,
-  PawPrint
+  PawPrint,
+  MapPin,
+  Sparkles,
+  ChevronRight,
 } from 'lucide-react';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<string, any> = {
   'utensils': Utensils,
   'shopping-bag': ShoppingBag,
   'building-2': Building2,
-  'landmark': Landmark,
   'dumbbell': Dumbbell,
-  'music': Music,
   'heart': Heart,
   'sparkles': Sparkles,
   'car': Car,
-  'briefcase': Briefcase,
   'calendar': Calendar,
   'home': Home,
   'heart-handshake': HeartHandshake,
   'heart-pulse': HeartPulse,
-  'scissors': Scissors,
   'palette': Palette,
   'graduation-cap': GraduationCap,
   'paw-print': PawPrint,
-};
-
-const colorMap: Record<string, string> = {
-  'Food & Drink': 'bg-orange-50 text-orange-600',
-  'Shopping': 'bg-pink-50 text-pink-600',
-  'Health & Wellness': 'bg-green-50 text-green-600',
-  'Beauty': 'bg-purple-50 text-purple-600',
-  'Home Services': 'bg-amber-50 text-amber-600',
-  'Local Pros': 'bg-teal-50 text-teal-600',
-  'Events & Venues': 'bg-indigo-50 text-indigo-600',
-  'Arts & Culture': 'bg-fuchsia-50 text-fuchsia-600',
-  'Auto & Transport': 'bg-blue-50 text-blue-600',
-  'Education': 'bg-cyan-50 text-cyan-600',
-  'Pets': 'bg-lime-50 text-lime-600',
-  'Volunteer & Nonprofit': 'bg-rose-50 text-rose-600',
+  'map-pin': MapPin,
 };
 
 export function CategoryGrid() {
@@ -62,31 +42,34 @@ export function CategoryGrid() {
 
   if (!categories?.length) return null;
 
+  const visible = categories.slice(0, 12);
+
   return (
     <section className="px-4 py-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-end justify-between mb-3">
         <h2 className="text-xl font-bold text-foreground">Browse Categories</h2>
-        <Link to="/explore" className="text-sm font-medium text-primary hover:underline">
-          See all
+        <Link
+          to="/explore"
+          className="flex items-center gap-0.5 text-sm font-semibold text-primary hover:underline"
+        >
+          View all {categories.length}
+          <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
-        {categories.slice(0, 8).map((category) => {
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+        {visible.map((category) => {
           const iconKey = category.icon || 'building-2';
           const IconComponent = iconMap[iconKey] || Building2;
-          const colorClasses = colorMap[category.name] || 'bg-secondary text-foreground';
 
           return (
             <Link
               key={category.id}
               to={`/explore?category=${category.id}`}
-              className="category-chip"
+              className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colorClasses}`}>
-                <IconComponent className="h-6 w-6" />
-              </div>
-              <span className="text-xs font-medium text-foreground text-center leading-tight">
+              <IconComponent className="h-6 w-6 text-primary" strokeWidth={1.8} />
+              <span className="text-[11px] font-semibold text-foreground/90 text-center leading-tight px-1 truncate max-w-full">
                 {category.name.split(' ')[0]}
               </span>
             </Link>
