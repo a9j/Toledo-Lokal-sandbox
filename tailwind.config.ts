@@ -74,6 +74,10 @@ export default {
           "midnight-light": "hsl(var(--lokal-midnight-light))",
           amber: "hsl(var(--lokal-amber))",
           "amber-light": "hsl(var(--lokal-amber-light))",
+          blue: "hsl(var(--lokal-blue))",
+          "blue-deep": "hsl(var(--lokal-blue-deep))",
+          "blue-glow": "hsl(var(--lokal-blue-glow))",
+          gold: "hsl(var(--lokal-gold))",
           terracotta: "hsl(var(--lokal-terracotta))",
           "terracotta-light": "hsl(var(--lokal-terracotta-light))",
           forest: "hsl(var(--lokal-forest))",
@@ -115,7 +119,8 @@ export default {
         'soft-lg': '0 8px 24px -4px rgba(0, 0, 0, 0.1)',
         'soft-xl': '0 16px 40px -8px rgba(0, 0, 0, 0.12)',
         'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
-        'glow-amber': '0 0 20px -5px hsla(38, 90%, 55%, 0.4)',
+        'glow-amber': '0 0 24px -5px hsla(217, 95%, 60%, 0.5)',
+        'glow-blue': '0 0 28px -4px hsla(217, 95%, 60%, 0.55)',
       },
       keyframes: {
         "accordion-down": {
