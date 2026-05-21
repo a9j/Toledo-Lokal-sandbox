@@ -8,35 +8,29 @@
 
 @layer base {
   :root {
-    /* Clean white background with subtle warmth */
+    /* Light surfaces with warm neutrals */
     --background: 40 20% 99%;
     --foreground: 220 30% 12%;
 
-    /* Card surfaces with subtle elevation */
     --card: 0 0% 100%;
     --card-foreground: 220 30% 12%;
 
-    /* Popover */
     --popover: 0 0% 100%;
     --popover-foreground: 220 30% 12%;
 
-    /* Primary - Rich midnight blue */
-    --primary: 218 55% 28%;
+    /* Primary — electric Lokal blue */
+    --primary: 217 92% 56%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Warm neutral */
-    --secondary: 45 25% 95%;
+    --secondary: 220 18% 96%;
     --secondary-foreground: 220 25% 20%;
 
-    /* Muted backgrounds */
-    --muted: 45 15% 96%;
+    --muted: 220 15% 96%;
     --muted-foreground: 220 12% 48%;
 
-    /* Accent - Warm amber gold */
-    --accent: 40 95% 52%;
-    --accent-foreground: 220 30% 10%;
+    --accent: 217 92% 56%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Semantic colors */
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
@@ -46,43 +40,43 @@
     --warning: 40 95% 52%;
     --warning-foreground: 220 30% 10%;
 
-    /* Borders & inputs */
     --border: 220 12% 90%;
     --input: 220 12% 94%;
-    --ring: 218 55% 28%;
+    --ring: 217 92% 56%;
 
-    /* Radius - refined */
-    --radius: 0.875rem;
+    --radius: 1rem;
 
-    /* Sidebar */
-    --sidebar-background: 40 15% 98%;
+    --sidebar-background: 220 18% 98%;
     --sidebar-foreground: 220 25% 20%;
-    --sidebar-primary: 218 55% 28%;
+    --sidebar-primary: 217 92% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 45 25% 94%;
+    --sidebar-accent: 220 15% 94%;
     --sidebar-accent-foreground: 220 25% 20%;
     --sidebar-border: 220 12% 90%;
-    --sidebar-ring: 218 55% 28%;
+    --sidebar-ring: 217 92% 56%;
 
-    /* ToledoLokal Brand Palette - Premium refinement */
-    --lokal-midnight: 218 55% 28%;
-    --lokal-midnight-light: 218 35% 96%;
-    --lokal-amber: 40 95% 52%;
-    --lokal-amber-light: 40 85% 95%;
+    /* ToledoLokal Brand — Electric Blue identity */
+    --lokal-midnight: 220 65% 10%;
+    --lokal-midnight-light: 220 35% 96%;
+    --lokal-amber: 217 92% 56%;
+    --lokal-amber-light: 217 90% 95%;
+    --lokal-blue: 217 92% 56%;
+    --lokal-blue-deep: 220 85% 42%;
+    --lokal-blue-glow: 210 100% 70%;
     --lokal-terracotta: 18 55% 48%;
     --lokal-terracotta-light: 18 60% 96%;
     --lokal-forest: 158 55% 32%;
     --lokal-forest-light: 158 45% 95%;
     --lokal-sand: 38 28% 88%;
     --lokal-cream: 40 25% 97%;
-    
-    /* Legacy support */
+    --lokal-gold: 42 95% 58%;
+
     --toledo-coral: 18 55% 48%;
     --toledo-coral-light: 18 60% 96%;
-    --toledo-teal: 158 55% 32%;
-    --toledo-teal-light: 158 45% 95%;
-    --toledo-navy: 218 55% 28%;
-    --toledo-gold: 40 95% 52%;
+    --toledo-teal: 217 92% 56%;
+    --toledo-teal-light: 217 90% 95%;
+    --toledo-navy: 220 65% 10%;
+    --toledo-gold: 42 95% 58%;
     --toledo-purple: 265 45% 52%;
     --toledo-sage: 158 55% 32%;
     --toledo-sage-light: 158 45% 95%;
@@ -93,81 +87,81 @@
     --toledo-clay: 18 55% 48%;
     --toledo-clay-light: 18 60% 96%;
     --toledo-cream: 40 25% 97%;
-    
-    --featured: 40 95% 52%;
-    --verified: 158 55% 32%;
+
+    --featured: 217 92% 56%;
+    --verified: 158 55% 38%;
   }
 
   .dark {
-    /* Editorial civic dark — deep charcoal/navy */
-    --background: 213 28% 6%;
-    --foreground: 0 0% 92%;
+    /* Deep near-black civic canvas */
+    --background: 220 30% 5%;
+    --foreground: 0 0% 96%;
 
-    /* Soft dark surface cards with subtle warmth */
-    --card: 213 22% 11%;
-    --card-foreground: 0 0% 92%;
+    --card: 220 25% 9%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 213 22% 11%;
-    --popover-foreground: 0 0% 92%;
+    --popover: 220 25% 9%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Primary — warm Toledo amber (brick, warm lights) */
-    --primary: 36 66% 54%;
-    --primary-foreground: 213 28% 6%;
+    /* Primary — vivid electric blue */
+    --primary: 217 95% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 213 18% 15%;
-    --secondary-foreground: 0 0% 92%;
+    --secondary: 220 22% 13%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 213 18% 14%;
-    --muted-foreground: 213 11% 65%;
+    --muted: 220 22% 12%;
+    --muted-foreground: 220 12% 65%;
 
-    /* Accent — warm amber */
-    --accent: 36 66% 54%;
-    --accent-foreground: 213 28% 6%;
+    --accent: 217 95% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 52%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 119 21% 45%;
+    --success: 158 55% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 36 66% 54%;
-    --warning-foreground: 213 28% 6%;
+    --warning: 42 95% 58%;
+    --warning-foreground: 220 30% 6%;
 
-    --border: 213 18% 18%;
-    --input: 213 18% 16%;
-    --ring: 36 66% 54%;
+    --border: 220 20% 18%;
+    --input: 220 22% 14%;
+    --ring: 217 95% 60%;
 
-    --sidebar-background: 213 28% 6%;
-    --sidebar-foreground: 0 0% 92%;
-    --sidebar-primary: 36 66% 54%;
-    --sidebar-primary-foreground: 213 28% 6%;
-    --sidebar-accent: 213 18% 14%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 213 18% 18%;
-    --sidebar-ring: 36 66% 54%;
+    --sidebar-background: 220 30% 5%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 217 95% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 22% 12%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 217 95% 60%;
 
-    /* ToledoLokal brand — civic editorial */
-    --lokal-midnight: 213 28% 6%;
-    --lokal-midnight-light: 213 22% 11%;
-    --lokal-amber: 36 66% 54%;
-    --lokal-amber-light: 36 50% 18%;
+    --lokal-midnight: 220 30% 5%;
+    --lokal-midnight-light: 220 25% 9%;
+    --lokal-amber: 217 95% 60%;
+    --lokal-amber-light: 217 50% 18%;
+    --lokal-blue: 217 95% 60%;
+    --lokal-blue-deep: 220 85% 38%;
+    --lokal-blue-glow: 210 100% 72%;
     --lokal-terracotta: 18 52% 50%;
     --lokal-terracotta-light: 18 30% 16%;
-    --lokal-forest: 119 21% 45%;
-    --lokal-forest-light: 119 18% 14%;
+    --lokal-forest: 158 45% 48%;
+    --lokal-forest-light: 158 18% 14%;
     --lokal-sand: 36 22% 70%;
     --lokal-cream: 36 20% 92%;
+    --lokal-gold: 42 95% 60%;
 
-    /* Community lake blue */
     --toledo-coral: 18 52% 50%;
     --toledo-coral-light: 18 30% 16%;
-    --toledo-teal: 208 75% 64%;
-    --toledo-teal-light: 208 35% 16%;
-    --toledo-navy: 213 28% 6%;
-    --toledo-gold: 36 66% 54%;
+    --toledo-teal: 217 95% 60%;
+    --toledo-teal-light: 217 40% 16%;
+    --toledo-navy: 220 30% 5%;
+    --toledo-gold: 42 95% 60%;
     --toledo-purple: 265 38% 62%;
-    --toledo-sage: 119 21% 45%;
-    --toledo-sage-light: 119 18% 14%;
+    --toledo-sage: 158 45% 48%;
+    --toledo-sage-light: 158 18% 14%;
     --toledo-rose: 18 52% 50%;
     --toledo-rose-light: 18 30% 16%;
     --toledo-lavender: 265 38% 62%;
@@ -176,8 +170,8 @@
     --toledo-clay-light: 18 30% 16%;
     --toledo-cream: 36 20% 92%;
 
-    --featured: 36 66% 54%;
-    --verified: 119 21% 45%;
+    --featured: 217 95% 60%;
+    --verified: 158 45% 48%;
   }
 }
 
@@ -236,12 +230,11 @@
     transform: scale(1.02);
   }
 
-  /* Featured badge - premium amber */
+  /* Featured badge — electric blue */
   .badge-featured {
-    @apply text-xs font-semibold px-3 py-1.5 rounded-full;
-    background: linear-gradient(135deg, hsl(40 95% 52%) 0%, hsl(35 90% 48%) 100%);
-    color: hsl(220 30% 10%);
-    box-shadow: 0 2px 8px -2px hsla(40, 95%, 52%, 0.4);
+    @apply text-xs font-semibold px-3 py-1.5 rounded-full text-white;
+    background: linear-gradient(135deg, hsl(217 95% 60%) 0%, hsl(220 85% 48%) 100%);
+    box-shadow: 0 2px 12px -2px hsla(217, 95%, 60%, 0.45);
   }
 
   /* Verified badge - elegant forest */
@@ -346,13 +339,13 @@
     @apply w-full;
   }
 
-  /* Brand gradient - refined */
+  /* Brand gradient - electric blue */
   .gradient-brand {
     background: linear-gradient(
-      135deg, 
-      hsl(218 55% 28%) 0%, 
-      hsl(218 50% 38%) 50%, 
-      hsl(40 70% 42%) 100%
+      135deg,
+      hsl(220 65% 10%) 0%,
+      hsl(220 85% 28%) 50%,
+      hsl(217 95% 60%) 100%
     );
   }
 
@@ -365,20 +358,18 @@
     );
   }
 
-  /* Accent border */
   .border-accent-gradient {
-    border-image: linear-gradient(135deg, hsl(var(--lokal-midnight)), hsl(var(--lokal-amber))) 1;
+    border-image: linear-gradient(135deg, hsl(var(--lokal-midnight)), hsl(var(--lokal-blue))) 1;
   }
 
-  /* Premium button */
   .btn-premium {
-    @apply relative overflow-hidden font-semibold transition-all duration-300;
-    background: linear-gradient(135deg, hsl(218 55% 28%) 0%, hsl(218 50% 35%) 100%);
+    @apply relative overflow-hidden font-semibold transition-all duration-300 text-white;
+    background: linear-gradient(135deg, hsl(217 95% 60%) 0%, hsl(220 85% 45%) 100%);
   }
   .btn-premium::before {
     content: '';
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: linear-gradient(135deg, hsl(218 50% 35%) 0%, hsl(218 55% 28%) 100%);
+    background: linear-gradient(135deg, hsl(220 85% 45%) 0%, hsl(217 95% 60%) 100%);
   }
   .btn-premium:hover::before {
     @apply opacity-100;
@@ -418,8 +409,8 @@
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px -4px hsla(40, 95%, 52%, 0.35); }
-  50% { box-shadow: 0 0 32px -4px hsla(40, 95%, 52%, 0.55); }
+  0%, 100% { box-shadow: 0 0 24px -4px hsla(217, 95%, 60%, 0.40); }
+  50% { box-shadow: 0 0 40px -4px hsla(217, 95%, 60%, 0.65); }
 }
 
 @keyframes shimmer {

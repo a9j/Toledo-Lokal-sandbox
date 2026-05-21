@@ -60,21 +60,65 @@ export default function Index() {
       {/* Hero Section with Search */}
       <HeroSection onSearch={handleSearch} />
 
-      {/* Quick Links Bar */}
-      <QuickLinksBar />
-
-      {/* Category Grid */}
-      <CategoryGrid />
-
-      {/* Featured Places */}
+      {/* Local Spotlight */}
       <FeaturedSection
-        title="Featured Places"
-        subtitle="Hand-picked local favorites"
+        title="Local Spotlight"
+        subtitle="Hand-picked Toledo favorites"
         viewAllLink="/explore"
         businesses={featuredBusinesses}
         isLoading={featuredLoading}
         labelText="Editor's Choice"
       />
+
+      {/* Explore by Map */}
+      <section className="px-4 py-6">
+        <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground/90 mb-3">
+          Explore Toledo
+        </h2>
+        <button
+          onClick={() => navigate('/near-me')}
+          className="group relative w-full overflow-hidden rounded-3xl border border-border/60 bg-card text-left p-5 h-[180px] flex flex-col justify-between hover:border-primary/40 transition-all"
+        >
+          {/* Map dotted backdrop */}
+          <div
+            className="absolute inset-0 opacity-50"
+            style={{
+              background: `
+                radial-gradient(circle at 65% 40%, hsl(var(--primary) / 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 30% 70%, hsl(var(--primary) / 0.10) 0%, transparent 40%)
+              `,
+            }}
+          />
+          <svg className="absolute inset-0 w-full h-full opacity-30" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="dots" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+                <circle cx="1.5" cy="1.5" r="1" fill="hsl(var(--muted-foreground))" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dots)" />
+          </svg>
+          {/* Pins */}
+          <div className="absolute top-6 right-10 w-3 h-4 rounded-full bg-primary shadow-glow-blue" />
+          <div className="absolute top-14 right-24 w-2.5 h-3.5 rounded-full bg-primary/80" />
+          <div className="absolute bottom-10 right-8 w-3 h-4 rounded-full bg-primary shadow-glow-blue" />
+          <div className="absolute bottom-16 right-32 w-2 h-3 rounded-full bg-primary/70" />
+
+          <div className="relative">
+            <h3 className="text-lg font-bold text-foreground leading-tight">
+              Explore local favorites
+              <br />near you.
+            </h3>
+          </div>
+          <div className="relative">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm px-5 py-2.5 shadow-glow-blue group-hover:brightness-110 transition">
+              Open Map →
+            </span>
+          </div>
+        </button>
+      </section>
+
+      {/* Categories (Trending Now style) */}
+      <CategoryGrid />
 
       {/* Events Carousel */}
       <EventsCarousel
@@ -110,21 +154,19 @@ export default function Index() {
 
       {/* CTA Section */}
       <section className="px-4 py-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-lokal-midnight to-primary p-6 text-white">
-          {/* Amber accent glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-lokal-amber/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-lokal-forest/15 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
+        <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-6">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-primary/25 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
           <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lokal-amber/20 border border-lokal-amber/30 mb-4">
-              <span className="text-lokal-amber text-xs font-semibold">FREE LISTING</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/30 mb-4">
+              <span className="text-primary text-[11px] font-bold uppercase tracking-wider">Free Listing</span>
             </div>
-            <h3 className="font-display text-xl font-bold mb-2">Own a business in Toledo?</h3>
-            <p className="text-white/70 text-sm mb-5">
+            <h3 className="font-display text-xl font-bold mb-2 text-foreground">Own a business in Toledo?</h3>
+            <p className="text-muted-foreground text-sm mb-5">
               Get discovered by thousands of locals. Join the ToledoLokal community.
             </p>
-            <button 
+            <button
               onClick={() => navigate('/create-business')}
-              className="px-6 py-3 bg-lokal-amber text-lokal-midnight rounded-xl font-semibold text-sm hover:bg-lokal-amber/90 transition-all hover:shadow-glow-amber"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-full font-semibold text-sm hover:brightness-110 transition-all shadow-glow-blue"
             >
               Add Your Business →
             </button>

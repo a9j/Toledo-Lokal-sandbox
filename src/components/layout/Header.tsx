@@ -35,36 +35,41 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
           {showBack && title ? (
             <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           ) : (
-            <div className="flex items-center gap-0">
-              <img src={logoImage} alt="ToledoLokal" className="w-[100px] h-[100px] rounded-2xl object-contain" />
-              <div className="-ml-3">
-                <h1 className="text-lg font-bold tracking-tight">
-                  Toledo<span className="text-primary">Lokal</span>
+            <Link to="/" className="flex items-center gap-2 group">
+              <img
+                src={logoImage}
+                alt="ToledoLokal"
+                className="w-10 h-10 object-contain drop-shadow-[0_2px_8px_rgba(45,127,249,0.4)]"
+              />
+              <div className="leading-none">
+                <h1 className="text-[17px] font-bold tracking-tight">
+                  <span className="text-foreground">Toledo</span>
+                  <span className="text-primary">Lokal</span>
                 </h1>
               </div>
-            </div>
+            </Link>
           )}
         </div>
 
         <div className="flex items-center gap-1.5">
           {showSearch && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-9 w-9 rounded-xl hover:bg-muted"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full hover:bg-secondary"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-[18px] w-[18px]" />
             </Button>
           )}
-          
+
           {showNotifications && user && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-9 w-9 rounded-xl hover:bg-muted relative"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full hover:bg-secondary relative"
             >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-lokal-amber border-2 border-background" />
+              <Bell className="h-[18px] w-[18px]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary border-2 border-background" />
             </Button>
           )}
 
