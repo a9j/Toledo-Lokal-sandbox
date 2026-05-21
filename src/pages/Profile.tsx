@@ -6,7 +6,10 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Share, Heart, Crown } from 'lucide-react';
+import {
+  Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
+  Share, Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles,
+} from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
@@ -16,20 +19,13 @@ import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
 import { useLoop } from '@/contexts/LoopContext';
 
 export default function Profile() {
-  const { user, signOut, isAdmin, isBusiness, isConnector } = useAuth();
+  const { user, signOut, isAdmin, isConnector } = useAuth();
   const { ensureLoaded } = useLoop();
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-
-  const handleInstallClick = async () => {
-    if (isIOS) {
-      setShowIOSInstructions(true);
-    } else {
-      await promptInstall();
-    }
-  };
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -40,7 +36,6 @@ export default function Profile() {
         .select('*, neighborhood:neighborhoods(name)')
         .eq('user_id', user.id)
         .single();
-      
       if (error) throw error;
       return data;
     },
@@ -56,24 +51,43 @@ export default function Profile() {
         .select('*')
         .eq('owner_user_id', user.id)
         .maybeSingle();
-      
       if (error) throw error;
       return data;
     },
     enabled: !!user,
   });
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+  const { data: stats } = useQuery({
+    queryKey: ['profile-stats', user?.id],
+    queryFn: async () => {
+      if (!user) return { saved: 0, supported: 0, checkins: 0 };
+      const [{ count: saved }, { count: checkins }] = await Promise.all([
+        supabase.from('saved_items').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('loop_transactions').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      ]);
+      return {
+        saved: saved ?? 0,
+        supported: 0,
+        checkins: checkins ?? 0,
+      };
+    },
+    enabled: !!user,
+  });
+
+  const handleSignOut = async () => { await signOut(); navigate('/'); };
+  const handleAvatarUpdate = () => queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+  const handleInstallClick = async () => {
+    if (isIOS) setShowIOSInstructions(true); else await promptInstall();
   };
 
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  if (!user) { navigate('/auth'); return null; }
 
-  const queryClient = useQueryClient();
+  const vibeChips = [
+    { icon: Coffee, label: 'Coffee Shops' },
+    { icon: BookOpen, label: 'Bookstores' },
+    { icon: Music, label: 'Live Music' },
+    { icon: Sparkles, label: 'Hidden Gems' },
+  ];
 
   const menuItems = [
     { icon: Heart, label: 'My Toledo', href: '/my-toledo' },
@@ -81,47 +95,158 @@ export default function Profile() {
     { icon: FileText, label: 'My Requests', href: '/requests' },
   ];
 
-  const handleAvatarUpdate = (newUrl: string) => {
-    queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
-  };
+  const displayName = profile?.name || user.email?.split('@')[0] || 'Toledoan';
+  const memberSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : null;
 
   return (
     <>
       <Header title="Profile" />
-      
-      <PageContainer className="space-y-6 pb-20">
-        {/* Profile header */}
-        <div className="flex items-center gap-4">
-          <AvatarUpload
-            currentUrl={profile?.avatar_url}
-            userName={profile?.name}
-            userEmail={user.email}
-            userId={user.id}
-            onUploadComplete={handleAvatarUpdate}
+
+      {/* Skyline hero */}
+      <section className="relative">
+        <div className="relative h-44 overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `
+                radial-gradient(120% 80% at 80% 30%, hsl(28 90% 50% / 0.5) 0%, transparent 55%),
+                radial-gradient(60% 60% at 20% 80%, hsl(220 70% 22% / 0.6) 0%, transparent 65%),
+                linear-gradient(180deg, hsl(220 35% 8%) 0%, hsl(220 30% 5%) 100%)
+              `,
+            }}
           />
-          
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold">{profile?.name || 'User'}</h2>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
-            {profile?.neighborhood && (
-              <p className="text-sm text-muted-foreground">{profile.neighborhood.name}</p>
-            )}
-            {userBusiness && (
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                  <Building2 className="h-3 w-3" />
-                  Business Owner
-                </span>
+          <svg className="absolute bottom-0 left-0 w-full h-[60%] opacity-90" viewBox="0 0 800 300" preserveAspectRatio="none">
+            <path fill="hsl(220 40% 10%)" d="M0,300 L0,210 L40,210 L40,170 L75,170 L75,195 L110,195 L110,140 L140,140 L140,165 L175,165 L175,120 L210,120 L210,90 L240,90 L240,135 L275,135 L275,105 L310,105 L310,85 L340,85 L340,140 L380,140 L380,115 L420,115 L420,80 L445,80 L445,110 L475,110 L475,150 L510,150 L510,125 L545,125 L545,170 L575,170 L575,140 L610,140 L610,180 L645,180 L645,155 L680,155 L680,195 L720,195 L720,170 L760,170 L760,210 L800,210 L800,300 Z" />
+          </svg>
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />
+        </div>
+
+        {/* Avatar + name overlay */}
+        <div className="px-5 -mt-12 relative z-10 max-w-lg mx-auto">
+          <div className="flex items-end gap-4">
+            <div className="ring-4 ring-background rounded-full">
+              <AvatarUpload
+                currentUrl={profile?.avatar_url}
+                userName={profile?.name}
+                userEmail={user.email}
+                userId={user.id}
+                onUploadComplete={handleAvatarUpdate}
+              />
+            </div>
+            <div className="flex-1 pb-1">
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+                <BadgeCheck className="h-5 w-5 text-primary fill-primary/20" />
               </div>
-            )}
+              {profile?.neighborhood?.name && (
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {profile.neighborhood.name}, Toledo
+                </p>
+              )}
+              {memberSince && (
+                <p className="text-xs text-muted-foreground/80 mt-0.5">Member since {memberSince}</p>
+              )}
+            </div>
           </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/profile-setup')}
+            className="mt-4 rounded-full border-border/70 px-5"
+          >
+            Edit Profile
+          </Button>
+        </div>
+      </section>
+
+      <PageContainer className="space-y-6 pb-20 mt-6">
+        {/* Stats row */}
+        <div className="grid grid-cols-3 rounded-2xl border border-border/60 bg-card divide-x divide-border/60 overflow-hidden">
+          {[
+            { v: stats?.saved ?? 0, l: 'Places Saved' },
+            { v: stats?.supported ?? 0, l: 'Nonprofits Supported' },
+            { v: stats?.checkins ?? 0, l: 'Check-ins' },
+          ].map((s) => (
+            <div key={s.l} className="text-center py-4 px-2">
+              <div className="text-2xl font-bold text-foreground">{s.v}</div>
+              <div className="text-[11px] text-muted-foreground leading-tight mt-1">{s.l}</div>
+            </div>
+          ))}
         </div>
 
         {/* Loop Wallet Card */}
         <ProfileWalletCard />
+
+        {/* Toledo Passport map preview */}
+        <Link
+          to="/my-toledo"
+          className="block rounded-2xl border border-border/60 bg-card overflow-hidden hover:border-primary/40 transition-colors"
+        >
+          <div className="flex items-center justify-between px-5 pt-4">
+            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-foreground/90">
+              Toledo Passport
+            </h3>
+            <span className="text-xs text-primary font-semibold">See all</span>
+          </div>
+          <div className="relative h-32 mt-3 mx-3 rounded-xl overflow-hidden bg-secondary/60">
+            <svg className="absolute inset-0 w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="passport-dots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+                  <circle cx="1" cy="1" r="0.8" fill="hsl(var(--muted-foreground))" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#passport-dots)" />
+            </svg>
+            {/* heart pins */}
+            {[
+              { l: '20%', t: '30%' }, { l: '38%', t: '55%' }, { l: '55%', t: '25%' },
+              { l: '70%', t: '60%' }, { l: '82%', t: '35%' }, { l: '15%', t: '70%' },
+            ].map((p, i) => (
+              <div
+                key={i}
+                className="absolute w-2.5 h-3.5 rounded-full bg-primary shadow-glow-blue"
+                style={{ left: p.l, top: p.t }}
+              />
+            ))}
+          </div>
+          <div className="grid grid-cols-4 px-3 py-3 text-center">
+            {[
+              { v: stats?.saved ?? 0, l: 'Saved' },
+              { v: 0, l: 'Bookstores' },
+              { v: 0, l: 'Festivals' },
+              { v: stats?.checkins ?? 0, l: 'Events' },
+            ].map((s) => (
+              <div key={s.l}>
+                <div className="text-base font-bold text-foreground">{s.v}</div>
+                <div className="text-[10px] text-muted-foreground">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </Link>
+
+        {/* Your Vibe chips */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-foreground/90">Your Vibe</h3>
+            <button className="text-xs text-primary font-semibold">Edit</button>
+          </div>
+          <p className="text-sm text-muted-foreground">The things you love most about Toledo.</p>
+          <div className="flex flex-wrap gap-2">
+            {vibeChips.map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold"
+              >
+                <Icon className="h-3.5 w-3.5" /> {label}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <UserWalletQR />
-        
-        {/* User Pulse Settings */}
         <UserPulseToggle />
 
         {/* Business section */}
@@ -141,13 +266,6 @@ export default function Profile() {
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
             </Link>
-            <Link to={`/business/${userBusiness.id}`}>
-              <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-                <span className="flex-1 font-medium">View My Public Profile</span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </div>
-            </Link>
           </div>
         ) : (
           <Link to="/create-business">
@@ -157,20 +275,18 @@ export default function Profile() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium">List Your Business</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get discovered by Toledo residents
-                </p>
+                <p className="text-sm text-muted-foreground">Get discovered by Toledo residents</p>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
           </Link>
         )}
 
-        {/* My Toledo Preview */}
+        {/* Local Favorites preview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">My Toledo</h3>
-            <Link to="/my-toledo" className="text-sm text-primary">View All</Link>
+            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-foreground/90">Local Favorites</h3>
+            <Link to="/my-toledo" className="text-xs text-primary font-semibold">See all</Link>
           </div>
           <SavedPlacesList compact maxItems={3} />
         </div>
@@ -186,17 +302,17 @@ export default function Profile() {
               </div>
             </Link>
           ))}
-          
+
           {isConnector && (
             <Link to="/connector-dashboard">
               <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
-                <Crown className="h-5 w-5 text-amber-500" />
+                <Crown className="h-5 w-5 text-lokal-gold" />
                 <span className="flex-1 font-medium">Connector Hub</span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
             </Link>
           )}
-          
+
           {isAdmin && (
             <Link to="/admin">
               <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
@@ -207,9 +323,8 @@ export default function Profile() {
             </Link>
           )}
 
-          {/* Install App option - show if not installed */}
           {!isInstalled && (canInstall || isIOS) && (
-            <button 
+            <button
               onClick={handleInstallClick}
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
             >
@@ -220,11 +335,10 @@ export default function Profile() {
           )}
         </div>
 
-        {/* iOS Instructions Modal */}
         {showIOSInstructions && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-background rounded-2xl p-6 max-w-sm w-full space-y-4">
-              <h3 className="text-lg font-semibold">Install Toledo Connect</h3>
+              <h3 className="text-lg font-semibold">Install ToledoLokal</h3>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">1</div>
@@ -239,19 +353,12 @@ export default function Profile() {
                   <p>Tap "Add" to install</p>
                 </div>
               </div>
-              <Button onClick={() => setShowIOSInstructions(false)} className="w-full">
-                Got it
-              </Button>
+              <Button onClick={() => setShowIOSInstructions(false)} className="w-full">Got it</Button>
             </div>
           </div>
         )}
 
-        {/* Sign out */}
-        <Button 
-          variant="outline" 
-          className="w-full gap-2"
-          onClick={handleSignOut}
-        >
+        <Button variant="outline" className="w-full gap-2" onClick={handleSignOut}>
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
