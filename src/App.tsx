@@ -1,12 +1,14 @@
 import { lazy as reactLazy, Suspense, ComponentType } from "react";
 
 const STALE_CHUNK_RELOAD_KEY = "__chunk_reloaded__";
+const STALE_CHUNK_RELOAD_COOLDOWN_MS = 10_000;
 
 export const recoverFromStaleChunk = () => {
   if (typeof window === "undefined") return false;
-  if (sessionStorage.getItem(STALE_CHUNK_RELOAD_KEY)) return false;
+  const lastReloadAt = Number(sessionStorage.getItem(STALE_CHUNK_RELOAD_KEY) || 0);
+  if (Date.now() - lastReloadAt < STALE_CHUNK_RELOAD_COOLDOWN_MS) return false;
 
-  sessionStorage.setItem(STALE_CHUNK_RELOAD_KEY, "1");
+  sessionStorage.setItem(STALE_CHUNK_RELOAD_KEY, String(Date.now()));
 
   const clearRuntimeCaches = async () => {
     if ("caches" in window) {
