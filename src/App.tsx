@@ -1,15 +1,40 @@
 import { lazy as reactLazy, Suspense, ComponentType } from "react";
 
+const STALE_CHUNK_RELOAD_KEY = "__chunk_reloaded__";
+
+export const recoverFromStaleChunk = () => {
+  if (typeof window === "undefined") return false;
+  if (sessionStorage.getItem(STALE_CHUNK_RELOAD_KEY)) return false;
+
+  sessionStorage.setItem(STALE_CHUNK_RELOAD_KEY, "1");
+
+  const clearRuntimeCaches = async () => {
+    if ("caches" in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+    }
+
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.update()));
+    }
+  };
+
+  void clearRuntimeCaches().finally(() => window.location.reload());
+  return true;
+};
+
+export const isStaleChunkError = (error: unknown) => {
+  const msg = String((error as { message?: unknown })?.message || error);
+  return /import.*module|Failed to fetch dynamically imported module|Loading chunk|Importing a module script failed/i.test(msg);
+};
+
 // Reload once on stale chunk errors (common after a redeploy)
 const lazy = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) =>
   reactLazy(() =>
     factory().catch((err) => {
-      const msg = String(err?.message || err);
-      if (/import.*module|Failed to fetch dynamically imported module|Loading chunk|Importing a module script failed/i.test(msg)) {
-        if (!sessionStorage.getItem("__chunk_reloaded__")) {
-          sessionStorage.setItem("__chunk_reloaded__", "1");
-          window.location.reload();
-        }
+      if (isStaleChunkError(err)) {
+        recoverFromStaleChunk();
       }
       throw err;
     })
