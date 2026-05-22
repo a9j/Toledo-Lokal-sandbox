@@ -22,6 +22,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -115,11 +116,12 @@ function PageFallback() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <SubscriptionProvider>
-        <LoopProvider>
-          <TooltipProvider>
-            <Toaster />
+    <ThemeProvider>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <LoopProvider>
+            <TooltipProvider>
+              <Toaster />
             <Sonner />
             <BrowserRouter>
               <Suspense fallback={<PageFallback />}>
@@ -193,7 +195,8 @@ const App = () => (
           </TooltipProvider>
         </LoopProvider>
       </SubscriptionProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
