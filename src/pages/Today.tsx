@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
 import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } from 'lucide-react';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
 
@@ -95,6 +96,7 @@ export default function Today() {
           </Link>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link
               to="/loop-wallet"
               aria-label="Loop wallet"
