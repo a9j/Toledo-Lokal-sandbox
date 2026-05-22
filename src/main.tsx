@@ -1,18 +1,18 @@
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import App, { isStaleChunkError, recoverFromStaleChunk } from "./App.tsx";
 import "./index.css";
 
 window.addEventListener("error", (event) => {
-  if (event.error && App.isStaleChunkError?.(event.error)) {
+  if (event.error && isStaleChunkError(event.error)) {
     event.preventDefault();
-    App.recoverFromStaleChunk?.();
+    recoverFromStaleChunk();
   }
 });
 
 window.addEventListener("unhandledrejection", (event) => {
-  if (App.isStaleChunkError?.(event.reason)) {
+  if (isStaleChunkError(event.reason)) {
     event.preventDefault();
-    App.recoverFromStaleChunk?.();
+    recoverFromStaleChunk();
   }
 });
 
