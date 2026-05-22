@@ -195,7 +195,8 @@ const App = () => (
           </TooltipProvider>
         </LoopProvider>
       </SubscriptionProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

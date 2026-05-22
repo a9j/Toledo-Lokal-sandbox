@@ -3,6 +3,7 @@ import logoImage from '@/assets/tl-logo.png';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 interface HeaderProps {
   title?: string;
@@ -52,6 +53,7 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
         </div>
 
         <div className="flex items-center gap-1.5">
+          <ThemeToggle />
           {showSearch && (
             <Button
               variant="ghost"
