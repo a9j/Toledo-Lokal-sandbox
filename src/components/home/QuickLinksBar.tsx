@@ -3,9 +3,9 @@ import { Briefcase, Truck, Tag, Ticket } from 'lucide-react';
 
 const quickLinks = [
   { path: '/jobs', icon: Briefcase, label: 'Jobs', color: 'bg-blue-50 text-blue-600' },
-  { path: '/food-today', icon: Truck, label: 'Food Trucks', color: 'bg-orange-50 text-orange-600' },
   { path: '/deals', icon: Tag, label: 'Deals', color: 'bg-green-50 text-green-600' },
   { path: '/events', icon: Ticket, label: 'Events', color: 'bg-purple-50 text-purple-600' },
+  { path: '/food-today', icon: Truck, label: 'Food Trucks', color: 'bg-orange-50 text-orange-600' },
 ];
 
 export function QuickLinksBar() {
