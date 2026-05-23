@@ -1,11 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, MapPin, Compass, Radio, Repeat } from 'lucide-react';
+import { Newspaper, MapPin, Truck, Compass, Radio, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/', icon: Newspaper, label: 'Today' },
   { path: '/near-me', icon: MapPin, label: 'Near Me' },
+  { path: '/food-today', icon: Truck, label: 'Trucks' },
   { path: '/discover', icon: Compass, label: 'Discover' },
   { path: '/pulse', icon: Radio, label: 'Pulse' },
   { path: '/loop', icon: Repeat, label: 'Loop' },
