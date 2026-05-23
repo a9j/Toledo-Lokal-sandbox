@@ -6,9 +6,9 @@ import { FoodTruckCard } from '@/components/cards/FoodTruckCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, List, Map as MapIcon, Utensils, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, List, Map as MapIcon, Utensils, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { format, addDays, subDays, isToday, isTomorrow } from 'date-fns';
+import { format, parse, addDays, subDays, isToday, isTomorrow } from 'date-fns';
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { Link } from 'react-router-dom';
@@ -25,14 +25,23 @@ const defaultCenter = {
   lng: -83.5379,
 };
 
+const formatTime12hr = (time: string): string => {
+  if (!time) return '';
+  try {
+    return format(parse(time, 'HH:mm:ss', new Date()), 'h:mm a');
+  } catch {
+    return time;
+  }
+};
+
 export default function FoodToday() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
-  
+
   const dateString = format(selectedDate, 'yyyy-MM-dd');
   const { data: locations, isLoading } = useFoodTruckLocations({ date: dateString });
-  const { apiKey: mapsKey } = useGoogleMapsKey();
+  const { apiKey: mapsKey, isLoading: mapsKeyLoading } = useGoogleMapsKey();
   
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: mapsKey || '',
@@ -68,18 +77,18 @@ export default function FoodToday() {
 
   return (
     <>
-      <SEOHead 
-        title="Food Today | ToledoLokal"
-        description="Find food trucks and pop-ups in Toledo today. See where your favorite mobile vendors are serving."
+      <SEOHead
+        title="Food Trucks | ToledoLokal"
+        description="Find food trucks and pop-ups in Toledo on a live map. See where your favorite mobile vendors are serving today."
       />
-      <Header title="Food Today" />
-      
+      <Header title="Food Trucks" />
+
       <PageContainer className="space-y-4">
         {/* Header */}
         <div className="text-center pt-2 pb-2">
-          <h1 className="text-2xl font-bold text-foreground">Food Today</h1>
+          <h1 className="text-2xl font-bold text-foreground">Food Trucks</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Where the trucks are serving
+            Find where the trucks are serving on the map
           </p>
         </div>
 
@@ -112,6 +121,15 @@ export default function FoodToday() {
         {/* View Toggle */}
         <div className="flex gap-2">
           <Button
+            variant={viewMode === 'map' ? 'default' : 'outline'}
+            size="sm"
+            className="flex-1"
+            onClick={() => setViewMode('map')}
+          >
+            <MapIcon className="h-4 w-4 mr-2" />
+            Map
+          </Button>
+          <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             size="sm"
             className="flex-1"
@@ -120,58 +138,50 @@ export default function FoodToday() {
             <List className="h-4 w-4 mr-2" />
             List
           </Button>
-          <Button
-            variant={viewMode === 'map' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-1"
-            onClick={() => setViewMode('map')}
-            disabled={!mapsKey}
-          >
-            <MapIcon className="h-4 w-4 mr-2" />
-            Map
-          </Button>
         </div>
 
         {/* Content */}
-        {viewMode === 'list' ? (
-          <div className="space-y-4">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="card-elevated overflow-hidden">
-                  <Skeleton className="aspect-[16/9]" />
-                  <div className="p-4 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                </div>
-              ))
-            ) : locations && locations.length > 0 ? (
-              locations.map(location => (
-                <FoodTruckCard key={location.id} location={location} />
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-                  <Utensils className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="font-medium text-foreground">No food trucks today</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Check back later or try another day
+        {!isLoading && (!locations || locations.length === 0) ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+              <Utensils className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-medium text-foreground">No food trucks today</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Check back later or try another day
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={handleNextDay}
+            >
+              Check Tomorrow
+            </Button>
+          </div>
+        ) : viewMode === 'map' ? (
+          <div className="h-[60vh] rounded-xl overflow-hidden border border-border">
+            {mapsKeyLoading ? (
+              <div className="h-full flex items-center justify-center bg-secondary">
+                <p className="text-muted-foreground text-sm">Loading map…</p>
+              </div>
+            ) : !mapsKey ? (
+              <div className="h-full flex flex-col items-center justify-center bg-secondary text-center p-6">
+                <MapIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                <p className="text-muted-foreground text-sm mb-1">Map unavailable</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Sign in to view the live food truck map.
                 </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-4"
-                  onClick={handleNextDay}
-                >
-                  Check Tomorrow
+                <Button variant="outline" size="sm" onClick={() => setViewMode('list')}>
+                  <List className="h-4 w-4 mr-2" />
+                  View as list
                 </Button>
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="h-[60vh] rounded-xl overflow-hidden border border-border">
-            {isLoaded && mapsKey ? (
+            ) : !isLoaded ? (
+              <div className="h-full flex items-center justify-center bg-secondary">
+                <p className="text-muted-foreground text-sm">Loading map…</p>
+              </div>
+            ) : (
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={center}
@@ -186,10 +196,15 @@ export default function FoodToday() {
                   <MarkerF
                     key={location.id}
                     position={{ lat: location.latitude!, lng: location.longitude! }}
+                    title={location.business?.name}
                     onClick={() => onMarkerClick(location.id)}
                     icon={{
-                      url: '/placeholder.svg',
-                      scaledSize: new google.maps.Size(32, 32),
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      fillColor: '#F59E0B',
+                      fillOpacity: 1,
+                      strokeColor: '#ffffff',
+                      strokeWeight: 2,
                     }}
                   />
                 ))}
@@ -202,33 +217,51 @@ export default function FoodToday() {
                       position={{ lat: location.latitude!, lng: location.longitude! }}
                       onCloseClick={() => setSelectedMarker(null)}
                     >
-                      <div className="p-1">
-                        <Link 
-                          to={`/business/${location.business?.id}`}
+                      <div className="p-1 min-w-[160px]">
+                        <Link
+                          to={location.business ? `/business/${location.business.id}` : '#'}
                           className="font-medium text-foreground hover:text-primary text-sm"
                         >
-                          {location.business?.name}
+                          {location.business?.name || 'Food Vendor'}
                         </Link>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {location.location_name}
+                        </p>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <Clock className="h-3 w-3" />
+                          {formatTime12hr(location.start_time)} – {formatTime12hr(location.end_time)}
                         </p>
                       </div>
                     </InfoWindowF>
                   );
                 })()}
               </GoogleMap>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="card-elevated overflow-hidden">
+                  <Skeleton className="aspect-[16/9]" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+              ))
             ) : (
-              <div className="h-full flex items-center justify-center bg-secondary">
-                <p className="text-muted-foreground text-sm">Loading map...</p>
-              </div>
+              locations?.map(location => (
+                <FoodTruckCard key={location.id} location={location} />
+              ))
             )}
           </div>
         )}
 
         {/* Note about map data */}
-        {viewMode === 'map' && locationsWithCoords.length < (locations?.length || 0) && (
+        {viewMode === 'map' && mapsKey && locationsWithCoords.length < (locations?.length || 0) && (
           <p className="text-xs text-muted-foreground text-center">
-            Some locations don't have coordinates and are not shown on the map.
+            Some trucks haven't shared a map pin yet — switch to List to see them all.
           </p>
         )}
       </PageContainer>
