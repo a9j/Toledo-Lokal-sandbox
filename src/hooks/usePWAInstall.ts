@@ -9,17 +9,20 @@ export function usePWAInstall() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
+    // Check if iOS / Android (detect regardless of install state so the
+    // settings install guide can show the right walkthrough)
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(isIOSDevice);
+    setIsAndroid(/Android/.test(navigator.userAgent));
+
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
       return;
     }
-
-    // Check if iOS
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(isIOSDevice);
 
     // Listen for the beforeinstallprompt event (Chrome/Edge/Samsung)
     const handleBeforeInstall = (e: Event) => {
@@ -58,6 +61,7 @@ export function usePWAInstall() {
     canInstall: !!installPrompt,
     isInstalled,
     isIOS,
+    isAndroid,
     promptInstall,
   };
 }

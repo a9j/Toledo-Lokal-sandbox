@@ -8,9 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Share, Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles,
+  Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles,
 } from 'lucide-react';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
@@ -24,8 +24,7 @@ export default function Profile() {
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -72,9 +71,6 @@ export default function Profile() {
 
   const handleSignOut = async () => { await signOut(); navigate('/'); };
   const handleAvatarUpdate = () => queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
-  const handleInstallClick = async () => {
-    if (isIOS) setShowIOSInstructions(true); else await promptInstall();
-  };
 
   if (!user) { navigate('/auth'); return null; }
 
@@ -319,40 +315,17 @@ export default function Profile() {
             </Link>
           )}
 
-          {!isInstalled && (canInstall || isIOS) && (
-            <button
-              onClick={handleInstallClick}
-              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
-            >
-              <Download className="h-5 w-5 text-primary" />
-              <span className="flex-1 font-medium">Install App</span>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </button>
-          )}
+          <button
+            onClick={() => setShowInstallGuide(true)}
+            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
+          >
+            <Download className="h-5 w-5 text-primary" />
+            <span className="flex-1 font-medium">Turn this into an app</span>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
         </div>
 
-        {showIOSInstructions && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-background rounded-2xl p-6 max-w-sm w-full space-y-4">
-              <h3 className="text-lg font-semibold">Install ToledoLokal</h3>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">1</div>
-                  <p>Tap the <Share className="inline h-4 w-4" /> Share button in Safari</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">2</div>
-                  <p>Scroll down and tap "Add to Home Screen"</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">3</div>
-                  <p>Tap "Add" to install</p>
-                </div>
-              </div>
-              <Button onClick={() => setShowIOSInstructions(false)} className="w-full">Got it</Button>
-            </div>
-          </div>
-        )}
+        <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
 
         <Button variant="outline" className="w-full gap-2" onClick={handleSignOut}>
           <LogOut className="h-4 w-4" />
