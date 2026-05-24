@@ -38,6 +38,8 @@ import {
   RotateCcw,
   History,
   AlertTriangle,
+  Mail,
+  Megaphone,
 } from 'lucide-react';
 
 type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
@@ -70,12 +72,55 @@ export default function AdminBusinesses() {
   const [reason, setReason] = useState('');
   const [logModal, setLogModal] = useState<{ open: boolean; businessId: string | null }>({ open: false, businessId: null });
 
+  // Owner messaging
+  const [messageModal, setMessageModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [broadcastModal, setBroadcastModal] = useState(false);
+  const [msgSubject, setMsgSubject] = useState('');
+  const [msgBody, setMsgBody] = useState('');
+  const [broadcastTier, setBroadcastTier] = useState<string>('all');
+
+  const resetMessageForm = () => { setMsgSubject(''); setMsgBody(''); };
+
+  const sendMessage = useMutation({
+    mutationFn: async () => {
+      const business = messageModal.business;
+      if (!business?.owner_user_id) throw new Error('This business has no owner account to message.');
+      const { data, error } = await supabase.functions.invoke('send-owner-message', {
+        body: { mode: 'single', recipientUserId: business.owner_user_id, businessId: business.id, subject: msgSubject, body: msgBody },
+      });
+      if (error) throw error;
+      return data as { sent: number; emailed: number };
+    },
+    onSuccess: (data) => {
+      toast({ title: 'Message sent', description: `Delivered in-app${data?.emailed ? ' and by email' : ''}.` });
+      setMessageModal({ open: false, business: null });
+      resetMessageForm();
+    },
+    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
+  });
+
+  const sendBroadcast = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('send-owner-message', {
+        body: { mode: 'broadcast', tierFilter: broadcastTier, subject: msgSubject, body: msgBody },
+      });
+      if (error) throw error;
+      return data as { sent: number; emailed: number; total: number };
+    },
+    onSuccess: (data) => {
+      toast({ title: 'Announcement sent', description: `Reached ${data?.sent ?? 0} owner${data?.sent === 1 ? '' : 's'} (${data?.emailed ?? 0} by email).` });
+      setBroadcastModal(false);
+      resetMessageForm();
+    },
+    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
+  });
+
   const { data: businesses, isLoading } = useQuery({
     queryKey: ['admin-all-businesses'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories(name), neighborhood:neighborhoods(name)')
+        .select('id, name, owner_user_id, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories(name), neighborhood:neighborhoods(name)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
@@ -253,9 +298,14 @@ export default function AdminBusinesses() {
     <>
       <Header title="Business Management" />
       <PageContainer className="space-y-5">
-        <Button variant="ghost" size="sm" className="mb-2 -ml-2" onClick={() => navigate('/admin')}>
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Admin
-        </Button>
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" className="-ml-2" onClick={() => navigate('/admin')}>
+            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Admin
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { resetMessageForm(); setBroadcastModal(true); }}>
+            <Megaphone className="h-4 w-4" /> Message owners
+          </Button>
+        </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
@@ -402,11 +452,23 @@ export default function AdminBusinesses() {
                   </Button>
                 )}
 
+                {/* Message owner */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs gap-1 ml-auto"
+                  disabled={!biz.owner_user_id}
+                  title={biz.owner_user_id ? 'Message the owner' : 'No owner account linked'}
+                  onClick={() => { resetMessageForm(); setMessageModal({ open: true, business: biz }); }}
+                >
+                  <Mail className="h-3 w-3" /> Message
+                </Button>
+
                 {/* Audit Log */}
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 text-xs gap-1 ml-auto"
+                  className="h-7 text-xs gap-1"
                   onClick={() => setLogModal({ open: true, businessId: biz.id })}
                 >
                   <History className="h-3 w-3" /> Log
@@ -500,6 +562,78 @@ export default function AdminBusinesses() {
             )) : (
               <p className="text-sm text-muted-foreground text-center py-4">No changes logged</p>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Owner Modal */}
+      <Dialog open={messageModal.open} onOpenChange={(o) => !o && setMessageModal({ open: false, business: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Message owner</DialogTitle>
+            <DialogDescription>
+              To the owner of {messageModal.business?.name}. Sent to their inbox and email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Subject (optional)</Label>
+              <Input value={msgSubject} onChange={(e) => setMsgSubject(e.target.value)} placeholder="What's this about?" />
+            </div>
+            <div className="space-y-2">
+              <Label>Message</Label>
+              <Textarea value={msgBody} onChange={(e) => setMsgBody(e.target.value)} placeholder="Write your message..." rows={5} />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setMessageModal({ open: false, business: null })}>Cancel</Button>
+              <Button onClick={() => sendMessage.mutate()} disabled={sendMessage.isPending || !msgBody.trim()}>
+                {sendMessage.isPending ? 'Sending...' : 'Send'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Broadcast Modal */}
+      <Dialog open={broadcastModal} onOpenChange={setBroadcastModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Megaphone className="h-5 w-5" /> Message owners
+            </DialogTitle>
+            <DialogDescription>
+              Send an announcement to every business owner, or filter by tier. Each owner gets it in their inbox and by email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Send to</Label>
+              <Select value={broadcastTier} onValueChange={setBroadcastTier}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All owners</SelectItem>
+                  <SelectItem value="founding_5">Founding 5</SelectItem>
+                  <SelectItem value="founding_50">Founding 50</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="growth">Growth</SelectItem>
+                  <SelectItem value="community">Community</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Subject (optional)</Label>
+              <Input value={msgSubject} onChange={(e) => setMsgSubject(e.target.value)} placeholder="Announcement subject" />
+            </div>
+            <div className="space-y-2">
+              <Label>Message</Label>
+              <Textarea value={msgBody} onChange={(e) => setMsgBody(e.target.value)} placeholder="Write your announcement..." rows={5} />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setBroadcastModal(false)}>Cancel</Button>
+              <Button onClick={() => sendBroadcast.mutate()} disabled={sendBroadcast.isPending || !msgBody.trim()}>
+                {sendBroadcast.isPending ? 'Sending...' : 'Send announcement'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

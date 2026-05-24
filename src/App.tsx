@@ -44,6 +44,7 @@ const NonprofitDetail = lazy(() => import("./pages/NonprofitDetail"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Messages = lazy(() => import("./pages/Messages"));
 const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
 const EditBusiness = lazy(() => import("./pages/EditBusiness"));
 const CreateBusiness = lazy(() => import("./pages/CreateBusiness"));
@@ -137,6 +138,7 @@ const App = () => (
                   <Route path="/deals" element={<Deals />} />
                   <Route path="/requests" element={<Requests />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/messages" element={<Messages />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   <Route path="/business/:id/edit" element={<EditBusiness />} />
                   <Route path="/create-business" element={<CreateBusiness />} />
