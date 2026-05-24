@@ -26,6 +26,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Analytics } from "@vercel/analytics/react";
 
 // Critical path: eagerly loaded (landing page)
 import Today from "./pages/Today";
@@ -184,6 +185,7 @@ const App = () => (
               <BottomNav />
               <InstallPrompt />
             </BrowserRouter>
+            <Analytics />
           </TooltipProvider>
         </LoopProvider>
       </SubscriptionProvider>
