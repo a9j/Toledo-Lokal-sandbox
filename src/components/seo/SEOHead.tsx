@@ -12,8 +12,8 @@ interface SEOHeadProps {
 
 const DEFAULT_TITLE = 'ToledoLokal - Discover the Glass City';
 const DEFAULT_DESCRIPTION = 'Discover local businesses, events, and community in Toledo, Ohio. Your guide to the Glass City.';
-const DEFAULT_IMAGE = 'https://storage.googleapis.com/gpt-engineer-file-uploads/6G2pHJ9eYIcpVB1xcAga8mH45693/social-images/social-1768013827620-RW1_1859.jpg';
 const SITE_URL = 'https://toledolokal.com';
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function SEOHead({
   title,
