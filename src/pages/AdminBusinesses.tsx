@@ -40,6 +40,7 @@ import {
   AlertTriangle,
   Mail,
   Megaphone,
+  Trash2,
 } from 'lucide-react';
 
 type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
@@ -69,6 +70,7 @@ export default function AdminBusinesses() {
   const [assignModal, setAssignModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
   const [selectedTier, setSelectedTier] = useState<TierStatus>('community');
   const [revokeModal, setRevokeModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [archiveModal, setArchiveModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
   const [reason, setReason] = useState('');
   const [logModal, setLogModal] = useState<{ open: boolean; businessId: string | null }>({ open: false, businessId: null });
 
@@ -120,12 +122,37 @@ export default function AdminBusinesses() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name, owner_user_id, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories(name), neighborhood:neighborhoods(name)')
+        .select('id, name, owner_user_id, status, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories(name), neighborhood:neighborhoods(name)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
     },
     enabled: isAdmin,
+  });
+
+  const archiveBusiness = useMutation({
+    mutationFn: async ({ businessId }: { businessId: string }) => {
+      const { error } = await supabase.from('businesses').update({ status: 'archived' }).eq('id', businessId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
+      toast({ title: 'Business removed', description: 'Hidden from the public site. You can restore it anytime.' });
+      setArchiveModal({ open: false, business: null });
+    },
+    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not remove', description: e.message }),
+  });
+
+  const restoreBusiness = useMutation({
+    mutationFn: async ({ businessId }: { businessId: string }) => {
+      const { error } = await supabase.from('businesses').update({ status: 'approved' }).eq('id', businessId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
+      toast({ title: 'Business restored', description: 'Back on the public site.' });
+    },
+    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not restore', description: e.message }),
   });
 
   // Tier change log for a specific business
@@ -387,6 +414,11 @@ export default function AdminBusinesses() {
                     {!biz.onboarding_completed && (
                       <Badge variant="outline" className="text-[10px] text-lokal-terracotta border-lokal-terracotta/30">Onboarding</Badge>
                     )}
+                    {biz.status === 'archived' && (
+                      <Badge variant="outline" className="text-[10px] gap-1 text-destructive border-destructive/30">
+                        <Trash2 className="h-3 w-3" /> Removed
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">{biz.category?.name} · {biz.neighborhood?.name}</p>
                 </div>
@@ -473,11 +505,58 @@ export default function AdminBusinesses() {
                 >
                   <History className="h-3 w-3" /> Log
                 </Button>
+
+                {/* Remove (archive) / Restore listing */}
+                {biz.status === 'archived' ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => restoreBusiness.mutate({ businessId: biz.id })}
+                    disabled={restoreBusiness.isPending}
+                  >
+                    <RotateCcw className="h-3 w-3" /> Restore listing
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                    onClick={() => setArchiveModal({ open: true, business: biz })}
+                  >
+                    <Trash2 className="h-3 w-3" /> Remove
+                  </Button>
+                )}
               </div>
             </div>
           ))}
         </div>
       </PageContainer>
+
+      {/* Remove (archive) confirmation */}
+      <Dialog open={archiveModal.open} onOpenChange={(o) => !o && setArchiveModal({ open: false, business: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove this business?</DialogTitle>
+            <DialogDescription>
+              "{archiveModal.business?.name}" will be hidden from the public site immediately.
+              This is reversible — you can restore it from this list at any time.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setArchiveModal({ open: false, business: null })}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={archiveBusiness.isPending}
+              onClick={() => archiveModal.business && archiveBusiness.mutate({ businessId: archiveModal.business.id })}
+            >
+              {archiveBusiness.isPending ? 'Removing…' : 'Remove business'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Assign Tier Modal */}
       <Dialog open={assignModal.open} onOpenChange={(o) => !o && setAssignModal({ open: false, business: null })}>
