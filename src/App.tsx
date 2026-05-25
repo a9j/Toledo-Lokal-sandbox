@@ -18,7 +18,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LP_ENABLED, SOFT_LAUNCH } from "@/lib/flags";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
@@ -125,9 +126,9 @@ const App = () => (
                   <Route path="/" element={<Today />} />
                   <Route path="/near-me" element={<NearMe />} />
                   <Route path="/discover" element={<Discover />} />
-                  <Route path="/loop" element={<Loop />} />
-                  <Route path="/pulse" element={<Pulse />} />
-                  <Route path="/pulse/:pulseId" element={<PulseDetail />} />
+                  <Route path="/loop" element={LP_ENABLED ? <Loop /> : <Navigate to="/" replace />} />
+                  <Route path="/pulse" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <Pulse />} />
+                  <Route path="/pulse/:pulseId" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <PulseDetail />} />
                   <Route path="/feed" element={<Feed />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />
@@ -162,13 +163,13 @@ const App = () => (
                   <Route path="/saved" element={<Saved />} />
                   <Route path="/my-toledo" element={<MyToledo />} />
                   <Route path="/c/:slug" element={<PublicCollection />} />
-                  <Route path="/loop-wallet" element={<LoopWallet />} />
-                  <Route path="/wallet" element={<LoopWallet />} />
+                  <Route path="/loop-wallet" element={LP_ENABLED ? <LoopWallet /> : <Navigate to="/" replace />} />
+                  <Route path="/wallet" element={LP_ENABLED ? <LoopWallet /> : <Navigate to="/" replace />} />
                   <Route path="/scan/:qrCodeId" element={<ScanQR />} />
                   <Route path="/scanner-mode" element={<ScannerMode />} />
                   <Route path="/accept-invitation" element={<AcceptInvitation />} />
                   <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/food-today" element={<FoodToday />} />
+                  <Route path="/food-today" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <FoodToday />} />
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />

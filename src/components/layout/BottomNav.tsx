@@ -2,15 +2,16 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Newspaper, MapPin, Truck, Compass, Radio, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
 
 const navItems = [
   { path: '/', icon: Newspaper, label: 'Today' },
   { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/discover', icon: Compass, label: 'Discover' },
-  { path: '/pulse', icon: Radio, label: 'Pulse' },
-  { path: '/loop', icon: Repeat, label: 'Loop' },
-  { path: '/food-today', icon: Truck, label: 'Trucks' },
-];
+  { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
+  { path: '/loop', icon: Repeat, label: 'Loop', show: LP_ENABLED },
+  { path: '/food-today', icon: Truck, label: 'Trucks', show: !SOFT_LAUNCH },
+].filter((item) => item.show !== false);
 
 export function BottomNav() {
   const location = useLocation();
