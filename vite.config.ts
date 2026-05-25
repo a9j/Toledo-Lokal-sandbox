@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: 'script-defer',
-      includeAssets: ["favicon.ico", "placeholder.svg"],
+      includeAssets: ["favicon.png", "placeholder.svg"],
       manifest: {
         name: "ToledoLokal",
         short_name: "ToledoLokal",

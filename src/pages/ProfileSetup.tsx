@@ -14,14 +14,17 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Check, MapPin, Heart, User, ArrowRight } from 'lucide-react';
+import { Check, MapPin, Heart, User, ArrowRight, Smartphone } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { InstallAppButton } from '@/components/pwa/InstallAppButton';
 
 export default function ProfileSetup() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [step, setStep] = useState(0); // 0: name, 1: neighborhood, 2: categories
+  const { isInstalled } = usePWAInstall();
+  const [step, setStep] = useState(0); // 0: name, 1: neighborhood, 2: categories, 3: install
   const [displayName, setDisplayName] = useState(user?.user_metadata?.name || '');
   const [neighborhoodId, setNeighborhoodId] = useState<string>('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -81,7 +84,12 @@ export default function ProfileSetup() {
       queryClient.invalidateQueries({ queryKey: ['profile-role-check'] });
 
       toast.success('Profile set up! Welcome to ToledoLokal 🎉');
-      navigate('/', { replace: true });
+      // Offer "Add to Home Screen" as the final step, unless already installed.
+      if (isInstalled) {
+        navigate('/', { replace: true });
+      } else {
+        setStep(3);
+      }
     } catch (error) {
       console.error('Profile setup error:', error);
       toast.error('Something went wrong. Please try again.');
@@ -109,15 +117,18 @@ export default function ProfileSetup() {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm space-y-8">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <img src={tlLogo} alt="ToledoLokal" className="h-14 w-auto mx-auto" />
-          <h1 className="text-2xl font-bold tracking-tight">Set Up Your Profile</h1>
-          <p className="text-muted-foreground text-sm">
-            Quick — takes less than 30 seconds
-          </p>
-        </div>
+        {step < 3 && (
+          <div className="text-center space-y-3">
+            <img src={tlLogo} alt="ToledoLokal" className="h-14 w-auto mx-auto" />
+            <h1 className="text-2xl font-bold tracking-tight">Set Up Your Profile</h1>
+            <p className="text-muted-foreground text-sm">
+              Quick — takes less than 30 seconds
+            </p>
+          </div>
+        )}
 
         {/* Step indicator */}
+        {step < 3 && (
         <div className="flex items-center justify-center gap-2">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -134,6 +145,7 @@ export default function ProfileSetup() {
             </div>
           ))}
         </div>
+        )}
 
         {/* Step 0: Name */}
         {step === 0 && (
@@ -233,15 +245,42 @@ export default function ProfileSetup() {
           </div>
         )}
 
+        {/* Step 3: Add to Home Screen */}
+        {step === 3 && (
+          <div className="space-y-8 text-center animate-in fade-in">
+            <div className="space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center mx-auto">
+                <Smartphone className="h-8 w-8 text-primary" strokeWidth={1.8} />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">You're all set!</h1>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Want quick access? Add Toledo Lokal to your home screen for a
+                full-screen, app-like experience.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <InstallAppButton label="Add to Home Screen" className="w-full" />
+              <button
+                onClick={() => navigate('/', { replace: true })}
+                className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Skip */}
-        <div className="text-center">
-          <button
-            onClick={handleSkip}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Skip for now
-          </button>
-        </div>
+        {step < 3 && (
+          <div className="text-center">
+            <button
+              onClick={handleSkip}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Skip for now
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

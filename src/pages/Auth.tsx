@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import tlLogo from '@/assets/tl-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
@@ -22,7 +21,6 @@ export default function Auth() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -123,9 +121,8 @@ export default function Auth() {
             title: 'Check your email!',
             description: 'We sent a confirmation link to your inbox. Please verify your email to complete sign-up.',
           });
-          // Offer to install the app while they head to their inbox
-          setShowInstallGuide(true);
-          // Don't navigate yet — user needs to confirm email first
+          // Don't navigate yet — user needs to confirm email first. The install
+          // prompt is shown at the end of onboarding (ProfileSetup), not here.
         }
       } else {
         const { error } = await signIn(email, password);
@@ -278,8 +275,6 @@ export default function Auth() {
           </button>
         </div>
       </div>
-
-      <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
     </div>
   );
 }
