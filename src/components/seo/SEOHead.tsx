@@ -206,7 +206,7 @@ export function createOrganizationJsonLd() {
     '@type': 'Organization',
     name: 'ToledoLokal',
     url: SITE_URL,
-    logo: `${SITE_URL}/pwa-512x512.png`,
+    logo: `${SITE_URL}/icons/icon-512.png`,
     description: DEFAULT_DESCRIPTION,
     address: {
       '@type': 'PostalAddress',
@@ -245,7 +245,7 @@ export function createPulseArticleJsonLd(pulse: {
       name: 'ToledoLokal',
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/pwa-512x512.png`,
+        url: `${SITE_URL}/icons/icon-512.png`,
       },
     },
     datePublished: pulse.datePublished,
