@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Apple, Smartphone, Share, Plus, MoreVertical, Download, Check } from 'lucide-react';
+import { Apple, Smartphone, Download, Check } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,21 +13,16 @@ import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 type Platform = 'ios' | 'android';
 
-interface Step {
-  icon: React.ReactNode;
-  text: React.ReactNode;
-}
-
-const iosSteps: Step[] = [
-  { icon: <Share className="h-4 w-4" />, text: <>Open this page in <strong>Safari</strong>, then tap the <strong>Share</strong> button.</> },
-  { icon: <Plus className="h-4 w-4" />, text: <>Scroll down and tap <strong>"Add to Home Screen"</strong>.</> },
-  { icon: <Check className="h-4 w-4" />, text: <>Tap <strong>"Add"</strong> in the top corner to finish.</> },
+const iosSteps: React.ReactNode[] = [
+  <>Open this page in <strong>Safari</strong>, then tap the <strong>Share</strong> button.</>,
+  <>Scroll down and tap <strong>Add to Home Screen</strong>.</>,
+  <>Tap <strong>Add</strong> to finish.</>,
 ];
 
-const androidSteps: Step[] = [
-  { icon: <MoreVertical className="h-4 w-4" />, text: <>Open this page in <strong>Chrome</strong>, then tap the <strong>⋮</strong> menu (top right).</> },
-  { icon: <Download className="h-4 w-4" />, text: <>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</> },
-  { icon: <Check className="h-4 w-4" />, text: <>Confirm by tapping <strong>"Install"</strong>.</> },
+const androidSteps: React.ReactNode[] = [
+  <>Open this page in <strong>Chrome</strong>, then tap the menu (three dots, top right).</>,
+  <>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</>,
+  <>Tap <strong>Install</strong> to confirm.</>,
 ];
 
 interface InstallAppGuideProps {
@@ -102,12 +97,12 @@ export function InstallAppGuide({ open, onOpenChange }: InstallAppGuideProps) {
 
             <ol className="space-y-3">
               {steps.map((step, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm">
-                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold">
+                <li key={i} className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold">
                     {i + 1}
                   </span>
-                  <span className="flex items-center gap-1.5 pt-1.5 text-muted-foreground">
-                    {step.text}
+                  <span className="text-sm leading-relaxed text-muted-foreground">
+                    {step}
                   </span>
                 </li>
               ))}

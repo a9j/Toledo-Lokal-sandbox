@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { LP_ENABLED } from '@/lib/flags';
 
 // Define public-safe columns that don't expose owner_user_id
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -89,7 +90,11 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
               .filter(id => !existingIds.has(id));
 
             if (extraIds.length > 0) {
-              const { data: extraBiz } = await supabase
+              // Location-based matches must still satisfy every other active
+              // filter, otherwise the neighborhood filter behaves as an OR
+              // across filter types (e.g. a Shopping business with a Sylvania
+              // location leaking into an "Auto & Transport + Sylvania" search).
+              let extraQuery = supabase
                 .from('businesses_public')
                 .select(`
                   ${PUBLIC_BUSINESS_COLUMNS},
@@ -98,6 +103,16 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
                   business_loop_settings(is_active, loop_tier_id)
                 `)
                 .in('id', extraIds);
+
+              if (options?.featured) {
+                extraQuery = extraQuery.eq('featured', true);
+              }
+
+              if (options?.categoryId) {
+                extraQuery = extraQuery.eq('category_id', options.categoryId);
+              }
+
+              const { data: extraBiz } = await extraQuery;
 
               if (extraBiz) {
                 data = [...data, ...extraBiz];
@@ -126,7 +141,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       // Transform to include isInLoop flag
       return sorted?.map(business => ({
         ...business,
-        isInLoop: business.business_loop_settings?.is_active && 
+        isInLoop: LP_ENABLED && business.business_loop_settings?.is_active &&
           ['community', 'growth', 'pro'].includes(business.business_loop_settings?.loop_tier_id)
       }));
     },

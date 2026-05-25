@@ -20,6 +20,7 @@ import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } fr
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
+import { LP_ENABLED } from '@/lib/flags';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
@@ -97,13 +98,15 @@ export default function Today() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link
-              to="/loop-wallet"
-              aria-label="Loop wallet"
-              className="w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center text-foreground/80 hover:border-primary/40 hover:text-primary transition-all"
-            >
-              <QrCode className="h-4 w-4" />
-            </Link>
+            {LP_ENABLED && (
+              <Link
+                to="/loop-wallet"
+                aria-label="Loop wallet"
+                className="w-10 h-10 rounded-full bg-card border border-border/60 flex items-center justify-center text-foreground/80 hover:border-primary/40 hover:text-primary transition-all"
+              >
+                <QrCode className="h-4 w-4" />
+              </Link>
+            )}
             {user ? (
               <Link
                 to="/profile"

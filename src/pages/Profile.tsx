@@ -8,9 +8,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles,
+  Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles, Mail,
 } from 'lucide-react';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
+import { useOwnerMessages } from '@/hooks/useOwnerMessages';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
 import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
@@ -25,6 +26,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const { unreadCount } = useOwnerMessages();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -285,6 +287,19 @@ export default function Profile() {
 
         {/* Menu items */}
         <div className="space-y-1">
+          <Link to="/messages">
+            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+              <Mail className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 font-medium">Messages</span>
+              {unreadCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                  {unreadCount}
+                </span>
+              )}
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Link>
+
           {menuItems.map(item => (
             <Link key={item.href} to={item.href}>
               <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">

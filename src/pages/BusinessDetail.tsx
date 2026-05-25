@@ -26,6 +26,7 @@ import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
 import { NeighborhoodPopularityBadge } from '@/components/discovery/NeighborhoodPopularityBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { LP_ENABLED } from '@/lib/flags';
 
 // Public-safe columns - owner_user_id is now masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -102,7 +103,7 @@ export default function BusinessDetail() {
         ...data,
         isFoodTruck,
         isNonprofit,
-        isInLoop: data.business_loop_settings?.is_active && 
+        isInLoop: LP_ENABLED && data.business_loop_settings?.is_active &&
           ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
         isFoundingMember: data.business_loop_settings?.is_founding_member,
         loopTierId: data.business_loop_settings?.loop_tier_id,

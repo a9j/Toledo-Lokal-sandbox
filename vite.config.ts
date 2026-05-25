@@ -1,10 +1,19 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  // Load all env vars (empty prefix) so we can read the NEXT_PUBLIC_* feature
+  // flags, which Vite would otherwise ignore (it only exposes VITE_*).
+  const env = loadEnv(mode, process.cwd(), "");
+
+  return {
+  define: {
+    __NEXT_PUBLIC_LP_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_LP_ENABLED ?? ""),
+    __NEXT_PUBLIC_HOME_VARIANT__: JSON.stringify(env.NEXT_PUBLIC_HOME_VARIANT ?? ""),
+  },
   server: {
     host: "::",
     port: 8080,
@@ -49,8 +58,8 @@ export default defineConfig(({ mode }) => ({
         name: "ToledoLokal",
         short_name: "ToledoLokal",
         description: "Discover the Glass City - Local businesses, events, and community",
-        theme_color: "#ffffff",
-        background_color: "#ffffff",
+        theme_color: "#0A0F1E",
+        background_color: "#0A0F1E",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
@@ -104,4 +113,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+  };
+});
