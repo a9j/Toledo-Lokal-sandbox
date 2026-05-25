@@ -11,6 +11,7 @@ import {
   Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles, Mail,
 } from 'lucide-react';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useOwnerMessages } from '@/hooks/useOwnerMessages';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
@@ -21,6 +22,7 @@ import { useLoop } from '@/contexts/LoopContext';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isConnector } = useAuth();
+  const { isInstalled } = usePWAInstall();
   const { ensureLoaded } = useLoop();
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
@@ -330,14 +332,16 @@ export default function Profile() {
             </Link>
           )}
 
-          <button
-            onClick={() => setShowInstallGuide(true)}
-            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
-          >
-            <Download className="h-5 w-5 text-primary" />
-            <span className="flex-1 font-medium">Turn this into an app</span>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </button>
+          {!isInstalled && (
+            <button
+              onClick={() => setShowInstallGuide(true)}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
+            >
+              <Download className="h-5 w-5 text-primary" />
+              <span className="flex-1 font-medium">Turn this into an app</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          )}
         </div>
 
         <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
