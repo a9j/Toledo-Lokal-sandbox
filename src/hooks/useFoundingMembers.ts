@@ -36,7 +36,7 @@ const toMember = (r: FoundingBrandRow): FoundingMember => ({
 
 export interface FoundingData {
   founding5: FoundingMember[];
-  founding50Count: number;
+  founding50: FoundingMember[];
 }
 
 export function useFoundingMembers() {
@@ -56,9 +56,9 @@ export function useFoundingMembers() {
       const founding5 = rows
         .filter((r) => r.tier_status === 'founding_5' && r.founding_number != null)
         .map(toMember);
-      const founding50Count = rows.filter((r) => r.tier_status === 'founding_50').length;
+      const founding50 = rows.filter((r) => r.tier_status === 'founding_50').map(toMember);
 
-      return { founding5, founding50Count };
+      return { founding5, founding50 };
     },
   });
 }

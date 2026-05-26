@@ -1,13 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Founding5ApplyModal } from '@/components/founding5/Founding5ApplyModal';
 import { FoundingMemberCard } from '@/components/founding5/FoundingMemberCard';
 import { EmptySlotCard } from '@/components/founding5/EmptySlotCard';
 import { FOUNDING_5_TOTAL } from '@/components/founding5/types';
 import { useFoundingMembers } from '@/hooks/useFoundingMembers';
+import { celebrate } from '@/lib/celebrate';
+
+const FOUNDING_50_TOTAL = 50;
 
 // TODO: swap for the real Toledo footage. The hero supports an image or a
 // looping muted <video>; this placeholder uses an image for now.
@@ -25,19 +32,90 @@ const BENEFITS = [
   'A seat at the table for Toledo’s next decade.',
 ];
 
+// Animate a number toward its target with an ease-out curve.
+function useCountUp(value: number, duration = 700) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    if (from === to) return;
+
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = to;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return display;
+}
+
 export default function Founding5() {
   const [applyOpen, setApplyOpen] = useState(false);
   const { data, isLoading } = useFoundingMembers();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     document.title = 'The Founding 5 - Toledo Lokal';
     window.scrollTo(0, 0);
   }, []);
 
-  // View is ordered by founding_number; fall back to empty on error so the
-  // page still renders gracefully.
+  // Live updates: any change to businesses refetches the founding lists.
+  useEffect(() => {
+    const channel = supabase
+      .channel('founding-5-live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'businesses' },
+        () => queryClient.invalidateQueries({ queryKey: ['founding-members'] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  // When a brand newly joins a founding tier, welcome it with a toast and
+  // confetti. The first load just records a baseline (no celebration).
+  const knownFoundingIds = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!data) return;
+    const all = [...data.founding5, ...data.founding50];
+
+    if (knownFoundingIds.current === null) {
+      knownFoundingIds.current = new Set(all.map((m) => m.id));
+      return;
+    }
+
+    const newcomers = all.filter((m) => !knownFoundingIds.current!.has(m.id));
+    if (newcomers.length > 0) {
+      newcomers.forEach((m) => {
+        const tier = data.founding5.some((f) => f.id === m.id) ? 'Founding 5' : 'Founding 50';
+        toast.success(`Welcome ${m.name} to the ${tier}`);
+      });
+      celebrate();
+    }
+    knownFoundingIds.current = new Set(all.map((m) => m.id));
+  }, [data]);
+
   const members = useMemo(() => data?.founding5 ?? [], [data]);
   const claimedCount = members.length;
+  const founding50Count = data?.founding50.length ?? 0;
+
+  const claimedDisplay = useCountUp(claimedCount);
+  const founding50Display = useCountUp(founding50Count);
+
   const claimedNumbers = useMemo(
     () => new Set(members.map((m) => m.foundingNumber)),
     [members],
@@ -78,7 +156,7 @@ export default function Founding5() {
 
           <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-            {isLoading ? '…' : claimedCount} of {FOUNDING_5_TOTAL} claimed
+            {isLoading ? '…' : claimedDisplay} of {FOUNDING_5_TOTAL} claimed
           </div>
 
           <Button
@@ -130,6 +208,25 @@ export default function Founding5() {
           </div>
         </section>
       )}
+
+      {/* ===== Founding 50 progress ===== */}
+      <section className="px-6 pb-24 sm:pb-28">
+        <div className="mx-auto max-w-md text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            The Founding 50
+          </p>
+          <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
+            {founding50Display} of {FOUNDING_50_TOTAL} claimed
+          </p>
+          <Progress
+            value={(founding50Count / FOUNDING_50_TOTAL) * 100}
+            className="mt-5 h-2"
+          />
+          <p className="mt-3 text-sm text-muted-foreground">
+            After the first five, the next fifty help shape what comes next.
+          </p>
+        </div>
+      </section>
 
       {/* ===== Section 4: What Founding 5 gets ===== */}
       <section className="bg-muted/30 px-6 py-24 sm:py-32">
