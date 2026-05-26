@@ -58,19 +58,21 @@ export function FoundingMemberCard({ member }: FoundingMemberCardProps) {
           </p>
         )}
 
-        <div className="flex items-center gap-3 pt-1">
-          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/60">
-            <SecureImage
-              storagePath={member.ownerImageUrl}
-              alt={member.ownerName ?? ''}
-              imgClassName="object-cover"
-              className="h-full w-full"
-            />
+        {(member.ownerName || member.ownerImageUrl) && (
+          <div className="flex items-center gap-3 pt-1">
+            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/60">
+              <SecureImage
+                storagePath={member.ownerImageUrl}
+                alt={member.ownerName ?? ''}
+                imgClassName="object-cover"
+                className="h-full w-full"
+              />
+            </div>
+            {member.ownerName && (
+              <span className="text-sm font-medium text-muted-foreground">{member.ownerName}</span>
+            )}
           </div>
-          {member.ownerName && (
-            <span className="text-sm font-medium text-muted-foreground">{member.ownerName}</span>
-          )}
-        </div>
+        )}
       </div>
     </button>
   );
