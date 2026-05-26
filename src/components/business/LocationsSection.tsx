@@ -1,6 +1,7 @@
 import { useBusinessLocations, BusinessLocation } from '@/hooks/useBusinessLocations';
 import { MapPin, Phone, Clock } from 'lucide-react';
 import { BusinessMap } from '@/components/maps/BusinessMap';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -13,13 +14,22 @@ const formatTime = (time: string) => {
   return `${displayHour}:${minStr || '00'} ${period}`;
 };
 
-function LocationCard({ location, businessName }: { location: BusinessLocation; businessName?: string }) {
+function LocationCard({
+  location,
+  businessName,
+  showMap,
+}: {
+  location: BusinessLocation;
+  businessName?: string;
+  showMap: boolean;
+}) {
   const fullAddress = `${location.street_address}, ${location.city}, ${location.state} ${location.zip_code}`;
   const today = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
   const todayHours = location.hours?.[today] as { open: string; close: string; closed?: boolean } | undefined;
-  // Skip the map for virtual / address-less locations.
+  // Skip the map for virtual / address-less locations (and for signed-out
+  // viewers, since the maps key requires a session in this app).
   const hasMappableAddress =
-    !!location.street_address?.trim() && location.neighborhood !== 'Virtual';
+    showMap && !!location.street_address?.trim() && location.neighborhood !== 'Virtual';
 
   return (
     <div className="rounded-xl border border-border p-4 space-y-2">
@@ -60,6 +70,7 @@ interface LocationsSectionProps {
 
 export function LocationsSection({ businessId, businessName }: LocationsSectionProps) {
   const { data: locations } = useBusinessLocations(businessId);
+  const { user } = useAuth();
 
   const activeLocations = (locations ?? []).filter((l) => l.is_active);
 
@@ -74,7 +85,7 @@ export function LocationsSection({ businessId, businessName }: LocationsSectionP
       </h3>
       <div className="space-y-2">
         {activeLocations.map((loc) => (
-          <LocationCard key={loc.id} location={loc} businessName={businessName} />
+          <LocationCard key={loc.id} location={loc} businessName={businessName} showMap={!!user} />
         ))}
       </div>
     </div>
