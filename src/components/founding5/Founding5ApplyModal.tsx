@@ -104,6 +104,13 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
       .insert(payload as never);
 
     if (error) {
+      // Log the real reason so submission failures are diagnosable.
+      console.error('Founding 5 application insert failed', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
       setSubmitting(false);
       toast.error('Something went wrong. Please try again, or text Anthony.');
       return;

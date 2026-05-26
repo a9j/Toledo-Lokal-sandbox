@@ -46,8 +46,12 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
           category:categories(id, name, icon),
           business_loop_settings(is_active, loop_tier_id)
         `)
+        // Public lists only ever show approved businesses. The businesses_public
+        // view also returns the viewer's own pending businesses (for previews),
+        // so this filter keeps pending/rejected out of public lineups.
+        .eq('status', 'approved')
         .order('created_at', { ascending: false });
-      
+
       if (options?.featured) {
         query = query.eq('featured', true);
       }
@@ -64,8 +68,9 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         query = query.limit(options.limit);
       }
       
-      let { data, error } = await query;
-      if (error) throw error;
+      const result = await query;
+      if (result.error) throw result.error;
+      let data = result.data;
 
       // If filtering by neighborhood, also include businesses with locations in that neighborhood
       if (options?.neighborhoodId && data) {
@@ -102,6 +107,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
                   category:categories(id, name, icon),
                   business_loop_settings(is_active, loop_tier_id)
                 `)
+                .eq('status', 'approved')
                 .in('id', extraIds);
 
               if (options?.featured) {

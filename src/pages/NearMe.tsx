@@ -7,7 +7,8 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import { MapCanvas } from '@/components/maps/MapCanvas';
 import { 
   MapPin, 
   List, 
@@ -69,6 +70,8 @@ export default function NearMe() {
           neighborhood:neighborhoods(name),
           business_loop_settings(is_active)
         `)
+        // Only surface approved businesses on the public map/list.
+        .eq('status', 'approved')
         .order('featured', { ascending: false })
         .limit(50);
 
@@ -283,7 +286,28 @@ export default function NearMe() {
               </div>
             </div>
           ) : (
-            <LoadScript googleMapsApiKey={mapsApiKey}>
+            <MapCanvas
+              apiKey={mapsApiKey}
+              loadingFallback={
+                <div className="w-full h-full flex items-center justify-center bg-muted">
+                  <div className="text-center">
+                    <Skeleton className="h-8 w-8 rounded-full mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Loading map...</p>
+                  </div>
+                </div>
+              }
+              errorFallback={
+                <div className="w-full h-full flex items-center justify-center bg-muted">
+                  <div className="text-center p-6">
+                    <MapIcon className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                    <p className="text-muted-foreground mb-2">Map unavailable</p>
+                    <p className="text-xs text-muted-foreground">
+                      We couldn't load the map right now. Try the list view.
+                    </p>
+                  </div>
+                </div>
+              }
+            >
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={mapCenter}
@@ -363,7 +387,7 @@ export default function NearMe() {
                   </InfoWindow>
                 )}
               </GoogleMap>
-            </LoadScript>
+            </MapCanvas>
           )}
         </div>
       </div>

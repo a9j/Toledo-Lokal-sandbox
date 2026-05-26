@@ -8,13 +8,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Heart, Crown, MapPin, BadgeCheck, Coffee, BookOpen, Music, Sparkles, Mail,
+  Heart, Crown, MapPin, BadgeCheck, Mail,
 } from 'lucide-react';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useOwnerMessages } from '@/hooks/useOwnerMessages';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SavedPlacesList } from '@/components/profile/SavedPlacesList';
+import { VibeEditor } from '@/components/profile/VibeEditor';
 import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
@@ -78,12 +79,8 @@ export default function Profile() {
 
   if (!user) { navigate('/auth'); return null; }
 
-  const vibeChips = [
-    { icon: Coffee, label: 'Coffee Shops' },
-    { icon: BookOpen, label: 'Bookstores' },
-    { icon: Music, label: 'Live Music' },
-    { icon: Sparkles, label: 'Hidden Gems' },
-  ];
+  // `vibe` is a newly added column not yet in the generated Supabase types.
+  const profileVibe = (profile as { vibe?: string[] } | null | undefined)?.vibe ?? [];
 
   const menuItems = [
     { icon: Heart, label: 'My Toledo', href: '/my-toledo' },
@@ -224,23 +221,7 @@ export default function Profile() {
         </Link>
 
         {/* Your Vibe chips */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-foreground/90">Your Vibe</h3>
-            <button className="text-xs text-primary font-semibold">Edit</button>
-          </div>
-          <p className="text-sm text-muted-foreground">The things you love most about Toledo.</p>
-          <div className="flex flex-wrap gap-2">
-            {vibeChips.map(({ icon: Icon, label }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold"
-              >
-                <Icon className="h-3.5 w-3.5" /> {label}
-              </span>
-            ))}
-          </div>
-        </div>
+        <VibeEditor userId={user.id} vibe={profileVibe} />
 
         <UserWalletQR />
         <UserPulseToggle />

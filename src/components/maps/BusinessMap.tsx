@@ -1,7 +1,8 @@
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 import { useCallback, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
+import { MapCanvas } from '@/components/maps/MapCanvas';
 
 interface BusinessMapProps {
   address?: string | null;
@@ -69,7 +70,15 @@ export function BusinessMap({ address, businessName, className = 'h-48' }: Busin
 
   return (
     <div className={`${className} rounded-xl overflow-hidden relative`}>
-      <LoadScript googleMapsApiKey={apiKey}>
+      <MapCanvas
+        apiKey={apiKey}
+        loadingFallback={<Skeleton className="w-full h-full" />}
+        errorFallback={
+          <div className="w-full h-full bg-secondary flex items-center justify-center">
+            <p className="text-sm text-muted-foreground">Map unavailable</p>
+          </div>
+        }
+      >
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={coordinates || defaultCenter}
@@ -97,8 +106,8 @@ export function BusinessMap({ address, businessName, className = 'h-48' }: Busin
             />
           )}
         </GoogleMap>
-      </LoadScript>
-      
+      </MapCanvas>
+
       {isGeocoding && (
         <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
           <Skeleton className="w-full h-full" />
