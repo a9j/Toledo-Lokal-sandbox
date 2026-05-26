@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Founding5ApplyModal } from '@/components/founding5/Founding5ApplyModal';
 import { FoundingMemberCard } from '@/components/founding5/FoundingMemberCard';
 import { EmptySlotCard } from '@/components/founding5/EmptySlotCard';
-import { FoundingMember, FOUNDING_5_TOTAL } from '@/components/founding5/types';
+import { FOUNDING_5_TOTAL } from '@/components/founding5/types';
+import { useFoundingMembers } from '@/hooks/useFoundingMembers';
 
 // TODO: swap for the real Toledo footage. The hero supports an image or a
 // looping muted <video>; this placeholder uses an image for now.
@@ -14,36 +16,6 @@ const HERO_IMAGE =
 
 // TODO: replace with Anthony's real number.
 const ANTHONY_PHONE = '(419) 555-0123';
-
-// Step 3 replaces this mock with live data from Supabase.
-const MOCK_MEMBERS: FoundingMember[] = [
-  {
-    id: 'mock-1',
-    slug: 'mock-1',
-    foundingNumber: 1,
-    name: 'The Flying Joe',
-    ownerName: 'Maria Delgado',
-    ownerImageUrl:
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80&auto=format&fit=crop',
-    heroImageUrl:
-      'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1200&q=80&auto=format&fit=crop',
-    neighborhood: 'Old West End',
-    quote: 'We pour every cup like the whole city is watching.',
-  },
-  {
-    id: 'mock-2',
-    slug: 'mock-2',
-    foundingNumber: 2,
-    name: 'Registry Bistro',
-    ownerName: 'Erika Rapp',
-    ownerImageUrl:
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80&auto=format&fit=crop',
-    heroImageUrl:
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80&auto=format&fit=crop',
-    neighborhood: 'Downtown',
-    quote: 'Toledo grows the best food. We just put it on the plate.',
-  },
-];
 
 const BENEFITS = [
   'Permanent No. 01 through No. 05 badge on your profile.',
@@ -55,19 +27,21 @@ const BENEFITS = [
 
 export default function Founding5() {
   const [applyOpen, setApplyOpen] = useState(false);
+  const { data, isLoading } = useFoundingMembers();
 
   useEffect(() => {
     document.title = 'The Founding 5 - Toledo Lokal';
     window.scrollTo(0, 0);
   }, []);
 
-  const members = useMemo(
-    () => [...MOCK_MEMBERS].sort((a, b) => a.foundingNumber - b.foundingNumber),
-    [],
-  );
-
+  // View is ordered by founding_number; fall back to empty on error so the
+  // page still renders gracefully.
+  const members = useMemo(() => data?.founding5 ?? [], [data]);
   const claimedCount = members.length;
-  const claimedNumbers = useMemo(() => new Set(members.map((m) => m.foundingNumber)), [members]);
+  const claimedNumbers = useMemo(
+    () => new Set(members.map((m) => m.foundingNumber)),
+    [members],
+  );
   const emptySlots = useMemo(
     () =>
       Array.from({ length: FOUNDING_5_TOTAL }, (_, i) => i + 1).filter(
@@ -104,7 +78,7 @@ export default function Founding5() {
 
           <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-            {claimedCount} of {FOUNDING_5_TOTAL} claimed
+            {isLoading ? '…' : claimedCount} of {FOUNDING_5_TOTAL} claimed
           </div>
 
           <Button
@@ -121,33 +95,41 @@ export default function Founding5() {
       </section>
 
       {/* ===== Section 2: The Founding Members ===== */}
-      <section className="px-6 py-24 sm:py-32">
-        <div className="mx-auto max-w-2xl">
-          <p className="mb-12 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            The Founding Members
-          </p>
-          <div className="space-y-10">
-            {members.map((member) => (
-              <FoundingMemberCard key={member.id} member={member} />
-            ))}
+      {(isLoading || members.length > 0) && (
+        <section className="px-6 py-24 sm:py-32">
+          <div className="mx-auto max-w-2xl">
+            <p className="mb-12 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              The Founding Members
+            </p>
+            <div className="space-y-10">
+              {isLoading
+                ? Array.from({ length: 2 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-[4/3] w-full rounded-3xl" />
+                  ))
+                : members.map((member) => (
+                    <FoundingMemberCard key={member.id} member={member} />
+                  ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ===== Section 3: Empty slots ===== */}
-      <section className="px-6 pb-24 sm:pb-32">
-        <div className="mx-auto max-w-2xl">
-          <p className="mx-auto mb-12 max-w-lg text-center text-xl font-light leading-relaxed text-muted-foreground sm:text-2xl">
-            We&rsquo;re choosing three more. One per category: morning, evening, retail, or
-            experience.
-          </p>
-          <div className="space-y-8">
-            {emptySlots.map((n) => (
-              <EmptySlotCard key={n} slotNumber={n} onApply={openApply} />
-            ))}
+      {!isLoading && emptySlots.length > 0 && (
+        <section className={members.length > 0 ? 'px-6 pb-24 sm:pb-32' : 'px-6 py-24 sm:py-32'}>
+          <div className="mx-auto max-w-2xl">
+            <p className="mx-auto mb-12 max-w-lg text-center text-xl font-light leading-relaxed text-muted-foreground sm:text-2xl">
+              We&rsquo;re choosing three more. One per category: morning, evening, retail, or
+              experience.
+            </p>
+            <div className="space-y-8">
+              {emptySlots.map((n) => (
+                <EmptySlotCard key={n} slotNumber={n} onApply={openApply} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ===== Section 4: What Founding 5 gets ===== */}
       <section className="bg-muted/30 px-6 py-24 sm:py-32">

@@ -126,50 +126,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_primary_location_per_business
   ON public.business_locations (business_id)
   WHERE is_primary;
 
--- 4. Expose the new founding/owner fields on the public view -----------------
--- Recreated to match the current definition plus the four new columns.
--- Behaviour is preserved: approved brands are visible to everyone, and owners
--- can always see their own brand.
-DROP VIEW IF EXISTS public.businesses_public;
-
-CREATE VIEW public.businesses_public AS
+-- 4. Public, read-only view for the Founding 5 / 50 page --------------------
+-- A dedicated view (rather than touching the shared businesses_public view,
+-- which has drifted from the repo definition) so this change cannot alter or
+-- drop columns other code relies on. Exposes only curated, public-safe fields
+-- for approved founding brands.
+CREATE OR REPLACE VIEW public.founding_members_public AS
 SELECT
-  id,
-  name,
-  slug,
-  description,
-  address,
-  public.mask_phone(phone) AS phone,
-  website,
-  instagram,
-  tiktok,
-  facebook,
-  category_id,
-  neighborhood_id,
-  featured,
-  verified,
-  average_rating,
-  review_count,
-  photos,
-  logo_url,
-  hours,
-  editor_pick_image,
-  story,
-  status,
-  tier_status,
-  tier_badge_visible,
-  tier_assigned_at,
-  profile_picture_url,
-  cover_image_url,
-  onboarding_completed,
-  onboarding_step,
-  founding_number,
-  founding_quote,
-  owner_name,
-  owner_image_url,
-  created_at,
-  updated_at
-FROM public.businesses
-WHERE status = 'approved' OR owner_user_id = auth.uid();
+  b.id,
+  b.slug,
+  b.name,
+  b.tier_status,
+  b.founding_number,
+  b.founding_quote,
+  b.owner_name,
+  b.owner_image_url,
+  b.cover_image_url,
+  b.neighborhood_id,
+  n.name AS neighborhood_name
+FROM public.businesses b
+LEFT JOIN public.neighborhoods n ON n.id = b.neighborhood_id
+WHERE b.status = 'approved'
+  AND b.tier_status IN ('founding_5', 'founding_50');
 
-GRANT SELECT ON public.businesses_public TO anon, authenticated;
+GRANT SELECT ON public.founding_members_public TO anon, authenticated;
+
