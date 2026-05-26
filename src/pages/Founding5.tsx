@@ -167,7 +167,7 @@ export default function Founding5() {
           </Button>
         </div>
 
-        <div className="absolute bottom-8 z-10 text-white/70">
+        <div className="absolute bottom-24 z-10 text-white/70">
           <ChevronDown className="h-6 w-6 animate-bounce" />
         </div>
       </section>

@@ -19,7 +19,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LP_ENABLED, SOFT_LAUNCH } from "@/lib/flags";
+import { LP_ENABLED, SOFT_LAUNCH, TODAY_TAB_ENABLED } from "@/lib/flags";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
@@ -125,7 +125,7 @@ const App = () => (
             <BrowserRouter>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
-                  <Route path="/" element={<Today />} />
+                  <Route path="/" element={TODAY_TAB_ENABLED ? <Today /> : <Navigate to="/founding-5" replace />} />
                   <Route path="/near-me" element={<NearMe />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/loop" element={LP_ENABLED ? <Loop /> : <Navigate to="/" replace />} />
