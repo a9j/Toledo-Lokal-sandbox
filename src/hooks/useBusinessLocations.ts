@@ -75,47 +75,22 @@ export function useSaveBusinessLocations(businessId: string | null | undefined) 
         .delete()
         .eq('business_id', businessId);
 
-      // Insert new locations, geocoding each address (server-side) so the map
-      // has coordinates. Geocoding is best-effort: if it fails the row still
-      // saves and the map falls back to client-side geocoding.
-      const rows = await Promise.all(
-        locations.map(async (loc) => {
-          let latitude = loc.latitude ?? null;
-          let longitude = loc.longitude ?? null;
-
-          if ((latitude == null || longitude == null) && loc.street_address) {
-            const fullAddress =
-              `${loc.street_address}, ${loc.city}, ${loc.state} ${loc.zip_code}`.trim();
-            try {
-              const { data } = await supabase.functions.invoke('geocode-address', {
-                body: { address: fullAddress },
-              });
-              if (data?.lat != null && data?.lng != null) {
-                latitude = data.lat;
-                longitude = data.lng;
-              }
-            } catch {
-              // ignore: keep null coords, the map geocodes client-side as a fallback
-            }
-          }
-
-          return {
-            business_id: businessId,
-            label: loc.label || null,
-            street_address: loc.street_address,
-            city: loc.city,
-            state: loc.state,
-            zip_code: loc.zip_code,
-            neighborhood: loc.neighborhood || null,
-            phone: loc.phone || null,
-            hours: loc.hours,
-            is_primary: loc.is_primary,
-            is_active: loc.is_active,
-            latitude,
-            longitude,
-          };
-        })
-      );
+      // Insert new locations
+      const rows = locations.map((loc) => ({
+        business_id: businessId,
+        label: loc.label || null,
+        street_address: loc.street_address,
+        city: loc.city,
+        state: loc.state,
+        zip_code: loc.zip_code,
+        neighborhood: loc.neighborhood || null,
+        phone: loc.phone || null,
+        hours: loc.hours,
+        is_primary: loc.is_primary,
+        is_active: loc.is_active,
+        latitude: loc.latitude || null,
+        longitude: loc.longitude || null,
+      }));
 
       const { error } = await supabase.from('business_locations').insert(rows);
       if (error) throw error;

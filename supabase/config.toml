@@ -18,9 +18,6 @@ verify_jwt = false
 [functions.get-maps-key]
 verify_jwt = false
 
-[functions.geocode-address]
-verify_jwt = false
-
 [functions.get-signed-url]
 verify_jwt = false
 
