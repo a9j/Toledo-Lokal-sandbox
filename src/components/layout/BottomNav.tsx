@@ -7,12 +7,13 @@ import { LP_ENABLED, SOFT_LAUNCH, TODAY_TAB_ENABLED } from '@/lib/flags';
 import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
 
 const navItems = [
-  { path: '/', icon: Newspaper, label: 'Today' },
+  { path: '/', icon: Newspaper, label: 'Today', locked: !TODAY_TAB_ENABLED },
   { path: '/founding-5', icon: Sparkles, label: 'Featured' },
   { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/discover', icon: Compass, label: 'Discover' },
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
-  { path: '/loop', icon: Repeat, label: 'Loop', show: LP_ENABLED },
+  // Loop stays visible but locked (Coming Soon) until Loop Points launch.
+  { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
   { path: '/food-today', icon: Truck, label: 'Trucks', show: !SOFT_LAUNCH },
 ].filter((item) => item.show !== false);
 
@@ -35,15 +36,15 @@ export function BottomNav() {
           {navItems.map((item) => {
             const Icon = item.icon;
 
-            // Today stays locked (Coming Soon) until the flag flips on.
-            const isLocked = item.path === '/' && !TODAY_TAB_ENABLED;
-            if (isLocked) {
+            // Locked tabs (e.g. Today, Loop) show a Coming Soon modal instead
+            // of navigating, until their feature flag flips on.
+            if (item.locked) {
               return (
                 <button
                   key={item.path}
                   type="button"
                   onClick={() => setComingSoonOpen(true)}
-                  aria-label="Today (coming soon)"
+                  aria-label={`${item.label} (coming soon)`}
                   className="flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200 relative group text-muted-foreground/50"
                 >
                   <div className="relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 group-hover:bg-muted">
