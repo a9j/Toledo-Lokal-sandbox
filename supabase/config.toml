@@ -1,5 +1,11 @@
 project_id = "ixupthihhfeikeydvvir"
 
+# Keep the server-side password policy in sync with the sign-up form rules in
+# src/pages/Auth.tsx (8+ chars, mixed case, number, symbol).
+[auth]
+minimum_password_length = 8
+password_requirements = "lower_upper_letters_digits_symbols"
+
 [functions.get-signed-urls-batch]
 verify_jwt = false
 

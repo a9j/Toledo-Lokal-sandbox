@@ -7,10 +7,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { Check, Circle } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+
+// Sign-up password rules. Kept in one place so the inline checklist and the
+// submit-time validation can never drift apart.
+const PASSWORD_RULES: { label: string; test: (p: string) => boolean }[] = [
+  { label: 'At least 8 characters', test: (p) => p.length >= 8 },
+  { label: 'An uppercase letter', test: (p) => /[A-Z]/.test(p) },
+  { label: 'A lowercase letter', test: (p) => /[a-z]/.test(p) },
+  { label: 'A number', test: (p) => /[0-9]/.test(p) },
+  { label: 'A symbol', test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
+
+const isStrongPassword = (p: string) => PASSWORD_RULES.every((rule) => rule.test(p));
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -40,9 +52,15 @@ export default function Auth() {
       newErrors.email = emailResult.error.errors[0].message;
     }
 
-    const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
+    if (isSignUp) {
+      // New accounts must meet the full policy.
+      if (!isStrongPassword(password)) {
+        newErrors.password = 'Please meet all the password requirements below.';
+      }
+    } else if (password.length === 0) {
+      // Sign-in only needs a non-empty password; existing accounts may predate
+      // the stricter policy, so don't block them here.
+      newErrors.password = 'Please enter your password';
     }
 
     setErrors(newErrors);
@@ -231,9 +249,26 @@ export default function Auth() {
               <p className="text-xs text-destructive">{errors.password}</p>
             )}
             {isSignUp && (
-              <p className="text-xs text-muted-foreground">
-                Use 8+ characters with a mix of uppercase, lowercase, numbers & symbols.
-              </p>
+              <ul className="space-y-1 pt-1">
+                {PASSWORD_RULES.map((rule) => {
+                  const met = rule.test(password);
+                  return (
+                    <li
+                      key={rule.label}
+                      className={`flex items-center gap-1.5 text-xs transition-colors ${
+                        met ? 'text-emerald-600' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {met ? (
+                        <Check className="h-3.5 w-3.5 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-3.5 w-3.5 flex-shrink-0 opacity-50" />
+                      )}
+                      {rule.label}
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
 

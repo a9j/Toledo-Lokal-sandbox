@@ -57,7 +57,10 @@ export function useSavedItems(itemType?: SavedItemType) {
   });
 
   const { data: savedItemsWithDetails = [], isLoading: isLoadingDetails } = useQuery({
-    queryKey: ['saved-items-details', user?.id, itemType],
+    // Key on the saved item ids so this refetches whenever the saved set
+    // changes (otherwise it stays stale after a save/unsave and the new place
+    // never shows up).
+    queryKey: ['saved-items-details', user?.id, itemType, savedItems.map((i) => i.item_id).sort().join(',')],
     queryFn: async () => {
       if (!user || savedItems.length === 0) return [];
 
@@ -132,12 +135,15 @@ export function useSavedItems(itemType?: SavedItemType) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-items'] });
+      queryClient.invalidateQueries({ queryKey: ['my-toledo-items'] });
+      queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['pulse'] });
       toast.success('Saved!');
       // Trigger PWA install prompt after favorites threshold
       triggerPWAFavoriteEvent();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Failed to save item', error);
       toast.error('Failed to save');
     },
   });
@@ -156,9 +162,12 @@ export function useSavedItems(itemType?: SavedItemType) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-items'] });
+      queryClient.invalidateQueries({ queryKey: ['my-toledo-items'] });
+      queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       toast.success('Removed from saved');
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Failed to remove item', error);
       toast.error('Failed to remove');
     },
   });
