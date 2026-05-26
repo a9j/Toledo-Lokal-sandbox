@@ -80,6 +80,7 @@ const DashboardFoodTruck = lazy(() => import("./pages/DashboardFoodTruck"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const PulseDetail = lazy(() => import("./pages/PulseDetail"));
 const BusinessGuide = lazy(() => import("./pages/BusinessGuide"));
+const BusinessImageGuide = lazy(() => import("./pages/BusinessImageGuide"));
 const Founding5 = lazy(() => import("./pages/Founding5"));
 const Founding5Guide = lazy(() => import("./pages/Founding5Guide"));
 const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
@@ -176,6 +177,7 @@ const App = () => (
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />
                   <Route path="/business-guide" element={<BusinessGuide />} />
+                  <Route path="/business-image-guide" element={<BusinessImageGuide />} />
                   <Route path="/founding-5" element={<Founding5 />} />
                   <Route path="/founding-5-guide" element={<Founding5Guide />} />
                   <Route path="/connector/:slug" element={<ConnectorProfile />} />

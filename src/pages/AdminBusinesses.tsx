@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { TierBadge } from '@/components/business/TierBadge';
+import { ImageCropUpload } from '@/components/business/ImageCropUpload';
+import { SecureImage } from '@/components/ui/secure-image';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -736,11 +738,29 @@ export default function AdminBusinesses() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Owner photo URL</Label>
-              <Input
-                value={foundingOwnerImage}
-                onChange={(e) => setFoundingOwnerImage(e.target.value)}
-                placeholder="https://..."
+              <Label>Owner photo</Label>
+              {foundingOwnerImage && (
+                <div className="flex items-center gap-2">
+                  <div className="h-12 w-12 overflow-hidden rounded-full bg-muted ring-1 ring-border/60">
+                    <SecureImage
+                      storagePath={foundingOwnerImage}
+                      alt=""
+                      imgClassName="object-cover"
+                      className="h-full w-full"
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Current photo. Upload to replace.</span>
+                </div>
+              )}
+              <ImageCropUpload
+                aspectRatio={1}
+                shape="circle"
+                maxFileSize={5}
+                outputWidth={800}
+                outputHeight={800}
+                onUploadComplete={(url) => setFoundingOwnerImage(url)}
+                placeholder="Upload owner photo"
+                className="max-w-[140px]"
               />
             </div>
             <div className="space-y-2">

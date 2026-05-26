@@ -80,17 +80,43 @@ export function ImageCropUpload({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onFileSelected = useCallback(
-    (file: File) => {
+    async (file: File) => {
+      let working = file;
+
+      // iPhone HEIC/HEIF: convert to JPEG before cropping. Loaded on demand so
+      // the converter does not bloat the onboarding bundle.
+      const isHeic =
+        file.type === 'image/heic' ||
+        file.type === 'image/heif' ||
+        /\.(heic|heif)$/i.test(file.name);
+      if (isHeic) {
+        setPreparing(true);
+        try {
+          const { default: heic2any } = await import('heic2any');
+          const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+          const blob = Array.isArray(out) ? out[0] : out;
+          working = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+            type: 'image/jpeg',
+          });
+        } catch {
+          setPreparing(false);
+          toast.error('Could not read that HEIC photo. Try a JPG or PNG.');
+          return;
+        }
+        setPreparing(false);
+      }
+
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please upload a JPG, PNG, or WebP image');
+      if (!allowedTypes.includes(working.type)) {
+        toast.error('Please upload a JPG, PNG, WebP, or HEIC image');
         return;
       }
-      if (file.size > maxFileSize * 1024 * 1024) {
+      if (working.size > maxFileSize * 1024 * 1024) {
         toast.error(`File too large. Max: ${maxFileSize}MB`);
         return;
       }
@@ -101,7 +127,7 @@ export function ImageCropUpload({
         setCrop({ x: 0, y: 0 });
         setZoom(1);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(working);
     },
     [maxFileSize]
   );
@@ -183,14 +209,23 @@ export function ImageCropUpload({
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
-            <Upload className="h-6 w-6 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">{placeholder}</p>
+            {preparing ? (
+              <>
+                <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
+                <p className="text-xs text-muted-foreground">Preparing photo...</p>
+              </>
+            ) : (
+              <>
+                <Upload className="h-6 w-6 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">{placeholder}</p>
+              </>
+            )}
           </div>
         )}
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

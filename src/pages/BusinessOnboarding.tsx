@@ -572,7 +572,15 @@ export default function BusinessOnboarding() {
                 <Camera className="h-7 w-7 text-primary-foreground" />
               </div>
               <h1 className="text-2xl font-bold mb-1">Make your profile stand out</h1>
-              <p className="text-muted-foreground text-sm">Upload your logo and a cover photo. Don't worry about sizing — we'll handle that automatically.</p>
+              <p className="text-muted-foreground text-sm">Upload your logo and a cover photo. Don't worry about sizing, we handle that automatically.</p>
+              <a
+                href="/business-image-guide"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+              >
+                See the image guide
+              </a>
             </div>
 
             <div className="space-y-6">
@@ -584,8 +592,8 @@ export default function BusinessOnboarding() {
                     aspectRatio={1}
                     shape="circle"
                     maxFileSize={5}
-                    outputWidth={400}
-                    outputHeight={400}
+                    outputWidth={800}
+                    outputHeight={800}
                     onUploadComplete={(url) => updateField('profile_picture_url', url)}
                     placeholder="Upload logo"
                     currentImageUrl={data.profile_picture_url || null}
@@ -600,8 +608,8 @@ export default function BusinessOnboarding() {
                   aspectRatio={3}
                   shape="rectangle"
                   maxFileSize={10}
-                  outputWidth={1200}
-                  outputHeight={400}
+                  outputWidth={2400}
+                  outputHeight={800}
                   onUploadComplete={(url) => updateField('cover_image_url', url)}
                   placeholder="Upload cover image"
                   currentImageUrl={data.cover_image_url || null}
