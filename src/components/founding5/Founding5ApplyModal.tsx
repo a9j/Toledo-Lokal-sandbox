@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -84,9 +85,48 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
     }
 
     setSubmitting(true);
-    // Step 4 wires this to the founding_5_applications table and the email
-    // notification. For now it simulates a successful submit.
-    await new Promise((resolve) => window.setTimeout(resolve, 600));
+
+    const payload = {
+      business_name: form.businessName.trim(),
+      owner_name: form.ownerName.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim() || null,
+      neighborhood: form.neighborhood.trim() || null,
+      category: form.category,
+      why_us: form.whyUs.trim() || null,
+    };
+
+    // Save the application. Anon has insert-only access (no RETURNING), so we
+    // do not chain .select(). The table is cast because it is not yet in the
+    // generated Supabase types.
+    const { error } = await supabase
+      .from('founding_5_applications' as never)
+      .insert(payload as never);
+
+    if (error) {
+      setSubmitting(false);
+      toast.error('Something went wrong. Please try again, or text Anthony.');
+      return;
+    }
+
+    // Best-effort email alert. The application is already saved, so never block
+    // or fail the applicant if this does not go through.
+    try {
+      await supabase.functions.invoke('notify-founding-application', {
+        body: {
+          businessName: payload.business_name,
+          ownerName: payload.owner_name,
+          email: payload.email,
+          phone: payload.phone,
+          neighborhood: payload.neighborhood,
+          category: payload.category,
+          whyUs: payload.why_us,
+        },
+      });
+    } catch {
+      // ignore: the application row is already saved
+    }
+
     setSubmitting(false);
     setSubmitted(true);
   };

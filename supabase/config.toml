@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.process-image]
 verify_jwt = false
+
+[functions.notify-founding-application]
+verify_jwt = false
