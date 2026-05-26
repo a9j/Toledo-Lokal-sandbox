@@ -19,7 +19,13 @@ export function BottomNav() {
 
   // Hide on auth page, scanner mode, and accept invitation pages
   const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation'];
-  if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
+  // Founding 5 is an immersive landing page, so it hides the nav (exact match
+  // only, so the /founding-5-guide page is unaffected).
+  const hiddenExactPaths = ['/founding-5'];
+  if (
+    hiddenPaths.some(path => location.pathname.startsWith(path)) ||
+    hiddenExactPaths.includes(location.pathname)
+  ) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
