@@ -174,25 +174,25 @@ export default function Founding5Guide() {
             <ImageSpec
               title="Logo"
               specs={[
-                ['Recommended', '400 × 400 px'],
-                ['Minimum', '200 × 200 px'],
+                ['Recommended', '800 × 800 px'],
+                ['Minimum', '400 × 400 px'],
                 ['Aspect Ratio', '1:1 (Square)'],
-                ['Max Size', '10 MB'],
-                ['Formats', 'JPG, PNG, WebP'],
+                ['Max Size', '5 MB'],
+                ['Formats', 'JPG, PNG, WebP, HEIC'],
               ]}
-              tip="Use a clean, high-contrast logo. Avoid text-heavy designs — they become unreadable at small sizes. Transparent PNG works best."
+              tip="Use a clean, high-contrast logo. Avoid text-heavy designs, they become unreadable at small sizes. Transparent PNG works best."
             />
             <ImageSpec
               title="Cover Photo"
               highlight
               specs={[
-                ['Recommended', '1920 × 1080 px'],
-                ['Minimum', '1200 × 675 px'],
-                ['Aspect Ratio', '16:9 (Landscape)'],
+                ['Recommended', '2400 × 800 px'],
+                ['Minimum', '1200 × 400 px'],
+                ['Aspect Ratio', '3:1 (Wide)'],
                 ['Max Size', '10 MB'],
-                ['Formats', 'JPG, PNG, WebP'],
+                ['Formats', 'JPG, PNG, WebP, HEIC'],
               ]}
-              tip="Show your storefront, products, or team. This is the hero image on your profile — make it count."
+              tip="Show your storefront, products, or team. This is the hero image on your profile, make it count."
             />
           </div>
 
