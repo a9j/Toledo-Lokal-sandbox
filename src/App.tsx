@@ -19,7 +19,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LP_ENABLED, SOFT_LAUNCH } from "@/lib/flags";
+import { LP_ENABLED, SOFT_LAUNCH, TODAY_TAB_ENABLED } from "@/lib/flags";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
@@ -80,6 +80,7 @@ const DashboardFoodTruck = lazy(() => import("./pages/DashboardFoodTruck"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const PulseDetail = lazy(() => import("./pages/PulseDetail"));
 const BusinessGuide = lazy(() => import("./pages/BusinessGuide"));
+const Founding5 = lazy(() => import("./pages/Founding5"));
 const Founding5Guide = lazy(() => import("./pages/Founding5Guide"));
 const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
 const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
@@ -124,7 +125,7 @@ const App = () => (
             <BrowserRouter>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
-                  <Route path="/" element={<Today />} />
+                  <Route path="/" element={TODAY_TAB_ENABLED ? <Today /> : <Navigate to="/founding-5" replace />} />
                   <Route path="/near-me" element={<NearMe />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/loop" element={LP_ENABLED ? <Loop /> : <Navigate to="/" replace />} />
@@ -175,6 +176,7 @@ const App = () => (
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />
                   <Route path="/business-guide" element={<BusinessGuide />} />
+                  <Route path="/founding-5" element={<Founding5 />} />
                   <Route path="/founding-5-guide" element={<Founding5Guide />} />
                   <Route path="/connector/:slug" element={<ConnectorProfile />} />
                   <Route path="/connector-dashboard" element={<ConnectorDashboard />} />

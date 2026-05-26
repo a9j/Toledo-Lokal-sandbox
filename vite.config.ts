@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
   define: {
     __NEXT_PUBLIC_LP_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_LP_ENABLED ?? ""),
     __NEXT_PUBLIC_HOME_VARIANT__: JSON.stringify(env.NEXT_PUBLIC_HOME_VARIANT ?? ""),
+    __NEXT_PUBLIC_TODAY_TAB_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_TODAY_TAB_ENABLED ?? ""),
   },
   server: {
     host: "::",

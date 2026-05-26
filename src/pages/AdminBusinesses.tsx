@@ -41,6 +41,7 @@ import {
   Mail,
   Megaphone,
   Trash2,
+  Star,
 } from 'lucide-react';
 
 type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
@@ -288,6 +289,75 @@ export default function AdminBusinesses() {
     },
   });
 
+  // Founding details editor (founding_number, quote, owner name + photo).
+  // These columns are not in the generated types yet, so the queries are cast.
+  const [foundingModal, setFoundingModal] = useState<{ open: boolean; business: { id: string; name: string } | null }>({ open: false, business: null });
+  const [foundingNumber, setFoundingNumber] = useState('');
+  const [foundingQuote, setFoundingQuote] = useState('');
+  const [foundingOwnerName, setFoundingOwnerName] = useState('');
+  const [foundingOwnerImage, setFoundingOwnerImage] = useState('');
+
+  const openFoundingModal = async (biz: { id: string; name: string }) => {
+    setFoundingModal({ open: true, business: biz });
+    setFoundingNumber('');
+    setFoundingQuote('');
+    setFoundingOwnerName('');
+    setFoundingOwnerImage('');
+    const { data } = await supabase
+      .from('businesses' as never)
+      .select('founding_number, founding_quote, owner_name, owner_image_url')
+      .eq('id', biz.id)
+      .maybeSingle();
+    const row = data as {
+      founding_number: number | null;
+      founding_quote: string | null;
+      owner_name: string | null;
+      owner_image_url: string | null;
+    } | null;
+    if (row) {
+      setFoundingNumber(row.founding_number != null ? String(row.founding_number) : '');
+      setFoundingQuote(row.founding_quote ?? '');
+      setFoundingOwnerName(row.owner_name ?? '');
+      setFoundingOwnerImage(row.owner_image_url ?? '');
+    }
+  };
+
+  const saveFounding = useMutation({
+    mutationFn: async () => {
+      const biz = foundingModal.business;
+      if (!biz) return;
+      const trimmed = foundingNumber.trim();
+      const num = trimmed === '' ? null : Number(trimmed);
+      if (num !== null && (!Number.isInteger(num) || num < 1)) {
+        throw new Error('Founding number must be a whole number above 0.');
+      }
+      const { error } = await supabase
+        .from('businesses' as never)
+        .update({
+          founding_number: num,
+          founding_quote: foundingQuote.trim() || null,
+          owner_name: foundingOwnerName.trim() || null,
+          owner_image_url: foundingOwnerImage.trim() || null,
+        } as never)
+        .eq('id', biz.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['founding-members'] });
+      toast({ title: 'Founding details saved' });
+      setFoundingModal({ open: false, business: null });
+    },
+    onError: (e: Error & { code?: string }) => {
+      const taken = e?.code === '23505' || /duplicate|unique/i.test(e?.message ?? '');
+      toast({
+        variant: 'destructive',
+        title: 'Could not save',
+        description: taken ? 'That founding number is already taken.' : e.message,
+      });
+    },
+  });
+
   // Stats
   const founding5Count = businesses?.filter(b => b.tier_status === 'founding_5').length || 0;
   const founding50Count = businesses?.filter(b => b.tier_status === 'founding_50').length || 0;
@@ -437,6 +507,18 @@ export default function AdminBusinesses() {
                 >
                   <Crown className="h-3 w-3" /> Assign Tier
                 </Button>
+
+                {/* Founding details (number, quote, owner) */}
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_50') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => openFoundingModal(biz)}
+                  >
+                    <Star className="h-3 w-3" /> Founding details
+                  </Button>
+                )}
 
                 {/* Toggle Badge */}
                 {biz.tier_status !== 'community' && biz.tier_status !== 'growth' && (
@@ -615,6 +697,67 @@ export default function AdminBusinesses() {
               <Button variant="outline" onClick={() => setRevokeModal({ open: false, business: null })}>Cancel</Button>
               <Button variant="destructive" onClick={() => revokeTier.mutate({ businessId: revokeModal.business!.id })} disabled={revokeTier.isPending}>
                 {revokeTier.isPending ? 'Revoking...' : 'Revoke Status'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Founding Details Modal */}
+      <Dialog open={foundingModal.open} onOpenChange={(o) => !o && setFoundingModal({ open: false, business: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Founding details</DialogTitle>
+            <DialogDescription>
+              Shown on the Founding 5 page for {foundingModal.business?.name}. The hero photo uses
+              the brand cover image set on its profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Founding number</Label>
+              <Input
+                type="number"
+                min={1}
+                value={foundingNumber}
+                onChange={(e) => setFoundingNumber(e.target.value)}
+                placeholder="1 to 5 for Founding 5"
+              />
+              <p className="text-xs text-muted-foreground">
+                The permanent No. on the card. Leave blank to unset. Each number is used once.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Owner name</Label>
+              <Input
+                value={foundingOwnerName}
+                onChange={(e) => setFoundingOwnerName(e.target.value)}
+                placeholder="Maria Delgado"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Owner photo URL</Label>
+              <Input
+                value={foundingOwnerImage}
+                onChange={(e) => setFoundingOwnerImage(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Owner quote</Label>
+              <Textarea
+                value={foundingQuote}
+                onChange={(e) => setFoundingQuote(e.target.value)}
+                rows={2}
+                placeholder="One line in the owner's voice."
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setFoundingModal({ open: false, business: null })}>
+                Cancel
+              </Button>
+              <Button onClick={() => saveFounding.mutate()} disabled={saveFounding.isPending}>
+                {saveFounding.isPending ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>
