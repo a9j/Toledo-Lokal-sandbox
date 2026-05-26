@@ -37,6 +37,34 @@ interface NearbyBusiness {
   longitude?: number | null;
 }
 
+// One marker per active location. Multiple pins can share a businessId (a brand
+// with several locations); all link back to the same brand profile.
+interface MapPin {
+  pinId: string;
+  businessId: string;
+  name: string;
+  slug: string | null;
+  category: { name: string; icon: string } | null;
+  has_active_deal: boolean;
+  has_loop_rewards: boolean;
+  is_food_truck_today: boolean;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+interface LocationRow {
+  id: string;
+  business_id: string;
+  street_address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  neighborhood: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
 const mapContainerStyle = {
   width: '100%',
   height: '100%',
@@ -51,7 +79,7 @@ export default function NearMe() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'open' | 'rewards' | 'deals'>('all');
-  const [selectedBusiness, setSelectedBusiness] = useState<NearbyBusiness | null>(null);
+  const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [geocodedLocations, setGeocodedLocations] = useState<Map<string, { lat: number; lng: number }>>(new Map());
   const { apiKey: mapsApiKey, isLoading: mapsLoading, error: mapsError } = useGoogleMapsKey();
   
@@ -111,10 +139,25 @@ export default function NearMe() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Active locations of approved businesses (RLS restricts to approved parents).
+  // Drives one map pin per location.
+  const { data: locationRows } = useQuery({
+    queryKey: ['near-me-locations'],
+    queryFn: async (): Promise<LocationRow[]> => {
+      const { data, error } = await supabase
+        .from('business_locations')
+        .select('id, business_id, street_address, city, state, zip_code, neighborhood, latitude, longitude')
+        .eq('is_active', true);
+      if (error) throw error;
+      return (data || []) as LocationRow[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
   // Filter businesses
   const filteredBusinesses = useMemo(() => {
     if (!businesses) return [];
-    
+
     return businesses.filter(biz => {
       switch (selectedFilter) {
         case 'rewards':
@@ -127,6 +170,66 @@ export default function NearMe() {
     });
   }, [businesses, selectedFilter]);
 
+  // One pin per active location. Brands without any location row fall back to
+  // the address stored on the business. Virtual (online-only) locations get no
+  // pin. Coordinates come from the stored lat/lng when present, otherwise the
+  // map geocodes the address client-side on load.
+  const mapPins = useMemo<MapPin[]>(() => {
+    const bizById = new Map(filteredBusinesses.map((b) => [b.id, b]));
+    const pins: MapPin[] = [];
+    const businessesWithLocation = new Set<string>();
+
+    (locationRows ?? []).forEach((loc) => {
+      const biz = bizById.get(loc.business_id);
+      if (!biz) return;
+      businessesWithLocation.add(loc.business_id);
+      if (loc.neighborhood === 'Virtual' || !loc.street_address?.trim()) return;
+
+      const address = `${loc.street_address}, ${loc.city ?? 'Toledo'}, ${loc.state ?? 'OH'} ${loc.zip_code ?? ''}`.trim();
+      pins.push({
+        pinId: `loc-${loc.id}`,
+        businessId: biz.id,
+        name: biz.name,
+        slug: biz.slug,
+        category: biz.category,
+        has_active_deal: biz.has_active_deal,
+        has_loop_rewards: biz.has_loop_rewards,
+        is_food_truck_today: biz.is_food_truck_today,
+        address,
+        lat: loc.latitude != null ? Number(loc.latitude) : null,
+        lng: loc.longitude != null ? Number(loc.longitude) : null,
+      });
+    });
+
+    // Fallback for brands that have no location rows but do have an address.
+    filteredBusinesses.forEach((biz) => {
+      if (businessesWithLocation.has(biz.id) || !biz.address?.trim()) return;
+      pins.push({
+        pinId: `biz-${biz.id}`,
+        businessId: biz.id,
+        name: biz.name,
+        slug: biz.slug,
+        category: biz.category,
+        has_active_deal: biz.has_active_deal,
+        has_loop_rewards: biz.has_loop_rewards,
+        is_food_truck_today: biz.is_food_truck_today,
+        address: `${biz.address}, Toledo, OH`,
+        lat: null,
+        lng: null,
+      });
+    });
+
+    return pins;
+  }, [locationRows, filteredBusinesses]);
+
+  const coordsFor = useCallback(
+    (pin: MapPin): { lat: number; lng: number } | null => {
+      if (pin.lat != null && pin.lng != null) return { lat: pin.lat, lng: pin.lng };
+      return geocodedLocations.get(pin.pinId) ?? null;
+    },
+    [geocodedLocations]
+  );
+
   // Stats
   const stats = useMemo(() => {
     if (!businesses) return { total: 0, withRewards: 0, withDeals: 0, foodTrucks: 0 };
@@ -138,41 +241,43 @@ export default function NearMe() {
     };
   }, [businesses]);
 
-  // Geocode addresses when map is visible
-  const onMapLoad = useCallback((map: google.maps.Map) => {
-    if (!filteredBusinesses.length) return;
-    
-    const geocoder = new google.maps.Geocoder();
-    const newLocations = new Map(geocodedLocations);
-    
-    filteredBusinesses.forEach(business => {
-      if (!business.address || geocodedLocations.has(business.id)) return;
-      
-      geocoder.geocode(
-        { address: `${business.address}, Toledo, OH` },
-        (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-            const location = results[0].geometry.location;
-            setGeocodedLocations(prev => {
-              const updated = new Map(prev);
-              updated.set(business.id, { lat: location.lat(), lng: location.lng() });
-              return updated;
-            });
-          }
-        }
-      );
-    });
-  }, [filteredBusinesses, geocodedLocations]);
+  // Geocode any pins without stored coordinates when the map is visible.
+  const onMapLoad = useCallback(() => {
+    if (!mapPins.length) return;
 
-  // Calculate map bounds
+    const geocoder = new google.maps.Geocoder();
+
+    mapPins.forEach((pin) => {
+      if ((pin.lat != null && pin.lng != null) || geocodedLocations.has(pin.pinId)) return;
+
+      geocoder.geocode({ address: pin.address }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          const location = results[0].geometry.location;
+          setGeocodedLocations((prev) => {
+            const updated = new Map(prev);
+            updated.set(pin.pinId, { lat: location.lat(), lng: location.lng() });
+            return updated;
+          });
+        }
+      });
+    });
+  }, [mapPins, geocodedLocations]);
+
+  // Center on the average of all resolved pin coordinates.
   const mapCenter = useMemo(() => {
-    const locations = Array.from(geocodedLocations.values());
-    if (locations.length === 0) return toledoCenter;
-    
-    const avgLat = locations.reduce((sum, loc) => sum + loc.lat, 0) / locations.length;
-    const avgLng = locations.reduce((sum, loc) => sum + loc.lng, 0) / locations.length;
+    const coords = mapPins
+      .map((pin) =>
+        pin.lat != null && pin.lng != null
+          ? { lat: pin.lat, lng: pin.lng }
+          : geocodedLocations.get(pin.pinId)
+      )
+      .filter((c): c is { lat: number; lng: number } => !!c);
+
+    if (coords.length === 0) return toledoCenter;
+    const avgLat = coords.reduce((sum, c) => sum + c.lat, 0) / coords.length;
+    const avgLng = coords.reduce((sum, c) => sum + c.lng, 0) / coords.length;
     return { lat: avgLat, lng: avgLng };
-  }, [geocodedLocations]);
+  }, [mapPins, geocodedLocations]);
 
   return (
     <>
@@ -328,20 +433,20 @@ export default function NearMe() {
                   ],
                 }}
               >
-                {filteredBusinesses.map(business => {
-                  const location = geocodedLocations.get(business.id);
-                  if (!location) return null;
-                  
+                {mapPins.map((pin) => {
+                  const coords = coordsFor(pin);
+                  if (!coords) return null;
+
                   return (
                     <Marker
-                      key={business.id}
-                      position={location}
-                      title={business.name}
-                      onClick={() => setSelectedBusiness(business)}
+                      key={pin.pinId}
+                      position={coords}
+                      title={pin.name}
+                      onClick={() => setSelectedPin(pin)}
                       icon={{
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: 10,
-                        fillColor: business.is_food_truck_today ? '#F59E0B' : business.has_loop_rewards ? '#8B5CF6' : '#3B82F6',
+                        fillColor: pin.is_food_truck_today ? '#F59E0B' : pin.has_loop_rewards ? '#8B5CF6' : '#3B82F6',
                         fillOpacity: 1,
                         strokeColor: '#ffffff',
                         strokeWeight: 2,
@@ -350,35 +455,35 @@ export default function NearMe() {
                   );
                 })}
 
-                {selectedBusiness && geocodedLocations.get(selectedBusiness.id) && (
+                {selectedPin && coordsFor(selectedPin) && (
                   <InfoWindow
-                    position={geocodedLocations.get(selectedBusiness.id)!}
-                    onCloseClick={() => setSelectedBusiness(null)}
+                    position={coordsFor(selectedPin)!}
+                    onCloseClick={() => setSelectedPin(null)}
                   >
                     <div className="p-2 min-w-[200px]">
-                      <h3 className="font-semibold text-sm mb-1">{selectedBusiness.name}</h3>
-                      {selectedBusiness.category && (
-                        <p className="text-xs text-gray-600 mb-1">{selectedBusiness.category.name}</p>
+                      <h3 className="font-semibold text-sm mb-1">{selectedPin.name}</h3>
+                      {selectedPin.category && (
+                        <p className="text-xs text-gray-600 mb-1">{selectedPin.category.name}</p>
                       )}
                       <div className="flex gap-1 mb-2">
-                        {selectedBusiness.has_loop_rewards && (
+                        {selectedPin.has_loop_rewards && (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px]">
                             <QrCode className="h-2.5 w-2.5" /> Rewards
                           </span>
                         )}
-                        {selectedBusiness.has_active_deal && (
+                        {selectedPin.has_active_deal && (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px]">
                             <Gift className="h-2.5 w-2.5" /> Deal
                           </span>
                         )}
-                        {selectedBusiness.is_food_truck_today && (
+                        {selectedPin.is_food_truck_today && (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px]">
                             <Truck className="h-2.5 w-2.5" /> Today
                           </span>
                         )}
                       </div>
                       <button
-                        onClick={() => navigate(selectedBusiness.slug ? `/business/${selectedBusiness.slug}` : `/business/${selectedBusiness.id}`)}
+                        onClick={() => navigate(selectedPin.slug ? `/business/${selectedPin.slug}` : `/business/${selectedPin.businessId}`)}
                         className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
                       >
                         View Profile <ExternalLink className="h-3 w-3" />

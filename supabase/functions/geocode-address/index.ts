@@ -1,0 +1,82 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Geocodes a street address to { lat, lng } using the server-held Google Maps
+// key, so the key never reaches the client. Used when a business location is
+// saved from the dashboard. Requires an authenticated caller (business owners).
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: authError } = await supabase.auth.getClaims(token);
+    if (authError || !data?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { address } = await req.json().catch(() => ({ address: '' }));
+    if (!address || typeof address !== 'string' || address.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Missing address' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!apiKey) {
+      console.error('GOOGLE_MAPS_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Maps API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+
+    if (json.status !== 'OK' || !json.results?.[0]) {
+      console.warn('Geocode returned no result', { status: json.status, address });
+      return new Response(
+        JSON.stringify({ lat: null, lng: null, status: json.status }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const loc = json.results[0].geometry.location;
+    return new Response(
+      JSON.stringify({ lat: loc.lat, lng: loc.lng }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error in geocode-address function:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});

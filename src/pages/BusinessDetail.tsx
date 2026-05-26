@@ -314,9 +314,9 @@ export default function BusinessDetail() {
           />
         </FlipProfileContainer>
 
-        {/* Locations section - only shows if multiple locations */}
+        {/* Locations section - shows all active locations */}
         <div className="max-w-lg mx-auto px-4 mt-4">
-          <LocationsSection businessId={business.id} />
+          <LocationsSection businessId={business.id} businessName={business.name} />
         </div>
       </div>
 
