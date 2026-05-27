@@ -120,7 +120,7 @@ export default function BusinessImageGuide() {
                 { label: 'Recommended', value: '2400 × 800 px' },
                 { label: 'Minimum', value: '1200 × 400 px' },
                 { label: 'Aspect Ratio', value: '3:1 (Wide)' },
-                { label: 'Max Size', value: '10 MB' },
+                { label: 'Max Size', value: '5 MB' },
                 { label: 'Formats', value: 'JPG, PNG, WebP, HEIC' },
               ]}
               tip="This is the big banner at the top of your page. Show your space, your work, or your team. One strong photo beats a busy collage."
@@ -131,7 +131,7 @@ export default function BusinessImageGuide() {
                 { label: 'Recommended', value: '1080 × 1080 px' },
                 { label: 'Max Photos', value: 'Up to 10' },
                 { label: 'Aspect Ratio', value: 'Any' },
-                { label: 'Max Size', value: '10 MB each' },
+                { label: 'Max Size', value: '5 MB each' },
                 { label: 'Formats', value: 'JPG, PNG, WebP, GIF, HEIC' },
               ]}
               tip="Show real moments. Products, people, your space. These appear in your photo gallery."
