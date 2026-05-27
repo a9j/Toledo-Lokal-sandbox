@@ -8,29 +8,28 @@ interface LogoLoaderProps {
 }
 
 export function LogoLoader({ size = 'md', text, className }: LogoLoaderProps) {
+  // Height-only sizing keeps the logo's native aspect ratio (it's a wide
+  // wordmark, not a square) so it never gets squished.
   const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16',
+    sm: 'h-8',
+    md: 'h-12',
+    lg: 'h-16',
   };
 
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
-      <div className="relative">
+      <div className="relative inline-flex">
         <img
           src={tlLogo}
           alt="Loading"
           className={cn(
             sizeClasses[size],
-            'animate-logo-pulse drop-shadow-md'
+            'w-auto object-contain animate-logo-pulse drop-shadow-md'
           )}
         />
         {/* Ripple ring */}
         <div
-          className={cn(
-            'absolute inset-0 rounded-full border-2 border-primary/30 animate-logo-ripple',
-            sizeClasses[size]
-          )}
+          className="absolute inset-0 rounded-2xl border-2 border-primary/30 animate-logo-ripple"
         />
       </div>
       {text && (

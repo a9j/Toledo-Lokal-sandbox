@@ -174,11 +174,18 @@ export default function EditBusiness() {
       updateData.visit_link_type = data.visit_link_type || null;
       updateData.visit_link_url = data.visit_link_url?.trim() || null;
 
-      const { error } = await supabase
+      let { error } = await supabase
         .from('businesses')
         .update(updateData)
         .eq('id', id);
-      
+
+      // visit_link_* columns ship in migration 20260527000100. If it hasn't
+      // been applied yet, retry without them so other edits still save.
+      if (error && /visit_link/i.test(error.message ?? '')) {
+        const { visit_link_type, visit_link_url, ...rest } = updateData;
+        ({ error } = await supabase.from('businesses').update(rest).eq('id', id));
+      }
+
       if (error) throw error;
     },
     onSuccess: () => {

@@ -58,11 +58,13 @@ const PUBLIC_BUSINESS_COLUMNS = `
   tier_assigned_at,
   profile_picture_url,
   cover_image_url,
-  visit_link_type,
-  visit_link_url,
   created_at,
   updated_at
 `;
+
+// visit_link_* ships in migration 20260527000100. Selected separately so the
+// page still loads if that migration hasn't been applied to the view yet.
+const VISIT_LINK_COLUMNS = 'visit_link_type, visit_link_url';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
@@ -75,23 +77,33 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      let query = supabase
+      // Typed primary query, including the configurable Visit button columns.
+      const primary = supabase
         .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
+          ${VISIT_LINK_COLUMNS},
           neighborhood:neighborhoods(name),
           category:categories(name, icon),
           business_loop_settings(is_active, loop_tier_id, is_founding_member)
         `);
-      
-      if (isUUID) {
-        query = query.eq('id', id);
-      } else {
-        query = query.eq('slug', id);
+      let { data, error } = await (isUUID ? primary.eq('id', id) : primary.eq('slug', id)).single();
+
+      // If migration 20260527000100 (visit_link_* columns) hasn't reached the
+      // view yet, the query 400s — retry without those columns so the page loads.
+      if (error && /visit_link/i.test(error.message ?? '')) {
+        const fallbackSelect: string = `
+          ${PUBLIC_BUSINESS_COLUMNS},
+          neighborhood:neighborhoods(name),
+          category:categories(name, icon),
+          business_loop_settings(is_active, loop_tier_id, is_founding_member)
+        `;
+        const fb = supabase.from('businesses_public').select(fallbackSelect);
+        const res = await (isUUID ? fb.eq('id', id) : fb.eq('slug', id)).single();
+        data = res.data as unknown as typeof data;
+        error = res.error;
       }
-      
-      const { data, error } = await query.single();
-      
+
       if (error) throw error;
       
       // Detect if this is a food truck based on category
