@@ -26,6 +26,14 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
+import {
+  BUSINESS_CATEGORY_OPTIONS,
+  BusinessCategory,
+  ProfileModuleContent,
+  PROFILE_SECTION_LABELS,
+  getModulesForCategory,
+  parseModuleContent,
+} from '@/lib/profile-modules';
 
 export default function EditBusiness() {
   const { id } = useParams<{ id: string }>();
@@ -49,11 +57,17 @@ export default function EditBusiness() {
     address: '',
     visit_link_type: '',
     visit_link_url: '',
+    category: 'restaurant',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
   const [isInLoop, setIsInLoop] = useState(false);
+  const [moduleContent, setModuleContent] = useState<ProfileModuleContent>({});
+
+  const setModuleField = (moduleId: string, key: string, value: string) => {
+    setModuleContent((prev) => ({ ...prev, [moduleId]: { ...prev[moduleId], [key]: value } }));
+  };
 
   const { data: business, isLoading } = useQuery({
     queryKey: ['edit-business', id],
@@ -137,7 +151,9 @@ export default function EditBusiness() {
         address: business.address || '',
         visit_link_type: business.visit_link_type || '',
         visit_link_url: business.visit_link_url || '',
+        category: business.category || 'restaurant',
       });
+      setModuleContent(parseModuleContent(business.profile_modules));
       setMainPhoto(business.photos?.[0] || null);
       setLogoUrl(business.logo_url || null);
       setHours(parseBusinessHours(business.hours));
@@ -174,11 +190,31 @@ export default function EditBusiness() {
       updateData.visit_link_type = data.visit_link_type || null;
       updateData.visit_link_url = data.visit_link_url?.trim() || null;
 
-      const { error } = await supabase
+      // Flexible profile system: category enum + module content. Prune empty
+      // fields/modules so we don't store blanks.
+      updateData.category = data.category || 'restaurant';
+      const prunedModules: ProfileModuleContent = {};
+      for (const [moduleId, fields] of Object.entries(moduleContent)) {
+        const kept: Record<string, string> = {};
+        for (const [k, v] of Object.entries(fields)) {
+          if (typeof v === 'string' && v.trim()) kept[k] = v.trim();
+        }
+        if (Object.keys(kept).length) prunedModules[moduleId] = kept;
+      }
+      updateData.profile_modules = prunedModules;
+
+      let { error } = await supabase
         .from('businesses')
         .update(updateData)
         .eq('id', id);
-      
+
+      // visit_link_*, category and profile_modules ship in migrations that may
+      // not be applied yet. If so, retry without them so other edits still save.
+      if (error && /(visit_link|profile_modules|column .*category)/i.test(error.message ?? '')) {
+        const { visit_link_type, visit_link_url, category, profile_modules, ...rest } = updateData;
+        ({ error } = await supabase.from('businesses').update(rest).eq('id', id));
+      }
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -614,6 +650,67 @@ export default function EditBusiness() {
                 maxLength={500}
               />
             </div>
+          </div>
+
+          {/* Business Category */}
+          <div className="card-elevated p-4 space-y-3">
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Business Category</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Controls which content sections appear on your public profile.
+              </p>
+            </div>
+            <Select
+              value={formData.category || 'restaurant'}
+              onValueChange={(v) => handleInputChange('category', v)}
+            >
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {BUSINESS_CATEGORY_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Profile Content (category-specific modules) */}
+          <div className="card-elevated p-4 space-y-4">
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Profile Content</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Fill in what's relevant. Anything left blank is hidden on your profile.
+              </p>
+            </div>
+            {getModulesForCategory((formData.category || 'restaurant') as BusinessCategory).map((module) => (
+              <div key={module.id} className="space-y-2 border-t border-border/50 pt-4 first:border-t-0 first:pt-0">
+                <p className="text-sm font-medium">
+                  {module.title}
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">· {PROFILE_SECTION_LABELS[module.section]}</span>
+                </p>
+                {module.fields.map((field) => (
+                  <div key={field.key} className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">{field.label}</Label>
+                    {field.type === 'textarea' ? (
+                      <Textarea
+                        value={moduleContent[module.id]?.[field.key] || ''}
+                        onChange={(e) => setModuleField(module.id, field.key, e.target.value)}
+                        placeholder={field.placeholder}
+                        rows={3}
+                        maxLength={2000}
+                      />
+                    ) : (
+                      <Input
+                        type={field.type === 'url' ? 'url' : field.type === 'tel' ? 'tel' : field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : 'text'}
+                        value={moduleContent[module.id]?.[field.key] || ''}
+                        onChange={(e) => setModuleField(module.id, field.key, e.target.value)}
+                        placeholder={field.placeholder}
+                        maxLength={500}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Hours of Operation */}

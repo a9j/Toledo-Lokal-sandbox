@@ -188,7 +188,7 @@ export default function BusinessGuide() {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Max File Size:</span>
-                  <span>10 MB</span>
+                  <span>5 MB</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Formats:</span>
@@ -218,7 +218,7 @@ export default function BusinessGuide() {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Max File Size:</span>
-                  <span>10 MB</span>
+                  <span>5 MB</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Formats:</span>

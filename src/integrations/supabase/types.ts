@@ -413,6 +413,8 @@ export type Database = {
           address: string | null
           average_rating: number | null
           category_id: string | null
+          category: string
+          profile_modules: Json
           connected_by_connector_id: string | null
           cover_image_url: string | null
           created_at: string
@@ -458,6 +460,8 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          category?: string
+          profile_modules?: Json
           connected_by_connector_id?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -501,6 +505,8 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          category?: string
+          profile_modules?: Json
           connected_by_connector_id?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -3538,6 +3544,8 @@ export type Database = {
           address: string | null
           average_rating: number | null
           category_id: string | null
+          category: string | null
+          profile_modules: Json | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
@@ -3575,6 +3583,8 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          category?: string | null
+          profile_modules?: Json | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -3612,6 +3622,8 @@ export type Database = {
           address?: string | null
           average_rating?: number | null
           category_id?: string | null
+          category?: string | null
+          profile_modules?: Json | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null

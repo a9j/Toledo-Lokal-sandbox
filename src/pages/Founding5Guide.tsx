@@ -189,7 +189,7 @@ export default function Founding5Guide() {
                 ['Recommended', '2400 × 800 px'],
                 ['Minimum', '1200 × 400 px'],
                 ['Aspect Ratio', '3:1 (Wide)'],
-                ['Max Size', '10 MB'],
+                ['Max Size', '5 MB'],
                 ['Formats', 'JPG, PNG, WebP, HEIC'],
               ]}
               tip="Show your storefront, products, or team. This is the hero image on your profile, make it count."

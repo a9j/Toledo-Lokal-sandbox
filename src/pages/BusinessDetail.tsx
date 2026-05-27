@@ -28,6 +28,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
 import { getVisitAction, openVisitAction } from '@/lib/visit-link';
+import { isBusinessCategory, parseModuleContent, categoryHasModuleContent } from '@/lib/profile-modules';
+import { CategoryModules } from '@/components/business/profile/CategoryModules';
+import { FlipCard } from '@/components/business/profile/FlipCard';
 
 // Public-safe columns - owner_user_id is now masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -58,11 +61,13 @@ const PUBLIC_BUSINESS_COLUMNS = `
   tier_assigned_at,
   profile_picture_url,
   cover_image_url,
-  visit_link_type,
-  visit_link_url,
   created_at,
   updated_at
 `;
+
+// visit_link_* ships in migration 20260527000100. Selected separately so the
+// page still loads if that migration hasn't been applied to the view yet.
+const VISIT_LINK_COLUMNS = 'visit_link_type, visit_link_url';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
@@ -75,25 +80,40 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      let query = supabase
+      // Typed primary query, including columns added by recent migrations
+      // (visit_link_*, the category enum aliased as business_category, and
+      // profile_modules). The categories relation already uses the "category"
+      // alias, so the scalar enum is aliased to avoid a name clash.
+      const primary = supabase
         .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
+          ${VISIT_LINK_COLUMNS},
+          business_category:category,
+          profile_modules,
           neighborhood:neighborhoods(name),
           category:categories(name, icon),
           business_loop_settings(is_active, loop_tier_id, is_founding_member)
         `);
-      
-      if (isUUID) {
-        query = query.eq('id', id);
-      } else {
-        query = query.eq('slug', id);
+      let { data, error } = await (isUUID ? primary.eq('id', id) : primary.eq('slug', id)).single();
+
+      // Those columns ship via migrations that may not have reached the view
+      // yet; on any error, retry with the base columns so the page still loads.
+      if (error) {
+        const fallbackSelect: string = `
+          ${PUBLIC_BUSINESS_COLUMNS},
+          neighborhood:neighborhoods(name),
+          category:categories(name, icon),
+          business_loop_settings(is_active, loop_tier_id, is_founding_member)
+        `;
+        const fb = supabase.from('businesses_public').select(fallbackSelect);
+        const res = await (isUUID ? fb.eq('id', id) : fb.eq('slug', id)).single();
+        data = res.data as unknown as typeof data;
+        error = res.error;
       }
-      
-      const { data, error } = await query.single();
-      
+
       if (error) throw error;
-      
+
       // Detect if this is a food truck based on category
       const isFoodTruck = data.category?.name?.toLowerCase().includes('food truck') ||
         data.category?.icon === 'truck';
@@ -113,6 +133,8 @@ export default function BusinessDetail() {
         tierStatus: data.tier_status,
         tierBadgeVisible: data.tier_badge_visible,
         tierAssignedAt: data.tier_assigned_at,
+        profileCategory: isBusinessCategory(data.business_category) ? data.business_category : 'restaurant',
+        moduleContent: parseModuleContent(data.profile_modules),
       };
     },
     enabled: !!id,
@@ -286,6 +308,13 @@ export default function BusinessDetail() {
             isNonprofit={business.isNonprofit}
           />
 
+          {/* Category-specific content modules (driven by business.category) */}
+          {categoryHasModuleContent(business.profileCategory, business.moduleContent) && (
+            <FlipCard title="Highlights">
+              <CategoryModules category={business.profileCategory} content={business.moduleContent} />
+            </FlipCard>
+          )}
+
           {/* Card 3: Business Pulse */}
           <PulseCard
             businessId={business.id}
@@ -314,12 +343,12 @@ export default function BusinessDetail() {
             }}
             hours={parsedHours}
           />
-        </FlipProfileContainer>
 
-        {/* Locations section - shows all active locations */}
-        <div className="max-w-lg mx-auto px-4 mt-4">
-          <LocationsSection businessId={business.id} businessName={business.name} />
-        </div>
+          {/* Locations — inside the pager so it's reachable */}
+          <FlipCard title="Locations">
+            <LocationsSection businessId={business.id} businessName={business.name} />
+          </FlipCard>
+        </FlipProfileContainer>
       </div>
 
       {/* Sticky Bottom Action Dock */}
