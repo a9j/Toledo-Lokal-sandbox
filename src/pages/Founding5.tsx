@@ -21,8 +21,7 @@ const FOUNDING_50_TOTAL = 50;
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1600&q=80&auto=format&fit=crop';
 
-// TODO: replace with Anthony's real number.
-const ANTHONY_PHONE = '(419) 555-0123';
+const ANTHONY_PHONE = '(734) 347-5113';
 
 const BENEFITS = [
   'Permanent No. 01 through No. 05 badge on your profile.',
