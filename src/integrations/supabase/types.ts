@@ -450,6 +450,8 @@ export type Database = {
           tiktok: string | null
           updated_at: string
           verified: boolean | null
+          visit_link_type: string | null
+          visit_link_url: string | null
           website: string | null
         }
         Insert: {
@@ -536,6 +538,8 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
+          visit_link_type?: string | null
+          visit_link_url?: string | null
           website?: string | null
         }
         Relationships: [
@@ -3563,6 +3567,8 @@ export type Database = {
           tiktok: string | null
           updated_at: string | null
           verified: boolean | null
+          visit_link_type: string | null
+          visit_link_url: string | null
           website: string | null
         }
         Insert: {
@@ -3598,6 +3604,8 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
+          visit_link_type?: string | null
+          visit_link_url?: string | null
           website?: string | null
         }
         Update: {
@@ -3633,6 +3641,8 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
+          visit_link_type?: string | null
+          visit_link_url?: string | null
           website?: string | null
         }
         Relationships: [

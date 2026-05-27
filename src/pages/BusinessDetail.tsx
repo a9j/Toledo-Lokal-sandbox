@@ -27,6 +27,7 @@ import { NeighborhoodPopularityBadge } from '@/components/discovery/Neighborhood
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
+import { getVisitAction, openVisitAction } from '@/lib/visit-link';
 
 // Public-safe columns - owner_user_id is now masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -57,6 +58,8 @@ const PUBLIC_BUSINESS_COLUMNS = `
   tier_assigned_at,
   profile_picture_url,
   cover_image_url,
+  visit_link_type,
+  visit_link_url,
   created_at,
   updated_at
 `;
@@ -152,12 +155,10 @@ export default function BusinessDetail() {
     }
   };
 
+  const visitAction = business ? getVisitAction(business) : null;
+
   const handleVisit = () => {
-    if (business?.address) {
-      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}`, '_blank');
-    } else if (business?.website) {
-      window.open(business.website.startsWith('http') ? business.website : `https://${business.website}`, '_blank');
-    }
+    if (visitAction) openVisitAction(visitAction);
   };
 
   const handleSupport = () => {
@@ -270,6 +271,7 @@ export default function BusinessDetail() {
             isLocallyOwned={true}
             activeThisWeek={true}
             onVisit={handleVisit}
+            visitLabel={visitAction?.label ?? 'Visit'}
             onSupport={handleSupport}
             onSave={handleSave}
             isSaved={isSaved}
@@ -321,12 +323,14 @@ export default function BusinessDetail() {
       </div>
 
       {/* Sticky Bottom Action Dock */}
-      <StickyActionDock 
+      <StickyActionDock
         businessId={business.id}
         businessName={business.name}
         address={business.address}
         phone={business.phone}
         website={business.website}
+        visitLinkType={business.visit_link_type}
+        visitLinkUrl={business.visit_link_url}
         isNonprofit={business.isNonprofit}
       />
     </>
