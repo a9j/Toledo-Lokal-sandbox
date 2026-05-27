@@ -14,7 +14,11 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
-  
+  const wheelTimeout = useRef<NodeJS.Timeout>();
+  // Whether the active card was at its scroll top/bottom when a gesture began.
+  const startAtTop = useRef(true);
+  const startAtBottom = useRef(true);
+
   const totalCards = children.length;
 
   const goToCard = useCallback((index: number) => {
@@ -36,9 +40,26 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
     }
   }, [currentCard, goToCard]);
 
+  // Nearest scrollable element under a gesture, so a card's own content scrolls
+  // first and we only flip cards once it's at the top/bottom boundary.
+  const getScroller = useCallback((start: EventTarget | null): HTMLElement | null => {
+    let el = start as HTMLElement | null;
+    while (el && el !== containerRef.current) {
+      const oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) return el;
+      el = el.parentElement;
+    }
+    return null;
+  }, []);
+
   // Handle touch events for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
+    touchEndY.current = e.touches[0].clientY;
+    const scroller = getScroller(e.target);
+    startAtTop.current = !scroller || scroller.scrollTop <= 2;
+    startAtBottom.current =
+      !scroller || scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -48,13 +69,12 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
   const handleTouchEnd = () => {
     const diff = touchStartY.current - touchEndY.current;
     const threshold = 50;
-
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        nextCard(); // Swipe up = next
-      } else {
-        prevCard(); // Swipe down = previous
-      }
+    if (Math.abs(diff) <= threshold) return;
+    // Only flip when the card can't scroll further in the swipe direction.
+    if (diff > 0) {
+      if (startAtBottom.current) nextCard(); // Swipe up = next
+    } else {
+      if (startAtTop.current) prevCard(); // Swipe down = previous
     }
   };
 
@@ -72,32 +92,41 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nextCard, prevCard]);
 
-  // Handle wheel events for desktop
-  const wheelTimeout = useRef<NodeJS.Timeout>();
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    
-    if (wheelTimeout.current) return;
-    
-    wheelTimeout.current = setTimeout(() => {
-      wheelTimeout.current = undefined;
-    }, 500);
+  // Wheel navigation (desktop). Native non-passive listener so we can
+  // preventDefault only when flipping; otherwise the card's overflow scroll runs.
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
 
-    if (e.deltaY > 30) {
-      nextCard();
-    } else if (e.deltaY < -30) {
-      prevCard();
-    }
-  };
+    const onWheel = (e: WheelEvent) => {
+      const scroller = getScroller(e.target);
+      const canScrollInner =
+        !!scroller &&
+        (e.deltaY > 0
+          ? scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1
+          : scroller.scrollTop > 1);
+      if (canScrollInner) return; // let the card scroll
+
+      e.preventDefault();
+      if (wheelTimeout.current) return;
+      wheelTimeout.current = setTimeout(() => {
+        wheelTimeout.current = undefined;
+      }, 500);
+      if (e.deltaY > 30) nextCard();
+      else if (e.deltaY < -30) prevCard();
+    };
+
+    root.addEventListener('wheel', onWheel, { passive: false });
+    return () => root.removeEventListener('wheel', onWheel);
+  }, [getScroller, nextCard, prevCard]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={cn("relative h-[calc(100vh-8rem)] overflow-hidden", className)}
+      className={cn("relative h-[calc(100dvh-8rem)] overflow-hidden", className)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onWheel={handleWheel}
     >
       {/* Card Stack */}
       <div className="relative h-full">
