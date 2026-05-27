@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Children } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,9 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
   const startAtTop = useRef(true);
   const startAtBottom = useRef(true);
 
-  const totalCards = children.length;
+  // Normalize so conditional ({cond && <Card/>}) children don't create empty slots.
+  const cards = Children.toArray(children);
+  const totalCards = cards.length;
 
   const goToCard = useCallback((index: number) => {
     if (isAnimating || index < 0 || index >= totalCards) return;
@@ -130,7 +132,7 @@ export function FlipProfileContainer({ children, className }: FlipProfileContain
     >
       {/* Card Stack */}
       <div className="relative h-full">
-        {children.map((child, index) => (
+        {cards.map((child, index) => (
           <div
             key={index}
             className={cn(
