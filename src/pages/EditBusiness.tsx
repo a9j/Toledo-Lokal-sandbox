@@ -25,6 +25,7 @@ import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
+import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
 
 export default function EditBusiness() {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,8 @@ export default function EditBusiness() {
     tiktok: '',
     facebook: '',
     address: '',
+    visit_link_type: '',
+    visit_link_url: '',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -132,6 +135,8 @@ export default function EditBusiness() {
         tiktok: (business as any).tiktok || '',
         facebook: (business as any).facebook || '',
         address: business.address || '',
+        visit_link_type: business.visit_link_type || '',
+        visit_link_url: business.visit_link_url || '',
       });
       setMainPhoto(business.photos?.[0] || null);
       setLogoUrl(business.logo_url || null);
@@ -164,7 +169,11 @@ export default function EditBusiness() {
       
       // Handle hours
       updateData.hours = hours;
-      
+
+      // Empty enum / url => null (empty string is not a valid visit_link_type)
+      updateData.visit_link_type = data.visit_link_type || null;
+      updateData.visit_link_url = data.visit_link_url?.trim() || null;
+
       const { error } = await supabase
         .from('businesses')
         .update(updateData)
@@ -559,6 +568,54 @@ export default function EditBusiness() {
             </div>
           </div>
           
+          {/* Visit Button */}
+          <div className="card-elevated p-4 space-y-3">
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Visit Button</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Choose where your profile's Visit button sends people. Leave as default to use your website.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="visit_link_type">Button action</Label>
+              <Select
+                value={formData.visit_link_type || 'default'}
+                onValueChange={(value) => handleInputChange('visit_link_type', value === 'default' ? '' : value)}
+              >
+                <SelectTrigger id="visit_link_type" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default (use website)</SelectItem>
+                  {VISIT_LINK_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="visit_link_url">
+                {formData.visit_link_type === 'phone' ? 'Phone number' : 'Link URL'}
+              </Label>
+              <Input
+                id="visit_link_url"
+                value={formData.visit_link_url}
+                onChange={(e) => handleInputChange('visit_link_url', e.target.value)}
+                type={formData.visit_link_type === 'phone' ? 'tel' : 'url'}
+                placeholder={
+                  formData.visit_link_type === 'phone'
+                    ? '(419) 555-0123 — or leave blank to use phone above'
+                    : formData.visit_link_type === 'google_maps'
+                    ? 'Maps link, or leave blank to use the address above'
+                    : 'https://...'
+                }
+                maxLength={500}
+              />
+            </div>
+          </div>
+
           {/* Hours of Operation */}
           <div className="card-elevated p-4">
             <HoursEditor hours={hours} onChange={setHours} />

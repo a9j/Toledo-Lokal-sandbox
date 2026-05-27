@@ -28,6 +28,7 @@ export interface IdentityCardProps {
   isLocallyOwned?: boolean;
   activeThisWeek?: boolean;
   onVisit?: () => void;
+  visitLabel?: string;
   onSupport?: () => void;
   onSave?: () => void;
   isSaved?: boolean;
@@ -46,6 +47,7 @@ export function IdentityCard({
   isLocallyOwned = true,
   activeThisWeek = true,
   onVisit,
+  visitLabel = 'Visit',
   onSupport,
   onSave,
   isSaved,
@@ -189,7 +191,7 @@ export function IdentityCard({
             {/* Primary CTAs */}
             <div className="flex gap-3">
               <Button onClick={onVisit} className="flex-1">
-                Visit
+                {visitLabel}
               </Button>
               <Button 
                 onClick={onSave} 

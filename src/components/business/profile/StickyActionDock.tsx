@@ -4,6 +4,7 @@ import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getVisitAction, openVisitAction } from '@/lib/visit-link';
 
 interface StickyActionDockProps {
   businessId: string;
@@ -11,16 +12,20 @@ interface StickyActionDockProps {
   address?: string | null;
   phone?: string | null;
   website?: string | null;
+  visitLinkType?: string | null;
+  visitLinkUrl?: string | null;
   isNonprofit?: boolean;
   className?: string;
 }
 
-export function StickyActionDock({ 
-  businessId, 
+export function StickyActionDock({
+  businessId,
   businessName,
   address,
   phone,
   website,
+  visitLinkType,
+  visitLinkUrl,
   isNonprofit,
   className
 }: StickyActionDockProps) {
@@ -37,14 +42,19 @@ export function StickyActionDock({
     toggleSave(businessId, 'business');
   };
 
+  const visitAction = getVisitAction({
+    visit_link_type: visitLinkType,
+    visit_link_url: visitLinkUrl,
+    website,
+    phone,
+    address,
+  });
+
   const handleVisit = () => {
-    if (address) {
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-      window.open(mapsUrl, '_blank');
-    } else if (website) {
-      window.open(website.startsWith('http') ? website : `https://${website}`, '_blank');
+    if (visitAction) {
+      openVisitAction(visitAction);
     } else {
-      toast.info('No address available');
+      toast.info('No link available');
     }
   };
 
@@ -105,7 +115,7 @@ export function StickyActionDock({
             className="flex-1 gap-2 rounded-full"
           >
             <Navigation className="h-4 w-4" />
-            Visit
+            {visitAction?.label ?? 'Visit'}
           </Button>
 
           {/* Support/Contact */}
