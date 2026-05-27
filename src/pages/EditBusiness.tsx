@@ -85,17 +85,38 @@ export default function EditBusiness() {
     enabled: !!id,
   });
 
-  // Check if user owns this business
+  // Determine whether the user manages this business (business_staff role='manager').
+  // Owners are handled separately below.
+  const { data: isManager } = useQuery({
+    queryKey: ['edit-business-is-manager', id, user?.id],
+    queryFn: async () => {
+      if (!id || !user) return false;
+      const { data } = await supabase
+        .from('business_staff')
+        .select('id')
+        .eq('business_id', id)
+        .eq('user_id', user.id)
+        .eq('role', 'manager')
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!id && !!user,
+  });
+
+  // Access guard: owners and managers can edit; anyone else is redirected.
+  // Wait until the manager check has settled before denying.
   useEffect(() => {
-    if (business && user && business.owner_user_id !== user.id) {
+    if (!business || !user || isManager === undefined) return;
+    const isOwner = business.owner_user_id === user.id;
+    if (!isOwner && !isManager) {
       toast({
         variant: 'destructive',
         title: 'Access Denied',
-        description: 'You can only edit your own business.',
+        description: 'You can only edit a business you own or manage.',
       });
       navigate('/dashboard');
     }
-  }, [business, user, navigate, toast]);
+  }, [business, user, isManager, navigate, toast]);
 
   // Populate form when business data loads
   useEffect(() => {

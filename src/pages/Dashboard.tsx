@@ -40,21 +40,35 @@ export default function Dashboard() {
     queryKey: ['user-business-full', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data, error } = await supabase
-        .from('businesses')
-        .select(`
+      const businessSelect = `
           *,
           category:categories(name),
           neighborhood:neighborhoods(name),
           deals(id),
           events(id),
           leads(id, status)
-        `)
+        `;
+
+      // Business the user owns takes precedence.
+      const { data: owned, error } = await supabase
+        .from('businesses')
+        .select(businessSelect)
         .eq('owner_user_id', user.id)
         .maybeSingle();
-      
+
       if (error) throw error;
-      return data;
+      if (owned) return owned;
+
+      // Otherwise, a business the user manages (business_staff role='manager').
+      const { data: managed, error: managedError } = await supabase
+        .from('business_staff')
+        .select(`business:businesses(${businessSelect})`)
+        .eq('user_id', user.id)
+        .eq('role', 'manager')
+        .maybeSingle();
+
+      if (managedError) throw managedError;
+      return (managed?.business as typeof owned) ?? null;
     },
     enabled: !!user,
   });
@@ -101,6 +115,7 @@ export default function Dashboard() {
   }
 
   const newLeadsCount = business.leads?.filter(l => l.status === 'new').length || 0;
+  const isOwner = business.owner_user_id === user.id;
 
   const dashboardItems = [
     { 
@@ -168,11 +183,12 @@ export default function Dashboard() {
       badge: (pendingScanCount || 0) > 0 ? 'new' as const : undefined,
       badgeCount: pendingScanCount || 0
     },
-    { 
-      icon: Users, 
-      label: 'Staff & Scanners', 
+    {
+      icon: Users,
+      label: 'Staff & Scanners',
       href: '/dashboard/staff',
-      subtitle: 'Manage who can scan'
+      subtitle: 'Manage who can scan',
+      ownerOnly: true
     },
     { 
       icon: CreditCard, 
@@ -262,7 +278,7 @@ export default function Dashboard() {
 
         {/* Dashboard items */}
         <div className="space-y-2">
-          {dashboardItems.map(item => (
+          {dashboardItems.filter(item => isOwner || !(item as { ownerOnly?: boolean }).ownerOnly).map(item => (
             <Link key={item.href} to={item.href}>
               <div className="card-elevated p-4 flex items-start gap-3 hover-lift">
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
