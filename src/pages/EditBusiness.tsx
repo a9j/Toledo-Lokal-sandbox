@@ -61,6 +61,7 @@ export default function EditBusiness() {
     category: 'restaurant',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
   const [isInLoop, setIsInLoop] = useState(false);
@@ -170,6 +171,7 @@ export default function EditBusiness() {
       });
       setModuleContent(parseModuleContent(business.profile_modules));
       setMainPhoto(business.photos?.[0] || null);
+      setGalleryPhotos(business.photos?.slice(1) || []);
       setLogoUrl(business.logo_url || null);
       setHours(parseBusinessHours(business.hours));
     }
@@ -188,12 +190,10 @@ export default function EditBusiness() {
       
       const updateData: any = { ...data };
       
-      // Handle photos array
-      if (mainPhoto) {
-        const existingPhotos = business?.photos || [];
-        // Put new main photo first, keep others
-        updateData.photos = [mainPhoto, ...existingPhotos.filter(p => p !== mainPhoto)];
-      }
+      // Photos: feed photo first, then the rest of the gallery (deduped, no blanks)
+      updateData.photos = Array.from(
+        new Set([mainPhoto, ...galleryPhotos].filter((p): p is string => !!p))
+      );
       
       // Handle logo
       updateData.logo_url = logoUrl;
@@ -470,6 +470,31 @@ export default function EditBusiness() {
                 />
               )}
             </div>
+          </div>
+
+          {/* More Photos (gallery) */}
+          <div className="card-elevated p-3 space-y-2">
+            <Label className="text-sm font-medium">More Photos</Label>
+            <p className="text-xs text-muted-foreground">Add gallery photos — these appear on your profile's Photos tab.</p>
+            {galleryPhotos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {galleryPhotos.map((p, i) => (
+                  <div key={`${p}-${i}`} className="relative">
+                    <SecureImage storagePath={p} alt={`Photo ${i + 1}`} className="w-full aspect-square object-cover rounded-lg" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={() => setGalleryPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                    >
+                      <span className="sr-only">Remove</span>×
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <ImageUpload onUpload={(url) => setGalleryPhotos((prev) => [...prev, url])} folder="businesses" label="Add photo" />
           </div>
 
           <div className="space-y-2">
