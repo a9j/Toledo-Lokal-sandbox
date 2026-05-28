@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      reports: {
+        Row: {
+          id: string
+          reporter_user_id: string | null
+          target_type: string
+          target_id: string | null
+          target_label: string | null
+          reason: string
+          details: string | null
+          status: string
+          resolution: string | null
+          resolved_by: string | null
+          resolved_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          reporter_user_id?: string | null
+          target_type: string
+          target_id?: string | null
+          target_label?: string | null
+          reason: string
+          details?: string | null
+          status?: string
+          resolution?: string | null
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          reporter_user_id?: string | null
+          target_type?: string
+          target_id?: string | null
+          target_label?: string | null
+          reason?: string
+          details?: string | null
+          status?: string
+          resolution?: string | null
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      moderation_actions: {
+        Row: {
+          id: string
+          report_id: string | null
+          moderator_user_id: string | null
+          action: string
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          report_id?: string | null
+          moderator_user_id?: string | null
+          action: string
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          report_id?: string | null
+          moderator_user_id?: string | null
+          action?: string
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string

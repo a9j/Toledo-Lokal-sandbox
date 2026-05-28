@@ -13,6 +13,7 @@ import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
 import { AdminShell, AdminNavGroup } from '@/components/admin/console/AdminShell';
 import { CityOverview } from '@/components/admin/console/CityOverview';
 import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
+import { ModerationAdmin } from '@/components/admin/console/ModerationAdmin';
 
 const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City', items: [
@@ -26,7 +27,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   ] },
   { label: 'City Ops', items: [
     { id: 'trust', label: 'Trust & Roles', icon: BadgeCheck },
-    { id: 'moderation', label: 'Moderation', icon: ShieldAlert, soon: true },
+    { id: 'moderation', label: 'Moderation', icon: ShieldAlert },
     { id: 'rewards', label: 'Rewards & Campaigns', icon: Gift, soon: true },
     { id: 'community', label: 'Community Impact', icon: Sprout, soon: true },
     { id: 'messaging', label: 'Announcements', icon: Megaphone, soon: true },
@@ -41,6 +42,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   nonprofits: { title: 'Nonprofits', subtitle: 'Causes, partners, and impact' },
   users: { title: 'Users', subtitle: 'Members, roles, and reports' },
   trust: { title: 'Trust & Roles', subtitle: 'Assign roles and review permissions' },
+  moderation: { title: 'Moderation', subtitle: 'Reports, content, and community trust' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -107,6 +109,7 @@ export default function AdminConsole() {
       {active === 'nonprofits' && <NonprofitAdmin />}
       {active === 'users' && <UsersAdmin />}
       {active === 'trust' && <RolesAdmin />}
+      {active === 'moderation' && <ModerationAdmin />}
     </AdminShell>
   );
 }
