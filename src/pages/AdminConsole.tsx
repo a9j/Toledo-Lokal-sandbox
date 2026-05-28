@@ -14,6 +14,7 @@ import { AdminShell, AdminNavGroup } from '@/components/admin/console/AdminShell
 import { CityOverview } from '@/components/admin/console/CityOverview';
 import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
 import { ModerationAdmin } from '@/components/admin/console/ModerationAdmin';
+import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 
 const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City', items: [
@@ -28,7 +29,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City Ops', items: [
     { id: 'trust', label: 'Trust & Roles', icon: BadgeCheck },
     { id: 'moderation', label: 'Moderation', icon: ShieldAlert },
-    { id: 'rewards', label: 'Rewards & Campaigns', icon: Gift, soon: true },
+    { id: 'rewards', label: 'Rewards & Campaigns', icon: Gift },
     { id: 'community', label: 'Community Impact', icon: Sprout, soon: true },
     { id: 'messaging', label: 'Announcements', icon: Megaphone, soon: true },
     { id: 'whitelabel', label: 'White-label Cities', icon: Building2, soon: true },
@@ -43,6 +44,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   users: { title: 'Users', subtitle: 'Members, roles, and reports' },
   trust: { title: 'Trust & Roles', subtitle: 'Assign roles and review permissions' },
   moderation: { title: 'Moderation', subtitle: 'Reports, content, and community trust' },
+  rewards: { title: 'Rewards & Campaigns', subtitle: 'Loop campaigns and city challenges' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -110,6 +112,7 @@ export default function AdminConsole() {
       {active === 'users' && <UsersAdmin />}
       {active === 'trust' && <RolesAdmin />}
       {active === 'moderation' && <ModerationAdmin />}
+      {active === 'rewards' && <RewardsAdmin />}
     </AdminShell>
   );
 }

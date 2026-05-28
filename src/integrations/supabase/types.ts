@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      city_campaigns: {
+        Row: {
+          id: string
+          title: string
+          emoji: string | null
+          description: string | null
+          campaign_type: string
+          point_multiplier: number
+          starts_at: string | null
+          ends_at: string | null
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          emoji?: string | null
+          description?: string | null
+          campaign_type?: string
+          point_multiplier?: number
+          starts_at?: string | null
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          emoji?: string | null
+          description?: string | null
+          campaign_type?: string
+          point_multiplier?: number
+          starts_at?: string | null
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           id: string
