@@ -1,10 +1,11 @@
 import { Phone, Globe, Instagram, Facebook, Clock, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LocationsSection } from '@/components/business/LocationsSection';
-import { ReviewsSection } from '@/components/reviews/ReviewsSection';
 import { getHoursList } from '@/lib/business-hours';
 import { getFilledModulesForSection } from '@/lib/profile-modules';
 import { ResolvedAction } from '@/lib/business-profile-config';
+import { ReportDialog } from '@/components/moderation/ReportDialog';
+import { LocalSignals } from './LocalSignals';
 import { cn } from '@/lib/utils';
 import { ProfileBusiness } from './profile-types';
 import { ModuleCard } from './ModuleCard';
@@ -118,16 +119,8 @@ export function AboutTab({ business, actions }: { business: ProfileBusiness; act
         )}
       </ProfileCard>
 
-      {/* Why locals love us */}
-      <div>
-        <SectionLabel>Why locals love us</SectionLabel>
-        <ReviewsSection
-          businessId={business.id}
-          businessOwnerId={business.owner_user_id ?? undefined}
-          averageRating={business.average_rating ?? 0}
-          reviewCount={business.review_count ?? 0}
-        />
-      </div>
+      {/* Local Signals — replaces the old reviews section */}
+      <LocalSignals business={business} />
 
       {/* Personalization-ready (mock for now) */}
       <div className="space-y-2">
@@ -143,6 +136,11 @@ export function AboutTab({ business, actions }: { business: ProfileBusiness; act
             </div>
           </ProfileCard>
         ))}
+      </div>
+
+      {/* Report */}
+      <div className="pt-1 text-center">
+        <ReportDialog targetType="business" targetId={business.id} targetLabel={business.name} />
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Radio, Sparkles, Bookmark, Users, MapPin, Clock } from 'lucide-react';
+import { Radio, Sparkles, Bookmark, Users, MapPin, Clock, Flag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ReportDialog } from '@/components/moderation/ReportDialog';
 import { ProfileBusiness } from './profile-types';
 import { ProfileCard, ActivityPill, SectionLabel } from './ProfilePrimitives';
 
@@ -48,6 +49,12 @@ export function PulseTab({ business, savedCount, isSaved, onSave }: PulseTabProp
               <span className="capitalize">{post.category || 'Update'}</span>
               <span>·</span>
               <span>{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span>
+              <ReportDialog
+                targetType="pulse_post"
+                targetId={post.id}
+                targetLabel={`${business.name} — pulse post`}
+                trigger={<button className="ml-auto inline-flex items-center text-muted-foreground hover:text-foreground" aria-label="Report post"><Flag className="h-3 w-3" /></button>}
+              />
             </div>
             <p className="whitespace-pre-line text-sm text-foreground">{post.content}</p>
           </ProfileCard>

@@ -14,6 +14,189 @@ export type Database = {
   }
   public: {
     Tables: {
+      local_reactions: {
+        Row: { id: string; business_id: string; user_id: string; reaction_type: string; business_type: string | null; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; reaction_type: string; business_type?: string | null; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; reaction_type?: string; business_type?: string | null; created_at?: string }
+        Relationships: []
+      }
+      local_moments: {
+        Row: { id: string; business_id: string; user_id: string; text: string; photo_url: string | null; status: string; featured: boolean; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; text: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; text?: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
+        Relationships: []
+      }
+      reputation_badges: {
+        Row: { id: string; business_id: string; badge_type: string; source: string | null; awarded_at: string }
+        Insert: { id?: string; business_id: string; badge_type: string; source?: string | null; awarded_at?: string }
+        Update: { id?: string; business_id?: string; badge_type?: string; source?: string | null; awarded_at?: string }
+        Relationships: []
+      }
+      recommendation_prompts: {
+        Row: { id: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; prompt_type?: string; response?: boolean; created_at?: string }
+        Relationships: []
+      }
+      known_for_tags: {
+        Row: { id: string; business_id: string; tag: string; source: string | null; confidence_score: number | null; created_at: string }
+        Insert: { id?: string; business_id: string; tag: string; source?: string | null; confidence_score?: number | null; created_at?: string }
+        Update: { id?: string; business_id?: string; tag?: string; source?: string | null; confidence_score?: number | null; created_at?: string }
+        Relationships: []
+      }
+      cities: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          region: string | null
+          tagline: string | null
+          primary_color: string | null
+          accent_color: string | null
+          logo_url: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          region?: string | null
+          tagline?: string | null
+          primary_color?: string | null
+          accent_color?: string | null
+          logo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          region?: string | null
+          tagline?: string | null
+          primary_color?: string | null
+          accent_color?: string | null
+          logo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      city_campaigns: {
+        Row: {
+          id: string
+          title: string
+          emoji: string | null
+          description: string | null
+          campaign_type: string
+          point_multiplier: number
+          starts_at: string | null
+          ends_at: string | null
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          emoji?: string | null
+          description?: string | null
+          campaign_type?: string
+          point_multiplier?: number
+          starts_at?: string | null
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          emoji?: string | null
+          description?: string | null
+          campaign_type?: string
+          point_multiplier?: number
+          starts_at?: string | null
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          id: string
+          reporter_user_id: string | null
+          target_type: string
+          target_id: string | null
+          target_label: string | null
+          reason: string
+          details: string | null
+          status: string
+          resolution: string | null
+          resolved_by: string | null
+          resolved_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          reporter_user_id?: string | null
+          target_type: string
+          target_id?: string | null
+          target_label?: string | null
+          reason: string
+          details?: string | null
+          status?: string
+          resolution?: string | null
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          reporter_user_id?: string | null
+          target_type?: string
+          target_id?: string | null
+          target_label?: string | null
+          reason?: string
+          details?: string | null
+          status?: string
+          resolution?: string | null
+          resolved_by?: string | null
+          resolved_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      moderation_actions: {
+        Row: {
+          id: string
+          report_id: string | null
+          moderator_user_id: string | null
+          action: string
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          report_id?: string | null
+          moderator_user_id?: string | null
+          action: string
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          report_id?: string | null
+          moderator_user_id?: string | null
+          action?: string
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -4014,6 +4197,11 @@ export type Database = {
         | "nonprofit"
         | "partner"
         | "connector"
+        | "super_admin"
+        | "city_admin"
+        | "moderator"
+        | "ambassador"
+        | "support_staff"
       cause_category:
         | "food_insecurity"
         | "housing"
@@ -4192,6 +4380,11 @@ export const Constants = {
         "nonprofit",
         "partner",
         "connector",
+        "super_admin",
+        "city_admin",
+        "moderator",
+        "ambassador",
+        "support_staff",
       ],
       cause_category: [
         "food_insecurity",
