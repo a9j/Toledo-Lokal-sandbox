@@ -33,7 +33,7 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
   const queryClient = useQueryClient();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'staff' | 'manager'>('staff');
+  const [inviteRole, setInviteRole] = useState<'staff' | 'manager'>('manager');
 
   // Fetch current staff
   const { data: staff, isLoading: loadingStaff } = useQuery({
@@ -172,9 +172,9 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
       {/* Header with Scanner Mode link */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Staff & Scanners</h3>
+          <h3 className="text-lg font-semibold">Managers & Staff</h3>
           <p className="text-sm text-muted-foreground">
-            Manage who can scan QR codes for your business
+            Add people to help run this business — add as many as you need. Only you (the owner) can manage this list.
           </p>
         </div>
         <div className="flex gap-2">
@@ -188,12 +188,12 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
                 <UserPlus className="h-4 w-4" />
-                Invite Staff
+                Add person
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Invite Staff Member</DialogTitle>
+                <DialogTitle>Add a manager or staff member</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleInvite} className="space-y-4">
                 <div className="space-y-2">
@@ -214,12 +214,12 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="staff">Staff (Scanner only)</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="manager">Manager — can edit the profile, locations & posts</SelectItem>
+                      <SelectItem value="staff">Staff — scanner only</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Staff can only scan QR codes. Managers have additional permissions.
+                    Managers can edit your profile, locations, deals, events and rewards. Staff can only scan customer QR codes. You can add more than one of each.
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={inviteMutation.isPending}>

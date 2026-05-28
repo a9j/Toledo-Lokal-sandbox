@@ -185,9 +185,9 @@ export default function Dashboard() {
     },
     {
       icon: Users,
-      label: 'Staff & Scanners',
+      label: 'Managers & Staff',
       href: '/dashboard/staff',
-      subtitle: 'Manage who can scan',
+      subtitle: 'Add people to manage this business',
       ownerOnly: true
     },
     { 
