@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      local_reactions: {
+        Row: { id: string; business_id: string; user_id: string; reaction_type: string; business_type: string | null; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; reaction_type: string; business_type?: string | null; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; reaction_type?: string; business_type?: string | null; created_at?: string }
+        Relationships: []
+      }
+      local_moments: {
+        Row: { id: string; business_id: string; user_id: string; text: string; photo_url: string | null; status: string; featured: boolean; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; text: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; text?: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
+        Relationships: []
+      }
+      reputation_badges: {
+        Row: { id: string; business_id: string; badge_type: string; source: string | null; awarded_at: string }
+        Insert: { id?: string; business_id: string; badge_type: string; source?: string | null; awarded_at?: string }
+        Update: { id?: string; business_id?: string; badge_type?: string; source?: string | null; awarded_at?: string }
+        Relationships: []
+      }
+      recommendation_prompts: {
+        Row: { id: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at: string }
+        Insert: { id?: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at?: string }
+        Update: { id?: string; business_id?: string; user_id?: string; prompt_type?: string; response?: boolean; created_at?: string }
+        Relationships: []
+      }
+      known_for_tags: {
+        Row: { id: string; business_id: string; tag: string; source: string | null; confidence_score: number | null; created_at: string }
+        Insert: { id?: string; business_id: string; tag: string; source?: string | null; confidence_score?: number | null; created_at?: string }
+        Update: { id?: string; business_id?: string; tag?: string; source?: string | null; confidence_score?: number | null; created_at?: string }
+        Relationships: []
+      }
       cities: {
         Row: {
           id: string
