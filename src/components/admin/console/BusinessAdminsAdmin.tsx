@@ -20,7 +20,7 @@ const ROLE_STYLES: Record<string, string> = {
   staff: 'bg-secondary text-muted-foreground',
 };
 
-const ROLE_LABEL: Record<string, string> = { owner: 'Owner', manager: 'Manager (admin)', staff: 'Staff' };
+const ROLE_LABEL: Record<string, string> = { owner: 'Owner', manager: 'Manager', staff: 'Staff' };
 
 export function BusinessAdminsAdmin() {
   const { can } = usePermissions();
