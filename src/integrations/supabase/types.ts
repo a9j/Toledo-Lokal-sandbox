@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      cities: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          region: string | null
+          tagline: string | null
+          primary_color: string | null
+          accent_color: string | null
+          logo_url: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          region?: string | null
+          tagline?: string | null
+          primary_color?: string | null
+          accent_color?: string | null
+          logo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          region?: string | null
+          tagline?: string | null
+          primary_color?: string | null
+          accent_color?: string | null
+          logo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       city_campaigns: {
         Row: {
           id: string
