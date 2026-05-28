@@ -1,158 +1,149 @@
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePulse } from '@/hooks/usePulse';
 import { PulsePostCard } from './PulsePostCard';
-import { PULSE_CATEGORIES, PulseCategory } from '@/lib/pulse-config';
+import { NeighborhoodEnergy } from './NeighborhoodEnergy';
+import { PulseCategoryFilter } from './PulseCategoryFilter';
+import { PulseEmptyState } from './PulseEmptyState';
+import { PulseIcon } from './PulseIcon';
+import { PULSE_TABS, PulseTab, PULSE_EVENT_TEMPLATE_KEYS } from '@/lib/pulse-config';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Zap, AlertTriangle, Activity, HelpCircle, Heart, Radio, Building2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
-const CATEGORY_ICONS = {
-  right_now: Zap,
-  heads_up: AlertTriangle,
-  energy_check: Activity,
-  community_ask: HelpCircle,
-  good_stuff: Heart,
-};
+// Followed businesses = the user's saved businesses (the "Following" tab source).
+function useFollowedBusinessIds() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['pulse-following-ids', user?.id],
+    queryFn: async () => {
+      if (!user) return [] as string[];
+      const { data } = await supabase
+        .from('saved_items')
+        .select('item_id')
+        .eq('user_id', user.id)
+        .eq('item_type', 'business');
+      return (data || []).map((r) => r.item_id);
+    },
+    enabled: !!user,
+  });
+}
 
-type AuthorFilter = 'all' | 'business' | 'user';
+function useHomeNeighborhood() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['pulse-home-neighborhood', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('neighborhood_id, neighborhoods(name)')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const hood = (data as { neighborhoods?: { name?: string } | null } | null)?.neighborhoods;
+      return hood?.name ?? null;
+    },
+    enabled: !!user,
+  });
+}
 
 interface PulseFeedProps {
   limit?: number;
+  // When false, hides the tab bar, neighborhood-energy row, and category
+  // chips — useful when the feed is embedded as a small section elsewhere.
   showFilters?: boolean;
 }
 
-export function PulseFeed({ limit, showFilters = true }: PulseFeedProps) {
-  const [selectedCategory, setSelectedCategory] = useState<PulseCategory | null>(null);
-  const [authorFilter, setAuthorFilter] = useState<AuthorFilter>('all');
-  const { data: posts, isLoading, error } = usePulse({ 
-    category: selectedCategory || undefined,
-    limit 
-  });
+export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
+  const [tab, setTab] = useState<PulseTab>('for_you');
+  const [neighborhood, setNeighborhood] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
 
-  // Filter posts by author type
-  const filteredPosts = posts?.filter(post => {
-    if (authorFilter === 'all') return true;
-    return post.author_type === authorFilter;
-  });
+  const { data: followedIds = [] } = useFollowedBusinessIds();
+  const { data: homeNeighborhood } = useHomeNeighborhood();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-xl" />
-        ))}
-      </div>
-    );
-  }
+  const effectiveNeighborhood = neighborhood ?? (tab === 'nearby' ? homeNeighborhood ?? undefined : undefined);
 
-  if (error) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
-        <p>Error loading The Pulse</p>
-      </div>
-    );
-  }
+  const pulseOptions = useMemo(() => {
+    const base = {
+      neighborhood: effectiveNeighborhood || undefined,
+      tag: category || undefined,
+      limit,
+    } as Parameters<typeof usePulse>[0];
+
+    if (!showFilters) return base;
+
+    switch (tab) {
+      case 'trending':
+        return { ...base, sort: 'trending' as const };
+      case 'community':
+        return { ...base, contentType: 'community_activity' as const };
+      case 'events':
+        return { ...base, templateKeys: PULSE_EVENT_TEMPLATE_KEYS };
+      case 'live':
+        return { ...base, contentType: 'city_signal' as const };
+      case 'following':
+        return { ...base, businessIds: followedIds.length ? followedIds : ['__none__'] };
+      default:
+        return base;
+    }
+  }, [tab, effectiveNeighborhood, category, followedIds, limit, showFilters]);
+
+  const { data: posts, isLoading, error } = usePulse(pulseOptions);
 
   return (
     <div className="space-y-4">
-      {/* Author type filter */}
       {showFilters && (
-        <div className="flex gap-2 mb-2">
-          <button
-            onClick={() => setAuthorFilter('all')}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
-              authorFilter === 'all' 
-                ? "border-primary bg-primary text-primary-foreground" 
-                : "border-border hover:bg-secondary"
-            )}
-          >
-            <Radio className="h-3.5 w-3.5" />
-            All
-          </button>
-          <button
-            onClick={() => setAuthorFilter('business')}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
-              authorFilter === 'business' 
-                ? "border-primary bg-primary/10 text-primary" 
-                : "border-border hover:bg-secondary"
-            )}
-          >
-            <Building2 className="h-3.5 w-3.5" />
-            Businesses
-          </button>
-          <button
-            onClick={() => setAuthorFilter('user')}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
-              authorFilter === 'user' 
-                ? "border-muted-foreground bg-secondary text-foreground" 
-                : "border-border hover:bg-secondary"
-            )}
-          >
-            <User className="h-3.5 w-3.5" />
-            Residents
-          </button>
-        </div>
-      )}
-
-      {/* Category filters */}
-      {showFilters && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
-              !selectedCategory 
-                ? "border-primary bg-primary text-primary-foreground" 
-                : "border-border hover:bg-secondary"
-            )}
-          >
-            All Categories
-          </button>
-          {Object.values(PULSE_CATEGORIES).map((cat) => {
-            const Icon = CATEGORY_ICONS[cat.id];
-            const isSelected = selectedCategory === cat.id;
-
-            return (
+        <>
+          {/* Tabs */}
+          <div className="-mx-1 flex gap-1.5 overflow-x-auto scrollbar-hide px-1 pb-1">
+            {PULSE_TABS.map((t) => (
               <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(isSelected ? null : cat.id)}
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all",
-                  isSelected 
-                    ? cn(cat.bgColor, cat.color, "border-current") 
-                    : "border-border hover:bg-secondary"
+                  'flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all',
+                  tab === t.id
+                    ? 'bg-foreground text-background'
+                    : 'bg-secondary/60 text-muted-foreground hover:bg-secondary'
                 )}
               >
-                <Icon className="h-3.5 w-3.5" />
-                {cat.label}
+                <PulseIcon name={t.icon} className="h-3.5 w-3.5" />
+                {t.label}
               </button>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+
+          {/* City-energy layer */}
+          <NeighborhoodEnergy selected={neighborhood} onSelect={setNeighborhood} />
+
+          {/* Category filter */}
+          <PulseCategoryFilter selected={category} onSelect={setCategory} />
+        </>
       )}
 
-      {/* Posts */}
-      {filteredPosts && filteredPosts.length > 0 ? (
+      {/* Feed */}
+      {isLoading ? (
         <div className="space-y-3">
-          {filteredPosts.map((post) => (
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 rounded-2xl" />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="py-12 text-center text-muted-foreground">
+          <p>Couldn't load Pulse right now.</p>
+        </div>
+      ) : posts && posts.length > 0 ? (
+        <div className="space-y-3">
+          {posts.map((post) => (
             <PulsePostCard key={post.id} post={post} />
           ))}
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-          <h3 className="text-lg font-medium text-foreground mb-1">Nothing on The Pulse</h3>
-          <p className="text-sm text-muted-foreground">
-            {authorFilter !== 'all' 
-              ? `No ${authorFilter === 'business' ? 'business' : 'resident'} posts right now`
-              : 'Be the first to share what\'s happening in Toledo'
-            }
-          </p>
-        </div>
-      )}
+      ) : showFilters ? (
+        <PulseEmptyState />
+      ) : null}
     </div>
   );
 }

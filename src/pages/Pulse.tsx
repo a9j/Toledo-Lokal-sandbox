@@ -2,6 +2,7 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PulseFeed } from '@/components/pulse/PulseFeed';
 import { PulseCreateForm } from '@/components/pulse/PulseCreateForm';
+import { CitySignalsStrip } from '@/components/pulse/CitySignalsStrip';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Radio, Info } from 'lucide-react';
 import {
@@ -17,22 +18,22 @@ export default function Pulse() {
   return (
     <>
       <SEOHead
-        title="The Pulse | ToledoLokal"
-        description="See what's happening in Toledo right now. Real-time updates, alerts, and community moments."
+        title="Pulse | ToledoLokal"
+        description="The heartbeat of Toledo. See local business activity, community movement, real moments, and live city signals — happening right now."
       />
       <Header />
       <PageContainer>
         <div className="pb-24">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Radio className="h-8 w-8 text-primary" />
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-toledo-rose animate-pulse" />
+                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 animate-pulse rounded-full bg-toledo-rose" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">The Pulse</h1>
-                <p className="text-sm text-muted-foreground">What's happening in Toledo right now</p>
+                <h1 className="text-2xl font-bold text-foreground">Pulse</h1>
+                <p className="text-sm text-muted-foreground">The heartbeat of Toledo, right now</p>
               </div>
             </div>
             <Dialog>
@@ -41,44 +42,43 @@ export default function Pulse() {
                   <Info className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-background border-border">
+              <DialogContent className="bg-background border-border sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>About The Pulse</DialogTitle>
+                  <DialogTitle>About Pulse</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 text-sm text-muted-foreground">
-                  <p>
-                    The Pulse is a real-time, expiring activity stream that shows what is 
-                    happening in Toledo right now.
-                  </p>
+                  <p>Pulse is the live layer of the city — not a social feed. It's built to help you discover what's happening nearby and support local.</p>
                   <div className="space-y-2">
-                    <h4 className="font-medium text-foreground">How it works</h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>Posts are short (140 characters max)</li>
-                      <li>Posts automatically expire and disappear</li>
-                      <li>No comments, no likes, no arguing</li>
-                      <li>Tap "Helpful" to surface useful posts</li>
+                    <h4 className="font-medium text-foreground">What you'll find</h4>
+                    <ul className="list-inside list-disc space-y-1">
+                      <li><strong>Business activity</strong> — specials, events, live music, availability</li>
+                      <li><strong>Community</strong> — volunteer needs, drives, neighborhood events</li>
+                      <li><strong>Local moments</strong> — small, real moments tied to places</li>
+                      <li><strong>City signals</strong> — what's trending, computed from real activity</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium text-foreground">Categories</h4>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li><strong>Right Now</strong> – Live happenings (1-4 hours)</li>
-                      <li><strong>Heads Up</strong> – Alerts & notices (4-12 hours)</li>
-                      <li><strong>Energy Check</strong> – Area vibes (4 hours)</li>
-                      <li><strong>Community Ask</strong> – Local help requests (24 hours)</li>
-                      <li><strong>Good Stuff</strong> – Positive moments (24 hours)</li>
+                    <h4 className="font-medium text-foreground">How it stays clean</h4>
+                    <ul className="list-inside list-disc space-y-1">
+                      <li>Every post uses a structured format — no blank posting</li>
+                      <li>Posts expire automatically and stay current</li>
+                      <li>Lightweight, positive reactions — no comment threads</li>
+                      <li>Community reporting + moderation keep it local</li>
                     </ul>
                   </div>
-                  <p className="text-xs italic">
-                    The Pulse is designed to be fast, useful, and human — not social media.
-                  </p>
+                  <p className="text-xs italic">Pulse should make you feel like the city is alive right now.</p>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
 
-          {/* Create button */}
-          <div className="mb-6">
+          {/* Live City Signals layer */}
+          <div className="mb-5">
+            <CitySignalsStrip />
+          </div>
+
+          {/* Composer */}
+          <div className="mb-5">
             <PulseCreateForm />
           </div>
 

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { PulseCategory } from '@/lib/pulse-config';
+import { PulseCategory, PulseContentType, PulseReactionType } from '@/lib/pulse-config';
 import { useEffect } from 'react';
 
 export interface PulsePost {
@@ -33,6 +33,15 @@ export interface PulsePost {
   activity_type: string | null;
   reference_id: string | null;
   auto_generated: boolean;
+  // Restructure fields
+  content_type: PulseContentType;
+  template_key: string | null;
+  neighborhood: string | null;
+  tags: string[];
+  why_it_matters: string | null;
+  place_business_id: string | null;
+  reaction_count: number;
+  reaction_counts: Partial<Record<PulseReactionType, number>>;
   // Joined data
   business?: {
     id: string;
@@ -53,6 +62,12 @@ export interface PulsePost {
 
 interface UsePulseOptions {
   category?: PulseCategory;
+  contentType?: PulseContentType;
+  neighborhood?: string;
+  tag?: string;
+  templateKeys?: string[];
+  businessIds?: string[];
+  sort?: 'recent' | 'trending';
   limit?: number;
 }
 
@@ -62,7 +77,10 @@ export function usePulse(options: UsePulseOptions = {}) {
   const query = useQuery({
     queryKey: ['pulse', options],
     queryFn: async () => {
-      let q = supabase
+      // Several restructure columns (content_type, neighborhood, tags,
+      // template_key, reaction_count) aren't in the generated types yet, so
+      // build the query with an untyped builder for the filter chain.
+      let q: any = supabase
         .from('pulse_posts')
         .select(`
           *,
@@ -70,24 +88,36 @@ export function usePulse(options: UsePulseOptions = {}) {
           nonprofit:nonprofits(id, name, logo_url)
         `)
         .eq('status', 'active')
-        .gt('expires_at', new Date().toISOString())
-        .order('is_pinned', { ascending: false })
-        .order('expires_at', { ascending: true })
-        .order('created_at', { ascending: false });
+        .gt('expires_at', new Date().toISOString());
 
-      if (options.category) {
-        q = q.eq('category', options.category);
+      if (options.sort === 'trending') {
+        q = q
+          .order('is_pinned', { ascending: false })
+          .order('reaction_count', { ascending: false })
+          .order('created_at', { ascending: false });
+      } else {
+        q = q
+          .order('is_pinned', { ascending: false })
+          .order('created_at', { ascending: false });
       }
 
-      if (options.limit) {
-        q = q.limit(options.limit);
+      if (options.category) q = q.eq('category', options.category);
+      if (options.contentType) q = q.eq('content_type', options.contentType);
+      if (options.neighborhood) q = q.eq('neighborhood', options.neighborhood);
+      if (options.tag) q = q.contains('tags', [options.tag]);
+      if (options.templateKeys && options.templateKeys.length > 0) {
+        q = q.in('template_key', options.templateKeys);
       }
+      if (options.businessIds && options.businessIds.length > 0) {
+        q = q.in('business_id', options.businessIds);
+      }
+      if (options.limit) q = q.limit(options.limit);
 
       const { data: posts, error } = await q;
       if (error) throw error;
 
       // Fetch author profiles for user posts
-      const userIds = [...new Set(posts.filter(p => p.user_id).map(p => p.user_id!))];
+      const userIds = [...new Set((posts as { user_id: string | null }[]).filter(p => p.user_id).map(p => p.user_id as string))];
       let profileMap = new Map();
 
       if (userIds.length > 0) {
@@ -102,7 +132,7 @@ export function usePulse(options: UsePulseOptions = {}) {
       return posts.map(post => ({
         ...post,
         author: post.user_id ? profileMap.get(post.user_id) || null : null,
-      })) as PulsePost[];
+      })) as unknown as PulsePost[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -184,7 +214,15 @@ interface CreatePulsePostInput {
   expirationHours: number;
   locationText?: string;
   businessId?: string;
+  nonprofitId?: string;
   isPinned?: boolean;
+  // Restructure fields
+  contentType?: PulseContentType;
+  templateKey?: string;
+  neighborhood?: string;
+  tags?: string[];
+  whyItMatters?: string;
+  placeBusinessId?: string;
   // Sharing fields
   headline?: string;
   previewText?: string;
@@ -205,36 +243,55 @@ export function useCreatePulsePost() {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + input.expirationHours);
 
+      const authorType = input.businessId ? 'business' : 'user';
+
+      // Some restructure columns aren't in the generated types yet; cast the
+      // payload so the typed client doesn't reject the new known columns.
+      const insertPayload = {
+        category: input.category,
+        content: input.content,
+        expires_at: expiresAt.toISOString(),
+        location_text: input.locationText || null,
+        user_id: input.businessId ? null : user.id,
+        business_id: input.businessId || null,
+        nonprofit_id: input.nonprofitId || null,
+        is_pinned: input.isPinned || false,
+        // Restructure fields
+        content_type: input.contentType || 'business_activity',
+        template_key: input.templateKey || null,
+        neighborhood: input.neighborhood || null,
+        tags: input.tags || [],
+        why_it_matters: input.whyItMatters || null,
+        place_business_id: input.placeBusinessId || null,
+        // Sharing fields
+        headline: input.headline || null,
+        preview_text: input.previewText || null,
+        full_body: input.fullBody || null,
+        hero_image: input.heroImage || null,
+        share_enabled: input.shareEnabled !== false,
+        anonymous: input.anonymous || false,
+        author_type: authorType,
+        business_tier: input.businessId ? 'paid' : 'free',
+      };
+
       const { data, error } = await supabase
         .from('pulse_posts')
-        .insert({
-          category: input.category,
-          content: input.content,
-          expires_at: expiresAt.toISOString(),
-          location_text: input.locationText || null,
-          user_id: input.businessId ? null : user.id,
-          business_id: input.businessId || null,
-          is_pinned: input.isPinned || false,
-          // Sharing fields
-          headline: input.headline || null,
-          preview_text: input.previewText || null,
-          full_body: input.fullBody || null,
-          hero_image: input.heroImage || null,
-          share_enabled: input.shareEnabled !== false,
-          anonymous: input.anonymous || false,
-          author_type: input.businessId ? 'business' : 'user',
-          business_tier: input.businessId ? 'paid' : 'free', // TODO: fetch actual tier
-        })
+        .insert(insertPayload as never)
         .select()
         .single();
 
       if (error) throw error;
+
+      // Trust score reflects real participation; recompute after posting.
+      void (supabase.rpc as any)('recompute_pulse_trust', { p_user_id: user.id });
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pulse'] });
       queryClient.invalidateQueries({ queryKey: ['pulse-user-today'] });
       queryClient.invalidateQueries({ queryKey: ['pulse-business-today'] });
+      queryClient.invalidateQueries({ queryKey: ['pulse-trust'] });
     },
   });
 }
