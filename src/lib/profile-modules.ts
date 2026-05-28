@@ -202,6 +202,14 @@ export function categoryHasModuleContent(category: BusinessCategory, content: Pr
   return getFilledModules(category, content).length > 0;
 }
 
+export function getFilledModulesForSection(
+  category: BusinessCategory,
+  content: ProfileModuleContent,
+  section: ProfileSection,
+): ProfileModule[] {
+  return getFilledModules(category, content).filter((m) => m.section === section);
+}
+
 // Parse the raw JSONB value into a typed content map (defensive).
 export function parseModuleContent(raw: unknown): ProfileModuleContent {
   if (!raw || typeof raw !== 'object') return {};

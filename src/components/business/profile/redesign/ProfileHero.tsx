@@ -1,0 +1,146 @@
+import { Bookmark, Share2, MapPin, Crown, Sparkles, Radio, Store, ArrowLeft, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { SecureImage } from '@/components/ui/secure-image';
+import { cn } from '@/lib/utils';
+import { getOpenStatus } from '@/lib/business-hours';
+import { ResolvedAction } from '@/lib/business-profile-config';
+import { ProfileBusiness } from './profile-types';
+import { Chip, ProfileCard } from './ProfilePrimitives';
+
+interface ProfileHeroProps {
+  business: ProfileBusiness;
+  liveStatus: string;
+  primary: ResolvedAction | null;
+  isSaved: boolean;
+  isOwner: boolean;
+  onSave: () => void;
+  onShare: () => void;
+}
+
+export function ProfileHero({ business, liveStatus, primary, isSaved, isOwner, onSave, onShare }: ProfileHeroProps) {
+  const heroImage = business.cover_image_url || business.photos?.[0] || null;
+  const status = getOpenStatus(business.hours);
+  const tagline = business.description?.split('\n')[0]?.trim();
+
+  return (
+    <section>
+      {/* Image header */}
+      <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-primary/15 via-secondary to-background sm:h-60">
+        {heroImage ? (
+          <SecureImage storagePath={heroImage} alt={business.name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Store className="h-14 w-14 text-primary/30" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+
+        {/* Back / Manage overlay */}
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
+          <Link
+            to="/explore"
+            className="inline-flex items-center gap-1 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Link>
+          {isOwner && (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
+            >
+              <Settings className="h-4 w-4" />
+              Manage
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Overlapping content */}
+      <div className="relative -mt-12 px-4">
+        <div className="flex items-end gap-3">
+          {/* Logo card */}
+          <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-background bg-card shadow-lg">
+            {business.logo_url ? (
+              <SecureImage storagePath={business.logo_url} alt={`${business.name} logo`} className="h-full w-full object-contain p-1.5" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                <Store className="h-7 w-7 text-primary" />
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1 pb-1">
+            {status && (
+              <span
+                className={cn(
+                  'mb-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                  status.isOpen ? 'bg-success/15 text-success' : 'bg-muted text-muted-foreground'
+                )}
+              >
+                <span className={cn('h-1.5 w-1.5 rounded-full', status.isOpen ? 'bg-success' : 'bg-muted-foreground')} />
+                {status.label}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Name + founding badge */}
+        <div className="mt-3 flex items-start gap-2">
+          <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground">{business.name}</h1>
+          {business.isFoundingMember && (
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-lokal-amber to-yellow-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              <Crown className="h-3 w-3" /> Founding 5
+            </span>
+          )}
+        </div>
+
+        {tagline && <p className="mt-1 text-sm text-muted-foreground">{tagline}</p>}
+
+        {/* Chips */}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {business.category?.name && <Chip>{business.category.name}</Chip>}
+          {business.neighborhood?.name && <Chip icon={MapPin}>{business.neighborhood.name}</Chip>}
+          <Chip tone="primary">Locally owned</Chip>
+          <Chip tone="success" icon={Sparkles}>Active this week</Chip>
+        </div>
+
+        {/* Live status card */}
+        {liveStatus && (
+          <ProfileCard className="mt-3 flex items-center gap-3 border-primary/20 bg-primary/5">
+            <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/40" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-foreground">{liveStatus}</p>
+            </div>
+            <Radio className="h-4 w-4 flex-shrink-0 text-primary" />
+          </ProfileCard>
+        )}
+
+        {/* CTAs */}
+        <div className="mt-3 flex items-center gap-2">
+          {primary && (
+            <Button onClick={primary.onClick} className="h-11 flex-1 gap-2 rounded-xl text-sm font-semibold">
+              <primary.icon className="h-4 w-4" />
+              {primary.label}
+            </Button>
+          )}
+          <Button
+            onClick={onSave}
+            variant={isSaved ? 'default' : 'outline'}
+            className="h-11 gap-2 rounded-xl px-4"
+          >
+            <Bookmark className={cn('h-4 w-4', isSaved && 'fill-current')} />
+            {isSaved ? 'Saved' : 'Save'}
+          </Button>
+          <Button onClick={onShare} variant="outline" size="icon" className="h-11 w-11 flex-shrink-0 rounded-xl">
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}

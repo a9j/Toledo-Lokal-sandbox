@@ -1,104 +1,71 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
-import { ArrowLeft, Settings } from 'lucide-react';
-import { TierBadge, TierLabel } from '@/components/business/TierBadge';
-import { LocationsSection } from '@/components/business/LocationsSection';
-
-// Flip Profile Components
-import { FlipProfileContainer } from '@/components/business/profile/FlipProfileContainer';
-import { 
-  IdentityCard, 
-  KnownForCard, 
-  PulseCard, 
-  ImpactCard, 
-  MediaCard, 
-  AboutCard 
-} from '@/components/business/profile/cards';
-import { StickyActionDock } from '@/components/business/profile/StickyActionDock';
 import { useSavedItems } from '@/hooks/useSavedItems';
-import { useBusinessSavedCount, useNeighborhoodPopularity } from '@/hooks/useDiscoverySignals';
-import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
-import { NeighborhoodPopularityBadge } from '@/components/discovery/NeighborhoodPopularityBadge';
+import { useBusinessSavedCount } from '@/hooks/useDiscoverySignals';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
-import { getVisitAction, openVisitAction } from '@/lib/visit-link';
-import { isBusinessCategory, parseModuleContent, categoryHasModuleContent } from '@/lib/profile-modules';
-import { CategoryModules } from '@/components/business/profile/CategoryModules';
-import { FlipCard } from '@/components/business/profile/FlipCard';
+import { isBusinessCategory, parseModuleContent } from '@/lib/profile-modules';
+import {
+  BUSINESS_TYPE_CONFIG,
+  resolveAction,
+  resolveActions,
+  ProfileActionContext,
+  ProfileTab,
+} from '@/lib/business-profile-config';
+import { ProfileBusiness } from '@/components/business/profile/redesign/profile-types';
+import { ProfileHero } from '@/components/business/profile/redesign/ProfileHero';
+import { ProfileTabs } from '@/components/business/profile/redesign/ProfileTabs';
+import { TodayTab } from '@/components/business/profile/redesign/TodayTab';
+import { PulseTab } from '@/components/business/profile/redesign/PulseTab';
+import { RewardsTab } from '@/components/business/profile/redesign/RewardsTab';
+import { CommunityTab } from '@/components/business/profile/redesign/CommunityTab';
+import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
+import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 
-// Public-safe columns - owner_user_id is now masked in the view for non-owners
+// Public-safe columns - owner_user_id is masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
-  id,
-  name,
-  slug,
-  description,
-  address,
-  phone,
-  website,
-  instagram,
-  tiktok,
-  facebook,
-  category_id,
-  neighborhood_id,
-  featured,
-  verified,
-  average_rating,
-  review_count,
-  photos,
-  logo_url,
-  hours,
-  editor_pick_image,
-  story,
-  status,
-  tier_status,
-  tier_badge_visible,
-  tier_assigned_at,
-  profile_picture_url,
-  cover_image_url,
-  created_at,
-  updated_at
+  id, name, slug, description, address, phone, website, instagram, tiktok, facebook,
+  category_id, neighborhood_id, featured, verified, average_rating, review_count,
+  photos, logo_url, hours, editor_pick_image, story, status,
+  tier_status, tier_badge_visible, tier_assigned_at,
+  profile_picture_url, cover_image_url, owner_user_id, created_at, updated_at
 `;
 
-// visit_link_* ships in migration 20260527000100. Selected separately so the
-// page still loads if that migration hasn't been applied to the view yet.
-const VISIT_LINK_COLUMNS = 'visit_link_type, visit_link_url';
+// visit_link_*, category enum and profile_modules ship via recent migrations.
+// Selected separately so the page still loads if a migration hasn't reached the view.
+const NEW_COLUMNS = 'visit_link_type, visit_link_url, business_category:category, profile_modules';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { savedItems, toggleSave } = useSavedItems();
   const { data: savedCount = 0 } = useBusinessSavedCount(id || '');
-  // Check if id is a UUID or a slug
+  const [tab, setTab] = useState<ProfileTab>('today');
   const isUUID = id ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) : false;
 
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      // Typed primary query, including columns added by recent migrations
-      // (visit_link_*, the category enum aliased as business_category, and
-      // profile_modules). The categories relation already uses the "category"
-      // alias, so the scalar enum is aliased to avoid a name clash.
+      // The categories relation already uses the "category" alias, so the scalar
+      // enum column is aliased to business_category to avoid a name clash.
       const primary = supabase
         .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
-          ${VISIT_LINK_COLUMNS},
-          business_category:category,
-          profile_modules,
+          ${NEW_COLUMNS},
           neighborhood:neighborhoods(name),
           category:categories(name, icon),
           business_loop_settings(is_active, loop_tier_id, is_founding_member)
         `);
       let { data, error } = await (isUUID ? primary.eq('id', id) : primary.eq('slug', id)).single();
 
-      // Those columns ship via migrations that may not have reached the view
-      // yet; on any error, retry with the base columns so the page still loads.
+      // On any error (e.g. a pending migration), retry with base columns.
       if (error) {
         const fallbackSelect: string = `
           ${PUBLIC_BUSINESS_COLUMNS},
@@ -114,14 +81,10 @@ export default function BusinessDetail() {
 
       if (error) throw error;
 
-      // Detect if this is a food truck based on category
-      const isFoodTruck = data.category?.name?.toLowerCase().includes('food truck') ||
-        data.category?.icon === 'truck';
-      
-      // Detect if nonprofit
+      const isFoodTruck = data.category?.name?.toLowerCase().includes('food truck') || data.category?.icon === 'truck';
       const isNonprofit = data.category?.name?.toLowerCase().includes('nonprofit') ||
         data.category?.name?.toLowerCase().includes('non-profit');
-      
+
       return {
         ...data,
         isFoodTruck,
@@ -129,7 +92,6 @@ export default function BusinessDetail() {
         isInLoop: LP_ENABLED && data.business_loop_settings?.is_active &&
           ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
         isFoundingMember: data.business_loop_settings?.is_founding_member,
-        loopTierId: data.business_loop_settings?.loop_tier_id,
         tierStatus: data.tier_status,
         tierBadgeVisible: data.tier_badge_visible,
         tierAssignedAt: data.tier_assigned_at,
@@ -140,8 +102,7 @@ export default function BusinessDetail() {
     enabled: !!id,
   });
 
-  // Check if current user is the business owner
-  const { data: isOwner } = useQuery({
+  const { data: isOwner = false } = useQuery({
     queryKey: ['business-owner-check', id, user?.id],
     queryFn: async () => {
       if (!user || !id) return false;
@@ -156,86 +117,67 @@ export default function BusinessDetail() {
     enabled: !!user && !!id,
   });
 
-  // Neighborhood popularity
-  const { data: neighborhoodPopularity = 0 } = useNeighborhoodPopularity(business?.neighborhood_id || null);
-
-  // Parse hours
-  const parseHours = (hours: unknown): Record<string, { open: string; close: string; closed?: boolean } | null> | null => {
-    if (!hours || typeof hours !== 'object') return null;
-    return hours as Record<string, { open: string; close: string; closed?: boolean } | null>;
-  };
-
-  const isSaved = savedItems?.some(item => item.item_id === business?.id);
+  const isSaved = !!savedItems?.some((item) => item.item_id === business?.id);
 
   const handleSave = () => {
     if (!user) {
       toast.error('Sign in to save businesses');
       return;
     }
-    if (business) {
-      toggleSave(business.id, 'business');
-    }
+    if (business) toggleSave(business.id, 'business');
   };
 
-  const visitAction = business ? getVisitAction(business) : null;
-
-  const handleVisit = () => {
-    if (visitAction) openVisitAction(visitAction);
-  };
-
-  const handleSupport = () => {
-    if (business?.phone) {
-      window.location.href = `tel:${business.phone}`;
-    } else if (business?.website) {
-      window.open(business.website.startsWith('http') ? business.website : `https://${business.website}`, '_blank');
+  const handleShare = async () => {
+    const url = window.location.href;
+    const name = business?.name ?? 'this business';
+    if (navigator.share) {
+      try { await navigator.share({ title: name, text: `Check out ${name} on ToledoLokal`, url }); } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied!');
     }
   };
 
   if (isLoading) {
     return (
-      <>
-        <Header title="Business" />
-        <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
-          <LogoLoader size="lg" text="Loading business..." />
-        </div>
-      </>
+      <div className="flex min-h-screen items-center justify-center">
+        <LogoLoader size="lg" text="Loading business..." />
+      </div>
     );
   }
 
   if (!business) {
     return (
-      <>
-        <Header title="Business" />
-        <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">Business not found</p>
-            <Link to="/explore">
-              <Button variant="link">Back to Explore</Button>
-            </Link>
-          </div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="py-12 text-center">
+          <p className="mb-4 text-muted-foreground">Business not found</p>
+          <Link to="/explore"><Button variant="link">Back to Explore</Button></Link>
         </div>
-      </>
+      </div>
     );
   }
 
-  const photos = business.photos && business.photos.length > 0 ? business.photos : [];
-  const parsedHours = parseHours(business.hours);
+  const pb = business as unknown as ProfileBusiness;
+  const photos = business.photos?.length ? business.photos : [];
+  const config = BUSINESS_TYPE_CONFIG[pb.profileCategory];
+
+  const actionCtx: ProfileActionContext = { onSave: handleSave, onShare: handleShare, isSaved, setTab };
+  const primaryAction = resolveAction(config.primaryAction, pb, pb.moduleContent, actionCtx);
+  const contactActions = resolveActions(
+    [config.primaryAction, config.secondaryAction, 'call', 'directions'],
+    pb, pb.moduleContent, actionCtx
+  );
+  const liveStatus = config.liveStatus[0] ?? '';
 
   return (
     <>
-      <SEOHead 
+      <SEOHead
         title={business.name}
         description={business.description || `${business.name} - a local business in Toledo, Ohio. ${business.category?.name || ''}`}
         url={`/business/${business.slug || business.id}`}
         type="business.business"
         image={photos[0] || business.logo_url}
-        keywords={[
-          business.name,
-          business.category?.name || '',
-          business.neighborhood?.name || '',
-          'Toledo business',
-          'Glass City',
-        ].filter(Boolean)}
+        keywords={[business.name, business.category?.name || '', business.neighborhood?.name || '', 'Toledo business', 'Glass City'].filter(Boolean)}
         jsonLd={createBusinessJsonLd({
           name: business.name,
           description: business.description || undefined,
@@ -248,120 +190,30 @@ export default function BusinessDetail() {
           slug: business.slug || undefined,
         })}
       />
-      
-      {/* Minimal Header with Back */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link 
-            to="/explore" 
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Link>
-          {isOwner && (
-            <Link to="/dashboard">
-              <Button size="sm" variant="outline" className="gap-1.5">
-                <Settings className="h-4 w-4" />
-                Manage
-              </Button>
-            </Link>
-          )}
+
+      <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
+        <ProfileHero
+          business={pb}
+          liveStatus={liveStatus}
+          primary={primaryAction}
+          isSaved={isSaved}
+          isOwner={isOwner}
+          onSave={handleSave}
+          onShare={handleShare}
+        />
+
+        <div className="mt-4">
+          <ProfileTabs active={tab} onChange={setTab} />
+          <div className="px-4 py-4">
+            {tab === 'today' && <TodayTab business={pb} />}
+            {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
+            {tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
+            {tab === 'community' && <CommunityTab business={pb} />}
+            {tab === 'photos' && <PhotosTab business={pb} />}
+            {tab === 'about' && <AboutTab business={pb} actions={contactActions} />}
+          </div>
         </div>
       </div>
-
-      {/* Flip Profile Cards */}
-      <div className="pt-12 pb-20">
-        <FlipProfileContainer>
-          {/* Card 1: Identity / Cover */}
-          <IdentityCard
-            business={{
-              id: business.id,
-              name: business.name,
-              description: business.description,
-              logo_url: business.logo_url,
-              category: business.category,
-              neighborhood: business.neighborhood,
-              photos: photos,
-            }}
-            isFoodTruck={business.isFoodTruck}
-            isNonprofit={business.isNonprofit}
-            isFoundingMember={business.isFoundingMember}
-            tierStatus={business.tierStatus}
-            tierBadgeVisible={business.tierBadgeVisible}
-            tierAssignedAt={business.tierAssignedAt}
-            isLocallyOwned={true}
-            activeThisWeek={true}
-            onVisit={handleVisit}
-            visitLabel={visitAction?.label ?? 'Visit'}
-            onSupport={handleSupport}
-            onSave={handleSave}
-            isSaved={isSaved}
-            savedCount={savedCount}
-            neighborhoodPopularity={neighborhoodPopularity}
-          />
-
-          {/* Card 2: Known For */}
-          <KnownForCard
-            businessName={business.name}
-            category={business.category?.name}
-            isNonprofit={business.isNonprofit}
-          />
-
-          {/* Category-specific content modules (driven by business.category) */}
-          {categoryHasModuleContent(business.profileCategory, business.moduleContent) && (
-            <FlipCard title="Highlights">
-              <CategoryModules category={business.profileCategory} content={business.moduleContent} />
-            </FlipCard>
-          )}
-
-          {/* Card 3: Business Pulse */}
-          <PulseCard
-            businessId={business.id}
-            businessName={business.name}
-          />
-
-          {/* Card 4: Community Impact */}
-          <ImpactCard businessId={business.id} />
-
-          {/* Card 5: Media / Photos */}
-          <MediaCard
-            photos={photos}
-            businessName={business.name}
-          />
-
-          {/* Card 6: About / Details */}
-          <AboutCard
-            business={{
-              description: business.description,
-              address: business.address,
-              phone: business.phone,
-              website: business.website,
-              instagram: business.instagram,
-              facebook: business.facebook,
-              tiktok: business.tiktok,
-            }}
-            hours={parsedHours}
-          />
-
-          {/* Locations — inside the pager so it's reachable */}
-          <FlipCard title="Locations">
-            <LocationsSection businessId={business.id} businessName={business.name} />
-          </FlipCard>
-        </FlipProfileContainer>
-      </div>
-
-      {/* Sticky Bottom Action Dock */}
-      <StickyActionDock
-        businessId={business.id}
-        businessName={business.name}
-        address={business.address}
-        phone={business.phone}
-        website={business.website}
-        visitLinkType={business.visit_link_type}
-        visitLinkUrl={business.visit_link_url}
-        isNonprofit={business.isNonprofit}
-      />
     </>
   );
 }
