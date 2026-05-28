@@ -3,6 +3,7 @@ import { StarRating } from './StarRating';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ReportDialog } from '@/components/moderation/ReportDialog';
 
 interface Review {
   id: string;
@@ -80,6 +81,7 @@ export function ReviewCard({ review, onHelpful }: ReviewCardProps) {
           <ThumbsUp className="h-4 w-4" />
           Helpful ({review.helpful_count})
         </Button>
+        <ReportDialog targetType="review" targetId={review.id} targetLabel={`Review by ${userName}`} />
       </div>
     </div>
   );
