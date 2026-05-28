@@ -52,6 +52,7 @@ const EditBusiness = lazy(() => import("./pages/EditBusiness"));
 const CreateBusiness = lazy(() => import("./pages/CreateBusiness"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminConsole = lazy(() => import("./pages/AdminConsole"));
 const Tours = lazy(() => import("./pages/Tours"));
 const Challenges = lazy(() => import("./pages/Challenges"));
 const Stories = lazy(() => import("./pages/Stories"));
@@ -157,7 +158,8 @@ const App = () => (
                   <Route path="/dashboard/leads" element={<DashboardLeads />} />
                   <Route path="/dashboard/boost" element={<DashboardBoost />} />
                   
-                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin" element={<AdminConsole />} />
+                  <Route path="/admin/classic" element={<Admin />} />
                   <Route path="/tours" element={<Tours />} />
                   <Route path="/challenges" element={<Challenges />} />
                   <Route path="/stories" element={<Stories />} />

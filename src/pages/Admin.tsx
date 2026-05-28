@@ -447,7 +447,7 @@ export default function Admin() {
           Back
         </Button>
 
-        <Tabs defaultValue="analytics" className="w-full">
+        <Tabs defaultValue={new URLSearchParams(window.location.search).get('tab') || 'analytics'} className="w-full">
           <TabsList className="w-full mb-4">
             <TabsTrigger value="analytics" className="flex-1 gap-1.5">
               <BarChart3 className="h-4 w-4" />

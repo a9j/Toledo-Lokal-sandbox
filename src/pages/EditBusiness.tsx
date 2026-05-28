@@ -30,6 +30,7 @@ import {
   BUSINESS_CATEGORY_OPTIONS,
   BusinessCategory,
   ProfileModuleContent,
+  ModuleFieldValue,
   PROFILE_SECTION_LABELS,
   getModulesForCategory,
   parseModuleContent,
@@ -66,6 +67,20 @@ export default function EditBusiness() {
   const [moduleContent, setModuleContent] = useState<ProfileModuleContent>({});
 
   const setModuleField = (moduleId: string, key: string, value: string) => {
+    setModuleContent((prev) => ({ ...prev, [moduleId]: { ...prev[moduleId], [key]: value } }));
+  };
+
+  const getModuleText = (moduleId: string, key: string): string => {
+    const v = moduleContent[moduleId]?.[key];
+    return typeof v === 'string' ? v : '';
+  };
+
+  const getModuleImages = (moduleId: string, key: string): string[] => {
+    const v = moduleContent[moduleId]?.[key];
+    return Array.isArray(v) ? v : [];
+  };
+
+  const setModuleImages = (moduleId: string, key: string, value: string[]) => {
     setModuleContent((prev) => ({ ...prev, [moduleId]: { ...prev[moduleId], [key]: value } }));
   };
 
@@ -195,9 +210,13 @@ export default function EditBusiness() {
       updateData.category = data.category || 'restaurant';
       const prunedModules: ProfileModuleContent = {};
       for (const [moduleId, fields] of Object.entries(moduleContent)) {
-        const kept: Record<string, string> = {};
+        const kept: Record<string, ModuleFieldValue> = {};
         for (const [k, v] of Object.entries(fields)) {
-          if (typeof v === 'string' && v.trim()) kept[k] = v.trim();
+          if (Array.isArray(v)) {
+            if (v.length) kept[k] = v;
+          } else if (typeof v === 'string' && v.trim()) {
+            kept[k] = v.trim();
+          }
         }
         if (Object.keys(kept).length) prunedModules[moduleId] = kept;
       }
@@ -690,9 +709,35 @@ export default function EditBusiness() {
                 {module.fields.map((field) => (
                   <div key={field.key} className="space-y-1">
                     <Label className="text-xs text-muted-foreground">{field.label}</Label>
-                    {field.type === 'textarea' ? (
+                    {field.type === 'images' ? (
+                      <div className="space-y-2">
+                        {getModuleImages(module.id, field.key).length > 0 && (
+                          <div className="grid grid-cols-3 gap-2">
+                            {getModuleImages(module.id, field.key).map((path, i) => (
+                              <div key={`${path}-${i}`} className="relative">
+                                <SecureImage storagePath={path} alt={`${field.label} ${i + 1}`} className="aspect-square w-full rounded-lg object-cover" />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute right-1 top-1 h-6 w-6"
+                                  onClick={() => setModuleImages(module.id, field.key, getModuleImages(module.id, field.key).filter((_, idx) => idx !== i))}
+                                >
+                                  <span className="sr-only">Remove</span>×
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <ImageUpload
+                          folder="businesses/modules"
+                          label="Add photo"
+                          onUpload={(url) => setModuleImages(module.id, field.key, [...getModuleImages(module.id, field.key), url])}
+                        />
+                      </div>
+                    ) : field.type === 'textarea' ? (
                       <Textarea
-                        value={moduleContent[module.id]?.[field.key] || ''}
+                        value={getModuleText(module.id, field.key)}
                         onChange={(e) => setModuleField(module.id, field.key, e.target.value)}
                         placeholder={field.placeholder}
                         rows={3}
@@ -701,7 +746,7 @@ export default function EditBusiness() {
                     ) : (
                       <Input
                         type={field.type === 'url' ? 'url' : field.type === 'tel' ? 'tel' : field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : 'text'}
-                        value={moduleContent[module.id]?.[field.key] || ''}
+                        value={getModuleText(module.id, field.key)}
                         onChange={(e) => setModuleField(module.id, field.key, e.target.value)}
                         placeholder={field.placeholder}
                         maxLength={500}
