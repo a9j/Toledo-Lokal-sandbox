@@ -25,12 +25,21 @@ export default function DashboardLocations() {
     queryKey: ['user-business', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data } = await supabase
+      // Business the user owns takes precedence.
+      const { data: owned } = await supabase
         .from('businesses')
         .select('id, name')
         .eq('owner_user_id', user.id)
         .maybeSingle();
-      return data;
+      if (owned) return owned;
+      // Otherwise, a business the user manages (business_staff role='manager').
+      const { data: managed } = await supabase
+        .from('business_staff')
+        .select('business:businesses(id, name)')
+        .eq('user_id', user.id)
+        .eq('role', 'manager')
+        .maybeSingle();
+      return (managed?.business as typeof owned) ?? null;
     },
     enabled: !!user,
   });
