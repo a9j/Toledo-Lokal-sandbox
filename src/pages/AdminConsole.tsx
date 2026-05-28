@@ -16,6 +16,7 @@ import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
 import { ModerationAdmin } from '@/components/admin/console/ModerationAdmin';
 import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
+import { BusinessAdminsAdmin } from '@/components/admin/console/BusinessAdminsAdmin';
 
 const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City', items: [
@@ -24,6 +25,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   ] },
   { label: 'Manage', items: [
     { id: 'management', label: 'Businesses & Content', icon: Store },
+    { id: 'business_admins', label: 'Business Admins', icon: Shield },
     { id: 'nonprofits', label: 'Nonprofits', icon: HeartHandshake },
     { id: 'users', label: 'Users', icon: Users },
   ] },
@@ -41,6 +43,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   overview: { title: 'City Overview', subtitle: 'The digital heartbeat of Toledo' },
   analytics: { title: 'City Intelligence', subtitle: 'Engagement, growth, and Loop activity' },
   management: { title: 'Businesses & Content', subtitle: 'Approvals, listings, deals, events & more' },
+  business_admins: { title: 'Business Admins', subtitle: 'Who manages each business' },
   nonprofits: { title: 'Nonprofits', subtitle: 'Causes, partners, and impact' },
   users: { title: 'Users', subtitle: 'Members, roles, and reports' },
   trust: { title: 'Trust & Roles', subtitle: 'Assign roles and review permissions' },
@@ -110,6 +113,7 @@ export default function AdminConsole() {
         </div>
       )}
       {active === 'management' && <ManagementLauncher />}
+      {active === 'business_admins' && <BusinessAdminsAdmin />}
       {active === 'nonprofits' && <NonprofitAdmin />}
       {active === 'users' && <UsersAdmin />}
       {active === 'trust' && <RolesAdmin />}
