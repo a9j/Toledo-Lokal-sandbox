@@ -4014,6 +4014,11 @@ export type Database = {
         | "nonprofit"
         | "partner"
         | "connector"
+        | "super_admin"
+        | "city_admin"
+        | "moderator"
+        | "ambassador"
+        | "support_staff"
       cause_category:
         | "food_insecurity"
         | "housing"
@@ -4192,6 +4197,11 @@ export const Constants = {
         "nonprofit",
         "partner",
         "connector",
+        "super_admin",
+        "city_admin",
+        "moderator",
+        "ambassador",
+        "support_staff",
       ],
       cause_category: [
         "food_insecurity",

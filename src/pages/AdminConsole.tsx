@@ -12,6 +12,7 @@ import { UsersAdmin } from '@/components/admin/UsersAdmin';
 import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
 import { AdminShell, AdminNavGroup } from '@/components/admin/console/AdminShell';
 import { CityOverview } from '@/components/admin/console/CityOverview';
+import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
 
 const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City', items: [
@@ -24,10 +25,10 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'users', label: 'Users', icon: Users },
   ] },
   { label: 'City Ops', items: [
+    { id: 'trust', label: 'Trust & Roles', icon: BadgeCheck },
     { id: 'moderation', label: 'Moderation', icon: ShieldAlert, soon: true },
     { id: 'rewards', label: 'Rewards & Campaigns', icon: Gift, soon: true },
     { id: 'community', label: 'Community Impact', icon: Sprout, soon: true },
-    { id: 'trust', label: 'Trust & Roles', icon: BadgeCheck, soon: true },
     { id: 'messaging', label: 'Announcements', icon: Megaphone, soon: true },
     { id: 'whitelabel', label: 'White-label Cities', icon: Building2, soon: true },
   ] },
@@ -39,6 +40,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   management: { title: 'Businesses & Content', subtitle: 'Approvals, listings, deals, events & more' },
   nonprofits: { title: 'Nonprofits', subtitle: 'Causes, partners, and impact' },
   users: { title: 'Users', subtitle: 'Members, roles, and reports' },
+  trust: { title: 'Trust & Roles', subtitle: 'Assign roles and review permissions' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -104,6 +106,7 @@ export default function AdminConsole() {
       {active === 'management' && <ManagementLauncher />}
       {active === 'nonprofits' && <NonprofitAdmin />}
       {active === 'users' && <UsersAdmin />}
+      {active === 'trust' && <RolesAdmin />}
     </AdminShell>
   );
 }
