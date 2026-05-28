@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import { PulsePost, usePulseFeedback, useHidePulsePost } from '@/hooks/usePulse';
-import { PULSE_CATEGORIES, formatTimeRemaining } from '@/lib/pulse-config';
+import { PulsePost, useHidePulsePost } from '@/hooks/usePulse';
+import {
+  formatTimeRemaining,
+  PULSE_CONTENT_TYPES,
+  getTemplate,
+  PULSE_CATEGORY_TAGS,
+} from '@/lib/pulse-config';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,23 +17,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SecureAvatar } from '@/components/ui/secure-avatar';
+import { SecureImage } from '@/components/ui/secure-image';
 import { PulseShareButton } from './PulseShareButton';
 import { AuthorBadge } from './AuthorBadge';
-import {
-  Zap, AlertTriangle, Activity, HelpCircle, Heart,
-  ThumbsUp, Flag, Clock, MapPin, MoreVertical, Pin, Trash2
-} from 'lucide-react';
+import { ReactionBar } from './ReactionBar';
+import { PulseReportDialog } from './PulseReportDialog';
+import { PulseIcon } from './PulseIcon';
+import { Clock, MapPin, MoreVertical, Pin, Trash2, Flag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-
-const CATEGORY_ICONS = {
-  right_now: Zap,
-  heads_up: AlertTriangle,
-  energy_check: Activity,
-  community_ask: HelpCircle,
-  good_stuff: Heart,
-};
 
 interface PulsePostCardProps {
   post: PulsePost;
@@ -37,184 +35,168 @@ interface PulsePostCardProps {
 export function PulsePostCard({ post }: PulsePostCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { feedback, submitFeedback } = usePulseFeedback(post.id);
   const hidePost = useHidePulsePost();
   const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(new Date(post.expires_at)));
+  const [reportOpen, setReportOpen] = useState(false);
 
-  const categoryConfig = PULSE_CATEGORIES[post.category];
-  const CategoryIcon = CATEGORY_ICONS[post.category];
-  const isOwner = (post.user_id && post.user_id === user?.id) || 
-                  (post.business_id && post.business?.id);
+  const typeConfig = PULSE_CONTENT_TYPES[post.content_type] ?? PULSE_CONTENT_TYPES.business_activity;
+  const template = getTemplate(post.template_key);
+  const isOwner = (post.user_id && post.user_id === user?.id) || !!(post.business_id && post.business?.id);
 
-  // Update countdown every minute
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining(formatTimeRemaining(new Date(post.expires_at)));
     }, 60000);
-
     return () => clearInterval(interval);
   }, [post.expires_at]);
-
-  const handleFeedback = async (type: 'helpful' | 'not_helpful') => {
-    if (!user) {
-      toast({ title: 'Sign in to give feedback' });
-      return;
-    }
-    try {
-      await submitFeedback.mutateAsync(type);
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error submitting feedback' });
-    }
-  };
 
   const handleHide = async () => {
     try {
       await hidePost.mutateAsync(post.id);
       toast({ title: 'Post removed' });
-    } catch (error) {
+    } catch {
       toast({ variant: 'destructive', title: 'Error removing post' });
     }
   };
 
-  const authorName = post.business?.name || post.author?.name || 'Anonymous';
+  const authorName = post.business?.name || post.nonprofit?.name || post.author?.name || 'Toledo Local';
   const authorInitial = authorName.charAt(0).toUpperCase();
+  const categoryTags = PULSE_CATEGORY_TAGS.filter((c) => post.tags?.includes(c.id));
 
   return (
-    <article className={cn(
-      "relative p-6 md:p-7 rounded-2xl border transition-all",
-      post.is_pinned
-        ? "border-primary/30 bg-primary/[0.04]"
-        : "border-border/50 bg-card hover:border-border"
-    )}>
-      {/* Pinned indicator */}
+    <article
+      className={cn(
+        'relative overflow-hidden rounded-2xl border bg-card transition-all',
+        post.is_pinned ? 'border-primary/30' : 'border-border/50 hover:border-border'
+      )}
+    >
       {post.is_pinned && (
-        <div className="absolute -top-2 left-4">
-          <Badge className="bg-primary text-primary-foreground text-xs gap-1">
-            <Pin className="h-3 w-3" />
+        <div className="absolute right-3 top-3 z-10">
+          <Badge className="gap-1 bg-primary text-primary-foreground text-[10px]">
+            <Pin className="h-2.5 w-2.5" />
             Pinned
           </Badge>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-start gap-3">
-      {/* Avatar */}
-        {post.business ? (
-          <Link to={`/business/${post.business.id}`}>
-            <SecureAvatar
-              storagePath={post.business.logo_url}
-              fallbackText={post.business.name}
-              className="h-10 w-10"
-            />
-          </Link>
-        ) : (
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={post.author?.avatar_url || undefined} />
-            <AvatarFallback className="bg-secondary text-foreground">
-              {authorInitial}
-            </AvatarFallback>
-          </Avatar>
-        )}
+      {/* Image-first hero */}
+      {post.hero_image && (
+        <Link to={`/pulse/${post.pulse_id || post.id}`} className="block">
+          <SecureImage
+            storagePath={post.hero_image}
+            alt={post.headline || post.content}
+            className="h-44 w-full"
+            imgClassName="object-cover"
+          />
+        </Link>
+      )}
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="font-medium text-foreground text-sm truncate">
-              {post.anonymous ? 'Toledo Local' : authorName}
-            </span>
-            <AuthorBadge 
-              authorType={post.author_type} 
-              autoGenerated={post.auto_generated} 
-            />
-            <Badge className={cn("text-xs gap-1", categoryConfig.bgColor, categoryConfig.color)}>
-              <CategoryIcon className="h-3 w-3" />
-              {categoryConfig.label}
-            </Badge>
-          </div>
+      <div className="p-4">
+        {/* Header row */}
+        <div className="flex items-start gap-2.5">
+          {post.business ? (
+            <Link to={`/business/${post.business.id}`}>
+              <SecureAvatar storagePath={post.business.logo_url} fallbackText={post.business.name} className="h-9 w-9" />
+            </Link>
+          ) : (
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={post.author?.avatar_url || undefined} />
+              <AvatarFallback className="bg-secondary text-foreground text-sm">{authorInitial}</AvatarFallback>
+            </Avatar>
+          )}
 
-          {/* Link to detail page */}
-          <Link to={`/pulse/${post.pulse_id || post.id}`} className="block">
-            <p
-              className="text-foreground leading-snug mb-3 hover:text-primary transition-colors"
-              style={{
-                fontFamily: "'Instrument Serif', Georgia, serif",
-                fontSize: '1.35rem',
-                lineHeight: 1.35,
-                letterSpacing: '-0.005em',
-              }}
-            >
-              {post.content}
-            </p>
-          </Link>
-
-          {/* Meta row */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {timeRemaining}
-            </span>
-            {post.location_text && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {post.location_text}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="truncate text-sm font-semibold text-foreground">
+                {post.anonymous ? 'Toledo Local' : authorName}
               </span>
-            )}
+              <AuthorBadge authorType={post.author_type} autoGenerated={post.auto_generated} />
+            </div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              <span className={cn('inline-flex items-center gap-1 font-medium', typeConfig.accent)}>
+                <PulseIcon name={template?.icon || typeConfig.icon} className="h-3 w-3" />
+                {template?.label || typeConfig.label}
+              </span>
+              {post.neighborhood && (
+                <span className="inline-flex items-center gap-0.5">
+                  <MapPin className="h-3 w-3" />
+                  {post.neighborhood}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-0.5">
+                <Clock className="h-3 w-3" />
+                {timeRemaining}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Actions menu */}
-        {isOwner && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-popover border border-border">
-              <DropdownMenuItem 
-                onClick={handleHide}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Remove post
+              <DropdownMenuItem onClick={() => setReportOpen(true)}>
+                <Flag className="mr-2 h-4 w-4" />
+                Report post
               </DropdownMenuItem>
+              {isOwner && (
+                <DropdownMenuItem onClick={handleHide} className="text-destructive focus:text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Remove post
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        {/* Body */}
+        <Link to={`/pulse/${post.pulse_id || post.id}`} className="mt-2.5 block">
+          {post.headline && (
+            <h3 className="text-base font-semibold leading-snug text-foreground">{post.headline}</h3>
+          )}
+          <p
+            className={cn(
+              'leading-snug text-foreground transition-colors hover:text-primary',
+              post.content_type === 'local_moment'
+                ? 'text-[1.15rem]'
+                : 'text-[0.95rem]'
+            )}
+            style={
+              post.content_type === 'local_moment'
+                ? { fontFamily: "'Instrument Serif', Georgia, serif", lineHeight: 1.35 }
+                : undefined
+            }
+          >
+            {post.content}
+          </p>
+        </Link>
+
+        {/* Why it matters */}
+        {post.why_it_matters && (
+          <p className="mt-1.5 text-xs text-muted-foreground">{post.why_it_matters}</p>
         )}
+
+        {/* Tags */}
+        {categoryTags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {categoryTags.map((c) => (
+              <span key={c.id} className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                {c.label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Footer: reactions + share */}
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+          <ReactionBar post={post} />
+          <PulseShareButton post={post} />
+        </div>
       </div>
 
-      {/* Feedback and Share buttons */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleFeedback('helpful')}
-            className={cn(
-              "h-8 text-xs gap-1.5",
-              feedback?.feedback_type === 'helpful' && "text-primary bg-primary/10"
-            )}
-          >
-            <ThumbsUp className="h-3.5 w-3.5" />
-            Helpful
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleFeedback('not_helpful')}
-            className={cn(
-              "h-8 text-xs gap-1.5",
-              feedback?.feedback_type === 'not_helpful' && "text-muted-foreground bg-muted"
-            )}
-          >
-            <Flag className="h-3.5 w-3.5" />
-            Not Helpful
-          </Button>
-        </div>
-        
-        {/* Share button */}
-        <PulseShareButton post={post} />
-      </div>
+      <PulseReportDialog postId={post.id} open={reportOpen} onOpenChange={setReportOpen} />
     </article>
   );
 }

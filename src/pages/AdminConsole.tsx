@@ -14,6 +14,7 @@ import { AdminShell, AdminNavGroup } from '@/components/admin/console/AdminShell
 import { CityOverview } from '@/components/admin/console/CityOverview';
 import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
 import { ModerationAdmin } from '@/components/admin/console/ModerationAdmin';
+import { PulseModerationQueue } from '@/components/admin/console/PulseModerationQueue';
 import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 
@@ -113,7 +114,12 @@ export default function AdminConsole() {
       {active === 'nonprofits' && <NonprofitAdmin />}
       {active === 'users' && <UsersAdmin />}
       {active === 'trust' && <RolesAdmin />}
-      {active === 'moderation' && <ModerationAdmin />}
+      {active === 'moderation' && (
+        <div className="space-y-8">
+          <ModerationAdmin />
+          <PulseModerationQueue />
+        </div>
+      )}
       {active === 'rewards' && <RewardsAdmin />}
       {active === 'whitelabel' && <CitiesAdmin />}
     </AdminShell>
