@@ -70,7 +70,7 @@ export const PROFILE_SECTION_LABELS: Record<ProfileSection, string> = {
   contact: 'Contact & Actions',
 };
 
-export type ModuleFieldType = 'text' | 'textarea' | 'url' | 'tel' | 'date' | 'time';
+export type ModuleFieldType = 'text' | 'textarea' | 'url' | 'tel' | 'date' | 'time' | 'images';
 
 export interface ModuleField {
   key: string;
@@ -87,12 +87,16 @@ export interface ProfileModule {
   fields: ModuleField[];
 }
 
+// A field value is text, or a list of storage paths for an 'images' field.
+export type ModuleFieldValue = string | string[];
+
 // Stored shape of businesses.profile_modules: { [moduleId]: { [fieldKey]: value } }
-export type ProfileModuleContent = Record<string, Record<string, string>>;
+export type ProfileModuleContent = Record<string, Record<string, ModuleFieldValue>>;
 
 const t = (key: string, label: string, placeholder?: string): ModuleField => ({ key, label, type: 'text', placeholder });
 const area = (key: string, label: string, placeholder?: string): ModuleField => ({ key, label, type: 'textarea', placeholder });
 const link = (key: string, label: string, placeholder = 'https://...'): ModuleField => ({ key, label, type: 'url', placeholder });
+const images = (key: string, label: string): ModuleField => ({ key, label, type: 'images' });
 
 export const PROFILE_MODULES: ProfileModule[] = [
   // ── Restaurant ──
@@ -121,7 +125,7 @@ export const PROFILE_MODULES: ProfileModule[] = [
   { id: 'salon_barber_featured_service', title: 'Featured Service', section: 'today', categories: ['salon_barber'], fields: [t('service', 'Service'), t('price', 'Price')] },
   { id: 'salon_barber_staff_spotlight', title: 'Staff Spotlight', section: 'pulse', categories: ['salon_barber'], fields: [t('name', 'Name'), t('role', 'Role / specialty'), area('note', 'About them')] },
   { id: 'salon_barber_rebooking', title: 'Rebooking Reminder', section: 'rewards', categories: ['salon_barber'], fields: [area('text', 'Rebooking message')] },
-  { id: 'salon_barber_style_gallery', title: 'Style Gallery', section: 'photos', categories: ['salon_barber'], fields: [area('caption', 'What to look for in your gallery')] },
+  { id: 'salon_barber_style_gallery', title: 'Style Gallery', section: 'photos', categories: ['salon_barber'], fields: [images('photos', 'Style photos'), area('caption', 'What to look for in your gallery')] },
 
   // ── Gym / Fitness ──
   { id: 'gym_fitness_todays_classes', title: "Today's Classes", section: 'today', categories: ['gym_fitness'], fields: [area('text', "Today's schedule")] },
@@ -133,7 +137,7 @@ export const PROFILE_MODULES: ProfileModule[] = [
   // ── Contractor / Service provider ──
   { id: 'contractor_service_emergency', title: 'Emergency Availability', section: 'today', categories: ['contractor_service'], fields: [t('text', 'Availability', 'e.g. 24/7 emergency calls')] },
   { id: 'contractor_service_recent_project', title: 'Recent Project', section: 'pulse', categories: ['contractor_service'], fields: [t('title', 'Project'), area('note', 'What you did')] },
-  { id: 'contractor_service_before_after', title: 'Before / After', section: 'photos', categories: ['contractor_service'], fields: [area('caption', 'Describe the transformation')] },
+  { id: 'contractor_service_before_after', title: 'Before / After', section: 'photos', categories: ['contractor_service'], fields: [images('photos', 'Before / after photos'), area('caption', 'Describe the transformation')] },
   { id: 'contractor_service_service_area', title: 'Service Area', section: 'about', categories: ['contractor_service'], fields: [t('text', 'Areas you serve')] },
   { id: 'contractor_service_certifications', title: 'Certifications', section: 'about', categories: ['contractor_service'], fields: [area('text', 'Licenses & certifications')] },
   { id: 'contractor_service_request_quote', title: 'Request a Quote', section: 'contact', categories: ['contractor_service'], fields: [link('url', 'Quote request link'), t('phone', 'Or phone number')] },
@@ -156,14 +160,14 @@ export const PROFILE_MODULES: ProfileModule[] = [
   { id: 'artist_maker_current_work', title: 'Current Work', section: 'today', categories: ['artist_maker'], fields: [t('title', 'What you’re working on'), area('note', 'Details')] },
   { id: 'artist_maker_featured_piece', title: 'Featured Piece', section: 'pulse', categories: ['artist_maker'], fields: [t('title', 'Piece'), t('price', 'Price'), area('note', 'About it')] },
   { id: 'artist_maker_process', title: 'Process & Materials', section: 'about', categories: ['artist_maker'], fields: [area('text', 'How you work')] },
-  { id: 'artist_maker_studio_gallery', title: 'Studio Gallery', section: 'photos', categories: ['artist_maker'], fields: [area('caption', 'About your gallery')] },
+  { id: 'artist_maker_studio_gallery', title: 'Studio Gallery', section: 'photos', categories: ['artist_maker'], fields: [images('photos', 'Studio & work photos'), area('caption', 'About your gallery')] },
   { id: 'artist_maker_commission', title: 'Commission / Buy', section: 'contact', categories: ['artist_maker'], fields: [link('url', 'Commission or shop link'), area('note', 'How to commission')] },
 
   // ── Event venue ──
   { id: 'event_venue_upcoming', title: 'Upcoming Event', section: 'today', categories: ['event_venue'], fields: [t('title', 'Event'), { key: 'date', label: 'Date', type: 'date' }, area('note', 'Details')] },
   { id: 'event_venue_availability', title: 'Availability', section: 'today', categories: ['event_venue'], fields: [t('text', 'Open dates')] },
   { id: 'event_venue_capacity', title: 'Capacity & Layout', section: 'about', categories: ['event_venue'], fields: [area('text', 'Capacity, rooms, layout')] },
-  { id: 'event_venue_gallery', title: 'Space Gallery', section: 'photos', categories: ['event_venue'], fields: [area('caption', 'About your space photos')] },
+  { id: 'event_venue_gallery', title: 'Space Gallery', section: 'photos', categories: ['event_venue'], fields: [images('photos', 'Space photos'), area('caption', 'About your space photos')] },
   { id: 'event_venue_booking', title: 'Booking Inquiry', section: 'contact', categories: ['event_venue'], fields: [link('url', 'Booking link'), t('phone', 'Or phone number')] },
 
   // ── Professional service ──
@@ -189,8 +193,24 @@ export function getModulesForCategory(category: BusinessCategory): ProfileModule
   return PROFILE_MODULES.filter((m) => m.categories.includes(category));
 }
 
-export function moduleHasContent(values: Record<string, string> | undefined): boolean {
-  return !!values && Object.values(values).some((v) => typeof v === 'string' && v.trim().length > 0);
+export function moduleHasContent(values: Record<string, ModuleFieldValue> | undefined): boolean {
+  if (!values) return false;
+  return Object.values(values).some((v) =>
+    Array.isArray(v) ? v.length > 0 : typeof v === 'string' && v.trim().length > 0
+  );
+}
+
+// All image storage paths configured across a category's modules.
+export function getModuleImages(category: BusinessCategory, content: ProfileModuleContent): string[] {
+  const out: string[] = [];
+  for (const module of getModulesForCategory(category)) {
+    for (const field of module.fields) {
+      if (field.type !== 'images') continue;
+      const value = content[module.id]?.[field.key];
+      if (Array.isArray(value)) out.push(...value);
+    }
+  }
+  return out;
 }
 
 // Modules for a category that the business has actually filled in.
@@ -216,9 +236,10 @@ export function parseModuleContent(raw: unknown): ProfileModuleContent {
   const out: ProfileModuleContent = {};
   for (const [moduleId, fields] of Object.entries(raw as Record<string, unknown>)) {
     if (fields && typeof fields === 'object') {
-      const values: Record<string, string> = {};
+      const values: Record<string, ModuleFieldValue> = {};
       for (const [k, v] of Object.entries(fields as Record<string, unknown>)) {
         if (typeof v === 'string') values[k] = v;
+        else if (Array.isArray(v)) values[k] = v.filter((x): x is string => typeof x === 'string');
       }
       out[moduleId] = values;
     }

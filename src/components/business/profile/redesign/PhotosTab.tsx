@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { getFilledModulesForSection } from '@/lib/profile-modules';
+import { getFilledModulesForSection, getModuleImages } from '@/lib/profile-modules';
 import { BUSINESS_TYPE_CONFIG } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
 import { ModuleCard } from './ModuleCard';
@@ -10,9 +10,12 @@ import { EmptyState, SectionLabel } from './ProfilePrimitives';
 
 export function PhotosTab({ business }: { business: ProfileBusiness }) {
   const [active, setActive] = useState<string | null>(null);
-  const photos = business.photos?.filter(Boolean) ?? [];
   const galleryModules = getFilledModulesForSection(business.profileCategory, business.moduleContent, 'photos');
   const mediaLabel = BUSINESS_TYPE_CONFIG[business.profileCategory].mediaLabel;
+
+  // General photos + any images attached to this category's gallery modules.
+  const moduleImages = getModuleImages(business.profileCategory, business.moduleContent);
+  const photos = Array.from(new Set([...(business.photos ?? []), ...moduleImages].filter(Boolean)));
 
   return (
     <div className="space-y-3">

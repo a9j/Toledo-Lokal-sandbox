@@ -1,5 +1,5 @@
 import { ExternalLink, Phone } from 'lucide-react';
-import { ProfileModule } from '@/lib/profile-modules';
+import { ProfileModule, ModuleFieldValue } from '@/lib/profile-modules';
 import { ProfileCard } from './ProfilePrimitives';
 
 function formatDate(value: string): string {
@@ -9,12 +9,15 @@ function formatDate(value: string): string {
 }
 
 // Renders one module's filled-in content. Shared by every category.
-export function ModuleCard({ module, values }: { module: ProfileModule; values: Record<string, string> }) {
+export function ModuleCard({ module, values }: { module: ProfileModule; values: Record<string, ModuleFieldValue> }) {
   return (
     <ProfileCard className="space-y-1.5">
       <h4 className="text-sm font-semibold text-foreground">{module.title}</h4>
       {module.fields.map((field) => {
-        const value = values[field.key]?.trim();
+        // Images are rendered by the Photos tab, not inline here.
+        if (field.type === 'images') return null;
+        const raw = values[field.key];
+        const value = typeof raw === 'string' ? raw.trim() : '';
         if (!value) return null;
 
         if (field.type === 'url') {

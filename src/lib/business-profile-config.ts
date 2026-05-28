@@ -100,9 +100,11 @@ const openTel = (phone: string) => { window.location.href = `tel:${phone.replace
 const openDirections = (address: string) =>
   window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
 
-// First non-empty value among module fields, e.g. fieldValue(content, 'restaurant_menu', 'url').
-const fieldValue = (content: ProfileModuleContent, moduleId: string, key: string) =>
-  content[moduleId]?.[key]?.trim() || '';
+// Text value of a module field (images return ''), e.g. fieldValue(content, 'restaurant_menu', 'url').
+const fieldValue = (content: ProfileModuleContent, moduleId: string, key: string) => {
+  const v = content[moduleId]?.[key];
+  return typeof v === 'string' ? v.trim() : '';
+};
 
 // Resolve a single action to a label/icon/onClick, or null when it has no
 // usable target for this business (e.g. "Call" with no phone number).
