@@ -97,7 +97,9 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
               {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
             </div>
           </header>
-          <div className="p-4 sm:p-6">{children}</div>
+          {/* pb-24 clears the global fixed-position BottomNav so the last
+              admin row is never trapped underneath it. */}
+          <div className="p-4 pb-24 sm:p-6 sm:pb-24">{children}</div>
         </main>
       </div>
     </div>
