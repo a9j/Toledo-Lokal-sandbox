@@ -9,11 +9,27 @@ export default defineConfig(({ mode }) => {
   // flags, which Vite would otherwise ignore (it only exposes VITE_*).
   const env = loadEnv(mode, process.cwd(), "");
 
+  // Accept either VITE_* (what this codebase originally wanted) or NEXT_PUBLIC_*
+  // (what the Supabase ↔ Vercel integration sets by default). That way the
+  // build picks up whichever names are already in Vercel without a rename.
+  const supabaseUrl =
+    env.VITE_SUPABASE_URL ||
+    env.NEXT_PUBLIC_SUPABASE_URL ||
+    "";
+  const supabaseKey =
+    env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    env.SUPABASE_ANON_KEY ||
+    "";
+
   return {
   define: {
     __NEXT_PUBLIC_LP_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_LP_ENABLED ?? ""),
     __NEXT_PUBLIC_HOME_VARIANT__: JSON.stringify(env.NEXT_PUBLIC_HOME_VARIANT ?? ""),
     __NEXT_PUBLIC_TODAY_TAB_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_TODAY_TAB_ENABLED ?? ""),
+    __SUPABASE_URL__: JSON.stringify(supabaseUrl),
+    __SUPABASE_KEY__: JSON.stringify(supabaseKey),
   },
   server: {
     host: "::",
