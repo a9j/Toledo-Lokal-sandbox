@@ -15,6 +15,26 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Search, UserPlus, Crown, Shield, Building2, Heart, Users, Calendar, ShieldOff, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
+
+interface BusinessAffiliation {
+  user_id: string;
+  role: 'owner' | 'manager' | 'staff';
+  business_id: string;
+  business_name: string;
+}
+
+const AFFILIATION_LABEL: Record<BusinessAffiliation['role'], string> = {
+  owner: 'Owner of',
+  manager: 'Manager at',
+  staff: 'Staff at',
+};
+
+const AFFILIATION_STYLE: Record<BusinessAffiliation['role'], string> = {
+  owner: 'bg-amber-50 text-amber-700 border-amber-200',
+  manager: 'bg-primary/10 text-primary border-primary/20',
+  staff: 'bg-secondary text-muted-foreground border-border',
+};
 
 export function UsersAdmin() {
   const { toast } = useToast();
@@ -53,6 +73,53 @@ export function UsersAdmin() {
         .select('user_id, is_founding, referral_code');
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // Who controls which business. Combines explicit staff/manager rows with
+  // owner_user_id on businesses so the picture is complete. Admins can see
+  // all of this via the admin-override RLS on business_staff.
+  const { data: businessAffiliations } = useQuery<BusinessAffiliation[]>({
+    queryKey: ['admin-user-business-affiliations'],
+    queryFn: async () => {
+      const [staffRes, ownerRes] = await Promise.all([
+        supabase
+          .from('business_staff')
+          .select('user_id, role, business:businesses(id, name)'),
+        supabase
+          .from('businesses')
+          .select('id, name, owner_user_id'),
+      ]);
+      if (staffRes.error) throw staffRes.error;
+      if (ownerRes.error) throw ownerRes.error;
+
+      const out: BusinessAffiliation[] = [];
+      const seen = new Set<string>(); // user_id|business_id de-dupe
+
+      for (const row of (staffRes.data ?? []) as Array<{
+        user_id: string;
+        role: 'owner' | 'manager' | 'staff';
+        business: { id: string; name: string } | null;
+      }>) {
+        if (!row.business?.id) continue;
+        const key = `${row.user_id}|${row.business.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({
+          user_id: row.user_id,
+          role: row.role,
+          business_id: row.business.id,
+          business_name: row.business.name,
+        });
+      }
+      for (const biz of (ownerRes.data ?? []) as Array<{ id: string; name: string; owner_user_id: string | null }>) {
+        if (!biz.owner_user_id) continue;
+        const key = `${biz.owner_user_id}|${biz.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({ user_id: biz.owner_user_id, role: 'owner', business_id: biz.id, business_name: biz.name });
+      }
+      return out;
     },
   });
 
@@ -154,6 +221,13 @@ export function UsersAdmin() {
     return connectors?.find(c => c.user_id === userId)?.referral_code;
   };
 
+  const getAffiliationsForUser = (userId: string): BusinessAffiliation[] => {
+    const list = (businessAffiliations ?? []).filter((a) => a.user_id === userId);
+    // Show owner first, then manager, then staff.
+    const rank: Record<BusinessAffiliation['role'], number> = { owner: 0, manager: 1, staff: 2 };
+    return [...list].sort((a, b) => rank[a.role] - rank[b.role] || a.business_name.localeCompare(b.business_name));
+  };
+
   const roleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Shield className="h-3 w-3" />;
@@ -177,8 +251,14 @@ export function UsersAdmin() {
   const filtered = profiles?.filter(p => {
     if (!search) return true;
     const term = search.toLowerCase();
-    return (p as any).name?.toLowerCase().includes(term) || 
-           (p as any).user_id?.toLowerCase().includes(term);
+    const profileMatch =
+      (p as any).name?.toLowerCase().includes(term) ||
+      (p as any).user_id?.toLowerCase().includes(term);
+    if (profileMatch) return true;
+    // Match by business affiliation too — typing a business name surfaces
+    // everyone attached to it.
+    const affiliations = getAffiliationsForUser((p as any).user_id);
+    return affiliations.some((a) => a.business_name.toLowerCase().includes(term));
   }) || [];
 
   const sortedProfiles = [...filtered].sort((a: any, b: any) => {
@@ -234,8 +314,8 @@ export function UsersAdmin() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium truncate">{profile.name || 'Unnamed'}</span>
                       {roles.filter(r => r !== 'resident').map(role => (
-                        <Badge 
-                          key={role} 
+                        <Badge
+                          key={role}
                           variant="outline"
                           className={`text-[10px] gap-1 ${roleColor(role)}`}
                         >
@@ -244,7 +324,27 @@ export function UsersAdmin() {
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                    {/* Business affiliations — who they work for and in what role */}
+                    {(() => {
+                      const affiliations = getAffiliationsForUser(profile.user_id);
+                      if (affiliations.length === 0) return null;
+                      return (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {affiliations.map((a) => (
+                            <Link
+                              key={`${a.business_id}-${a.role}`}
+                              to={`/business/${a.business_id}`}
+                              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium hover:underline ${AFFILIATION_STYLE[a.role]}`}
+                              title={`${AFFILIATION_LABEL[a.role]} ${a.business_name}`}
+                            >
+                              <Building2 className="h-2.5 w-2.5" />
+                              {AFFILIATION_LABEL[a.role]} {a.business_name}
+                            </Link>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                       <Calendar className="h-3 w-3" />
                       {format(new Date(profile.created_at), 'MMM d, yyyy')}
                       {code && (
