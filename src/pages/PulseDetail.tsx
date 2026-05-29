@@ -74,7 +74,7 @@ export default function PulseDetail() {
           .eq('user_id', data.user_id)
           .maybeSingle();
         
-        return { ...data, author: profile } as PulsePost & {
+        return { ...data, author: profile } as unknown as PulsePost & {
           pulse_id: string;
           headline: string | null;
           preview_text: string | null;
@@ -85,7 +85,7 @@ export default function PulseDetail() {
         };
       }
 
-      return data as PulsePost & {
+      return data as unknown as PulsePost & {
         pulse_id: string;
         headline: string | null;
         preview_text: string | null;
