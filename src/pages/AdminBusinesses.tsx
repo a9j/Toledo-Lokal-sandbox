@@ -44,7 +44,10 @@ import {
   Megaphone,
   Trash2,
   Star,
+  Users,
 } from 'lucide-react';
+import { usePermissions } from '@/hooks/usePermissions';
+import { AdminBusinessStaffDialog } from '@/components/admin/AdminBusinessStaffDialog';
 
 type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
 
@@ -79,6 +82,8 @@ export default function AdminBusinesses() {
 
   // Owner messaging
   const [messageModal, setMessageModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [staffModal, setStaffModal] = useState<{ open: boolean; business: { id: string; name: string } | null }>({ open: false, business: null });
+  const { can } = usePermissions();
   const [broadcastModal, setBroadcastModal] = useState(false);
   const [msgSubject, setMsgSubject] = useState('');
   const [msgBody, setMsgBody] = useState('');
@@ -568,6 +573,19 @@ export default function AdminBusinesses() {
                   </Button>
                 )}
 
+                {/* Manage staff (admin override) */}
+                {can('manage_business_staff') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1"
+                    title="Attach or remove staff on this business"
+                    onClick={() => setStaffModal({ open: true, business: { id: biz.id, name: biz.name } })}
+                  >
+                    <Users className="h-3 w-3" /> Staff
+                  </Button>
+                )}
+
                 {/* Message owner */}
                 <Button
                   size="sm"
@@ -879,6 +897,14 @@ export default function AdminBusinesses() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Manage staff (admin override) */}
+      <AdminBusinessStaffDialog
+        open={staffModal.open}
+        onOpenChange={(o) => setStaffModal((prev) => ({ open: o, business: o ? prev.business : null }))}
+        businessId={staffModal.business?.id ?? null}
+        businessName={staffModal.business?.name ?? null}
+      />
     </>
   );
 }
