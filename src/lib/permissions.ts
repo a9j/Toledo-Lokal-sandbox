@@ -6,6 +6,7 @@ export type AppRole = Database['public']['Enums']['app_role'];
 // in RLS later without changing call sites.
 export type Capability =
   | 'manage_businesses'
+  | 'manage_business_staff'
   | 'approve_content'
   | 'moderate'
   | 'manage_users'
@@ -20,6 +21,7 @@ export type Capability =
 
 export const CAPABILITY_LABELS: Record<Capability, string> = {
   manage_businesses: 'Manage businesses',
+  manage_business_staff: 'Attach staff to a business (admin override)',
   approve_content: 'Approve content',
   moderate: 'Moderate reports & content',
   manage_users: 'Manage users',
