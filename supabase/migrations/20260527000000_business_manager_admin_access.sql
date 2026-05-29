@@ -33,10 +33,12 @@ AS $$
 $$;
 
 -- ── businesses: managers can read + update (no insert, no delete) ──
+DROP POLICY IF EXISTS "Managers can view managed business" ON public.businesses;
 CREATE POLICY "Managers can view managed business"
   ON public.businesses FOR SELECT TO authenticated
   USING (public.is_business_manager(id));
 
+DROP POLICY IF EXISTS "Managers can update managed business" ON public.businesses;
 CREATE POLICY "Managers can update managed business"
   ON public.businesses FOR UPDATE TO authenticated
   USING (public.is_business_manager(id))
@@ -67,41 +69,49 @@ CREATE TRIGGER businesses_enforce_owner_transfer
   FOR EACH ROW EXECUTE FUNCTION public.enforce_business_owner_transfer();
 
 -- ── child tables: managers get the same access owners already have ──
+DROP POLICY IF EXISTS "Managers can manage deals" ON public.deals;
 CREATE POLICY "Managers can manage deals"
   ON public.deals FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage events" ON public.events;
 CREATE POLICY "Managers can manage events"
   ON public.events FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage leads" ON public.leads;
 CREATE POLICY "Managers can manage leads"
   ON public.leads FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage loop settings" ON public.business_loop_settings;
 CREATE POLICY "Managers can manage loop settings"
   ON public.business_loop_settings FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage features" ON public.business_features;
 CREATE POLICY "Managers can manage features"
   ON public.business_features FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage QR codes" ON public.loop_qr_codes;
 CREATE POLICY "Managers can manage QR codes"
   ON public.loop_qr_codes FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage rewards" ON public.loop_rewards;
 CREATE POLICY "Managers can manage rewards"
   ON public.loop_rewards FOR ALL TO authenticated
   USING (public.is_business_manager(business_id))
   WITH CHECK (public.is_business_manager(business_id));
 
+DROP POLICY IF EXISTS "Managers can manage QR scans" ON public.loop_qr_scans;
 CREATE POLICY "Managers can manage QR scans"
   ON public.loop_qr_scans FOR ALL TO authenticated
   USING (qr_code_id IN (SELECT id FROM public.loop_qr_codes WHERE public.is_business_manager(business_id)))
