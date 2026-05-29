@@ -102,19 +102,33 @@ export default function BusinessDetail() {
     enabled: !!id,
   });
 
-  const { data: isOwner = false } = useQuery({
-    queryKey: ['business-owner-check', id, user?.id],
+  // The Manage affordance shows for anyone who can administer this business —
+  // the owner OR a user attached as a 'manager' via business_staff.
+  const { data: canManage = false } = useQuery({
+    queryKey: ['business-manage-check', business?.id || id, user?.id],
     queryFn: async () => {
-      if (!user || !id) return false;
-      const { data } = await supabase
+      if (!user) return false;
+      const businessId = business?.id || id;
+      if (!businessId) return false;
+
+      const { data: owned } = await supabase
         .from('businesses')
         .select('id')
-        .eq('id', business?.id || id)
+        .eq('id', businessId)
         .eq('owner_user_id', user.id)
         .maybeSingle();
-      return !!data;
+      if (owned) return true;
+
+      const { data: managed } = await supabase
+        .from('business_staff')
+        .select('id')
+        .eq('business_id', businessId)
+        .eq('user_id', user.id)
+        .eq('role', 'manager')
+        .maybeSingle();
+      return !!managed;
     },
-    enabled: !!user && !!id,
+    enabled: !!user && (!!business?.id || !!id),
   });
 
   const isSaved = !!savedItems?.some((item) => item.item_id === business?.id);
@@ -197,7 +211,7 @@ export default function BusinessDetail() {
           liveStatus={liveStatus}
           primary={primaryAction}
           isSaved={isSaved}
-          isOwner={isOwner}
+          canManage={canManage}
           onSave={handleSave}
           onShare={handleShare}
         />

@@ -13,12 +13,13 @@ interface ProfileHeroProps {
   liveStatus: string;
   primary: ResolvedAction | null;
   isSaved: boolean;
-  isOwner: boolean;
+  /** True for the owner or a manager — anyone who can administer this business. */
+  canManage: boolean;
   onSave: () => void;
   onShare: () => void;
 }
 
-export function ProfileHero({ business, liveStatus, primary, isSaved, isOwner, onSave, onShare }: ProfileHeroProps) {
+export function ProfileHero({ business, liveStatus, primary, isSaved, canManage, onSave, onShare }: ProfileHeroProps) {
   const heroImage = business.cover_image_url || business.photos?.[0] || null;
   const status = getOpenStatus(business.hours);
   const tagline = business.description?.split('\n')[0]?.trim();
@@ -45,7 +46,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, isOwner, o
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
-          {isOwner && (
+          {canManage && (
             <Link
               to="/dashboard"
               className="inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
