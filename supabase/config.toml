@@ -1,4 +1,8 @@
-project_id = "ixupthihhfeikeydvvir"
+# Local project identifier. Bind to YOUR remote Supabase project with:
+#   supabase link --project-ref <your-project-ref>
+# That command rewrites this value in place. Don't commit a project_id that
+# isn't yours — `supabase db push` and `supabase functions deploy` use it.
+project_id = "toledo-lokal"
 
 # Keep the server-side password policy in sync with the sign-up form rules in
 # src/pages/Auth.tsx (8+ chars, mixed case, number, symbol).
