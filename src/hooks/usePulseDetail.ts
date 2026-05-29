@@ -74,10 +74,10 @@ export function usePulseById(pulseId: string | undefined) {
           .eq('user_id', data.user_id)
           .maybeSingle();
         
-        return { ...data, author: profile } as PulsePostExtended;
+        return { ...data, author: profile } as unknown as PulsePostExtended;
       }
 
-      return data as PulsePostExtended;
+      return data as unknown as PulsePostExtended;
     },
     enabled: !!pulseId,
   });

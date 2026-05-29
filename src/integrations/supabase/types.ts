@@ -14,189 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      local_reactions: {
-        Row: { id: string; business_id: string; user_id: string; reaction_type: string; business_type: string | null; created_at: string }
-        Insert: { id?: string; business_id: string; user_id: string; reaction_type: string; business_type?: string | null; created_at?: string }
-        Update: { id?: string; business_id?: string; user_id?: string; reaction_type?: string; business_type?: string | null; created_at?: string }
-        Relationships: []
-      }
-      local_moments: {
-        Row: { id: string; business_id: string; user_id: string; text: string; photo_url: string | null; status: string; featured: boolean; created_at: string }
-        Insert: { id?: string; business_id: string; user_id: string; text: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
-        Update: { id?: string; business_id?: string; user_id?: string; text?: string; photo_url?: string | null; status?: string; featured?: boolean; created_at?: string }
-        Relationships: []
-      }
-      reputation_badges: {
-        Row: { id: string; business_id: string; badge_type: string; source: string | null; awarded_at: string }
-        Insert: { id?: string; business_id: string; badge_type: string; source?: string | null; awarded_at?: string }
-        Update: { id?: string; business_id?: string; badge_type?: string; source?: string | null; awarded_at?: string }
-        Relationships: []
-      }
-      recommendation_prompts: {
-        Row: { id: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at: string }
-        Insert: { id?: string; business_id: string; user_id: string; prompt_type: string; response: boolean; created_at?: string }
-        Update: { id?: string; business_id?: string; user_id?: string; prompt_type?: string; response?: boolean; created_at?: string }
-        Relationships: []
-      }
-      known_for_tags: {
-        Row: { id: string; business_id: string; tag: string; source: string | null; confidence_score: number | null; created_at: string }
-        Insert: { id?: string; business_id: string; tag: string; source?: string | null; confidence_score?: number | null; created_at?: string }
-        Update: { id?: string; business_id?: string; tag?: string; source?: string | null; confidence_score?: number | null; created_at?: string }
-        Relationships: []
-      }
-      cities: {
-        Row: {
-          id: string
-          slug: string
-          name: string
-          region: string | null
-          tagline: string | null
-          primary_color: string | null
-          accent_color: string | null
-          logo_url: string | null
-          is_active: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          slug: string
-          name: string
-          region?: string | null
-          tagline?: string | null
-          primary_color?: string | null
-          accent_color?: string | null
-          logo_url?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          slug?: string
-          name?: string
-          region?: string | null
-          tagline?: string | null
-          primary_color?: string | null
-          accent_color?: string | null
-          logo_url?: string | null
-          is_active?: boolean
-          created_at?: string
-        }
-        Relationships: []
-      }
-      city_campaigns: {
-        Row: {
-          id: string
-          title: string
-          emoji: string | null
-          description: string | null
-          campaign_type: string
-          point_multiplier: number
-          starts_at: string | null
-          ends_at: string | null
-          is_active: boolean
-          created_by: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          emoji?: string | null
-          description?: string | null
-          campaign_type?: string
-          point_multiplier?: number
-          starts_at?: string | null
-          ends_at?: string | null
-          is_active?: boolean
-          created_by?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          emoji?: string | null
-          description?: string | null
-          campaign_type?: string
-          point_multiplier?: number
-          starts_at?: string | null
-          ends_at?: string | null
-          is_active?: boolean
-          created_by?: string | null
-          created_at?: string
-        }
-        Relationships: []
-      }
-      reports: {
-        Row: {
-          id: string
-          reporter_user_id: string | null
-          target_type: string
-          target_id: string | null
-          target_label: string | null
-          reason: string
-          details: string | null
-          status: string
-          resolution: string | null
-          resolved_by: string | null
-          resolved_at: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          reporter_user_id?: string | null
-          target_type: string
-          target_id?: string | null
-          target_label?: string | null
-          reason: string
-          details?: string | null
-          status?: string
-          resolution?: string | null
-          resolved_by?: string | null
-          resolved_at?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          reporter_user_id?: string | null
-          target_type?: string
-          target_id?: string | null
-          target_label?: string | null
-          reason?: string
-          details?: string | null
-          status?: string
-          resolution?: string | null
-          resolved_by?: string | null
-          resolved_at?: string | null
-          created_at?: string
-        }
-        Relationships: []
-      }
-      moderation_actions: {
-        Row: {
-          id: string
-          report_id: string | null
-          moderator_user_id: string | null
-          action: string
-          note: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          report_id?: string | null
-          moderator_user_id?: string | null
-          action: string
-          note?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          report_id?: string | null
-          moderator_user_id?: string | null
-          action?: string
-          note?: string | null
-          created_at?: string
-        }
-        Relationships: []
-      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -303,6 +120,13 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "boosts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       business_features: {
@@ -343,6 +167,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: true
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_features_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -397,6 +228,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_invitations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -466,6 +304,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -541,6 +386,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "business_loop_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "business_loop_settings_loop_tier_id_fkey"
             columns: ["loop_tier_id"]
             isOneToOne: false
@@ -589,15 +441,85 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "business_staff_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_staff_admin_log: {
+        Row: {
+          action: string
+          business_id: string
+          created_at: string
+          id: string
+          invitation_id: string | null
+          note: string | null
+          performed_by: string | null
+          role: string | null
+          staff_id: string | null
+          target_email: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          business_id: string
+          created_at?: string
+          id?: string
+          invitation_id?: string | null
+          note?: string | null
+          performed_by?: string | null
+          role?: string | null
+          staff_id?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          invitation_id?: string | null
+          note?: string | null
+          performed_by?: string | null
+          role?: string | null
+          staff_id?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_staff_admin_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_staff_admin_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_staff_admin_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       businesses: {
         Row: {
           address: string | null
           average_rating: number | null
+          category: Database["public"]["Enums"]["business_category"]
           category_id: string | null
-          category: string
-          profile_modules: Json
           connected_by_connector_id: string | null
           cover_image_url: string | null
           created_at: string
@@ -605,6 +527,8 @@ export type Database = {
           editor_pick_image: string | null
           facebook: string | null
           featured: boolean | null
+          founding_number: number | null
+          founding_quote: string | null
           hours: Json | null
           id: string
           instagram: string | null
@@ -614,12 +538,15 @@ export type Database = {
           onboarding_completed: boolean
           onboarding_completed_at: string | null
           onboarding_step: number
+          owner_image_url: string | null
+          owner_name: string | null
           owner_user_id: string
           ownership_review_notes: string | null
           ownership_review_started_at: string | null
           ownership_review_status: string
           phone: string | null
           photos: string[] | null
+          profile_modules: Json
           profile_picture_url: string | null
           referral_source: string | null
           review_count: number | null
@@ -635,16 +562,15 @@ export type Database = {
           tiktok: string | null
           updated_at: string
           verified: boolean | null
-          visit_link_type: string | null
+          visit_link_type: Database["public"]["Enums"]["visit_link_type"] | null
           visit_link_url: string | null
           website: string | null
         }
         Insert: {
           address?: string | null
           average_rating?: number | null
+          category?: Database["public"]["Enums"]["business_category"]
           category_id?: string | null
-          category?: string
-          profile_modules?: Json
           connected_by_connector_id?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -652,6 +578,8 @@ export type Database = {
           editor_pick_image?: string | null
           facebook?: string | null
           featured?: boolean | null
+          founding_number?: number | null
+          founding_quote?: string | null
           hours?: Json | null
           id?: string
           instagram?: string | null
@@ -661,12 +589,15 @@ export type Database = {
           onboarding_completed?: boolean
           onboarding_completed_at?: string | null
           onboarding_step?: number
+          owner_image_url?: string | null
+          owner_name?: string | null
           owner_user_id: string
           ownership_review_notes?: string | null
           ownership_review_started_at?: string | null
           ownership_review_status?: string
           phone?: string | null
           photos?: string[] | null
+          profile_modules?: Json
           profile_picture_url?: string | null
           referral_source?: string | null
           review_count?: number | null
@@ -682,14 +613,17 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
+          visit_link_type?:
+            | Database["public"]["Enums"]["visit_link_type"]
+            | null
+          visit_link_url?: string | null
           website?: string | null
         }
         Update: {
           address?: string | null
           average_rating?: number | null
+          category?: Database["public"]["Enums"]["business_category"]
           category_id?: string | null
-          category?: string
-          profile_modules?: Json
           connected_by_connector_id?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -697,6 +631,8 @@ export type Database = {
           editor_pick_image?: string | null
           facebook?: string | null
           featured?: boolean | null
+          founding_number?: number | null
+          founding_quote?: string | null
           hours?: Json | null
           id?: string
           instagram?: string | null
@@ -706,12 +642,15 @@ export type Database = {
           onboarding_completed?: boolean
           onboarding_completed_at?: string | null
           onboarding_step?: number
+          owner_image_url?: string | null
+          owner_name?: string | null
           owner_user_id?: string
           ownership_review_notes?: string | null
           ownership_review_started_at?: string | null
           ownership_review_status?: string
           phone?: string | null
           photos?: string[] | null
+          profile_modules?: Json
           profile_picture_url?: string | null
           referral_source?: string | null
           review_count?: number | null
@@ -727,7 +666,9 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string
           verified?: boolean | null
-          visit_link_type?: string | null
+          visit_link_type?:
+            | Database["public"]["Enums"]["visit_link_type"]
+            | null
           visit_link_url?: string | null
           website?: string | null
         }
@@ -814,6 +755,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "challenge_progress_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "challenge_progress_challenge_id_fkey"
             columns: ["challenge_id"]
             isOneToOne: false
@@ -877,6 +825,132 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cities: {
+        Row: {
+          accent_color: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          region: string | null
+          slug: string
+          tagline: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          region?: string | null
+          slug: string
+          tagline?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          region?: string | null
+          slug?: string
+          tagline?: string | null
+        }
+        Relationships: []
+      }
+      city_campaigns: {
+        Row: {
+          campaign_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          emoji: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          point_multiplier: number
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          emoji?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          point_multiplier?: number
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          emoji?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          point_multiplier?: number
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      city_signals: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          metric: number | null
+          neighborhood: string | null
+          payload: Json
+          reference_id: string | null
+          signal_type: string
+          subtitle: string | null
+          title: string
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          metric?: number | null
+          neighborhood?: string | null
+          payload?: Json
+          reference_id?: string | null
+          signal_type: string
+          subtitle?: string | null
+          title: string
+          valid_from?: string
+          valid_until?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          metric?: number | null
+          neighborhood?: string | null
+          payload?: Json
+          reference_id?: string | null
+          signal_type?: string
+          subtitle?: string | null
+          title?: string
+          valid_from?: string
+          valid_until?: string
+        }
+        Relationships: []
       }
       comments: {
         Row: {
@@ -977,6 +1051,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connector_referrals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
           {
@@ -1177,6 +1258,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "daily_drop_spotlights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "daily_drop_spotlights_daily_drop_id_fkey"
             columns: ["daily_drop_id"]
             isOneToOne: false
@@ -1274,6 +1362,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1443,6 +1538,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "events_connector_id_fkey"
             columns: ["connector_id"]
             isOneToOne: false
@@ -1512,7 +1614,50 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "food_truck_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      founding_5_applications: {
+        Row: {
+          business_name: string
+          category: Database["public"]["Enums"]["founding_5_category"] | null
+          created_at: string
+          email: string
+          id: string
+          neighborhood: string | null
+          owner_name: string
+          phone: string | null
+          why_us: string | null
+        }
+        Insert: {
+          business_name: string
+          category?: Database["public"]["Enums"]["founding_5_category"] | null
+          created_at?: string
+          email: string
+          id?: string
+          neighborhood?: string | null
+          owner_name: string
+          phone?: string | null
+          why_us?: string | null
+        }
+        Update: {
+          business_name?: string
+          category?: Database["public"]["Enums"]["founding_5_category"] | null
+          created_at?: string
+          email?: string
+          id?: string
+          neighborhood?: string | null
+          owner_name?: string
+          phone?: string | null
+          why_us?: string | null
+        }
+        Relationships: []
       }
       jobs: {
         Row: {
@@ -1590,6 +1735,62 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      known_for_tags: {
+        Row: {
+          business_id: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          source: string | null
+          tag: string
+        }
+        Insert: {
+          business_id: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          source?: string | null
+          tag: string
+        }
+        Update: {
+          business_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          source?: string | null
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "known_for_tags_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "known_for_tags_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "known_for_tags_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       leads: {
@@ -1645,10 +1846,121 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      local_moments: {
+        Row: {
+          business_id: string
+          created_at: string
+          featured: boolean
+          id: string
+          photo_url: string | null
+          status: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          photo_url?: string | null
+          status?: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          featured?: boolean
+          id?: string
+          photo_url?: string | null
+          status?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_moments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "local_moments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "local_moments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      local_reactions: {
+        Row: {
+          business_id: string
+          business_type: string | null
+          created_at: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          business_type?: string | null
+          created_at?: string
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          business_type?: string | null
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_reactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "local_reactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "local_reactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1765,6 +2077,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_bursts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2040,6 +2359,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "loop_missions_sponsor_business_id_fkey"
+            columns: ["sponsor_business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "loop_missions_target_category_id_fkey"
             columns: ["target_category_id"]
             isOneToOne: false
@@ -2105,6 +2431,13 @@ export type Database = {
             columns: ["source_business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_point_batches_source_business_id_fkey"
+            columns: ["source_business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
           {
@@ -2178,6 +2511,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_qr_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2271,6 +2611,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: true
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_redemption_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2391,6 +2738,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loop_rewards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2535,6 +2889,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "loop_transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "loop_transactions_wallet_id_fkey"
             columns: ["wallet_id"]
             isOneToOne: false
@@ -2585,6 +2946,68 @@ export type Database = {
           points_balance?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      moderation_actions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          moderator_user_id: string | null
+          note: string | null
+          report_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          moderator_user_id?: string | null
+          note?: string | null
+          report_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          moderator_user_id?: string | null
+          note?: string | null
+          report_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_actions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      neighborhood_activity: {
+        Row: {
+          activity_score: number
+          computed_at: string
+          energy_emoji: string
+          energy_level: string
+          label: string | null
+          neighborhood: string
+        }
+        Insert: {
+          activity_score?: number
+          computed_at?: string
+          energy_emoji?: string
+          energy_level?: string
+          label?: string | null
+          neighborhood: string
+        }
+        Update: {
+          activity_score?: number
+          computed_at?: string
+          energy_emoji?: string
+          energy_level?: string
+          label?: string | null
+          neighborhood?: string
         }
         Relationships: []
       }
@@ -2691,6 +3114,67 @@ export type Database = {
             columns: ["neighborhood_id"]
             isOneToOne: false
             referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owner_messages: {
+        Row: {
+          body: string
+          business_id: string | null
+          created_at: string
+          emailed: boolean
+          id: string
+          is_broadcast: boolean
+          read_at: string | null
+          recipient_id: string
+          sender_id: string | null
+          subject: string | null
+        }
+        Insert: {
+          body: string
+          business_id?: string | null
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          is_broadcast?: boolean
+          read_at?: string | null
+          recipient_id: string
+          sender_id?: string | null
+          subject?: string | null
+        }
+        Update: {
+          body?: string
+          business_id?: string | null
+          created_at?: string
+          emailed?: boolean
+          id?: string
+          is_broadcast?: boolean
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_messages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "owner_messages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "owner_messages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2824,6 +3308,13 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -2838,6 +3329,7 @@ export type Database = {
           role_selected: boolean
           updated_at: string
           user_id: string
+          vibe: string[]
         }
         Insert: {
           avatar_url?: string | null
@@ -2850,6 +3342,7 @@ export type Database = {
           role_selected?: boolean
           updated_at?: string
           user_id: string
+          vibe?: string[]
         }
         Update: {
           avatar_url?: string | null
@@ -2862,6 +3355,7 @@ export type Database = {
           role_selected?: boolean
           updated_at?: string
           user_id?: string
+          vibe?: string[]
         }
         Relationships: [
           {
@@ -2990,6 +3484,48 @@ export type Database = {
           },
         ]
       }
+      pulse_post_templates: {
+        Row: {
+          active: boolean
+          allowed_authors: string[]
+          content_type: string
+          default_expiration_hours: number
+          description: string | null
+          icon: string | null
+          key: string
+          label: string
+          max_expiration_hours: number
+          prompt: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          allowed_authors?: string[]
+          content_type: string
+          default_expiration_hours?: number
+          description?: string | null
+          icon?: string | null
+          key: string
+          label: string
+          max_expiration_hours?: number
+          prompt?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          allowed_authors?: string[]
+          content_type?: string
+          default_expiration_hours?: number
+          description?: string | null
+          icon?: string | null
+          key?: string
+          label?: string
+          max_expiration_hours?: number
+          prompt?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
       pulse_posts: {
         Row: {
           activity_type: string | null
@@ -3000,6 +3536,7 @@ export type Database = {
           business_tier: string | null
           category: Database["public"]["Enums"]["pulse_category"]
           content: string
+          content_type: string
           created_at: string
           expires_at: string
           flag_count: number
@@ -3010,14 +3547,22 @@ export type Database = {
           id: string
           is_pinned: boolean
           location_text: string | null
+          neighborhood: string | null
           nonprofit_id: string | null
+          place_business_id: string | null
           preview_text: string | null
           pulse_id: string | null
+          reaction_count: number
+          reaction_counts: Json
           reference_id: string | null
           resharing_allowed: boolean | null
           share_enabled: boolean | null
           status: Database["public"]["Enums"]["pulse_post_status"]
+          tags: string[]
+          template_data: Json
+          template_key: string | null
           user_id: string | null
+          why_it_matters: string | null
         }
         Insert: {
           activity_type?: string | null
@@ -3028,6 +3573,7 @@ export type Database = {
           business_tier?: string | null
           category: Database["public"]["Enums"]["pulse_category"]
           content: string
+          content_type?: string
           created_at?: string
           expires_at: string
           flag_count?: number
@@ -3038,14 +3584,22 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          neighborhood?: string | null
           nonprofit_id?: string | null
+          place_business_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
+          reaction_count?: number
+          reaction_counts?: Json
           reference_id?: string | null
           resharing_allowed?: boolean | null
           share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
+          tags?: string[]
+          template_data?: Json
+          template_key?: string | null
           user_id?: string | null
+          why_it_matters?: string | null
         }
         Update: {
           activity_type?: string | null
@@ -3056,6 +3610,7 @@ export type Database = {
           business_tier?: string | null
           category?: Database["public"]["Enums"]["pulse_category"]
           content?: string
+          content_type?: string
           created_at?: string
           expires_at?: string
           flag_count?: number
@@ -3066,14 +3621,22 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           location_text?: string | null
+          neighborhood?: string | null
           nonprofit_id?: string | null
+          place_business_id?: string | null
           preview_text?: string | null
           pulse_id?: string | null
+          reaction_count?: number
+          reaction_counts?: Json
           reference_id?: string | null
           resharing_allowed?: boolean | null
           share_enabled?: boolean | null
           status?: Database["public"]["Enums"]["pulse_post_status"]
+          tags?: string[]
+          template_data?: Json
+          template_key?: string | null
           user_id?: string | null
+          why_it_matters?: string | null
         }
         Relationships: [
           {
@@ -3091,6 +3654,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pulse_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pulse_posts_nonprofit_id_fkey"
             columns: ["nonprofit_id"]
             isOneToOne: false
@@ -3102,6 +3672,291 @@ export type Database = {
             columns: ["nonprofit_id"]
             isOneToOne: false
             referencedRelation: "nonprofits_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_posts_place_business_id_fkey"
+            columns: ["place_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_posts_place_business_id_fkey"
+            columns: ["place_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_posts_place_business_id_fkey"
+            columns: ["place_business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_reports: {
+        Row: {
+          created_at: string
+          id: string
+          moderator_note: string | null
+          note: string | null
+          post_id: string
+          reason: string
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          moderator_note?: string | null
+          note?: string | null
+          post_id: string
+          reason: string
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          moderator_note?: string | null
+          note?: string | null
+          post_id?: string
+          reason?: string
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_trust_scores: {
+        Row: {
+          account_age_days: number
+          checkins: number
+          is_ambassador: boolean
+          is_business_owner: boolean
+          level: string
+          posts: number
+          profile_complete: boolean
+          reports_against: number
+          saves: number
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_age_days?: number
+          checkins?: number
+          is_ambassador?: boolean
+          is_business_owner?: boolean
+          level?: string
+          posts?: number
+          profile_complete?: boolean
+          reports_against?: number
+          saves?: number
+          score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_age_days?: number
+          checkins?: number
+          is_ambassador?: boolean
+          is_business_owner?: boolean
+          level?: string
+          posts?: number
+          profile_complete?: boolean
+          reports_against?: number
+          saves?: number
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recommendation_prompts: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          prompt_type: string
+          response: boolean
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          prompt_type: string
+          response: boolean
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          prompt_type?: string
+          response?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_prompts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendation_prompts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendation_prompts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_user_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          target_id: string | null
+          target_label: string | null
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_user_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_label?: string | null
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_user_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
+      reputation_badges: {
+        Row: {
+          awarded_at: string
+          badge_type: string
+          business_id: string
+          id: string
+          source: string | null
+        }
+        Insert: {
+          awarded_at?: string
+          badge_type: string
+          business_id: string
+          id?: string
+          source?: string | null
+        }
+        Update: {
+          awarded_at?: string
+          badge_type?: string
+          business_id?: string
+          id?: string
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reputation_badges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reputation_badges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reputation_badges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3218,6 +4073,13 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       saved_items: {
@@ -3309,6 +4171,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "stories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "stories_neighborhood_id_fkey"
             columns: ["neighborhood_id"]
             isOneToOne: false
@@ -3387,6 +4256,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
           {
@@ -3491,7 +4367,35 @@ export type Database = {
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tier_change_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      today_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string
+        }
+        Relationships: []
       }
       tour_stops: {
         Row: {
@@ -3540,6 +4444,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
           {
@@ -3660,6 +4571,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_context: {
+        Row: {
+          company: string | null
+          created_at: string
+          full_name: string | null
+          goals: string | null
+          role_title: string | null
+          user_id: string
+          working_style: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          goals?: string | null
+          role_title?: string | null
+          user_id: string
+          working_style?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          goals?: string | null
+          role_title?: string | null
+          user_id?: string
+          working_style?: string | null
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -3726,9 +4667,8 @@ export type Database = {
         Row: {
           address: string | null
           average_rating: number | null
+          category: Database["public"]["Enums"]["business_category"] | null
           category_id: string | null
-          category: string | null
-          profile_modules: Json | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
@@ -3747,6 +4687,7 @@ export type Database = {
           ownership_review_status: string | null
           phone: string | null
           photos: string[] | null
+          profile_modules: Json | null
           profile_picture_url: string | null
           review_count: number | null
           slug: string | null
@@ -3758,16 +4699,15 @@ export type Database = {
           tiktok: string | null
           updated_at: string | null
           verified: boolean | null
-          visit_link_type: string | null
+          visit_link_type: Database["public"]["Enums"]["visit_link_type"] | null
           visit_link_url: string | null
           website: string | null
         }
         Insert: {
           address?: string | null
           average_rating?: number | null
+          category?: Database["public"]["Enums"]["business_category"] | null
           category_id?: string | null
-          category?: string | null
-          profile_modules?: Json | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -3786,6 +4726,7 @@ export type Database = {
           ownership_review_status?: string | null
           phone?: string | null
           photos?: string[] | null
+          profile_modules?: Json | null
           profile_picture_url?: string | null
           review_count?: number | null
           slug?: string | null
@@ -3797,16 +4738,17 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
-          visit_link_type?: string | null
+          visit_link_type?:
+            | Database["public"]["Enums"]["visit_link_type"]
+            | null
           visit_link_url?: string | null
           website?: string | null
         }
         Update: {
           address?: string | null
           average_rating?: number | null
+          category?: Database["public"]["Enums"]["business_category"] | null
           category_id?: string | null
-          category?: string | null
-          profile_modules?: Json | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -3825,6 +4767,7 @@ export type Database = {
           ownership_review_status?: string | null
           phone?: string | null
           photos?: string[] | null
+          profile_modules?: Json | null
           profile_picture_url?: string | null
           review_count?: number | null
           slug?: string | null
@@ -3836,7 +4779,9 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           verified?: boolean | null
-          visit_link_type?: string | null
+          visit_link_type?:
+            | Database["public"]["Enums"]["visit_link_type"]
+            | null
           visit_link_url?: string | null
           website?: string | null
         }
@@ -3848,6 +4793,30 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "businesses_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founding_members_public: {
+        Row: {
+          cover_image_url: string | null
+          founding_number: number | null
+          founding_quote: string | null
+          id: string | null
+          name: string | null
+          neighborhood_id: string | null
+          neighborhood_name: string | null
+          owner_image_url: string | null
+          owner_name: string | null
+          slug: string | null
+          tier_status: string | null
+        }
+        Relationships: [
           {
             foreignKeyName: "businesses_neighborhood_id_fkey"
             columns: ["neighborhood_id"]
@@ -3907,6 +4876,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
           {
@@ -4025,6 +5001,20 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: Json
       }
+      admin_attach_business_staff: {
+        Args: {
+          p_business_id: string
+          p_note?: string
+          p_role: string
+          p_target_email?: string
+          p_target_user_id?: string
+        }
+        Returns: Json
+      }
+      admin_cancel_business_invitation: {
+        Args: { p_invitation_id: string; p_note?: string }
+        Returns: Json
+      }
       admin_get_all_profiles: {
         Args: never
         Returns: {
@@ -4038,6 +5028,7 @@ export type Database = {
           role_selected: boolean
           updated_at: string
           user_id: string
+          vibe: string[]
         }[]
         SetofOptions: {
           from: "*"
@@ -4046,6 +5037,11 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      admin_remove_business_staff: {
+        Args: { p_note?: string; p_staff_id: string }
+        Returns: Json
+      }
+      can_moderate: { Args: { _user_id: string }; Returns: boolean }
       can_view_lead: {
         Args: { _business_id: string; _user_id?: string }
         Returns: boolean
@@ -4065,11 +5061,13 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      compute_neighborhood_activity: { Args: never; Returns: undefined }
       expire_pulse_posts: { Args: never; Returns: undefined }
       generate_business_slug: {
         Args: { business_name: string }
         Returns: string
       }
+      generate_city_signals: { Args: never; Returns: undefined }
       generate_collection_slug: { Args: { user_name: string }; Returns: string }
       generate_user_pulse: {
         Args: {
@@ -4155,10 +5153,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_business_manager: { Args: { _business_id: string }; Returns: boolean }
       is_business_staff: {
         Args: { check_business_id: string }
         Returns: boolean
       }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       issue_loop_points: {
         Args: {
           p_business_id: string
@@ -4172,6 +5172,11 @@ export type Database = {
         Returns: string
       }
       mask_phone: { Args: { phone_number: string }; Returns: string }
+      pulse_recount_reactions: {
+        Args: { p_post_id: string }
+        Returns: undefined
+      }
+      recompute_pulse_trust: { Args: { p_user_id: string }; Returns: undefined }
       redeem_loop_points: {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: Json
@@ -4202,6 +5207,19 @@ export type Database = {
         | "moderator"
         | "ambassador"
         | "support_staff"
+      business_category:
+        | "restaurant"
+        | "food_truck"
+        | "retail"
+        | "salon_barber"
+        | "gym_fitness"
+        | "contractor_service"
+        | "nonprofit"
+        | "childcare"
+        | "artist_maker"
+        | "event_venue"
+        | "professional_service"
+        | "community_org"
       cause_category:
         | "food_insecurity"
         | "housing"
@@ -4221,6 +5239,12 @@ export type Database = {
         | "supplies"
         | "events"
         | "awareness"
+      founding_5_category:
+        | "morning"
+        | "evening"
+        | "retail"
+        | "experience"
+        | "other"
       loop_mission_type:
         | "visits"
         | "category"
@@ -4245,6 +5269,15 @@ export type Database = {
         | "community_ask"
         | "good_stuff"
       pulse_post_status: "active" | "hidden" | "removed" | "expired"
+      visit_link_type:
+        | "website"
+        | "facebook"
+        | "instagram"
+        | "google_maps"
+        | "phone"
+        | "menu"
+        | "booking"
+        | "order_online"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4386,6 +5419,20 @@ export const Constants = {
         "ambassador",
         "support_staff",
       ],
+      business_category: [
+        "restaurant",
+        "food_truck",
+        "retail",
+        "salon_barber",
+        "gym_fitness",
+        "contractor_service",
+        "nonprofit",
+        "childcare",
+        "artist_maker",
+        "event_venue",
+        "professional_service",
+        "community_org",
+      ],
       cause_category: [
         "food_insecurity",
         "housing",
@@ -4406,6 +5453,13 @@ export const Constants = {
         "supplies",
         "events",
         "awareness",
+      ],
+      founding_5_category: [
+        "morning",
+        "evening",
+        "retail",
+        "experience",
+        "other",
       ],
       loop_mission_type: [
         "visits",
@@ -4434,6 +5488,16 @@ export const Constants = {
         "good_stuff",
       ],
       pulse_post_status: ["active", "hidden", "removed", "expired"],
+      visit_link_type: [
+        "website",
+        "facebook",
+        "instagram",
+        "google_maps",
+        "phone",
+        "menu",
+        "booking",
+        "order_online",
+      ],
     },
   },
 } as const
