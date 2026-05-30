@@ -2949,6 +2949,67 @@ export type Database = {
         }
         Relationships: []
       }
+      media_assets: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          height: number
+          id: string
+          original_path: string
+          slot: string
+          sort_order: number | null
+          thumb_path: string | null
+          webp_path: string
+          width: number
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          height: number
+          id?: string
+          original_path: string
+          slot: string
+          sort_order?: number | null
+          thumb_path?: string | null
+          webp_path: string
+          width: number
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          height?: number
+          id?: string
+          original_path?: string
+          slot?: string
+          sort_order?: number | null
+          thumb_path?: string | null
+          webp_path?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moderation_actions: {
         Row: {
           action: string
