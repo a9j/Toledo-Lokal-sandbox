@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { FoundingMemberCard } from '@/components/founding5/FoundingMemberCard';
 import { EmptySlotCard } from '@/components/founding5/EmptySlotCard';
 import { FOUNDING_5_TOTAL } from '@/components/founding5/types';
 import { useFoundingMembers } from '@/hooks/useFoundingMembers';
+import { useAuth } from '@/contexts/AuthContext';
 import { celebrate } from '@/lib/celebrate';
 
 const FOUNDING_50_TOTAL = 50;
@@ -63,6 +65,7 @@ function useCountUp(value: number, duration = 700) {
 export default function Founding5() {
   const [applyOpen, setApplyOpen] = useState(false);
   const { data, isLoading } = useFoundingMembers();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -131,6 +134,21 @@ export default function Founding5() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      {!user && (
+        <div className="fixed top-4 right-4 z-50">
+          <Link to="/auth">
+            <Button
+              variant="default"
+              size="sm"
+              className="rounded-full h-9 px-4 gap-1.5 shadow-lg backdrop-blur-md"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* ===== Section 1: Hero ===== */}
       <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 text-center">
         <div className="absolute inset-0">
