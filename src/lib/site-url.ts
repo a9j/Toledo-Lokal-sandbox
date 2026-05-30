@@ -1,8 +1,7 @@
-export const getSiteUrl = () => {
-     // In the browser, use the actual domain the user is on
-     if (typeof window !== 'undefined') {
-       return window.location.origin;
-     }
-     // Server/build fallback — your real domain, never VERCEL_URL
-     return 'https://toledolokal.com';
-   };
+// Resolve the site URL for auth redirects.
+   // Browser: use the actual origin the user is on.
+   // Build/server fallback: real domain, never VERCEL_URL.
+   export const siteUrl =
+     typeof window !== 'undefined'
+       ? window.location.origin
+       : 'https://toledolokal.com';
