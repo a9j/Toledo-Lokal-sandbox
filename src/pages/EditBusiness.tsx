@@ -25,6 +25,8 @@ import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
 import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
+import { TruckStopsManager } from '@/components/business/TruckStopsManager';
+import { useProfileBlocks } from '@/hooks/useProfileBlocks';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
@@ -46,6 +48,10 @@ export default function EditBusiness() {
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
   const { data: neighborhoods } = useNeighborhoods();
+  const { data: profileBlocks } = useProfileBlocks(id);
+  const scheduleStopsEnabled = !!profileBlocks?.some(
+    (b) => b.block_type === 'schedule_stops' && b.enabled
+  );
 
   const [formData, setFormData] = useState({
     name: '',
@@ -768,6 +774,13 @@ export default function EditBusiness() {
           {id && (
             <div className="card-elevated p-4">
               <ProfileLayoutManager businessId={id} />
+            </div>
+          )}
+
+          {/* Truck schedule — shown when the schedule_stops block is enabled */}
+          {id && scheduleStopsEnabled && (
+            <div className="card-elevated p-4">
+              <TruckStopsManager businessId={id} />
             </div>
           )}
 

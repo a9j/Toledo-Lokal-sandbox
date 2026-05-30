@@ -225,6 +225,46 @@ export type Database = {
           },
         ]
       }
+      business_follows: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_invitations: {
         Row: {
           accepted_at: string | null
@@ -4678,6 +4718,67 @@ export type Database = {
           },
         ]
       }
+      truck_stops: {
+        Row: {
+          business_id: string
+          checkin_code: string
+          created_at: string | null
+          ends_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          location_name: string
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          checkin_code?: string
+          created_at?: string | null
+          ends_at: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_name: string
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          checkin_code?: string
+          created_at?: string | null
+          ends_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_name?: string
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           challenge_id: string
@@ -5206,6 +5307,10 @@ export type Database = {
       admin_remove_business_staff: {
         Args: { p_note?: string; p_staff_id: string }
         Returns: Json
+      }
+      business_follower_count: {
+        Args: { _business_id: string }
+        Returns: number
       }
       can_moderate: { Args: { _user_id: string }; Returns: boolean }
       can_view_lead: {
