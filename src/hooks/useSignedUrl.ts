@@ -38,6 +38,18 @@ interface UseSignedUrlOptions {
   refreshBuffer?: number; // seconds before expiry to refresh, default 5 minutes
 }
 
+// Create a signed URL directly via the client SDK. Used as a fallback when the
+// get-signed-url edge function is unavailable (e.g. not deployed → 404). The
+// uploads bucket is private, but RLS lets owners/admins read their own paths, so
+// the authenticated client can mint a signed URL without the edge function.
+async function createSignedUrlDirect(filePath: string, expiresIn: number): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from('uploads')
+    .createSignedUrl(filePath, expiresIn);
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
+}
+
 export function useSignedUrl(
   storagePath: string | null | undefined,
   options: UseSignedUrlOptions = {}
@@ -60,23 +72,29 @@ export function useSignedUrl(
     setError(null);
 
     try {
+      let url: string | null = null;
+
+      // Prefer the edge function (service-role, works for cross-owner reads),
+      // but fall back to the client SDK if it's unavailable (e.g. 404 when the
+      // function isn't deployed) so images still load.
       const { data, error: fnError } = await supabase.functions.invoke('get-signed-url', {
         body: { filePath: path, expiresIn }
       });
-
-      if (fnError) {
-        throw new Error(fnError.message);
+      if (!fnError && data?.signedUrl) {
+        url = data.signedUrl;
+      } else {
+        url = await createSignedUrlDirect(path, expiresIn);
       }
 
-      if (data?.signedUrl) {
-        setCachedUrl(path, data.signedUrl, expiresIn);
-        setSignedUrl(data.signedUrl);
+      if (url) {
+        setCachedUrl(path, url, expiresIn);
+        setSignedUrl(url);
       } else {
         throw new Error('No signed URL returned');
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to get signed URL:', err);
-      setError(err.message || 'Failed to load image');
+      setError(err instanceof Error ? err.message : 'Failed to load image');
       setSignedUrl(null);
     } finally {
       setLoading(false);
@@ -145,15 +163,23 @@ export async function generateSignedUrl(filePath: string, expiresIn = 3600): Pro
       body: { filePath, expiresIn }
     });
 
-    if (error) throw error;
-    
-    if (data?.signedUrl) {
+    if (!error && data?.signedUrl) {
       setCachedUrl(filePath, data.signedUrl, expiresIn);
       return data.signedUrl;
+    }
+
+    // Edge function unavailable (e.g. not deployed → 404). Fall back to the
+    // client SDK so uploads don't appear to fail and images still load.
+    const direct = await createSignedUrlDirect(filePath, expiresIn);
+    if (direct) {
+      setCachedUrl(filePath, direct, expiresIn);
+      return direct;
     }
     return null;
   } catch (err) {
     console.error('Failed to generate signed URL:', err);
-    return null;
+    const direct = await createSignedUrlDirect(filePath, expiresIn);
+    if (direct) setCachedUrl(filePath, direct, expiresIn);
+    return direct;
   }
 }
