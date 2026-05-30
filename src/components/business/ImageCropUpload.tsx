@@ -18,6 +18,27 @@ interface ImageCropUploadProps {
   placeholder?: string;
   currentImageUrl?: string | null;
   className?: string;
+  /** Hard reject source images narrower than this (spec: 1600px). */
+  minWidth?: number;
+  /** Warn (but allow) below this width (spec: recommend 2400px+). */
+  recommendedWidth?: number;
+}
+
+/** Read a file's natural pixel dimensions. */
+function getImageDimensions(file: Blob): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to read image'));
+    };
+    img.src = url;
+  });
 }
 
 function getCroppedImg(
@@ -73,6 +94,8 @@ export function ImageCropUpload({
   placeholder = 'Click or drop to upload',
   currentImageUrl,
   className,
+  minWidth = 1600,
+  recommendedWidth = 2400,
 }: ImageCropUploadProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -81,6 +104,7 @@ export function ImageCropUpload({
   const [showCropper, setShowCropper] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [lowResWarning, setLowResWarning] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -120,6 +144,24 @@ export function ImageCropUpload({
         toast.error(`File too large. Max: ${maxFileSize}MB`);
         return;
       }
+
+      // Resolution gating (reliable, unlike true blur detection): hard-reject
+      // anything below minWidth; warn (but allow) below the recommended width.
+      let width = 0;
+      try {
+        ({ width } = await getImageDimensions(working));
+      } catch {
+        toast.error('Could not read that image. Try a different file.');
+        return;
+      }
+      if (width < minWidth) {
+        toast.error(
+          `This image is only ${width}px wide. Please upload one at least ${minWidth}px wide for a crisp profile.`
+        );
+        return;
+      }
+      setLowResWarning(width < recommendedWidth);
+
       const reader = new FileReader();
       reader.onload = () => {
         setImageSrc(reader.result as string);
@@ -129,7 +171,7 @@ export function ImageCropUpload({
       };
       reader.readAsDataURL(working);
     },
-    [maxFileSize]
+    [maxFileSize, minWidth, recommendedWidth]
   );
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
@@ -265,6 +307,12 @@ export function ImageCropUpload({
               className="flex-1"
             />
           </div>
+          {lowResWarning && (
+            <p className="mx-6 mb-1 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+              This photo may look blurry on your profile. Upload a higher-resolution image
+              (2400px+ wide) for best results.
+            </p>
+          )}
           <div className="flex justify-end gap-2 p-4 pt-0">
             <Button variant="outline" onClick={() => setShowCropper(false)} disabled={isUploading}>
               Cancel

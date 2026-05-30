@@ -26,6 +26,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
 import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
 import { TruckStopsManager } from '@/components/business/TruckStopsManager';
+import { ProfileCompletion } from '@/components/business/ProfileCompletion';
 import { useProfileBlocks } from '@/hooks/useProfileBlocks';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
@@ -366,6 +367,15 @@ export default function EditBusiness() {
         </Button>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Profile completion progress */}
+          <ProfileCompletion
+            hasCover={!!business?.cover_image_url}
+            hasLogo={!!logoUrl}
+            photoCount={business?.photos?.length ?? 0}
+            hasStory={!!(business?.story || formData.description)}
+            hasHours={Object.values(hours).some((h) => !h.closed)}
+          />
+
           {/* Founding Member Badge - Compact */}
           {isFoundingMember && (
             <div className="card-elevated p-3 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
