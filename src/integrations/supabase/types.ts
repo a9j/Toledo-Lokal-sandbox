@@ -129,6 +129,53 @@ export type Database = {
           },
         ]
       }
+      business_categories: {
+        Row: {
+          business_id: string
+          category_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          business_id: string
+          category_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          business_id?: string
+          category_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_features: {
         Row: {
           business_id: string
@@ -173,6 +220,46 @@ export type Database = {
             foreignKeyName: "business_features_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: true
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_follows: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_follows_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
           },
@@ -698,22 +785,31 @@ export type Database = {
       }
       categories: {
         Row: {
+          active: boolean
           created_at: string
           icon: string | null
           id: string
           name: string
+          slug: string | null
+          sort_order: number
         }
         Insert: {
+          active?: boolean
           created_at?: string
           icon?: string | null
           id?: string
           name: string
+          slug?: string | null
+          sort_order?: number
         }
         Update: {
+          active?: boolean
           created_at?: string
           icon?: string | null
           id?: string
           name?: string
+          slug?: string | null
+          sort_order?: number
         }
         Relationships: []
       }
@@ -2949,6 +3045,67 @@ export type Database = {
         }
         Relationships: []
       }
+      media_assets: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          height: number
+          id: string
+          original_path: string
+          slot: string
+          sort_order: number | null
+          thumb_path: string | null
+          webp_path: string
+          width: number
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          height: number
+          id?: string
+          original_path: string
+          slot: string
+          sort_order?: number | null
+          thumb_path?: string | null
+          webp_path: string
+          width: number
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          height?: number
+          id?: string
+          original_path?: string
+          slot?: string
+          sort_order?: number | null
+          thumb_path?: string | null
+          webp_path?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moderation_actions: {
         Row: {
           action: string
@@ -3310,6 +3467,55 @@ export type Database = {
           },
           {
             foreignKeyName: "posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_blocks: {
+        Row: {
+          block_type: string
+          business_id: string
+          config: Json
+          enabled: boolean
+          id: string
+          sort_order: number
+        }
+        Insert: {
+          block_type: string
+          business_id: string
+          config?: Json
+          enabled?: boolean
+          id?: string
+          sort_order?: number
+        }
+        Update: {
+          block_type?: string
+          business_id?: string
+          config?: Json
+          enabled?: boolean
+          id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "founding_members_public"
@@ -4512,6 +4718,67 @@ export type Database = {
           },
         ]
       }
+      truck_stops: {
+        Row: {
+          business_id: string
+          checkin_code: string
+          created_at: string | null
+          ends_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          location_name: string
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          checkin_code?: string
+          created_at?: string | null
+          ends_at: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_name: string
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          checkin_code?: string
+          created_at?: string | null
+          ends_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_name?: string
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "truck_stops_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           challenge_id: string
@@ -5040,6 +5307,10 @@ export type Database = {
       admin_remove_business_staff: {
         Args: { p_note?: string; p_staff_id: string }
         Returns: Json
+      }
+      business_follower_count: {
+        Args: { _business_id: string }
+        Returns: number
       }
       can_moderate: { Args: { _user_id: string }; Returns: boolean }
       can_view_lead: {

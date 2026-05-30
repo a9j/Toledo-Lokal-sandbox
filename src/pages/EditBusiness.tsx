@@ -23,6 +23,11 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
+import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
+import { TruckStopsManager } from '@/components/business/TruckStopsManager';
+import { ProfileCompletion } from '@/components/business/ProfileCompletion';
+import { useProfileBlocks } from '@/hooks/useProfileBlocks';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
@@ -44,6 +49,10 @@ export default function EditBusiness() {
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
   const { data: neighborhoods } = useNeighborhoods();
+  const { data: profileBlocks } = useProfileBlocks(id);
+  const scheduleStopsEnabled = !!profileBlocks?.some(
+    (b) => b.block_type === 'schedule_stops' && b.enabled
+  );
 
   const [formData, setFormData] = useState({
     name: '',
@@ -358,6 +367,15 @@ export default function EditBusiness() {
         </Button>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Profile completion progress */}
+          <ProfileCompletion
+            hasCover={!!business?.cover_image_url}
+            hasLogo={!!logoUrl}
+            photoCount={business?.photos?.length ?? 0}
+            hasStory={!!(business?.story || formData.description)}
+            hasHours={Object.values(hours).some((h) => !h.closed)}
+          />
+
           {/* Founding Member Badge - Compact */}
           {isFoundingMember && (
             <div className="card-elevated p-3 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
@@ -503,10 +521,10 @@ export default function EditBusiness() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label>Neighborhood *</Label>
-              <Select 
+              <Select
                 value={formData.neighborhood_id}
                 onValueChange={(value) => handleInputChange('neighborhood_id', value)}
               >
@@ -523,7 +541,11 @@ export default function EditBusiness() {
               </Select>
             </div>
           </div>
-          
+
+          {id && (
+            <SecondaryCategorySelector businessId={id} primaryCategoryId={formData.category_id} />
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <Textarea 
@@ -757,6 +779,20 @@ export default function EditBusiness() {
               </div>
             ))}
           </div>
+
+          {/* Profile layout (block engine) */}
+          {id && (
+            <div className="card-elevated p-4">
+              <ProfileLayoutManager businessId={id} />
+            </div>
+          )}
+
+          {/* Truck schedule — shown when the schedule_stops block is enabled */}
+          {id && scheduleStopsEnabled && (
+            <div className="card-elevated p-4">
+              <TruckStopsManager businessId={id} />
+            </div>
+          )}
 
           {/* Hours of Operation */}
           <div className="card-elevated p-4">

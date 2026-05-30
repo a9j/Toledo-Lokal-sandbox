@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { LP_ENABLED } from '@/lib/flags';
+import { buildCategoryOrFilter } from '@/lib/category-filter';
 
 // Define public-safe columns that don't expose owner_user_id
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -37,6 +38,22 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
   return useQuery({
     queryKey: ['businesses', options],
     queryFn: async () => {
+      // A business appears in a category bucket via its primary category
+      // (businesses.category_id) OR via a secondary tag in business_categories.
+      // Resolve any secondary-tag matches up front so we can OR them in. A
+      // PostgREST `.or()` string applies the same primary-or-secondary match
+      // everywhere we filter by category; when there are no secondary matches we
+      // fall back to a plain equality on category_id.
+      let categoryOrFilter: string | null = null;
+      if (options?.categoryId) {
+        const { data: tagged } = await supabase
+          .from('business_categories')
+          .select('business_id')
+          .eq('category_id', options.categoryId);
+        const secondaryIds = (tagged ?? []).map(t => t.business_id);
+        categoryOrFilter = buildCategoryOrFilter(options.categoryId, secondaryIds);
+      }
+
       // Use businesses_public view which masks phone for unauthenticated users
       let query = supabase
         .from('businesses_public')
@@ -57,7 +74,9 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       }
 
       if (options?.categoryId) {
-        query = query.eq('category_id', options.categoryId);
+        query = categoryOrFilter
+          ? query.or(categoryOrFilter)
+          : query.eq('category_id', options.categoryId);
       }
 
       if (options?.neighborhoodId) {
@@ -115,7 +134,9 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
               }
 
               if (options?.categoryId) {
-                extraQuery = extraQuery.eq('category_id', options.categoryId);
+                extraQuery = categoryOrFilter
+                  ? extraQuery.or(categoryOrFilter)
+                  : extraQuery.eq('category_id', options.categoryId);
               }
 
               const { data: extraBiz } = await extraQuery;
