@@ -23,6 +23,7 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
@@ -503,10 +504,10 @@ export default function EditBusiness() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label>Neighborhood *</Label>
-              <Select 
+              <Select
                 value={formData.neighborhood_id}
                 onValueChange={(value) => handleInputChange('neighborhood_id', value)}
               >
@@ -523,7 +524,11 @@ export default function EditBusiness() {
               </Select>
             </div>
           </div>
-          
+
+          {id && (
+            <SecondaryCategorySelector businessId={id} primaryCategoryId={formData.category_id} />
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <Textarea 

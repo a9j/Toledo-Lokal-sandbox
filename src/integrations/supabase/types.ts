@@ -129,6 +129,53 @@ export type Database = {
           },
         ]
       }
+      business_categories: {
+        Row: {
+          business_id: string
+          category_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          business_id: string
+          category_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          business_id?: string
+          category_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_features: {
         Row: {
           business_id: string
@@ -698,22 +745,31 @@ export type Database = {
       }
       categories: {
         Row: {
+          active: boolean
           created_at: string
           icon: string | null
           id: string
           name: string
+          slug: string | null
+          sort_order: number
         }
         Insert: {
+          active?: boolean
           created_at?: string
           icon?: string | null
           id?: string
           name: string
+          slug?: string | null
+          sort_order?: number
         }
         Update: {
+          active?: boolean
           created_at?: string
           icon?: string | null
           id?: string
           name?: string
+          slug?: string | null
+          sort_order?: number
         }
         Relationships: []
       }

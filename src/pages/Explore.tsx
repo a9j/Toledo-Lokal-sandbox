@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SearchBar } from '@/components/home/SearchBar';
@@ -12,10 +13,33 @@ import * as LucideIcons from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function Explore() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    searchParams.get('category')
+  );
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
-  
+
+  // Keep state in sync when the URL ?category= changes (e.g. deep links from the
+  // home Browse Categories grid).
+  useEffect(() => {
+    setSelectedCategory(searchParams.get('category'));
+  }, [searchParams]);
+
+  // Reflect the active category back into the URL so it's shareable/back-able.
+  const selectCategory = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (categoryId) next.set('category', categoryId);
+        else next.delete('category');
+        return next;
+      },
+      { replace: true }
+    );
+  };
+
   const { data: businesses, isLoading } = useBusinesses({ 
     categoryId: selectedCategory || undefined,
     neighborhoodId: selectedNeighborhood || undefined 
@@ -54,14 +78,16 @@ export default function Explore() {
         {/* Categories Grid */}
         {!selectedCategory && (
           <section>
-            <h2 className="text-sm font-medium text-muted-foreground mb-3">Categories</h2>
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">
+              Categories{categories?.length ? ` · ${categories.length}` : ''}
+            </h2>
             <div className="grid grid-cols-4 gap-2">
               {categories?.map(category => {
                 const Icon = getIcon(category.icon || 'building2');
                 return (
                   <button
                     key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => selectCategory(category.id)}
                     className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors"
                   >
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -85,7 +111,7 @@ export default function Explore() {
                 variant="secondary"
                 size="sm"
                 className="rounded-full gap-1"
-                onClick={() => setSelectedCategory(null)}
+                onClick={() => selectCategory(null)}
               >
                 {categories?.find(c => c.id === selectedCategory)?.name}
                 <LucideIcons.X className="h-3 w-3" />
