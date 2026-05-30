@@ -7,8 +7,45 @@ project_id = "toledo-lokal"
 # Keep the server-side password policy in sync with the sign-up form rules in
 # src/pages/Auth.tsx (8+ chars, mixed case, number, symbol).
 [auth]
+# Canonical public domain. Auth emails redirect here after verification, so it
+# must NOT be the raw *.vercel.app deployment (that host sits behind Vercel
+# Deployment Protection and shows a "Log in to Vercel" wall). Keep in sync with
+# src/lib/site-url.ts.
+site_url = "https://toledolokal.com"
+# Every URL the client may pass as emailRedirectTo / redirectTo must be listed
+# here or Supabase silently falls back to site_url.
+additional_redirect_urls = [
+  "https://toledolokal.com",
+  "https://toledolokal.com/",
+  "https://toledolokal.com/auth",
+  "http://localhost:8080",
+  "http://localhost:8080/auth",
+]
 minimum_password_length = 8
 password_requirements = "lower_upper_letters_digits_symbols"
+
+# Route all auth emails (signup confirmation, password reset, magic link, email
+# change) through the send-auth-email edge function so they come from
+# "ToledoLokal <noreply@toledolokal.com>" via Resend instead of the default
+# "Supabase Auth" sender + default templates.
+#
+# This is intentionally left COMMENTED OUT: enabling it requires the
+# SEND_EMAIL_HOOK_SECRET env var, which does not exist in ephemeral Supabase
+# preview branches — an active block here fails their config validation. Enable
+# it once, in the production project only, via the dashboard or by uncommenting
+# this and running `supabase config push` AFTER the secret is set.
+#
+# Setup steps (production project only):
+#   1. Supabase dashboard → Auth → Hooks → enable "Send Email" hook, pointing at:
+#        https://nnepslwwqjxfhlurwoyw.supabase.co/functions/v1/send-auth-email
+#   2. Copy the generated secret and store it:
+#        supabase secrets set SEND_EMAIL_HOOK_SECRET=v1,whsec_...
+#   3. Set RESEND_API_KEY and verify the toledolokal.com domain in Resend.
+#
+# [auth.hook.send_email]
+# enabled = true
+# uri = "https://nnepslwwqjxfhlurwoyw.supabase.co/functions/v1/send-auth-email"
+# secrets = "env(SEND_EMAIL_HOOK_SECRET)"
 
 [functions.get-signed-urls-batch]
 verify_jwt = false

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SITE_URL } from '@/lib/site-url';
 
 interface SEOHeadProps {
   title?: string;
@@ -12,7 +13,6 @@ interface SEOHeadProps {
 
 const DEFAULT_TITLE = 'ToledoLokal - Discover the Glass City';
 const DEFAULT_DESCRIPTION = 'Discover local businesses, events, and community in Toledo, Ohio. Your guide to the Glass City.';
-const SITE_URL = 'https://toledolokal.com';
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function SEOHead({
