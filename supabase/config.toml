@@ -10,6 +10,17 @@ project_id = "toledo-lokal"
 minimum_password_length = 8
 password_requirements = "lower_upper_letters_digits_symbols"
 
+[auth.email]
+enable_signup = true
+# Require users to confirm their email before they can sign in. Without this,
+# anyone can sign up with an address they don't own. NOTE: this is a GoTrue
+# (Auth) setting — applying it to the live project requires either a config
+# push via the Supabase CLI or toggling "Confirm email" on in the dashboard
+# (Authentication → Providers → Email). It is not applied by SQL migrations.
+enable_confirmations = true
+# Don't allow the email to be changed without re-confirming the new address.
+secure_email_change_enabled = true
+
 [functions.get-signed-urls-batch]
 verify_jwt = false
 

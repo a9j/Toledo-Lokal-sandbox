@@ -94,8 +94,13 @@ export function ImageCropUpload({
   placeholder = 'Click or drop to upload',
   currentImageUrl,
   className,
-  minWidth = 1600,
-  recommendedWidth = 2400,
+  // Resolution gating is a soft warning by default — it must never block an
+  // upload (a hard floor was rejecting valid logos/photos). A caller can opt
+  // into a hard reject by passing minWidth explicitly (e.g. 1600 for covers).
+  // The "may look blurry" warning shows when the source is smaller than what
+  // this slot outputs (i.e. it would be upscaled).
+  minWidth = 0,
+  recommendedWidth = outputWidth,
 }: ImageCropUploadProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -145,22 +150,23 @@ export function ImageCropUpload({
         return;
       }
 
-      // Resolution gating (reliable, unlike true blur detection): hard-reject
-      // anything below minWidth; warn (but allow) below the recommended width.
+      // Resolution gating (reliable, unlike true blur detection). Reading the
+      // dimensions must never block the upload: if it fails, proceed anyway.
+      // Only reject when a caller opted into a hard minWidth floor; otherwise
+      // just flag a low-res warning the user can ignore.
       let width = 0;
       try {
         ({ width } = await getImageDimensions(working));
       } catch {
-        toast.error('Could not read that image. Try a different file.');
-        return;
+        width = 0;
       }
-      if (width < minWidth) {
+      if (minWidth > 0 && width > 0 && width < minWidth) {
         toast.error(
           `This image is only ${width}px wide. Please upload one at least ${minWidth}px wide for a crisp profile.`
         );
         return;
       }
-      setLowResWarning(width < recommendedWidth);
+      setLowResWarning(width > 0 && width < recommendedWidth);
 
       const reader = new FileReader();
       reader.onload = () => {

@@ -9,7 +9,7 @@ interface AuthContextType {
   session: Session | null;
   roles: AppRole[];
   isLoading: boolean;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null; needsEmailConfirmation?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
@@ -84,8 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, name?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -93,8 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: { name: name || email }
       }
     });
-    
-    return { error };
+
+    // When email confirmation is enabled, sign-up returns a user but no
+    // session — the user must confirm via email before they can sign in.
+    const needsEmailConfirmation = !error && !!data?.user && !data?.session;
+
+    return { error, needsEmailConfirmation };
   };
 
   const signIn = async (email: string, password: string) => {
