@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+// Set this from the Supabase dashboard: Auth → Hooks → Send Email Hook.
+// Supabase signs every hook request with this secret (format: "v1,whsec_...").
+const SEND_EMAIL_HOOK_SECRET = Deno.env.get("SEND_EMAIL_HOOK_SECRET");
+// Fallback domain used to build verify links when the payload omits one.
+const SITE_URL = (Deno.env.get("SITE_URL") || "https://toledolokal.com").replace(/\/$/, "");
 
 async function sendEmail(to: string, subject: string, html: string) {
   const response = await fetch("https://api.resend.com/emails", {
@@ -31,14 +37,36 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface AuthEmailRequest {
-  email: string;
-  type: "signup" | "recovery" | "magic_link" | "email_change";
-  token?: string;
-  tokenHash?: string;
-  redirectTo?: string;
-  newEmail?: string;
+// Payload shape Supabase sends to a "Send Email" auth hook.
+interface SendEmailHookPayload {
+  user: { email: string };
+  email_data: {
+    token: string;
+    token_hash: string;
+    redirect_to: string;
+    email_action_type: string;
+    site_url?: string;
+  };
 }
+
+// Map Supabase's email_action_type values onto our template keys.
+const templateKeyFor = (actionType: string): string => {
+  switch (actionType) {
+    case "signup":
+      return "signup";
+    case "recovery":
+      return "recovery";
+    case "magiclink":
+    case "reauthentication":
+      return "magic_link";
+    case "email_change":
+    case "email_change_new":
+    case "email_change_current":
+      return "email_change";
+    default:
+      return actionType;
+  }
+};
 
 const getEmailContent = (type: string, confirmUrl: string, token?: string) => {
   switch (type) {
@@ -208,44 +236,62 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, type, token, tokenHash, redirectTo }: AuthEmailRequest = await req.json();
+    const rawBody = await req.text();
 
-    console.log(`Processing ${type} email for ${email}`);
+    // Verify the request really came from Supabase Auth. The hook secret is
+    // required — without it we'd be an open relay that emails arbitrary links.
+    if (!SEND_EMAIL_HOOK_SECRET) {
+      throw new Error("SEND_EMAIL_HOOK_SECRET is not configured");
+    }
+    const wh = new Webhook(SEND_EMAIL_HOOK_SECRET.replace(/^v1,whsec_/, ""));
+    const headers = Object.fromEntries(req.headers);
+    const payload = wh.verify(rawBody, headers) as SendEmailHookPayload;
 
-    // Validate required fields
-    if (!email || !type) {
-      throw new Error("Missing required fields: email and type");
+    const email = payload.user?.email;
+    const {
+      token,
+      token_hash,
+      redirect_to,
+      email_action_type,
+      site_url,
+    } = payload.email_data ?? {};
+
+    if (!email || !email_action_type) {
+      throw new Error("Malformed hook payload: missing email or action type");
     }
 
-    // Build confirmation URL
+    console.log(`Processing ${email_action_type} email for ${email}`);
+
+    // Build the Supabase verify URL. Clicking it confirms the action and then
+    // bounces the user to redirect_to (which must be on the allowlist), or to
+    // our canonical site URL as a fallback — never a raw deployment host.
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const baseRedirect = redirectTo || "https://toledolokal.com";
-    
-    let confirmUrl = "";
-    if (tokenHash) {
-      confirmUrl = `${supabaseUrl}/auth/v1/verify?token=${tokenHash}&type=${type}&redirect_to=${encodeURIComponent(baseRedirect)}`;
-    } else if (token) {
-      confirmUrl = `${baseRedirect}?token=${token}&type=${type}`;
-    } else {
-      confirmUrl = baseRedirect;
-    }
+    const baseRedirect = redirect_to || site_url || SITE_URL;
+    const confirmUrl = `${supabaseUrl}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${encodeURIComponent(baseRedirect)}`;
 
-    const { subject, html } = getEmailContent(type, confirmUrl, token);
+    const { subject, html } = getEmailContent(
+      templateKeyFor(email_action_type),
+      confirmUrl,
+      token,
+    );
 
-    console.log(`Sending ${type} email to ${email} via Resend`);
+    console.log(`Sending ${email_action_type} email to ${email} via Resend`);
 
     const emailResponse = await sendEmail(email, subject, html);
 
     console.log("Email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true, data: emailResponse }), {
+    // The Send Email Hook expects an empty 200 body on success.
+    return new Response(JSON.stringify({}), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("Error in send-auth-email function:", error);
+    // Returning an error object tells Supabase Auth the email wasn't sent.
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ error: { http_code: 500, message } }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { siteUrl } from '@/lib/site-url';
 import { z } from 'zod';
 import { Check, Circle } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
@@ -77,7 +78,8 @@ export default function Auth() {
     setIsResettingPassword(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+        // Canonical domain, not window.location.origin — see src/lib/site-url.ts.
+        redirectTo: siteUrl('/auth'),
       });
       
       if (error) throw error;

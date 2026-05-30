@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { siteUrl } from '@/lib/site-url';
 
 type AppRole = 'resident' | 'business' | 'admin' | 'organizer' | 'nonprofit' | 'partner' | 'connector';
 
@@ -83,8 +84,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, name?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    // Use the canonical domain, not window.location.origin: signups on a raw
+    // Vercel deployment URL would otherwise email a link back to the
+    // protected *.vercel.app host. See src/lib/site-url.ts.
+    const redirectUrl = siteUrl('/');
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
