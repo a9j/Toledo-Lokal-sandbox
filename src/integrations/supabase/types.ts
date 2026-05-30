@@ -3434,6 +3434,55 @@ export type Database = {
           },
         ]
       }
+      profile_blocks: {
+        Row: {
+          block_type: string
+          business_id: string
+          config: Json
+          enabled: boolean
+          id: string
+          sort_order: number
+        }
+        Insert: {
+          block_type: string
+          business_id: string
+          config?: Json
+          enabled?: boolean
+          id?: string
+          sort_order?: number
+        }
+        Update: {
+          block_type?: string
+          business_id?: string
+          config?: Json
+          enabled?: boolean
+          id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { LP_ENABLED } from '@/lib/flags';
+import { buildCategoryOrFilter } from '@/lib/category-filter';
 
 // Define public-safe columns that don't expose owner_user_id
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -50,9 +51,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
           .select('business_id')
           .eq('category_id', options.categoryId);
         const secondaryIds = (tagged ?? []).map(t => t.business_id);
-        if (secondaryIds.length > 0) {
-          categoryOrFilter = `category_id.eq.${options.categoryId},id.in.(${secondaryIds.join(',')})`;
-        }
+        categoryOrFilter = buildCategoryOrFilter(options.categoryId, secondaryIds);
       }
 
       // Use businesses_public view which masks phone for unauthenticated users

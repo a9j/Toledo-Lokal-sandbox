@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
+import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
@@ -762,6 +763,13 @@ export default function EditBusiness() {
               </div>
             ))}
           </div>
+
+          {/* Profile layout (block engine) */}
+          {id && (
+            <div className="card-elevated p-4">
+              <ProfileLayoutManager businessId={id} />
+            </div>
+          )}
 
           {/* Hours of Operation */}
           <div className="card-elevated p-4">

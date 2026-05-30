@@ -38,6 +38,7 @@ import {
   Star,
 } from 'lucide-react';
 import { isFreeEmailProvider } from '@/lib/email-utils';
+import { inferPreset, buildPresetBlocks } from '@/lib/profile-blocks';
 
 interface OnboardingData {
   name: string;
@@ -57,6 +58,8 @@ interface OnboardingData {
   instagram: string;
   facebook: string;
   tiktok: string;
+  /** Onboarding's one question — drives the profile block preset. */
+  movesAround: boolean;
 }
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -102,6 +105,7 @@ export default function BusinessOnboarding() {
     instagram: '',
     facebook: '',
     tiktok: '',
+    movesAround: false,
   });
   const [charCount, setCharCount] = useState(0);
   const [locations, setLocations] = useState<BusinessLocation[]>([
@@ -255,9 +259,32 @@ export default function BusinessOnboarding() {
 
   const handleComplete = async () => {
     await saveProgress.mutateAsync(6);
+    await seedProfileBlocks();
     queryClient.invalidateQueries({ queryKey: ['user-business'] });
     toast.success('Welcome to Toledo Lokal! 🎉');
     navigate('/dashboard');
+  };
+
+  // Seed the profile block layout from a preset inferred from the business's
+  // category + the one onboarding question (fixed vs. moving). Only seeds when
+  // no blocks exist yet, so re-running onboarding never clobbers an owner's
+  // customized layout.
+  const seedProfileBlocks = async () => {
+    if (!businessId) return;
+    try {
+      const { count } = await supabase
+        .from('profile_blocks')
+        .select('block_type', { count: 'exact', head: true })
+        .eq('business_id', businessId);
+      if (count && count > 0) return;
+
+      const categoryName = categories?.find((c) => c.id === data.category_id)?.name ?? null;
+      const presetId = inferPreset({ categoryName, movesAround: data.movesAround });
+      const rows = buildPresetBlocks(presetId).map((b) => ({ ...b, business_id: businessId }));
+      await supabase.from('profile_blocks').insert(rows);
+    } catch {
+      // Non-fatal: the owner can still pick a layout from the profile editor.
+    }
   };
 
   const copyHoursToWeekdays = () => {
@@ -359,6 +386,39 @@ export default function BusinessOnboarding() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>How do customers find you? *</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateField('movesAround', false)}
+                    className={`rounded-xl border p-3 text-left text-sm transition-colors ${
+                      !data.movesAround
+                        ? 'border-primary bg-primary/5 font-medium text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/40'
+                    }`}
+                  >
+                    <span className="block font-semibold">Fixed location</span>
+                    <span className="text-xs">Customers come to my address</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateField('movesAround', true)}
+                    className={`rounded-xl border p-3 text-left text-sm transition-colors ${
+                      data.movesAround
+                        ? 'border-primary bg-primary/5 font-medium text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/40'
+                    }`}
+                  >
+                    <span className="block font-semibold">I move around</span>
+                    <span className="text-xs">Food truck, pop-up, or vendor</span>
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This sets up the right profile layout for you. You can change it later.
+                </p>
               </div>
 
               <div className="space-y-2">
