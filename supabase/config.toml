@@ -34,10 +34,10 @@ password_requirements = "lower_upper_letters_digits_symbols"
 #   2. Set the hook secret:  supabase secrets set SEND_EMAIL_HOOK_SECRET=v1,whsec_...
 #      (Supabase generates this secret when you enable the hook in the dashboard.)
 #   3. Set RESEND_API_KEY and verify the toledolokal.com domain in Resend.
-# Replace <project-ref> with the project this app actually deploys against.
+# project ref taken from the linked Supabase project (Supabase Preview integration).
 [auth.hook.send_email]
 enabled = true
-uri = "https://<project-ref>.supabase.co/functions/v1/send-auth-email"
+uri = "https://nnepslwwqjxfhlurwoyw.supabase.co/functions/v1/send-auth-email"
 secrets = "env(SEND_EMAIL_HOOK_SECRET)"
 
 [functions.get-signed-urls-batch]
