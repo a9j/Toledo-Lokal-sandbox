@@ -13,6 +13,9 @@ import { PassportManager } from '@/components/admin/PassportManager';
 import { JobManager } from '@/components/admin/JobManager';
 import { FollowersManager } from '@/components/admin/FollowersManager';
 import { ImpactManager } from '@/components/admin/ImpactManager';
+import { AnalyticsManager } from '@/components/admin/AnalyticsManager';
+import { TeamManager } from '@/components/admin/TeamManager';
+import { BillingManager } from '@/components/admin/BillingManager';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import {
   LayoutDashboard,
@@ -57,9 +60,9 @@ const NAV_GROUPS: AdminNavGroup[] = [
   {
     label: 'Settings',
     items: [
-      { id: 'analytics', label: 'Analytics', icon: BarChart3, soon: true },
-      { id: 'team', label: 'Team', icon: Shield, soon: true },
-      { id: 'billing', label: 'Billing', icon: CreditCard, soon: true },
+      { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+      { id: 'team', label: 'Team', icon: Shield },
+      { id: 'billing', label: 'Billing', icon: CreditCard },
     ],
   },
 ];
@@ -150,6 +153,12 @@ export default function BusinessAdmin() {
         return <FollowersManager businessId={business.id} />;
       case 'impact':
         return <ImpactManager businessId={business.id} />;
+      case 'analytics':
+        return <AnalyticsManager businessId={business.id} />;
+      case 'team':
+        return <TeamManager businessId={business.id} />;
+      case 'billing':
+        return <BillingManager businessId={business.id} />;
       default:
         return (
           <div className="card-elevated p-8 text-center">
