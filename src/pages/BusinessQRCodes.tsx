@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useBusinessQRCodes, LoopQRCode } from '@/hooks/useLoopQRCodes';
 import { QRCodeDisplay } from '@/components/loop/QRCodeDisplay';
+import { useBusinessGate } from '@/hooks/useBusinessGate';
+import { loopEnabled, LOOP_UPGRADE_NUDGE } from '@/lib/business-access';
 
 const QR_TYPES = [
   { value: 'visit', label: 'Visit Completed', description: 'Customer visited your business' },
@@ -26,6 +28,7 @@ const QR_TYPES = [
 export default function BusinessQRCodes() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: gate } = useBusinessGate();
   const { qrCodes, isLoading, createQRCode, updateQRCode, deleteQRCode } = useBusinessQRCodes();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedQR, setSelectedQR] = useState<LoopQRCode | null>(null);
@@ -100,6 +103,30 @@ export default function BusinessQRCodes() {
   const getQRTypeLabel = (type: string) => {
     return QR_TYPES.find(t => t.value === type)?.label || type;
   };
+
+  // Issuing Loop Points (QR codes) is a paid-plan feature. Free (Community) is
+  // "Visible Only": no Loop participation. Show an upgrade nudge instead.
+  if (gate && !loopEnabled(gate.tier_status)) {
+    return (
+      <>
+        <Header title="QR Codes" />
+        <PageContainer className="space-y-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <QrCode className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="font-semibold mb-1">{LOOP_UPGRADE_NUDGE}</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                Upgrade your plan to create QR codes and issue Loop Points to your customers.
+              </p>
+              <Button onClick={() => navigate('/dashboard/subscription')}>
+                View plans
+              </Button>
+            </CardContent>
+          </Card>
+        </PageContainer>
+      </>
+    );
+  }
 
   return (
     <>

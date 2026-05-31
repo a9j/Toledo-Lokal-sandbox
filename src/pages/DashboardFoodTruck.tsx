@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useBusinessFoodLocations, useCreateFoodLocation, useUpdateFoodLocation, useDeleteFoodLocation } from '@/hooks/useFoodTruckLocations';
 import { useBusinessFeatures, useUpdateBusinessFeatures } from '@/hooks/useBusinessFeatures';
+import { isFoodTruckCategory } from '@/lib/business-access';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -76,7 +77,7 @@ export default function DashboardFoodTruck() {
       if (!user) return null;
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name')
+        .select('id, name, category')
         .eq('owner_user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -162,14 +163,46 @@ export default function DashboardFoodTruck() {
 
   const isLoading = featuresLoading || locationsLoading;
 
+  // Food-truck tools (current location, schedule editor) are food-truck only.
+  // `business` may still be loading; only treat as "not a truck" once loaded.
+  const isTruck = isFoodTruckCategory(business?.category);
+
+  if (business && !isTruck) {
+    return (
+      <>
+        <Header title="Food Truck" />
+        <PageContainer className="space-y-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2"
+            onClick={() => navigate('/dashboard')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Dashboard
+          </Button>
+
+          <div className="card-elevated p-6 text-center space-y-2">
+            <Truck className="h-10 w-10 mx-auto text-muted-foreground/60" />
+            <h2 className="font-semibold">Food Truck Mode is for food trucks</h2>
+            <p className="text-sm text-muted-foreground">
+              These tools — daily locations and schedule — are only available to
+              businesses listed as a food truck.
+            </p>
+          </div>
+        </PageContainer>
+      </>
+    );
+  }
+
   return (
     <>
       <Header title="Food Truck" />
-      
+
       <PageContainer className="space-y-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="-ml-2"
           onClick={() => navigate('/dashboard')}
         >
