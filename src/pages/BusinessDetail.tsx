@@ -29,6 +29,8 @@ import { RewardsTab } from '@/components/business/profile/redesign/RewardsTab';
 import { CommunityTab } from '@/components/business/profile/redesign/CommunityTab';
 import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
+import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
+import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
 
 // Public-safe columns - owner_user_id is masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -228,9 +230,19 @@ export default function BusinessDetail() {
         )}
 
         <div className="mt-4">
-          <ProfileTabs active={tab} onChange={setTab} />
+          <ProfileTabs
+            active={tab}
+            onChange={setTab}
+            hiddenTabs={FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) ? [] : ['menu']}
+          />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
+            {tab === 'menu' && FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
+              <MenuTab businessId={business.id} />
+            )}
+            {tab === 'menu' && !FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
+              <TodayTab business={pb} />
+            )}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
             {tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
             {tab === 'community' && <CommunityTab business={pb} />}

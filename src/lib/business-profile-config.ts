@@ -7,16 +7,19 @@ import type { LucideIcon } from 'lucide-react';
 import { BusinessCategory, ProfileModuleContent } from './profile-modules';
 import { getVisitAction, openVisitAction } from './visit-link';
 
-export type ProfileTab = 'today' | 'pulse' | 'rewards' | 'community' | 'photos' | 'about';
+export type ProfileTab = 'today' | 'menu' | 'pulse' | 'rewards' | 'community' | 'photos' | 'about';
 
 export const PROFILE_TABS: { id: ProfileTab; label: string }[] = [
   { id: 'today', label: 'Today' },
+  { id: 'menu', label: 'Menu' },
   { id: 'pulse', label: 'Pulse' },
   { id: 'rewards', label: 'Rewards' },
   { id: 'community', label: 'Community' },
   { id: 'photos', label: 'Photos' },
   { id: 'about', label: 'About' },
 ];
+
+export const FOOD_BUSINESS_CATEGORIES: BusinessCategory[] = ['restaurant', 'food_truck'];
 
 export type ActionKind =
   | 'visit' | 'menu' | 'call' | 'directions' | 'book' | 'services' | 'quote'
@@ -135,8 +138,7 @@ export function resolveAction(
     case 'directions':
       return business.address ? make(() => openDirections(business.address!)) : null;
     case 'menu': {
-      const url = fieldValue(content, 'restaurant_menu', 'url') || business.website;
-      return url ? make(() => openUrl(url)) : make(() => ctx.setTab('about'));
+      return make(() => ctx.setTab('menu'));
     }
     case 'shop': {
       const a = getVisitAction(business);

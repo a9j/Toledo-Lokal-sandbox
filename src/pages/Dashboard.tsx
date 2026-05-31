@@ -22,7 +22,8 @@ import {
   Users,
   Briefcase,
   Truck,
-  MapPin
+  MapPin,
+  UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -132,8 +133,14 @@ export default function Dashboard() {
       subtitle: 'Manage your business locations'
     },
     {
-      icon: Briefcase, 
-      label: 'Hiring & Jobs', 
+      icon: UtensilsCrossed,
+      label: 'Menu',
+      href: '/dashboard/menu',
+      subtitle: 'Manage your menu items'
+    },
+    {
+      icon: Briefcase,
+      label: 'Hiring & Jobs',
       href: '/dashboard/jobs',
       subtitle: 'Post job openings'
     },

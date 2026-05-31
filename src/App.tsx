@@ -24,6 +24,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -91,6 +92,7 @@ const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
+const DashboardMenu = lazy(() => import("./pages/DashboardMenu"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -119,6 +121,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
+        <ActiveRoleProvider>
         <SubscriptionProvider>
           <LoopProvider>
             <TooltipProvider>
@@ -178,6 +181,7 @@ const App = () => (
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />
+                  <Route path="/dashboard/menu" element={<DashboardMenu />} />
                   <Route path="/business-guide" element={<BusinessGuide />} />
                   <Route path="/business-image-guide" element={<BusinessImageGuide />} />
                   <Route path="/founding-5" element={<Founding5 />} />
@@ -198,6 +202,7 @@ const App = () => (
           </TooltipProvider>
         </LoopProvider>
       </SubscriptionProvider>
+        </ActiveRoleProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
