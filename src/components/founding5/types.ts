@@ -19,10 +19,11 @@ export type FoundingCategory =
   | 'experience'
   | 'other';
 
-export const FOUNDING_CATEGORY_OPTIONS: { value: FoundingCategory; label: string }[] = [
-  { value: 'morning', label: 'Morning (coffee, breakfast)' },
-  { value: 'evening', label: 'Evening (dinner, drinks)' },
-  { value: 'retail', label: 'Retail (shops, goods)' },
-  { value: 'experience', label: 'Experience (things to do)' },
-  { value: 'other', label: 'Something else' },
+// TODO: confirm category meaning with owner
+export const FOUNDING_CATEGORY_OPTIONS: { value: FoundingCategory; label: string; subtitle: string }[] = [
+  { value: 'morning', label: 'Morning spot', subtitle: 'Coffee shops, bakeries, breakfast' },
+  { value: 'evening', label: 'Evening spot', subtitle: 'Dinner, drinks, nightlife' },
+  { value: 'retail', label: 'Retail', subtitle: 'Shops, boutiques, goods' },
+  { value: 'experience', label: 'Experience', subtitle: 'Things to do, entertainment, classes' },
+  { value: 'other', label: 'Something else', subtitle: 'Doesn’t fit the above' },
 ];

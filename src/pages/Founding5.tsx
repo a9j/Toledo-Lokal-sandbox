@@ -23,8 +23,6 @@ const FOUNDING_50_TOTAL = 50;
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=1600&q=80&auto=format&fit=crop';
 
-const ANTHONY_PHONE = '(734) 347-5113';
-
 const BENEFITS = [
   'Permanent No. 01 through No. 05 badge on your profile.',
   'Featured placement forever, not just at launch.',
@@ -214,8 +212,8 @@ export default function Founding5() {
         <section className={members.length > 0 ? 'px-6 pb-24 sm:pb-32' : 'px-6 py-24 sm:py-32'}>
           <div className="mx-auto max-w-2xl">
             <p className="mx-auto mb-12 max-w-lg text-center text-xl font-light leading-relaxed text-muted-foreground sm:text-2xl">
-              We&rsquo;re choosing three more. One per category: morning, evening, retail, or
-              experience.
+              We&rsquo;re choosing three more. One per category: Morning spot, Evening spot,
+              Retail, or Experience.
             </p>
             <div className="space-y-8">
               {emptySlots.map((n) => (
@@ -274,12 +272,12 @@ export default function Founding5() {
             Apply now
           </Button>
           <p className="mt-6 text-sm text-muted-foreground">
-            Or text Anthony directly:{' '}
+            Email us:{' '}
             <a
-              href={`sms:${ANTHONY_PHONE.replace(/[^\d+]/g, '')}`}
+              href="mailto:Hello@toledolokal.com"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
-              {ANTHONY_PHONE}
+              Hello@toledolokal.com
             </a>
           </p>
         </div>

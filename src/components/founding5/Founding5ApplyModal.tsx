@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FOUNDING_CATEGORY_OPTIONS, FoundingCategory } from './types';
+import { NEIGHBORHOODS } from '@/lib/neighborhoods';
 
 interface Founding5ApplyModalProps {
   open: boolean;
@@ -112,7 +113,7 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
         code: error.code,
       });
       setSubmitting(false);
-      toast.error('Something went wrong. Please try again, or text Anthony.');
+      toast.error('Something went wrong. Please try again, or email Hello@toledolokal.com.');
       return;
     }
 
@@ -148,7 +149,7 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
             </div>
             <h2 className="font-display text-2xl font-semibold tracking-tight">Got it.</h2>
             <p className="mt-3 text-muted-foreground leading-relaxed max-w-xs">
-              Anthony will reach out within 48 hours.
+              We'll reach out within 48 hours.
             </p>
             <Button
               onClick={() => handleOpenChange(false)}
@@ -193,12 +194,21 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="f5-neighborhood">Neighborhood</Label>
-                  <Input
-                    id="f5-neighborhood"
+                  <Select
                     value={form.neighborhood}
-                    onChange={(e) => update('neighborhood', e.target.value)}
-                    placeholder="Old West End"
-                  />
+                    onValueChange={(v) => update('neighborhood', v)}
+                  >
+                    <SelectTrigger id="f5-neighborhood">
+                      <SelectValue placeholder="Pick a neighborhood" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NEIGHBORHOODS.map((n) => (
+                        <SelectItem key={n.id} value={n.id}>
+                          {n.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -239,7 +249,8 @@ export function Founding5ApplyModal({ open, onOpenChange }: Founding5ApplyModalP
                   <SelectContent>
                     {FOUNDING_CATEGORY_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                        <span>{opt.label}</span>
+                        <span className="ml-1.5 text-muted-foreground text-xs">{opt.subtitle}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>

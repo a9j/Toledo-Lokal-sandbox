@@ -132,8 +132,16 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
           ))}
         </div>
       ) : error ? (
-        <div className="py-12 text-center text-muted-foreground">
+        <div className="py-12 text-center text-muted-foreground space-y-3">
           <p>Couldn't load Pulse right now.</p>
+          <p className="text-xs">{(error as Error).message}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Retry
+          </button>
         </div>
       ) : posts && posts.length > 0 ? (
         <div className="space-y-3">
@@ -142,7 +150,14 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
           ))}
         </div>
       ) : showFilters ? (
-        <PulseEmptyState />
+        (neighborhood || category) ? (
+          <div className="py-12 text-center text-muted-foreground space-y-2">
+            <p className="text-sm font-medium">No posts match these filters</p>
+            <p className="text-xs">Try a different neighborhood or category, or clear your filters.</p>
+          </div>
+        ) : (
+          <PulseEmptyState />
+        )
       ) : null}
     </div>
   );
