@@ -183,10 +183,9 @@ export default function PulseDetail() {
             )}
 
             <CardContent className="p-6">
-              {/* Category badge */}
-              <Badge className={cn("mb-4 gap-1", categoryConfig?.bgColor, categoryConfig?.color)}>
-                {CategoryIcon && <CategoryIcon className="h-3 w-3" />}
-                {categoryConfig?.label}
+              {/* Type badge */}
+              <Badge className={cn("mb-4 gap-1", typeConfig?.surface, typeConfig?.accent)}>
+                {typeConfig?.label}
               </Badge>
 
               {/* Author info */}
