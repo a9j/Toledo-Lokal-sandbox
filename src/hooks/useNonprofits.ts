@@ -171,8 +171,45 @@ export function useClaimNonprofit() {
   });
 }
 
-export function useUserClaimedNonprofit() {
-  const { user } = useAuth();
+// Businesses that present themselves as a nonprofit / community organization
+// (businesses.category enum), surfaced alongside the curated `nonprofits` table
+// on the Community page. These are real business rows, so they link to their
+// business profile rather than the nonprofit detail route.
+export interface CommunityBusiness {
+  id: string;
+  name: string;
+  slug: string | null;
+  description: string | null;
+  logo_url: string | null;
+  cover_image_url: string | null;
+  category: string;
+  neighborhood?: { id: string; name: string } | null;
+}
+
+export function useCommunityBusinesses(options: { neighborhoodId?: string } = {}) {
+  const { neighborhoodId } = options;
+  return useQuery({
+    queryKey: ['community-businesses', neighborhoodId],
+    queryFn: async () => {
+      let query = supabase
+        .from('businesses_public')
+        .select('id, name, slug, description, logo_url, cover_image_url, category, neighborhood:neighborhoods(id, name)')
+        .eq('status', 'approved')
+        .in('category', ['nonprofit', 'community_org'])
+        .order('name');
+
+      if (neighborhoodId) {
+        query = query.eq('neighborhood_id', neighborhoodId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as unknown as CommunityBusiness[];
+    },
+  });
+}
+
+export function useUserClaimedNonprofit() {  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['user-claimed-nonprofit', user?.id],

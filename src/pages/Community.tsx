@@ -14,7 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { NonprofitCard } from '@/components/community/NonprofitCard';
-import { useNonprofits, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
+import { CommunityBusinessCard } from '@/components/community/CommunityBusinessCard';
+import { useNonprofits, useCommunityBusinesses, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { Database } from '@/integrations/supabase/types';
 
@@ -32,8 +33,16 @@ export default function Community() {
     neighborhoodId: selectedNeighborhood === 'all' ? undefined : selectedNeighborhood,
   });
 
+  // Businesses that present as a nonprofit / community org. They have no
+  // cause_category, so they only show when the cause filter is "All Causes".
+  const { data: communityBusinesses, isLoading: businessesLoading } = useCommunityBusinesses({
+    neighborhoodId: selectedNeighborhood === 'all' ? undefined : selectedNeighborhood,
+  });
+  const visibleCommunityBusinesses = selectedCause === 'all' ? (communityBusinesses || []) : [];
+
   const foundingPartners = nonprofits?.filter(n => n.founding_community_partner) || [];
   const otherNonprofits = nonprofits?.filter(n => !n.founding_community_partner) || [];
+  const hasAnything = foundingPartners.length > 0 || otherNonprofits.length > 0 || visibleCommunityBusinesses.length > 0;
 
   return (
     <>
@@ -99,13 +108,13 @@ export default function Community() {
         </div>
 
         {/* Content */}
-        {isLoading ? (
+        {(isLoading || businessesLoading) ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-48 rounded-2xl" />
             ))}
           </div>
-        ) : nonprofits?.length === 0 ? (
+        ) : !hasAnything ? (
           <EmptyState />
         ) : (
           <div className="space-y-8">
@@ -137,6 +146,20 @@ export default function Community() {
                 <div className="grid gap-4">
                   {otherNonprofits.map((nonprofit) => (
                     <NonprofitCard key={nonprofit.id} nonprofit={nonprofit} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Local businesses that present as a nonprofit / community org */}
+            {visibleCommunityBusinesses.length > 0 && (
+              <section>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                  Community Businesses
+                </h2>
+                <div className="grid gap-4">
+                  {visibleCommunityBusinesses.map((business) => (
+                    <CommunityBusinessCard key={business.id} business={business} />
                   ))}
                 </div>
               </section>
