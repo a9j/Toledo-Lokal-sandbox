@@ -43,7 +43,9 @@ export function AvatarUpload({
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
+      // Normalize the extension to lowercase so re-uploads overwrite the same
+      // object (avatar.PNG vs avatar.png would otherwise orphan duplicates).
+      const fileExt = (file.name.split('.').pop() || 'jpg').toLowerCase();
       const fileName = `${userId}/avatar.${fileExt}`;
 
       // Upload to storage
@@ -55,19 +57,23 @@ export function AvatarUpload({
 
       // Get signed URL for the uploaded file
       const signedUrl = await generateSignedUrl(fileName);
-      
+
       if (!signedUrl) {
         throw new Error('Failed to generate signed URL');
       }
 
-      // Update profile with the file path (not the full URL)
-      // This allows signed URLs to be regenerated later
-      const { error: updateError } = await supabase
+      // Persist the file path (not the signed URL) so signed URLs can be
+      // regenerated later. Use upsert keyed on user_id: a plain UPDATE silently
+      // no-ops for any user who doesn't yet have a profiles row (the cause of
+      // "uploaded but never shows"), leaving avatar_url null forever.
+      const { data: upserted, error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: fileName })
-        .eq('user_id', userId);
+        .upsert({ user_id: userId, avatar_url: fileName }, { onConflict: 'user_id' })
+        .select('user_id')
+        .maybeSingle();
 
       if (updateError) throw updateError;
+      if (!upserted) throw new Error('Could not save your photo to your profile.');
 
       // Pass the signed URL back for immediate display
       onUploadComplete(signedUrl);
