@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { SecureAvatar } from '@/components/ui/secure-avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConnectorReferrals, useConnectorEvents, useIsFollowingConnector, useToggleFollowConnector } from '@/hooks/useConnectors';
 import { Crown, Globe, Instagram, Users, Building2, Calendar, MapPin, Clock, ExternalLink, UserPlus, UserMinus } from 'lucide-react';
@@ -89,12 +89,12 @@ export default function ConnectorProfile() {
       <PageContainer className="space-y-6 pb-24">
         {/* Header Section */}
         <div className="text-center space-y-3 pt-4">
-          <Avatar className="h-24 w-24 mx-auto ring-4 ring-amber-400/30">
-            <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback className="text-2xl bg-gradient-to-br from-amber-500 to-yellow-500 text-white">
-              {(profile?.name || 'C')[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <SecureAvatar
+            storagePath={profile?.avatar_url}
+            fallbackText={profile?.name || 'C'}
+            className="h-24 w-24 mx-auto ring-4 ring-amber-400/30"
+            fallbackClassName="text-2xl bg-gradient-to-br from-amber-500 to-yellow-500 text-white"
+          />
 
           <div>
             <h1 className="text-2xl font-bold">{profile?.name}</h1>

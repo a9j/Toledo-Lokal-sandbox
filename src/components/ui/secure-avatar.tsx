@@ -6,6 +6,8 @@ interface SecureAvatarProps {
   storagePath?: string | null;
   fallbackText?: string;
   className?: string;
+  /** Classes applied to the fallback (initials) when no image is shown. */
+  fallbackClassName?: string;
   expiresIn?: number;
 }
 
@@ -29,6 +31,7 @@ export function SecureAvatar({
   storagePath,
   fallbackText = '?',
   className = 'h-10 w-10',
+  fallbackClassName = 'bg-primary/10 text-primary',
   expiresIn = 3600,
 }: SecureAvatarProps) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
@@ -93,7 +96,7 @@ export function SecureAvatar({
   return (
     <Avatar className={className}>
       <AvatarImage src={signedUrl || undefined} />
-      <AvatarFallback className="bg-primary/10 text-primary">
+      <AvatarFallback className={fallbackClassName}>
         {initial}
       </AvatarFallback>
     </Avatar>

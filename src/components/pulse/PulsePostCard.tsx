@@ -99,10 +99,12 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
               <SecureAvatar storagePath={post.business.logo_url} fallbackText={post.business.name} className="h-9 w-9" />
             </Link>
           ) : (
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={post.author?.avatar_url || undefined} />
-              <AvatarFallback className="bg-secondary text-foreground text-sm">{authorInitial}</AvatarFallback>
-            </Avatar>
+            <SecureAvatar
+              storagePath={post.author?.avatar_url}
+              fallbackText={authorName}
+              className="h-9 w-9"
+              fallbackClassName="bg-secondary text-foreground text-sm"
+            />
           )}
 
           <div className="min-w-0 flex-1">

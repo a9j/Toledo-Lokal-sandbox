@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { SecureAvatar } from '@/components/ui/secure-avatar';
 import {
   Select,
   SelectContent,
@@ -190,10 +190,12 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                   const initial = label.charAt(0).toUpperCase();
                   return (
                     <div key={row.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={row.profile?.avatar_url || undefined} />
-                        <AvatarFallback className="bg-secondary text-foreground text-sm">{initial}</AvatarFallback>
-                      </Avatar>
+                      <SecureAvatar
+                        storagePath={row.profile?.avatar_url}
+                        fallbackText={label}
+                        className="h-9 w-9"
+                        fallbackClassName="bg-secondary text-foreground text-sm"
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">{label}</p>
                         <p className="truncate text-xs text-muted-foreground">{ROLE_LABELS[row.role] ?? row.role} · since {new Date(row.created_at).toLocaleDateString()}</p>

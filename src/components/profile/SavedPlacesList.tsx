@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Share2, Bookmark, MapPin, Calendar, ChevronRight } from 'lucide-react';
+import { SecureImage } from '@/components/ui/secure-image';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -89,10 +90,12 @@ export function SavedPlacesList({ compact = false, maxItems }: SavedPlacesListPr
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
                     {item.business.logo_url ? (
-                      <img 
-                        src={item.business.logo_url} 
+                      <SecureImage
+                        storagePath={item.business.logo_url}
                         alt={item.business.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full"
+                        imgClassName="object-cover"
+                        fallback={<MapPin className="h-5 w-5 text-muted-foreground" />}
                       />
                     ) : (
                       <MapPin className="h-5 w-5 text-muted-foreground" />
