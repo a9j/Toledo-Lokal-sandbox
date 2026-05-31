@@ -45,6 +45,7 @@ import {
   Trash2,
   Star,
   Users,
+  CheckCircle,
 } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { AdminBusinessStaffDialog } from '@/components/admin/AdminBusinessStaffDialog';
@@ -73,6 +74,7 @@ export default function AdminBusinesses() {
   const [filterTier, setFilterTier] = useState<string>(initialTier);
   const [filterBadge, setFilterBadge] = useState<string>('all');
   const [filterOnboarding, setFilterOnboarding] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   // Action modals
   const [assignModal, setAssignModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
@@ -163,6 +165,18 @@ export default function AdminBusinesses() {
       toast({ title: 'Business restored', description: 'Back on the public site.' });
     },
     onError: (e: any) => toast({ variant: 'destructive', title: 'Could not restore', description: e.message }),
+  });
+
+  const approveBusiness = useMutation({
+    mutationFn: async ({ businessId }: { businessId: string }) => {
+      const { error } = await supabase.from('businesses').update({ status: 'approved' }).eq('id', businessId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
+      toast({ title: 'Business approved', description: 'Now live on the platform.' });
+    },
+    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not approve', description: e.message }),
   });
 
   // Tier change log for a specific business
@@ -374,6 +388,7 @@ export default function AdminBusinesses() {
   const growthCount = businesses?.filter(b => b.tier_status === 'growth').length || 0;
   const communityCount = businesses?.filter(b => b.tier_status === 'community').length || 0;
   const pendingOnboarding = businesses?.filter(b => !b.onboarding_completed).length || 0;
+  const pendingApproval = businesses?.filter(b => b.status === 'pending').length || 0;
 
   // Filter
   const filtered = businesses?.filter(b => {
@@ -383,6 +398,7 @@ export default function AdminBusinesses() {
     if (filterBadge === 'hidden' && b.tier_badge_visible) return false;
     if (filterOnboarding === 'completed' && !b.onboarding_completed) return false;
     if (filterOnboarding === 'pending' && b.onboarding_completed) return false;
+    if (filterStatus !== 'all' && b.status !== filterStatus) return false;
     return true;
   });
 
@@ -414,7 +430,16 @@ export default function AdminBusinesses() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
+          {pendingApproval > 0 && (
+            <button
+              className="card-elevated p-3 text-center hover:ring-2 hover:ring-lokal-amber/40 transition-all"
+              onClick={() => setFilterStatus(filterStatus === 'pending' ? 'all' : 'pending')}
+            >
+              <p className="text-2xl font-bold text-lokal-amber">{pendingApproval}</p>
+              <p className="text-xs text-muted-foreground">Pending Approval</p>
+            </button>
+          )}
           <div className="card-elevated p-3 text-center">
             <p className="text-2xl font-bold text-amber-500">{founding5Count}<span className="text-sm text-muted-foreground">/5</span></p>
             <p className="text-xs text-muted-foreground">Founding 5</p>
@@ -475,6 +500,15 @@ export default function AdminBusinesses() {
                 <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -493,6 +527,11 @@ export default function AdminBusinesses() {
                     {!biz.onboarding_completed && (
                       <Badge variant="outline" className="text-[10px] text-lokal-terracotta border-lokal-terracotta/30">Onboarding</Badge>
                     )}
+                    {biz.status === 'pending' && (
+                      <Badge variant="outline" className="text-[10px] gap-1 text-lokal-amber border-lokal-amber/30">
+                        Pending
+                      </Badge>
+                    )}
                     {biz.status === 'archived' && (
                       <Badge variant="outline" className="text-[10px] gap-1 text-destructive border-destructive/30">
                         <Trash2 className="h-3 w-3" /> Removed
@@ -504,6 +543,19 @@ export default function AdminBusinesses() {
               </div>
 
               <div className="flex flex-wrap gap-2">
+                {/* Approve pending business */}
+                {biz.status === 'pending' && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => approveBusiness.mutate({ businessId: biz.id })}
+                    disabled={approveBusiness.isPending}
+                  >
+                    <CheckCircle className="h-3 w-3" /> {approveBusiness.isPending ? 'Approving...' : 'Approve'}
+                  </Button>
+                )}
+
                 {/* Assign Tier */}
                 <Button
                   size="sm"
