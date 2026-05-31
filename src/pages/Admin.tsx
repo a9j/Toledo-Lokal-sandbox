@@ -24,11 +24,11 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { 
-  Building2, 
-  Tag, 
-  Calendar, 
-  Check, 
-  X, 
+  Building2,
+  Tag,
+  Calendar,
+  Check,
+  X,
   Star,
   ArrowLeft,
   Shield,
@@ -41,7 +41,11 @@ import {
   Crown,
   Heart,
   Users,
-  Eye
+  Eye,
+  Sparkles,
+  Mail,
+  Phone,
+  MapPin
 } from 'lucide-react';
 
 interface EditDialogState {
@@ -152,7 +156,22 @@ export default function Admin() {
         .select('*, business:businesses(name)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
-      
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Founding 5 applications
+  const { data: foundingApplications } = useQuery({
+    queryKey: ['admin-founding-applications'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('founding_5_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
       return data;
     },
@@ -488,6 +507,13 @@ export default function Admin() {
                 <Badge variant="secondary" className="ml-1">{pendingFoodLocations.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="founding" className="flex-1 gap-1.5">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">F5 Apps</span>
+              {foundingApplications && foundingApplications.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{foundingApplications.length}</Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="nonprofits" className="flex-1 gap-1.5">
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Community</span>
@@ -777,6 +803,50 @@ export default function Admin() {
               ))
             ) : (
               <p className="text-center text-muted-foreground py-8">No pending food truck locations</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="founding" className="space-y-3">
+            {foundingApplications?.length ? (
+              foundingApplications.map(app => (
+                <div key={app.id} className="card-elevated p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{app.business_name}</h3>
+                      <p className="text-sm text-muted-foreground">{app.owner_name}</p>
+                      <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          <a href={`mailto:${app.email}`} className="hover:underline">{app.email}</a>
+                        </span>
+                        {app.phone && (
+                          <span className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            <a href={`tel:${app.phone}`} className="hover:underline">{app.phone}</a>
+                          </span>
+                        )}
+                        {app.neighborhood && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {app.neighborhood}
+                          </span>
+                        )}
+                        {app.category && (
+                          <Badge variant="outline" className="text-[10px]">{app.category}</Badge>
+                        )}
+                      </div>
+                      {app.why_us && (
+                        <p className="text-sm text-muted-foreground mt-3 whitespace-pre-line">{app.why_us}</p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground/60 mt-2">
+                        {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No Founding 5 applications</p>
             )}
           </TabsContent>
 
