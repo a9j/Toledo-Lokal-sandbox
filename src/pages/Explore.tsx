@@ -4,13 +4,51 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SearchBar } from '@/components/home/SearchBar';
 import { BusinessCard } from '@/components/cards/BusinessCard';
+import { CategoryCard } from '@/components/home/CategoryCard';
 import { useBusinesses } from '@/hooks/useBusinesses';
 import { useCategories } from '@/hooks/useCategories';
+import { useCategoryCounts } from '@/hooks/useCategoryCounts';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { Button } from '@/components/ui/button';
-import * as LucideIcons from 'lucide-react';
+import {
+  Utensils,
+  ShoppingBag,
+  Building2,
+  Car,
+  Calendar,
+  Home,
+  HeartHandshake,
+  HeartPulse,
+  Palette,
+  GraduationCap,
+  Sparkles,
+  Briefcase,
+  Baby,
+  Mountain,
+  Wrench,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+
+const iconMap: Record<string, LucideIcon> = {
+  'utensils': Utensils,
+  'shopping-bag': ShoppingBag,
+  'building-2': Building2,
+  'sparkles': Sparkles,
+  'car': Car,
+  'calendar': Calendar,
+  'home': Home,
+  'heart-handshake': HeartHandshake,
+  'heart-pulse': HeartPulse,
+  'palette': Palette,
+  'graduation-cap': GraduationCap,
+  'briefcase': Briefcase,
+  'baby': Baby,
+  'mountain': Mountain,
+  'wrench': Wrench,
+};
 
 export default function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,6 +83,7 @@ export default function Explore() {
     neighborhoodId: selectedNeighborhood || undefined 
   });
   const { data: categories } = useCategories();
+  const { data: counts } = useCategoryCounts();
   const { data: neighborhoods } = useNeighborhoods();
 
   const filteredBusinesses = businesses?.filter(biz => {
@@ -52,11 +91,6 @@ export default function Explore() {
     return biz.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
            biz.description?.toLowerCase().includes(searchQuery.toLowerCase());
   });
-
-  const getIcon = (iconName: string) => {
-    const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, any>)[name] || LucideIcons.Building2;
-  };
 
   return (
     <>
@@ -81,22 +115,18 @@ export default function Explore() {
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
               Categories{categories?.length ? ` · ${categories.length}` : ''}
             </h2>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
               {categories?.map(category => {
-                const Icon = getIcon(category.icon || 'building2');
+                const Icon = iconMap[category.icon || ''] || Building2;
                 return (
-                  <button
+                  <CategoryCard
                     key={category.id}
+                    id={category.id}
+                    name={category.name}
+                    icon={Icon}
+                    count={counts?.[category.id]}
                     onClick={() => selectCategory(category.id)}
-                    className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <span className="text-xs text-center font-medium text-foreground line-clamp-1">
-                      {category.name.split(' ')[0]}
-                    </span>
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -114,7 +144,7 @@ export default function Explore() {
                 onClick={() => selectCategory(null)}
               >
                 {categories?.find(c => c.id === selectedCategory)?.name}
-                <LucideIcons.X className="h-3 w-3" />
+                <X className="h-3 w-3" />
               </Button>
             )}
             {selectedNeighborhood && (
@@ -125,7 +155,7 @@ export default function Explore() {
                 onClick={() => setSelectedNeighborhood(null)}
               >
                 {neighborhoods?.find(n => n.id === selectedNeighborhood)?.name}
-                <LucideIcons.X className="h-3 w-3" />
+                <X className="h-3 w-3" />
               </Button>
             )}
           </div>

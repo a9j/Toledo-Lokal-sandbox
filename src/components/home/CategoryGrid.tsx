@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useCategories } from '@/hooks/useCategories';
+import { useCategoryCounts } from '@/hooks/useCategoryCounts';
+import { CategoryCard } from './CategoryCard';
 import {
   Utensils,
   ShoppingBag,
   Building2,
-  Dumbbell,
-  Heart,
   Car,
   Calendar,
   Home,
@@ -13,18 +13,19 @@ import {
   HeartPulse,
   Palette,
   GraduationCap,
-  PawPrint,
-  MapPin,
   Sparkles,
+  Briefcase,
+  Baby,
+  Mountain,
+  Wrench,
   ChevronRight,
+  type LucideIcon,
 } from 'lucide-react';
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
   'utensils': Utensils,
   'shopping-bag': ShoppingBag,
   'building-2': Building2,
-  'dumbbell': Dumbbell,
-  'heart': Heart,
   'sparkles': Sparkles,
   'car': Car,
   'calendar': Calendar,
@@ -33,16 +34,17 @@ const iconMap: Record<string, any> = {
   'heart-pulse': HeartPulse,
   'palette': Palette,
   'graduation-cap': GraduationCap,
-  'paw-print': PawPrint,
-  'map-pin': MapPin,
+  'briefcase': Briefcase,
+  'baby': Baby,
+  'mountain': Mountain,
+  'wrench': Wrench,
 };
 
 export function CategoryGrid() {
   const { data: categories } = useCategories();
+  const { data: counts } = useCategoryCounts();
 
   if (!categories?.length) return null;
-
-  const visible = categories.slice(0, 12);
 
   return (
     <section className="px-4 py-6">
@@ -52,27 +54,22 @@ export function CategoryGrid() {
           to="/explore"
           className="flex items-center gap-0.5 text-sm font-semibold text-primary hover:underline"
         >
-          View all {categories.length}
+          View all
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-        {visible.map((category) => {
-          const iconKey = category.icon || 'building-2';
-          const IconComponent = iconMap[iconKey] || Building2;
-
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+        {categories.map((category) => {
+          const IconComponent = iconMap[category.icon || ''] || Building2;
           return (
-            <Link
+            <CategoryCard
               key={category.id}
-              to={`/explore?category=${category.id}`}
-              className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
-            >
-              <IconComponent className="h-6 w-6 text-primary" strokeWidth={1.8} />
-              <span className="text-[11px] font-semibold text-foreground/90 text-center leading-tight px-1 truncate max-w-full">
-                {category.name.split(' ')[0]}
-              </span>
-            </Link>
+              id={category.id}
+              name={category.name}
+              icon={IconComponent}
+              count={counts?.[category.id]}
+            />
           );
         })}
       </div>
