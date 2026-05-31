@@ -10,6 +10,9 @@ import { PulseManager } from '@/components/admin/PulseManager';
 import { EventManager } from '@/components/admin/EventManager';
 import { DealManager } from '@/components/admin/DealManager';
 import { PassportManager } from '@/components/admin/PassportManager';
+import { JobManager } from '@/components/admin/JobManager';
+import { FollowersManager } from '@/components/admin/FollowersManager';
+import { ImpactManager } from '@/components/admin/ImpactManager';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import {
   LayoutDashboard,
@@ -41,14 +44,14 @@ const NAV_GROUPS: AdminNavGroup[] = [
       { id: 'events', label: 'Events', icon: CalendarDays },
       { id: 'deals', label: 'Deals', icon: Tag },
       { id: 'passport', label: 'Passport', icon: Stamp },
-      { id: 'jobs', label: 'Jobs', icon: Briefcase, soon: true },
+      { id: 'jobs', label: 'Jobs', icon: Briefcase },
     ],
   },
   {
     label: 'Community',
     items: [
-      { id: 'followers', label: 'Followers', icon: Users, soon: true },
-      { id: 'impact', label: 'Impact', icon: Heart, soon: true },
+      { id: 'followers', label: 'Followers', icon: Users },
+      { id: 'impact', label: 'Impact', icon: Heart },
     ],
   },
   {
@@ -141,6 +144,12 @@ export default function BusinessAdmin() {
         return <DealManager businessId={business.id} />;
       case 'passport':
         return <PassportManager businessId={business.id} />;
+      case 'jobs':
+        return <JobManager businessId={business.id} />;
+      case 'followers':
+        return <FollowersManager businessId={business.id} />;
+      case 'impact':
+        return <ImpactManager businessId={business.id} />;
       default:
         return (
           <div className="card-elevated p-8 text-center">
