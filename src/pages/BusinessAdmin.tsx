@@ -7,6 +7,8 @@ import { AdminShell, type AdminNavGroup } from '@/components/admin/console/Admin
 import { BusinessDashboardView } from '@/components/admin/BusinessDashboardView';
 import { BusinessProfileEditor } from '@/components/admin/BusinessProfileEditor';
 import { PulseManager } from '@/components/admin/PulseManager';
+import { EventManager } from '@/components/admin/EventManager';
+import { DealManager } from '@/components/admin/DealManager';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import {
   LayoutDashboard,
@@ -35,8 +37,8 @@ const NAV_GROUPS: AdminNavGroup[] = [
     label: 'Content',
     items: [
       { id: 'pulse', label: 'Pulse', icon: Activity },
-      { id: 'events', label: 'Events', icon: CalendarDays, soon: true },
-      { id: 'deals', label: 'Deals', icon: Tag, soon: true },
+      { id: 'events', label: 'Events', icon: CalendarDays },
+      { id: 'deals', label: 'Deals', icon: Tag },
       { id: 'passport', label: 'Passport', icon: Stamp, soon: true },
       { id: 'jobs', label: 'Jobs', icon: Briefcase, soon: true },
     ],
@@ -132,6 +134,10 @@ export default function BusinessAdmin() {
         return <BusinessProfileEditor businessId={business.id} />;
       case 'pulse':
         return <PulseManager businessId={business.id} />;
+      case 'events':
+        return <EventManager businessId={business.id} />;
+      case 'deals':
+        return <DealManager businessId={business.id} />;
       default:
         return (
           <div className="card-elevated p-8 text-center">
