@@ -72,9 +72,22 @@ export default function Admin() {
         .select('*, category:categories(name), neighborhood:neighborhoods(name)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data;
+
+      // Fetch owner names for display
+      if (data && data.length > 0) {
+        const ownerIds = data.map(b => b.owner_user_id).filter(Boolean);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, name')
+          .in('user_id', ownerIds);
+        return data.map(b => ({
+          ...b,
+          owner_name: profiles?.find(p => p.user_id === b.owner_user_id)?.name || null,
+        }));
+      }
+      return data?.map(b => ({ ...b, owner_name: null })) || [];
     },
     enabled: isAdmin,
   });
@@ -179,16 +192,33 @@ export default function Admin() {
   });
 
   const updateBusinessStatus = useMutation({
-    mutationFn: async ({ id, status, featured }: { id: string; status?: string; featured?: boolean }) => {
+    mutationFn: async ({ id, status, featured, name: bizName }: { id: string; status?: string; featured?: boolean; name?: string }) => {
       const updates: Record<string, any> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
-      
+
+      // Generate a slug when approving if the business doesn't have one
+      if (status === 'approved' && bizName) {
+        const { data: existing } = await supabase
+          .from('businesses')
+          .select('slug')
+          .eq('id', id)
+          .single();
+        if (!existing?.slug) {
+          const base = bizName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const { data: conflicts } = await supabase
+            .from('businesses')
+            .select('slug')
+            .like('slug', `${base}%`);
+          updates.slug = conflicts?.length ? `${base}-${conflicts.length}` : base;
+        }
+      }
+
       const { error } = await supabase
         .from('businesses')
         .update(updates as any)
         .eq('id', id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -196,6 +226,9 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
       toast({ title: 'Business updated' });
+    },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update business' });
     },
   });
 
@@ -219,6 +252,9 @@ export default function Admin() {
       toast({ title: 'Images updated' });
       setEditDialog({ open: false, type: null, item: null });
     },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update images' });
+    },
   });
 
   const updateDealStatus = useMutation({
@@ -240,6 +276,9 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       toast({ title: 'Deal updated' });
       setEditDialog({ open: false, type: null, item: null });
+    },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update deal' });
     },
   });
 
@@ -263,6 +302,9 @@ export default function Admin() {
       toast({ title: 'Event updated' });
       setEditDialog({ open: false, type: null, item: null });
     },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update event' });
+    },
   });
 
   const updateJobStatus = useMutation({
@@ -283,6 +325,9 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       toast({ title: 'Job updated' });
     },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update job' });
+    },
   });
 
   const updateFoodLocationStatus = useMutation({
@@ -302,6 +347,27 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['admin-pending-food-locations'] });
       queryClient.invalidateQueries({ queryKey: ['food-truck-locations'] });
       toast({ title: 'Food location updated' });
+    },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to update food location' });
+    },
+  });
+
+  // Delete founding 5 application
+  const deleteFoundingApplication = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('founding_5_applications')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-founding-applications'] });
+      toast({ title: 'Application removed' });
+    },
+    onError: (err) => {
+      toast({ variant: 'destructive', title: 'Error', description: err instanceof Error ? err.message : 'Failed to remove application' });
     },
   });
 
@@ -577,17 +643,26 @@ export default function Admin() {
                       <p className="text-sm text-muted-foreground">
                         {biz.category?.name} · {biz.neighborhood?.name}
                       </p>
+                      {(biz.owner_name || biz.phone) && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {biz.owner_name ? `Submitted by ${biz.owner_name}` : ''}{biz.phone ? ` · ${biz.phone}` : ''}
+                        </p>
+                      )}
                       {biz.description && (
                         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                           {biz.description}
                         </p>
                       )}
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">
+                        {new Date(biz.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-4">
                     <Button
                       size="sm"
-                      onClick={() => updateBusinessStatus.mutate({ id: biz.id, status: 'approved' })}
+                      onClick={() => updateBusinessStatus.mutate({ id: biz.id, status: 'approved', name: biz.name })}
+                      disabled={updateBusinessStatus.isPending}
                       className="gap-1"
                     >
                       <Check className="h-4 w-4" />
@@ -597,6 +672,7 @@ export default function Admin() {
                       size="sm"
                       variant="outline"
                       onClick={() => updateBusinessStatus.mutate({ id: biz.id, status: 'rejected' })}
+                      disabled={updateBusinessStatus.isPending}
                       className="gap-1"
                     >
                       <X className="h-4 w-4" />
@@ -842,6 +918,18 @@ export default function Admin() {
                         {new Date(app.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                       </p>
                     </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteFoundingApplication.mutate(app.id)}
+                      disabled={deleteFoundingApplication.isPending}
+                      className="gap-1"
+                    >
+                      <X className="h-4 w-4" />
+                      Dismiss
+                    </Button>
                   </div>
                 </div>
               ))
