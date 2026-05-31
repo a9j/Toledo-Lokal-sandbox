@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { PulseCategory, PulseContentType, PulseReactionType } from '@/lib/pulse-config';
+import { PulseCategory, PulseContentType, PulseReactionType, PULSE_EVENT_TEMPLATE_KEYS } from '@/lib/pulse-config';
 import { useEffect } from 'react';
 
 export interface PulsePost {
@@ -76,6 +76,9 @@ interface UsePulseOptions {
   businessIds?: string[];
   sort?: 'recent' | 'trending';
   limit?: number;
+  // Events tab: match anything that is an event — either an event-typed post or
+  // one of the event templates — so composer-created events always show up.
+  eventsOnly?: boolean;
 }
 
 export function usePulse(options: UsePulseOptions = {}) {
@@ -112,7 +115,9 @@ export function usePulse(options: UsePulseOptions = {}) {
       if (options.contentType) q = q.eq('content_type', options.contentType);
       if (options.neighborhood) q = q.eq('neighborhood', options.neighborhood);
       if (options.tag) q = q.contains('tags', [options.tag]);
-      if (options.templateKeys && options.templateKeys.length > 0) {
+      if (options.eventsOnly) {
+        q = q.or(`post_type.eq.event,template_key.in.(${PULSE_EVENT_TEMPLATE_KEYS.join(',')})`);
+      } else if (options.templateKeys && options.templateKeys.length > 0) {
         q = q.in('template_key', options.templateKeys);
       }
       if (options.businessIds && options.businessIds.length > 0) {

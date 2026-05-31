@@ -137,6 +137,37 @@ export function SavedPlacesList({ compact = false, maxItems }: SavedPlacesListPr
               </Link>
             )}
 
+            {item.post && (
+              <Link to={`/pulse/${item.post.pulse_id || item.post.id}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {item.post.hero_image ? (
+                      <SecureImage
+                        storagePath={item.post.hero_image}
+                        alt={item.post.headline || item.post.content || 'Pulse event'}
+                        className="w-full h-full"
+                        imgClassName="object-cover"
+                        fallback={<Calendar className="h-5 w-5 text-muted-foreground" />}
+                      />
+                    ) : (
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium truncate">
+                      {item.post.headline || item.post.content || 'Pulse event'}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {item.post.event_date
+                        ? format(new Date(item.post.event_date + 'T00:00:00'), 'MMM d, yyyy')
+                        : 'Saved from Pulse'}
+                    </p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                </div>
+              </Link>
+            )}
+
             {!compact && (
               <Button
                 variant="ghost"

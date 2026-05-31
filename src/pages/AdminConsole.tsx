@@ -15,6 +15,7 @@ import { CityOverview } from '@/components/admin/console/CityOverview';
 import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
 import { ModerationAdmin } from '@/components/admin/console/ModerationAdmin';
 import { PulseModerationQueue } from '@/components/admin/console/PulseModerationQueue';
+import { PulsePostsAdmin } from '@/components/admin/console/PulsePostsAdmin';
 import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 
@@ -118,6 +119,7 @@ export default function AdminConsole() {
         <div className="space-y-8">
           <ModerationAdmin />
           <PulseModerationQueue />
+          <PulsePostsAdmin />
         </div>
       )}
       {active === 'rewards' && <RewardsAdmin />}

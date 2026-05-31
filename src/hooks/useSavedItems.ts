@@ -28,6 +28,15 @@ interface SavedItemWithDetails extends SavedItem {
     image_url: string | null;
     start_date: string;
   };
+  post?: {
+    id: string;
+    pulse_id: string | null;
+    content: string | null;
+    headline: string | null;
+    hero_image: string | null;
+    event_date: string | null;
+    post_type: string | null;
+  };
 }
 
 export function useSavedItems(itemType?: SavedItemType) {
@@ -72,7 +81,11 @@ export function useSavedItems(itemType?: SavedItemType) {
         .filter(item => item.item_type === 'event')
         .map(item => item.item_id);
 
-      const [businessesResult, eventsResult] = await Promise.all([
+      const postIds = savedItems
+        .filter(item => item.item_type === 'post')
+        .map(item => item.item_id);
+
+      const [businessesResult, eventsResult, postsResult] = await Promise.all([
         businessIds.length > 0
           ? supabase
               .from('businesses')
@@ -85,6 +98,12 @@ export function useSavedItems(itemType?: SavedItemType) {
               .select('id, title, image_url, start_date')
               .in('id', eventIds)
           : { data: [] },
+        postIds.length > 0
+          ? supabase
+              .from('pulse_posts')
+              .select('id, pulse_id, content, headline, hero_image, event_date, post_type')
+              .in('id', postIds)
+          : { data: [] },
       ]);
 
       const businessesMap = new Map(
@@ -93,11 +112,15 @@ export function useSavedItems(itemType?: SavedItemType) {
       const eventsMap = new Map(
         (eventsResult.data || []).map(e => [e.id, e])
       );
+      const postsMap = new Map(
+        ((postsResult.data as { id: string }[]) || []).map(p => [p.id, p])
+      );
 
       return savedItems.map(item => ({
         ...item,
         business: item.item_type === 'business' ? businessesMap.get(item.item_id) : undefined,
         event: item.item_type === 'event' ? eventsMap.get(item.item_id) : undefined,
+        post: item.item_type === 'post' ? postsMap.get(item.item_id) : undefined,
       })) as SavedItemWithDetails[];
     },
     enabled: !!user && savedItems.length > 0,
