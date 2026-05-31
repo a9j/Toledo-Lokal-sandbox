@@ -42,6 +42,13 @@ export interface PulsePost {
   place_business_id: string | null;
   reaction_count: number;
   reaction_counts: Partial<Record<PulseReactionType, number>>;
+  // Event fields
+  post_type: 'update' | 'event' | 'deal';
+  event_date: string | null;
+  event_start_time: string | null;
+  event_end_time: string | null;
+  location_name: string | null;
+  location_address: string | null;
   // Joined data
   business?: {
     id: string;
@@ -230,6 +237,14 @@ interface CreatePulsePostInput {
   heroImage?: string;
   shareEnabled?: boolean;
   anonymous?: boolean;
+  // Event fields
+  postType?: 'update' | 'event' | 'deal';
+  eventDate?: string;
+  eventStartTime?: string;
+  eventEndTime?: string;
+  locationName?: string;
+  locationAddress?: string;
+  addToBusinessCalendar?: boolean;
 }
 
 export function useCreatePulsePost() {
@@ -272,6 +287,13 @@ export function useCreatePulsePost() {
         anonymous: input.anonymous || false,
         author_type: authorType,
         business_tier: input.businessId ? 'paid' : 'free',
+        // Event fields
+        post_type: input.postType || 'update',
+        event_date: input.eventDate || null,
+        event_start_time: input.eventStartTime || null,
+        event_end_time: input.eventEndTime || null,
+        location_name: input.locationName || null,
+        location_address: input.locationAddress || null,
       };
 
       const { data, error } = await supabase
@@ -281,6 +303,32 @@ export function useCreatePulsePost() {
         .single();
 
       if (error) throw error;
+
+      // If business event + "add to calendar" checked, create a corresponding event row.
+      if (
+        input.addToBusinessCalendar &&
+        input.businessId &&
+        input.postType === 'event' &&
+        input.eventDate
+      ) {
+        const startDateTime = input.eventStartTime
+          ? `${input.eventDate}T${input.eventStartTime}`
+          : `${input.eventDate}T00:00:00`;
+        const endDateTime = input.eventEndTime
+          ? `${input.eventDate}T${input.eventEndTime}`
+          : undefined;
+
+        await supabase.from('events').insert({
+          business_id: input.businessId,
+          title: input.content,
+          description: input.whyItMatters || null,
+          start_date_time: startDateTime,
+          end_date_time: endDateTime || null,
+          location_text: input.locationName || input.locationText || null,
+          status: 'approved',
+          pulse_post_id: (data as any).id,
+        } as never);
+      }
 
       // Trust score reflects real participation; recompute after posting.
       void (supabase.rpc as any)('recompute_pulse_trust', { p_user_id: user.id });

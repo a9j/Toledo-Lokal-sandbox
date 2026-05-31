@@ -23,7 +23,7 @@ import { AuthorBadge } from './AuthorBadge';
 import { ReactionBar } from './ReactionBar';
 import { PulseReportDialog } from './PulseReportDialog';
 import { PulseIcon } from './PulseIcon';
-import { Clock, MapPin, MoreVertical, Pin, Trash2, Flag } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, MoreVertical, Pin, Trash2, Flag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -172,6 +172,29 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
             {post.content}
           </p>
         </Link>
+
+        {/* Event details */}
+        {post.post_type === 'event' && post.event_date && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-secondary/50 px-3 py-2 text-xs font-medium text-foreground">
+            <span className="inline-flex items-center gap-1">
+              <CalendarDays className="h-3 w-3 text-primary" />
+              {new Date(post.event_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+            </span>
+            {post.event_start_time && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-3 w-3 text-primary" />
+                {post.event_start_time.slice(0, 5)}
+                {post.event_end_time ? ` – ${post.event_end_time.slice(0, 5)}` : ''}
+              </span>
+            )}
+            {post.location_name && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-primary" />
+                {post.location_name}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Why it matters */}
         {post.why_it_matters && (

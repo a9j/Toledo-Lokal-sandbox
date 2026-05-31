@@ -11,7 +11,6 @@ import {
   PulseTemplate,
   PulseContentType,
   PulseCategory,
-  PULSE_NEIGHBORHOODS,
   PULSE_CATEGORY_TAGS,
   PULSE_MOMENT_MAX_LENGTH,
   PULSE_CONTENT_TYPES,
@@ -20,6 +19,7 @@ import {
   getTrustLevelConfig,
   containsPromoLanguage,
 } from '@/lib/pulse-config';
+import { NEIGHBORHOODS } from '@/lib/neighborhoods';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -44,7 +44,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, ChevronLeft, Building2, MapPin, Lock } from 'lucide-react';
+import { Plus, ChevronLeft, Building2, MapPin, Lock, CalendarDays, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { PulseIcon } from './PulseIcon';
@@ -91,6 +91,14 @@ export function PulseCreateForm() {
   const [expirationHours, setExpirationHours] = useState<number | null>(null);
   const [placeQuery, setPlaceQuery] = useState('');
   const [place, setPlace] = useState<PlaceResult | null>(null);
+  // Event fields
+  const [postType, setPostType] = useState<'update' | 'event' | 'deal'>('update');
+  const [eventDate, setEventDate] = useState('');
+  const [eventStartTime, setEventStartTime] = useState('');
+  const [eventEndTime, setEventEndTime] = useState('');
+  const [locationName, setLocationName] = useState('');
+  const [locationAddress, setLocationAddress] = useState('');
+  const [addToCalendar, setAddToCalendar] = useState(true);
 
   // The user's approved business (enables "post as business").
   const { data: userBusiness } = useQuery({
@@ -166,6 +174,8 @@ export function PulseCreateForm() {
   const needsPlace = !!template?.requiresPlace;
   const overLimit = content.length > PULSE_MOMENT_MAX_LENGTH;
 
+  const eventFieldsValid = postType !== 'event' || !!eventDate;
+
   const canSubmit =
     !!template &&
     content.trim().length > 0 &&
@@ -174,7 +184,8 @@ export function PulseCreateForm() {
     !!neighborhood &&
     postsRemaining > 0 &&
     !promoBlocked &&
-    (!needsPlace || !!place);
+    (!needsPlace || !!place) &&
+    eventFieldsValid;
 
   const resetForm = () => {
     setTemplate(null);
@@ -184,6 +195,13 @@ export function PulseCreateForm() {
     setExpirationHours(null);
     setPlace(null);
     setPlaceQuery('');
+    setPostType('update');
+    setEventDate('');
+    setEventStartTime('');
+    setEventEndTime('');
+    setLocationName('');
+    setLocationAddress('');
+    setAddToCalendar(true);
   };
 
   const selectTemplate = (t: PulseTemplate) => {
@@ -209,7 +227,14 @@ export function PulseCreateForm() {
         whyItMatters: whyItMatters.trim() || undefined,
         businessId: postingAsBusiness ? userBusiness?.id : undefined,
         placeBusinessId: place?.id,
-        locationText: place?.name || neighborhood,
+        locationText: locationName || place?.name || neighborhood,
+        postType,
+        eventDate: postType === 'event' ? eventDate : undefined,
+        eventStartTime: postType === 'event' ? eventStartTime || undefined : undefined,
+        eventEndTime: postType === 'event' ? eventEndTime || undefined : undefined,
+        locationName: locationName || undefined,
+        locationAddress: locationAddress || undefined,
+        addToBusinessCalendar: postingAsBusiness && postType === 'event' && addToCalendar,
       });
       toast({ title: 'Posted to Pulse', description: 'Your update is live across the city.' });
       setOpen(false);
@@ -319,6 +344,115 @@ export function PulseCreateForm() {
             </div>
           ) : (
             <>
+              {/* Post type selector */}
+              <div>
+                <Label className="mb-1.5 block text-sm font-medium">Post type</Label>
+                <div className="flex gap-1.5">
+                  {(['update', 'event', 'deal'] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setPostType(t)}
+                      className={cn(
+                        'rounded-full border px-3 py-1 text-sm font-medium transition-all capitalize',
+                        postType === t
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:bg-secondary'
+                      )}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Event fields (shown when post type = Event) */}
+              {postType === 'event' && (
+                <div className="space-y-3 rounded-lg border border-border/60 bg-secondary/30 p-3">
+                  <div>
+                    <Label className="mb-1 block text-sm font-medium">
+                      <CalendarDays className="mr-1 inline h-3.5 w-3.5" />
+                      Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={eventDate}
+                      onChange={(e) => setEventDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="mb-1 block text-sm font-medium">
+                        <Clock className="mr-1 inline h-3.5 w-3.5" />
+                        Start time
+                      </Label>
+                      <Input
+                        type="time"
+                        value={eventStartTime}
+                        onChange={(e) => setEventStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-1 block text-sm font-medium">End time</Label>
+                      <Input
+                        type="time"
+                        value={eventEndTime}
+                        onChange={(e) => setEventEndTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="mb-1 block text-sm font-medium">
+                      <MapPin className="mr-1 inline h-3.5 w-3.5" />
+                      Location / venue
+                    </Label>
+                    <Input
+                      placeholder="e.g. The Flying Joe"
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-1 block text-sm font-medium">
+                      Address <span className="text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Input
+                      placeholder="e.g. 123 Main St, Toledo"
+                      value={locationAddress}
+                      onChange={(e) => setLocationAddress(e.target.value)}
+                    />
+                  </div>
+                  {postingAsBusiness && (
+                    <div className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
+                      <span className="text-sm font-medium">Also add to my business calendar</span>
+                      <Switch checked={addToCalendar} onCheckedChange={setAddToCalendar} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Location fields for non-event posts */}
+              {postType !== 'event' && (
+                <div className="space-y-3">
+                  {locationName || locationAddress ? (
+                    <>
+                      <div>
+                        <Label className="mb-1 block text-sm font-medium">
+                          <MapPin className="mr-1 inline h-3.5 w-3.5" />
+                          Location <span className="text-muted-foreground">(optional)</span>
+                        </Label>
+                        <Input
+                          placeholder="Venue or place name"
+                          value={locationName}
+                          onChange={(e) => setLocationName(e.target.value)}
+                        />
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              )}
+
               {/* Place picker for moments / check-ins */}
               {needsPlace && (
                 <div>
@@ -394,7 +528,7 @@ export function PulseCreateForm() {
                     <SelectValue placeholder="Pick a neighborhood" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border">
-                    {PULSE_NEIGHBORHOODS.map((n) => (
+                    {NEIGHBORHOODS.map((n) => (
                       <SelectItem key={n.id} value={n.id}>
                         {n.label}
                       </SelectItem>

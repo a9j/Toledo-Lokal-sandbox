@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Coins, CalendarClock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Sparkles, Coins, CalendarClock, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { getFilledModulesForSection } from '@/lib/profile-modules';
 import { BUSINESS_TYPE_CONFIG } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
@@ -9,6 +11,21 @@ import { ProfileCard, EmptyState, ActivityPill, SectionLabel } from './ProfilePr
 export function TodayTab({ business }: { business: ProfileBusiness }) {
   const todayModules = getFilledModulesForSection(business.profileCategory, business.moduleContent, 'today');
   const config = BUSINESS_TYPE_CONFIG[business.profileCategory];
+
+  const { data: upcomingEvents } = useQuery({
+    queryKey: ['business-upcoming-events', business.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('events')
+        .select('id, title, start_date_time, end_date_time, location_text')
+        .eq('business_id', business.id)
+        .eq('status', 'approved')
+        .gt('start_date_time', new Date().toISOString())
+        .order('start_date_time', { ascending: true })
+        .limit(5);
+      return data || [];
+    },
+  });
 
   return (
     <div className="space-y-3">
@@ -25,6 +42,43 @@ export function TodayTab({ business }: { business: ProfileBusiness }) {
             </div>
           </ProfileCard>
         </Link>
+      )}
+
+      {/* Upcoming events */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <div className="space-y-2">
+          <SectionLabel>Upcoming events</SectionLabel>
+          {upcomingEvents.map((evt) => {
+            const dt = new Date(evt.start_date_time);
+            return (
+              <ProfileCard key={evt.id} className="flex items-start gap-3">
+                <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary/10 shrink-0">
+                  <span className="text-[9px] font-semibold text-primary uppercase">
+                    {dt.toLocaleDateString(undefined, { month: 'short' })}
+                  </span>
+                  <span className="text-base font-bold text-primary leading-none">
+                    {dt.getDate()}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground">{evt.title}</p>
+                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-0.5">
+                      <Clock className="h-3 w-3" />
+                      {dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                    {evt.location_text && (
+                      <span className="inline-flex items-center gap-0.5">
+                        <MapPin className="h-3 w-3" />
+                        {evt.location_text}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </ProfileCard>
+            );
+          })}
+        </div>
       )}
 
       {todayModules.length > 0 ? (

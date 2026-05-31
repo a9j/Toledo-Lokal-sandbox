@@ -15,9 +15,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Zap, AlertTriangle, Activity, HelpCircle, Heart, 
-  Clock, MapPin, ArrowLeft, Lock
+import {
+  Zap, AlertTriangle, Activity, HelpCircle, Heart,
+  CalendarDays, Clock, MapPin, ArrowLeft, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PulsePost } from '@/hooks/usePulse';
@@ -223,6 +223,32 @@ export default function PulseDetail() {
                   </div>
                 </div>
               </div>
+
+              {/* Event details */}
+              {(post as any).post_type === 'event' && (post as any).event_date && (
+                <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl bg-secondary/50 px-4 py-3 text-sm font-medium text-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarDays className="h-4 w-4 text-primary" />
+                    {new Date((post as any).event_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                  </span>
+                  {(post as any).event_start_time && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-4 w-4 text-primary" />
+                      {(post as any).event_start_time.slice(0, 5)}
+                      {(post as any).event_end_time ? ` – ${(post as any).event_end_time.slice(0, 5)}` : ''}
+                    </span>
+                  )}
+                  {(post as any).location_name && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      {(post as any).location_name}
+                      {(post as any).location_address && (
+                        <span className="text-xs text-muted-foreground ml-0.5">{(post as any).location_address}</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Headline */}
               {post.headline && (
