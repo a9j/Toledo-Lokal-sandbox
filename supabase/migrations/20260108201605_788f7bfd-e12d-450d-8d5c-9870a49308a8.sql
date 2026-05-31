@@ -44,7 +44,8 @@ AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION public.check_early_adopter();
 
--- Grant yourself (the first user) early adopter status
+-- Grant yourself (the first user) early adopter status (skip if user absent, e.g. preview branches)
 INSERT INTO public.early_adopters (user_id, tier)
-VALUES ('0d72ef0e-ab04-4a35-935b-45be8c8fce57', 'anchor_partner')
+SELECT '0d72ef0e-ab04-4a35-935b-45be8c8fce57', 'anchor_partner'
+WHERE EXISTS (SELECT 1 FROM auth.users WHERE id = '0d72ef0e-ab04-4a35-935b-45be8c8fce57')
 ON CONFLICT (user_id) DO NOTHING;

@@ -1,9 +1,16 @@
-import { Search, Bell, ArrowLeft, UserCircle, LogIn } from 'lucide-react';
+import { Search, Bell, ArrowLeft, UserCircle, LogIn, Building2, ChevronDown } from 'lucide-react';
 import logoImage from '@/assets/tl-logo.png';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useActiveRole } from '@/contexts/ActiveRoleContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   title?: string;
@@ -15,6 +22,7 @@ interface HeaderProps {
 export function Header({ title = 'Toledo Connect', showSearch = false, showNotifications = false, showBack = false }: HeaderProps) {
   const navigate = useNavigate();
   const { user, isAdmin, isBusiness } = useAuth();
+  const { activeView, setActiveView, businesses, activeBusiness } = useActiveRole();
 
   return (
     <header className="sticky top-0 z-40 safe-area-top">
@@ -87,11 +95,45 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
             </Link>
           )}
 
-          {isBusiness && (
+          {isBusiness && businesses.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs rounded-xl h-8 px-3 border-border/60 hover:bg-muted gap-1"
+                >
+                  {activeBusiness ? (
+                    <>
+                      <Building2 className="h-3 w-3" />
+                      <span className="max-w-[80px] truncate">{activeBusiness.name}</span>
+                    </>
+                  ) : (
+                    'Personal'
+                  )}
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setActiveView('personal')}>
+                  <UserCircle className="h-4 w-4 mr-2" />
+                  Personal
+                </DropdownMenuItem>
+                {businesses.map(b => (
+                  <DropdownMenuItem key={b.id} onClick={() => { setActiveView(b.id); navigate('/dashboard'); }}>
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <span className="truncate">{b.name}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {isBusiness && businesses.length === 0 && (
             <Link to="/dashboard">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="text-xs rounded-xl h-8 px-3 border-border/60 hover:bg-muted"
               >
                 Dashboard

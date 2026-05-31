@@ -5,10 +5,10 @@ import { ProfileTab, PROFILE_TABS } from '@/lib/business-profile-config';
 interface ProfileTabsProps {
   active: ProfileTab;
   onChange: (tab: ProfileTab) => void;
+  hiddenTabs?: ProfileTab[];
 }
 
-// Sticky segmented tabs. Sticks to the top once scrolled past the hero.
-export function ProfileTabs({ active, onChange }: ProfileTabsProps) {
+export function ProfileTabs({ active, onChange, hiddenTabs = [] }: ProfileTabsProps) {
   const activeRef = useRef<HTMLButtonElement>(null);
 
   // Keep the active tab in view on smaller screens.
@@ -19,7 +19,7 @@ export function ProfileTabs({ active, onChange }: ProfileTabsProps) {
   return (
     <div className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
       <div className="flex gap-1 overflow-x-auto scrollbar-hide px-3 py-2">
-        {PROFILE_TABS.map((tab) => {
+        {PROFILE_TABS.filter(t => !hiddenTabs.includes(t.id)).map((tab) => {
           const isActive = tab.id === active;
           return (
             <button
