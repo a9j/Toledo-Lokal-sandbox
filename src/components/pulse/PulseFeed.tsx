@@ -63,6 +63,23 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
   const { data: followedIds = [] } = useFollowedBusinessIds();
   const { data: homeNeighborhood } = useHomeNeighborhood();
 
+  // Tags that actually appear on live posts, so the chip row only offers
+  // interests that lead somewhere instead of nine mostly-empty categories.
+  const { data: availableTags = [] } = useQuery({
+    queryKey: ['pulse-available-tags'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pulse_posts')
+        .select('tags')
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString());
+      if (error) throw error;
+      const set = new Set<string>();
+      (data ?? []).forEach((r: { tags: string[] | null }) => (r.tags ?? []).forEach((t) => set.add(t)));
+      return Array.from(set);
+    },
+  });
+
   const effectiveNeighborhood = neighborhood ?? (tab === 'nearby' ? homeNeighborhood ?? undefined : undefined);
 
   const pulseOptions = useMemo(() => {
@@ -120,7 +137,7 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
           <NeighborhoodEnergy selected={neighborhood} onSelect={setNeighborhood} />
 
           {/* Category filter */}
-          <PulseCategoryFilter selected={category} onSelect={setCategory} />
+          <PulseCategoryFilter selected={category} onSelect={setCategory} available={availableTags} />
         </>
       )}
 
@@ -151,9 +168,18 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
         </div>
       ) : showFilters ? (
         (neighborhood || category) ? (
-          <div className="py-12 text-center text-muted-foreground space-y-2">
-            <p className="text-sm font-medium">No posts match these filters</p>
-            <p className="text-xs">Try a different neighborhood or category, or clear your filters.</p>
+          <div className="py-12 text-center text-muted-foreground space-y-3">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">No posts match these filters</p>
+              <p className="text-xs">Try a different neighborhood or interest, or clear your filters.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setNeighborhood(null); setCategory(null); }}
+              className="inline-flex items-center rounded-full border border-border px-4 py-1.5 text-sm font-medium hover:bg-secondary"
+            >
+              Clear filters
+            </button>
           </div>
         ) : (
           <PulseEmptyState />

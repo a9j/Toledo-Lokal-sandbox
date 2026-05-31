@@ -123,7 +123,11 @@ export default function NearMe() {
         switch (err.code) {
           case err.PERMISSION_DENIED:
             setGeoStatus('denied');
-            setGeoMessage('Location is blocked. Enable it for this site in your browser settings, then try again.');
+            setGeoMessage(
+              window.self !== window.top
+                ? 'Location is blocked while the app is embedded. Open ToledoLokal in its own browser tab, then try again.'
+                : 'Location is blocked. Enable it for this site in your browser settings, then try again.'
+            );
             break;
           case err.POSITION_UNAVAILABLE:
             setGeoStatus('unavailable');

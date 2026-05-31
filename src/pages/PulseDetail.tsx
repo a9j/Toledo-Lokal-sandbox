@@ -8,7 +8,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { PulseShareButton } from '@/components/pulse/PulseShareButton';
 import { PulseShareCard } from '@/components/pulse/PulseShareCard';
 import { PulseFeed } from '@/components/pulse/PulseFeed';
-import { PULSE_CATEGORIES, formatTimeRemaining, PulseCategory } from '@/lib/pulse-config';
+import { PULSE_CATEGORIES, PULSE_CONTENT_TYPES, formatTimeRemaining, PulseCategory } from '@/lib/pulse-config';
 import { SecureAvatar } from '@/components/ui/secure-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -143,8 +143,7 @@ export default function PulseDetail() {
     );
   }
 
-  const categoryConfig = PULSE_CATEGORIES[post.category as PulseCategory];
-  const CategoryIcon = CATEGORY_ICONS[post.category as PulseCategory];
+  const typeConfig = PULSE_CONTENT_TYPES[post.content_type] ?? PULSE_CONTENT_TYPES.business_activity;
   const authorName = post.anonymous ? 'Anonymous' : (post.business?.name || (post as any).author?.name || 'Toledo Local');
   const authorInitial = authorName.charAt(0).toUpperCase();
   const timeRemaining = formatTimeRemaining(new Date(post.expires_at));
