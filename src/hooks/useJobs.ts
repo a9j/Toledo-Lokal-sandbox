@@ -56,7 +56,7 @@ export function useJobs(filters?: JobFilters) {
             name,
             logo_url,
             neighborhood:neighborhoods(name),
-            category:categories(name, icon),
+            category:categories!category_id(name, icon),
             business_loop_settings(loop_tier_id, is_active)
           )
         `)

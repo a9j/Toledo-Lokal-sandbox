@@ -43,7 +43,7 @@ export function usePulseById(pulseId: string | undefined) {
         .from('pulse_posts')
         .select(`
           *,
-          business:businesses(id, name, logo_url)
+          business:businesses!business_id(id, name, logo_url)
         `)
         .eq('pulse_id', pulseId)
         .maybeSingle();
@@ -54,7 +54,7 @@ export function usePulseById(pulseId: string | undefined) {
           .from('pulse_posts')
           .select(`
             *,
-            business:businesses(id, name, logo_url)
+            business:businesses!business_id(id, name, logo_url)
           `)
           .eq('id', pulseId)
           .maybeSingle();

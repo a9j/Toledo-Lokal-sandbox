@@ -60,7 +60,7 @@ export function useConnectorReferrals(connectorId?: string) {
       if (!connectorId) return [];
       const { data, error } = await supabase
         .from('connector_referrals')
-        .select('*, business:businesses(id, name, status, category:categories(name), created_at)')
+        .select('*, business:businesses(id, name, status, category:categories!category_id(name), created_at)')
         .eq('connector_id', connectorId)
         .order('created_at', { ascending: false });
       if (error) throw error;

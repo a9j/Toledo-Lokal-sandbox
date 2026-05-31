@@ -88,23 +88,57 @@ export default function NearMe() {
   const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
   const [geocodedLocations, setGeocodedLocations] = useState<Map<string, { lat: number; lng: number }>>(new Map());
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [geoStatus, setGeoStatus] = useState<'idle' | 'prompting' | 'granted' | 'denied' | 'unsupported'>('idle');
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'prompting' | 'granted' | 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'insecure'>('idle');
+  const [geoMessage, setGeoMessage] = useState<string | null>(null);
   const { apiKey: mapsApiKey, isLoading: mapsLoading, error: mapsError } = useGoogleMapsKey();
 
   // Ask for the visitor's location so we can limit results to nearby places.
   const requestLocation = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setGeoStatus('unsupported');
+      setGeoMessage("Your browser doesn't support location sharing.");
       return;
     }
+    // Browsers only expose geolocation over HTTPS (or localhost). On an
+    // insecure origin getCurrentPosition silently never resolves, so bail early
+    // with a clear message instead of spinning forever.
+    if (!window.isSecureContext) {
+      setGeoStatus('insecure');
+      setGeoMessage('Location needs a secure (https) connection to work.');
+      return;
+    }
+
     setGeoStatus('prompting');
+    setGeoMessage(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setGeoStatus('granted');
+        setGeoMessage(null);
       },
-      () => setGeoStatus('denied'),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+      (err) => {
+        // Surface the real reason instead of failing silently. err.code:
+        // 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
+        console.warn(`Geolocation error (code ${err.code}): ${err.message}`);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setGeoStatus('denied');
+            setGeoMessage('Location is blocked. Enable it for this site in your browser settings, then try again.');
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setGeoStatus('unavailable');
+            setGeoMessage("We couldn't determine your location right now. Check your device's location services and try again.");
+            break;
+          case err.TIMEOUT:
+            setGeoStatus('timeout');
+            setGeoMessage('Finding your location took too long. Try again.');
+            break;
+          default:
+            setGeoStatus('unavailable');
+            setGeoMessage("We couldn't get your location. Try again.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
   }, []);
 
@@ -439,9 +473,9 @@ export default function NearMe() {
               ) : geoStatus === 'prompting' ? (
                 <span className="text-muted-foreground">Finding places near you…</span>
               ) : (
-                <span className="inline-flex items-center gap-2 text-muted-foreground">
-                  Showing all of Toledo.
-                  {geoStatus === 'denied' && (
+                <span className="inline-flex flex-wrap items-center gap-2 text-muted-foreground">
+                  <span>{geoMessage ? geoMessage : 'Showing all of Toledo.'}</span>
+                  {(geoStatus === 'denied' || geoStatus === 'unavailable' || geoStatus === 'timeout') && (
                     <button
                       onClick={requestLocation}
                       className="inline-flex items-center gap-1 font-medium text-primary hover:underline"

@@ -182,7 +182,7 @@ export function AnalyticsDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('category:categories(name)')
+        .select('category:categories!category_id(name)')
         .eq('status', 'approved');
       if (error) throw error;
 

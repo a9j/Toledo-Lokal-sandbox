@@ -69,7 +69,7 @@ export default function Admin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('*, category:categories(name), neighborhood:neighborhoods(name)')
+        .select('*, category:categories!category_id(name), neighborhood:neighborhoods(name)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
@@ -98,7 +98,7 @@ export default function Admin() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('*, category:categories(name), neighborhood:neighborhoods(name), business_loop_settings(is_founding_member, is_founding_50, loop_tier_id)')
+        .select('*, category:categories!category_id(name), neighborhood:neighborhoods(name), business_loop_settings(is_founding_member, is_founding_50, loop_tier_id)')
         .eq('status', 'approved')
         .order('featured', { ascending: false })
         .order('name', { ascending: true });

@@ -43,7 +43,7 @@ export default function Dashboard() {
       if (!user) return null;
       const businessSelect = `
           *,
-          category:categories(name),
+          category:categories!category_id(name),
           neighborhood:neighborhoods(name),
           deals(id),
           events(id),

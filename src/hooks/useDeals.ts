@@ -9,7 +9,7 @@ export function useDeals(options?: { featured?: boolean; limit?: number }) {
         .from('deals')
         .select(`
           *,
-          business:businesses(id, name, neighborhood:neighborhoods(name), category:categories(name, icon))
+          business:businesses(id, name, neighborhood:neighborhoods(name), category:categories!category_id(name, icon))
         `)
         .eq('status', 'approved')
         .gte('end_date', new Date().toISOString().split('T')[0])
