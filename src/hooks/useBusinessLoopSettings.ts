@@ -122,7 +122,7 @@ export function useLoopParticipants() {
         .from('business_loop_settings')
         .select(`
           *,
-          business:businesses(id, name, logo_url, category:categories(name), neighborhood:neighborhoods(name))
+          business:businesses(id, name, logo_url, category:categories!category_id(name), neighborhood:neighborhoods(name))
         `)
         .eq('is_active', true)
         .in('loop_tier_id', ['community', 'growth', 'pro']);

@@ -48,7 +48,7 @@ export function useFoodTruckLocations(filters?: FoodTruckFilters) {
             logo_url,
             photos,
             neighborhood:neighborhoods(name),
-            category:categories(name, icon)
+            category:categories!category_id(name, icon)
           )
         `)
         .eq('status', 'active')

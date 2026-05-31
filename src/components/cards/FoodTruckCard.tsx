@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Clock, Utensils } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { FoodTruckLocation } from '@/hooks/useFoodTruckLocations';
+import { SecureImage } from '@/components/ui/secure-image';
 import { format, parse, isWithinInterval, addMinutes } from 'date-fns';
 
 interface FoodTruckCardProps {
@@ -39,10 +40,11 @@ export function FoodTruckCard({ location }: FoodTruckCardProps) {
         {/* Image */}
         {location.business?.photos?.[0] && (
           <div className="aspect-[16/9] overflow-hidden">
-            <img 
-              src={location.business.photos[0]} 
+            <SecureImage
+              storagePath={location.business.photos[0]}
               alt={location.business.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full"
+              imgClassName="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
         )}
@@ -53,10 +55,12 @@ export function FoodTruckCard({ location }: FoodTruckCardProps) {
               {/* Logo */}
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center overflow-hidden">
                 {location.business?.logo_url ? (
-                  <img 
-                    src={location.business.logo_url} 
-                    alt={location.business.name} 
-                    className="w-full h-full object-cover"
+                  <SecureImage
+                    storagePath={location.business.logo_url}
+                    alt={location.business.name}
+                    className="w-full h-full"
+                    imgClassName="object-cover"
+                    fallback={<Utensils className="h-4 w-4 text-accent" />}
                   />
                 ) : (
                   <Utensils className="h-4 w-4 text-accent" />

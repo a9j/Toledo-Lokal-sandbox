@@ -76,7 +76,7 @@ export function useSavedItems(itemType?: SavedItemType) {
         businessIds.length > 0
           ? supabase
               .from('businesses')
-              .select('id, name, logo_url, description, category:categories(name)')
+              .select('id, name, logo_url, description, category:categories!category_id(name)')
               .in('id', businessIds)
           : { data: [] },
         eventIds.length > 0

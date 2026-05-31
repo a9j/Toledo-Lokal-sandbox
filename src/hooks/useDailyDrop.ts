@@ -97,7 +97,7 @@ export function useDailyDrop(date?: Date) {
             *,
             business:businesses(
               id, name, logo_url, description, slug,
-              category:categories(name, icon),
+              category:categories!category_id(name, icon),
               neighborhood:neighborhoods(name)
             )
           `)

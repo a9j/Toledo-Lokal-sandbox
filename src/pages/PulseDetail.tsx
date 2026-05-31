@@ -9,7 +9,6 @@ import { PulseShareButton } from '@/components/pulse/PulseShareButton';
 import { PulseShareCard } from '@/components/pulse/PulseShareCard';
 import { PulseFeed } from '@/components/pulse/PulseFeed';
 import { PULSE_CATEGORIES, formatTimeRemaining, PulseCategory } from '@/lib/pulse-config';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SecureAvatar } from '@/components/ui/secure-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +42,7 @@ export default function PulseDetail() {
         .from('pulse_posts')
         .select(`
           *,
-          business:businesses(id, name, logo_url)
+          business:businesses!business_id(id, name, logo_url)
         `)
         .eq('pulse_id', pulseId)
         .maybeSingle();
@@ -54,7 +53,7 @@ export default function PulseDetail() {
           .from('pulse_posts')
           .select(`
             *,
-            business:businesses(id, name, logo_url)
+            business:businesses!business_id(id, name, logo_url)
           `)
           .eq('id', pulseId)
           .maybeSingle();
@@ -200,12 +199,12 @@ export default function PulseDetail() {
                     className="h-12 w-12"
                   />
                 ) : (
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={(post as any).author?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-secondary text-foreground">
-                      {authorInitial}
-                    </AvatarFallback>
-                  </Avatar>
+                  <SecureAvatar
+                    storagePath={(post as any).author?.avatar_url}
+                    fallbackText={authorName}
+                    className="h-12 w-12"
+                    fallbackClassName="bg-secondary text-foreground"
+                  />
                 )}
                 <div>
                   <p className="font-medium text-foreground">{authorName}</p>

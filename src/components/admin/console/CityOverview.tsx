@@ -48,7 +48,7 @@ function useCityMetrics() {
 
       const pendingList = (await supabase
         .from('businesses')
-        .select('id, name, created_at, category:categories(name)')
+        .select('id, name, created_at, category:categories!category_id(name)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(6)).data ?? [];

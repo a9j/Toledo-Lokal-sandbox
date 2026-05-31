@@ -66,7 +66,7 @@ export function useMyToledo() {
         businessIds.length > 0
           ? supabase
               .from('businesses')
-              .select('id, name, logo_url, description, category:categories(name), neighborhood:neighborhoods(name)')
+              .select('id, name, logo_url, description, category:categories!category_id(name), neighborhood:neighborhoods(name)')
               .in('id', businessIds)
           : { data: [] },
         eventIds.length > 0
@@ -262,7 +262,7 @@ export function usePublicCollection(slug: string | undefined) {
       const { data: businesses } = businessIds.length > 0
         ? await supabase
             .from('businesses')
-            .select('id, name, logo_url, description, category:categories(name), neighborhood:neighborhoods(name)')
+            .select('id, name, logo_url, description, category:categories!category_id(name), neighborhood:neighborhoods(name)')
             .in('id', businessIds)
         : { data: [] };
 

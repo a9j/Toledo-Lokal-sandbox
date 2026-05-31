@@ -91,7 +91,7 @@ export function usePulse(options: UsePulseOptions = {}) {
         .from('pulse_posts')
         .select(`
           *,
-          business:businesses(id, name, logo_url),
+          business:businesses!business_id(id, name, logo_url),
           nonprofit:nonprofits(id, name, logo_url)
         `)
         .eq('status', 'active')

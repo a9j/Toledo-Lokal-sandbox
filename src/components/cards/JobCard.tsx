@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Briefcase, DollarSign, Clock, Zap, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Job, JobType } from '@/hooks/useJobs';
+import { SecureImage } from '@/components/ui/secure-image';
 
 interface JobCardProps {
   job: Job;
@@ -50,10 +51,12 @@ export function JobCard({ job, showLocalEmployerBadge = false }: JobCardProps) {
           {/* Business Logo */}
           <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden">
             {job.business?.logo_url ? (
-              <img 
-                src={job.business.logo_url} 
-                alt={job.business.name} 
-                className="w-full h-full object-cover"
+              <SecureImage
+                storagePath={job.business.logo_url}
+                alt={job.business.name}
+                className="w-full h-full"
+                imgClassName="object-cover"
+                fallback={<Briefcase className="h-5 w-5 text-primary" />}
               />
             ) : (
               <Briefcase className="h-5 w-5 text-primary" />

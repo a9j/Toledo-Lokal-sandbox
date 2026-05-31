@@ -134,7 +134,7 @@ export default function AdminBusinesses() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name, owner_user_id, status, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories(name), neighborhood:neighborhoods(name)')
+        .select('id, name, owner_user_id, status, tier_status, tier_badge_visible, tier_assigned_at, tier_revoked_at, onboarding_completed, created_at, category:categories!category_id(name), neighborhood:neighborhoods(name)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
