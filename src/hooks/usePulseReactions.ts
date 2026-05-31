@@ -45,14 +45,17 @@ export function useTogglePulseReaction() {
     }) => {
       if (!user) throw new Error('Must be logged in');
 
-      if (active) {
-        const { error } = await (supabase.from('pulse_reactions' as any) as any)
-          .delete()
-          .eq('post_id', postId)
-          .eq('user_id', user.id)
-          .eq('reaction_type', reactionType);
-        if (error) throw error;
-      } else {
+      // One reaction per user per post: always clear the user's existing
+      // reaction on this post first. If they tapped the one they already had
+      // (active), that's a toggle-off and we stop here; otherwise insert the
+      // newly chosen reaction (replacing whatever they had).
+      const { error: clearError } = await (supabase.from('pulse_reactions' as any) as any)
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', user.id);
+      if (clearError) throw clearError;
+
+      if (!active) {
         const { error } = await (supabase.from('pulse_reactions' as any) as any).insert({
           post_id: postId,
           user_id: user.id,

@@ -8,7 +8,7 @@ import { NeighborhoodEnergy } from './NeighborhoodEnergy';
 import { PulseCategoryFilter } from './PulseCategoryFilter';
 import { PulseEmptyState } from './PulseEmptyState';
 import { PulseIcon } from './PulseIcon';
-import { PULSE_TABS, PulseTab, PULSE_EVENT_TEMPLATE_KEYS } from '@/lib/pulse-config';
+import { PULSE_TABS, PulseTab } from '@/lib/pulse-config';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -97,7 +97,7 @@ export function PulseFeed({ limit, showFilters = true }: PulseFeedProps = {}) {
       case 'community':
         return { ...base, contentType: 'community_activity' as const };
       case 'events':
-        return { ...base, templateKeys: PULSE_EVENT_TEMPLATE_KEYS };
+        return { ...base, eventsOnly: true };
       case 'live':
         return { ...base, contentType: 'city_signal' as const };
       case 'following':

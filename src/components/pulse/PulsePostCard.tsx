@@ -23,10 +23,11 @@ import { AuthorBadge } from './AuthorBadge';
 import { ReactionBar } from './ReactionBar';
 import { PulseReportDialog } from './PulseReportDialog';
 import { PulseIcon } from './PulseIcon';
-import { CalendarDays, Clock, MapPin, MoreVertical, Pin, Trash2, Flag } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, MoreVertical, Pin, Trash2, Flag, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useSavedItems } from '@/hooks/useSavedItems';
 
 interface PulsePostCardProps {
   post: PulsePost;
@@ -36,6 +37,7 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const hidePost = useHidePulsePost();
+  const { isItemSaved, toggleSave } = useSavedItems();
   const [timeRemaining, setTimeRemaining] = useState(formatTimeRemaining(new Date(post.expires_at)));
   const [reportOpen, setReportOpen] = useState(false);
 
@@ -62,6 +64,18 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
   const authorName = post.business?.name || post.nonprofit?.name || post.author?.name || 'Toledo Local';
   const authorInitial = authorName.charAt(0).toUpperCase();
   const categoryTags = PULSE_CATEGORY_TAGS.filter((c) => post.tags?.includes(c.id));
+
+  // Upcoming events can be saved to the user's profile (Saved list).
+  const isEvent = post.post_type === 'event';
+  const saved = isItemSaved(post.id);
+
+  const handleToggleSave = () => {
+    if (!user) {
+      toast({ title: 'Sign in to save events' });
+      return;
+    }
+    toggleSave(post.id, 'post');
+  };
 
   return (
     <article
@@ -217,7 +231,26 @@ export function PulsePostCard({ post }: PulsePostCardProps) {
         {/* Footer: reactions + share */}
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
           <ReactionBar post={post} />
-          <PulseShareButton post={post} />
+          <div className="flex items-center gap-1">
+            {isEvent && (
+              <button
+                type="button"
+                onClick={handleToggleSave}
+                aria-label={saved ? 'Remove from saved' : 'Save event'}
+                title={saved ? 'Saved to your profile' : 'Save event'}
+                className={cn(
+                  'flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium transition-all active:scale-95',
+                  saved
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
+                )}
+              >
+                <Bookmark className={cn('h-3.5 w-3.5', saved && 'fill-current')} />
+                {saved ? 'Saved' : 'Save'}
+              </button>
+            )}
+            <PulseShareButton post={post} />
+          </div>
         </div>
       </div>
 
