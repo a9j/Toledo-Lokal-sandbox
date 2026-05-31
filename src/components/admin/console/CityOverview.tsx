@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   Store, Clock3, Users, UserPlus, Radio, Coins, QrCode, HeartHandshake,
   CheckCircle2, Plus, Megaphone, Star, Gift, ShieldAlert, CalendarPlus, ChevronRight, Activity,
+  Shield, Crown,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,17 +69,25 @@ function useCityMetrics() {
   });
 }
 
-function MetricCard({ icon: Icon, label, value, tone = 'default' }: { icon: LucideIcon; label: string; value: number | string; tone?: 'default' | 'primary' | 'warning' }) {
+function MetricCard({ icon: Icon, label, value, tone = 'default', to }: { icon: LucideIcon; label: string; value: number | string; tone?: 'default' | 'primary' | 'warning'; to?: string }) {
   const tones = { default: 'text-foreground', primary: 'text-primary', warning: 'text-lokal-amber' } as const;
-  return (
-    <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+  const content = (
+    <>
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
         <Icon className={cn('h-4 w-4', tones[tone])} />
       </div>
       <p className={cn('font-display text-2xl font-bold tracking-tight', tones[tone])}>{value}</p>
-    </div>
+    </>
   );
+  if (to) {
+    return (
+      <Link to={to} className="block rounded-2xl border border-border/60 bg-card p-4 shadow-sm transition-colors hover:border-primary/40 hover:bg-primary/5">
+        {content}
+      </Link>
+    );
+  }
+  return <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">{content}</div>;
 }
 
 const QUICK_ACTIONS: { label: string; icon: LucideIcon; to: string }[] = [
@@ -88,8 +97,8 @@ const QUICK_ACTIONS: { label: string; icon: LucideIcon; to: string }[] = [
   { label: 'Add event', icon: CalendarPlus, to: '/admin/classic?tab=events' },
   { label: 'Add nonprofit', icon: HeartHandshake, to: '/admin/classic?tab=nonprofits' },
   { label: 'Create reward', icon: Gift, to: '/dashboard/rewards' },
-  { label: 'City announcement', icon: Megaphone, to: '/admin/classic?tab=manage' },
-  { label: 'Moderate reports', icon: ShieldAlert, to: '/admin/classic?tab=businesses' },
+  { label: 'Assign Founding 5', icon: Crown, to: '/admin/businesses?tier=founding_5' },
+  { label: 'Assign Founding 50', icon: Shield, to: '/admin/businesses?tier=founding_50' },
 ];
 
 export function CityOverview() {
@@ -106,14 +115,14 @@ export function CityOverview() {
     <div className="space-y-6">
       {/* Metrics */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <MetricCard icon={Store} label="Active businesses" value={m.activeBusinesses} />
-        <MetricCard icon={Users} label="Residents" value={m.residents} />
-        <MetricCard icon={UserPlus} label="New signups today" value={m.signupsToday} tone="primary" />
-        <MetricCard icon={Clock3} label="Pending approvals" value={pendingTotal} tone="warning" />
-        <MetricCard icon={Coins} label="Loop Points today" value={m.pointsToday} tone="primary" />
-        <MetricCard icon={QrCode} label="Check-ins today" value={m.checkinsToday} />
-        <MetricCard icon={Radio} label="Pulse posts today" value={m.pulseToday} />
-        <MetricCard icon={HeartHandshake} label="Nonprofits" value={m.nonprofits} />
+        <MetricCard icon={Store} label="Active businesses" value={m.activeBusinesses} to="/admin/businesses" />
+        <MetricCard icon={Users} label="Residents" value={m.residents} to="/admin/classic?tab=users" />
+        <MetricCard icon={UserPlus} label="New signups today" value={m.signupsToday} tone="primary" to="/admin/classic?tab=users" />
+        <MetricCard icon={Clock3} label="Pending approvals" value={pendingTotal} tone="warning" to="/admin/classic?tab=businesses" />
+        <MetricCard icon={Coins} label="Loop Points today" value={m.pointsToday} tone="primary" to="/admin/classic?tab=manage" />
+        <MetricCard icon={QrCode} label="Check-ins today" value={m.checkinsToday} to="/admin/classic?tab=manage" />
+        <MetricCard icon={Radio} label="Pulse posts today" value={m.pulseToday} to="/admin/classic?tab=manage" />
+        <MetricCard icon={HeartHandshake} label="Nonprofits" value={m.nonprofits} to="/admin/classic?tab=nonprofits" />
       </div>
 
       {/* Quick actions */}

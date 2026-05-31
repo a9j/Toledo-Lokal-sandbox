@@ -46,7 +46,8 @@ export function useFoundingMembers() {
         .select(
           'id, slug, name, tier_status, cover_image_url, logo_url, photos, tier_assigned_at, created_at, neighborhood:neighborhoods(name)',
         )
-        .in('tier_status', ['founding_5', 'founding_50']);
+        .in('tier_status', ['founding_5', 'founding_50'])
+        .neq('tier_badge_visible', false);
 
       if (error) throw error;
 

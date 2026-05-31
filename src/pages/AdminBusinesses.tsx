@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -64,11 +64,13 @@ interface TierChangeLog {
 export default function AdminBusinesses() {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const initialTier = searchParams.get('tier') || 'all';
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterTier, setFilterTier] = useState<string>('all');
+  const [filterTier, setFilterTier] = useState<string>(initialTier);
   const [filterBadge, setFilterBadge] = useState<string>('all');
   const [filterOnboarding, setFilterOnboarding] = useState<string>('all');
 
