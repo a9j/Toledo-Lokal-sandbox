@@ -119,9 +119,15 @@ export default function Dashboard() {
   const isOwner = business.owner_user_id === user.id;
 
   const dashboardItems = [
-    { 
-      icon: Building2, 
-      label: 'My Business Profile', 
+    {
+      icon: Building2,
+      label: 'Manage Business',
+      href: '/manage',
+      subtitle: 'Dashboard, profile, analytics, and more',
+    },
+    {
+      icon: Building2,
+      label: 'My Business Profile',
       href: `/business/${business.id}/edit`,
       subtitle: business.status === 'pending' ? 'Pending approval' : 'Active',
       badge: business.status === 'pending' ? 'warning' : undefined

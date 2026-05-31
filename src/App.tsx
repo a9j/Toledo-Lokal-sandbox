@@ -89,6 +89,7 @@ const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
 const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
 const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
+const BusinessAdmin = lazy(() => import("./pages/BusinessAdmin"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
@@ -150,6 +151,7 @@ const App = () => (
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   <Route path="/business/:id/edit" element={<EditBusiness />} />
                   <Route path="/create-business" element={<CreateBusiness />} />
+                  <Route path="/manage" element={<BusinessAdmin />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/dashboard/qr-codes" element={<BusinessQRCodes />} />
                   <Route path="/dashboard/rewards" element={<BusinessRewards />} />
