@@ -30,6 +30,13 @@ import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
 import { StaffManagement } from '@/components/staff/StaffManagement';
 import { LogoLoader } from '@/components/ui/logo-loader';
+import {
+  canHaveMenu,
+  isFoodTruckCategory,
+  loopEnabled,
+  LOOP_UPGRADE_NUDGE,
+} from '@/lib/business-access';
+import type { BusinessCategory } from '@/lib/profile-modules';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -43,6 +50,7 @@ export default function Dashboard() {
       if (!user) return null;
       const businessSelect = `
           *,
+          business_category:category,
           category:categories!category_id(name),
           neighborhood:neighborhoods(name),
           deals(id),
@@ -118,6 +126,13 @@ export default function Dashboard() {
   const newLeadsCount = business.leads?.filter(l => l.status === 'new').length || 0;
   const isOwner = business.owner_user_id === user.id;
 
+  // Feature gating by business category + plan. `category` here is the join
+  // alias (categories.name); the raw enum ships under `business_category`.
+  const businessCategory = (business as { business_category?: BusinessCategory | null }).business_category;
+  const showMenu = canHaveMenu(businessCategory);
+  const showFoodTruck = isFoodTruckCategory(businessCategory);
+  const showLoop = loopEnabled(business.tier_status);
+
   const dashboardItems = [
     {
       icon: Building2,
@@ -142,7 +157,8 @@ export default function Dashboard() {
       icon: UtensilsCrossed,
       label: 'Menu',
       href: '/dashboard/menu',
-      subtitle: 'Manage your menu items'
+      subtitle: 'Manage your menu items',
+      visible: showMenu,
     },
     {
       icon: Briefcase,
@@ -150,11 +166,12 @@ export default function Dashboard() {
       href: '/dashboard/jobs',
       subtitle: 'Post job openings'
     },
-    { 
-      icon: Truck, 
-      label: 'Food Truck Mode', 
+    {
+      icon: Truck,
+      label: 'Food Truck Mode',
       href: '/dashboard/food-truck',
-      subtitle: 'Post daily locations'
+      subtitle: 'Post daily locations',
+      visible: showFoodTruck,
     },
     { 
       icon: Tag, 
@@ -176,25 +193,28 @@ export default function Dashboard() {
       badge: newLeadsCount > 0 ? 'new' : undefined,
       badgeCount: newLeadsCount
     },
-    { 
-      icon: QrCode, 
-      label: 'Loop QR Codes', 
+    {
+      icon: QrCode,
+      label: 'Loop QR Codes',
       href: '/dashboard/qr-codes',
-      subtitle: 'Issue points to customers'
+      subtitle: 'Issue points to customers',
+      visible: showLoop,
     },
-    { 
-      icon: Gift, 
-      label: 'Loop Rewards', 
+    {
+      icon: Gift,
+      label: 'Loop Rewards',
       href: '/dashboard/rewards',
-      subtitle: 'Set redemption options'
+      subtitle: 'Set redemption options',
+      visible: showLoop,
     },
-    { 
-      icon: ClipboardCheck, 
-      label: 'Pending Confirmations', 
+    {
+      icon: ClipboardCheck,
+      label: 'Pending Confirmations',
       href: '/dashboard/pending-scans',
       subtitle: (pendingScanCount || 0) > 0 ? `${pendingScanCount} awaiting confirmation` : 'No pending scans',
       badge: (pendingScanCount || 0) > 0 ? 'new' as const : undefined,
-      badgeCount: pendingScanCount || 0
+      badgeCount: pendingScanCount || 0,
+      visible: showLoop,
     },
     {
       icon: Users,
@@ -286,12 +306,34 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Loop Lokal Stats */}
-        <BusinessLoopStats businessId={business.id} />
+        {/* Loop Lokal Stats — paid plans only. Free (Community) is "Visible Only". */}
+        {showLoop ? (
+          <BusinessLoopStats businessId={business.id} />
+        ) : (
+          <Link to="/dashboard/subscription">
+            <div className="card-elevated p-4 flex items-center gap-3 border-dashed border-2 hover-lift">
+              <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center">
+                <Zap className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium">{LOOP_UPGRADE_NUDGE}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Upgrade to issue points, run rewards, and join Loop missions.
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Link>
+        )}
 
         {/* Dashboard items */}
         <div className="space-y-2">
-          {dashboardItems.filter(item => isOwner || !(item as { ownerOnly?: boolean }).ownerOnly).map(item => (
+          {dashboardItems
+            .filter(item => {
+              const meta = item as { ownerOnly?: boolean; visible?: boolean };
+              return (isOwner || !meta.ownerOnly) && meta.visible !== false;
+            })
+            .map(item => (
             <Link key={item.href} to={item.href}>
               <div className="card-elevated p-4 flex items-start gap-3 hover-lift">
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">

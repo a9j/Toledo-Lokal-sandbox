@@ -51,6 +51,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { useBusinessRewards, LoopReward } from '@/hooks/useLoopRewards';
+import { useBusinessGate } from '@/hooks/useBusinessGate';
+import { loopEnabled, LOOP_UPGRADE_NUDGE } from '@/lib/business-access';
 import { 
   REWARD_TEMPLATES, 
   CATEGORY_LABELS, 
@@ -102,7 +104,8 @@ export default function BusinessRewards() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { rewards, isLoading, createReward, updateReward, deleteReward } = useBusinessRewards();
-  
+  const { data: gate } = useBusinessGate();
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingReward, setEditingReward] = useState<LoopReward | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -262,6 +265,39 @@ export default function BusinessRewards() {
           <Skeleton className="h-12 w-32" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
+        </PageContainer>
+      </>
+    );
+  }
+
+  // Setting up redemption rewards is a paid-plan feature. Free (Community) is
+  // "Visible Only": no Loop participation. Show an upgrade nudge instead.
+  if (gate && !loopEnabled(gate.tier_status)) {
+    return (
+      <>
+        <Header title="Rewards" />
+        <PageContainer className="space-y-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2"
+            onClick={() => navigate('/dashboard')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Dashboard
+          </Button>
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <Gift className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="font-semibold mb-1">{LOOP_UPGRADE_NUDGE}</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                Upgrade your plan to set up rewards customers can redeem with their Loop Points.
+              </p>
+              <Button onClick={() => navigate('/dashboard/subscription')}>
+                View plans
+              </Button>
+            </CardContent>
+          </Card>
         </PageContainer>
       </>
     );
