@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, LogIn, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -64,7 +64,31 @@ export default function Founding5() {
   const [applyOpen, setApplyOpen] = useState(false);
   const { data, isLoading } = useFoundingMembers();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile-role-check', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role_selected, profile_completed')
+        .eq('user_id', user!.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (user && profile) {
+      if (profile.role_selected === false) {
+        navigate('/role-select', { replace: true });
+      } else if (profile.profile_completed === false) {
+        navigate('/profile-setup', { replace: true });
+      }
+    }
+  }, [user, profile, navigate]);
 
   useEffect(() => {
     document.title = 'The Founding 5 - Toledo Lokal';
