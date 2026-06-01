@@ -413,7 +413,7 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
       toast({ 
-        title: isFoundingMember ? '🏆 Founding 5 member added!' : 'Founding 5 status removed',
+        title: isFoundingMember ? 'Founding 5 member added!' : 'Founding 5 status removed',
         description: isFoundingMember ? 'They now have all Loop benefits free for life.' : undefined
       });
     },
@@ -460,7 +460,7 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
       toast({ 
-        title: isFounding50 ? '🥈 Founding 50 member added!' : 'Founding 50 status removed',
+        title: isFounding50 ? 'Founding 50 member added!' : 'Founding 50 status removed',
         description: isFounding50 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
       });
     },

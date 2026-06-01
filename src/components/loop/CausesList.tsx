@@ -43,7 +43,7 @@ export function CausesList() {
     try {
       await donatePoints.mutateAsync({ causeId: selectedCause.id, points: amount });
       toast({
-        title: "Thank you! 💚",
+        title: "Thank you!",
         description: `You donated ${amount} points to ${selectedCause.name}`,
       });
       setSelectedCause(null);

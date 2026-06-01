@@ -124,7 +124,7 @@ export default function ScanQR() {
                   Thanks for visiting {result.business?.name}
                 </p>
                 <p className="text-sm text-muted-foreground/70 mb-6">
-                  Your community thanks you 🎉
+                  Your community thanks you
                 </p>
                 <Button onClick={() => navigate('/loop-wallet')} className="w-full">
                   View My Wallet

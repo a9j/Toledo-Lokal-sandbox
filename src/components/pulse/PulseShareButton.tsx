@@ -46,7 +46,7 @@ export function PulseShareButton({
   const previewText = (post as any).preview_text || post.content.substring(0, 160);
 
   // Default share text template
-  const shareText = `${headline}\n\nToledo locals are talking.\n👇 Join the Pulse`;
+  const shareText = `${headline}\n\nToledo locals are talking.\nJoin the Pulse`;
 
   const handleNativeShare = async () => {
     if (navigator.share) {

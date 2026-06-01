@@ -151,7 +151,7 @@ export function RewardsList() {
           {redemptionCode ? (
             <>
               <DialogHeader>
-                <DialogTitle className="text-center">🎉 Reward Redeemed!</DialogTitle>
+                <DialogTitle className="text-center">Reward Redeemed!</DialogTitle>
                 <DialogDescription className="text-center">
                   Show this code at {selectedReward?.business?.name}
                 </DialogDescription>

@@ -60,7 +60,7 @@ export function MissionsList() {
     try {
       const result = await claimReward.mutateAsync(progressId);
       toast({
-        title: "🎉 Reward claimed!",
+        title: "Reward claimed!",
         description: `You earned ${result.points} Loop Points and a badge for completing "${missionTitle}"!`,
       });
     } catch (error: any) {

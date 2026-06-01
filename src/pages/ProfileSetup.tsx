@@ -83,7 +83,7 @@ export default function ProfileSetup() {
       // Invalidate profile cache so Today page sees profile_completed = true
       queryClient.invalidateQueries({ queryKey: ['profile-role-check'] });
 
-      toast.success('Profile set up! Welcome to ToledoLokal 🎉');
+      toast.success('Profile set up! Welcome to ToledoLokal');
       // Offer "Add to Home Screen" as the final step, unless already installed.
       if (isInstalled) {
         navigate('/', { replace: true });

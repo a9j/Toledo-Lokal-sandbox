@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { useChallenges, useUserBadges } from '@/hooks/useChallenges';
 import { useAuth } from '@/contexts/AuthContext';
-import { Trophy, Star, CheckCircle2, ChevronRight, Award, Lock } from 'lucide-react';
+import { Trophy, Star, CheckCircle2, ChevronRight, Award, Lock, Target } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -49,7 +49,7 @@ export default function Challenges() {
                   className="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl"
                   style={{ backgroundColor: badge.challenge?.badge_color || '#5C8A6E' }}
                 >
-                  {badge.challenge?.badge_icon || '🏆'}
+                  {badge.challenge?.badge_icon || <Trophy className="h-6 w-6 text-white" />}
                 </div>
               ))}
             </div>
@@ -77,7 +77,7 @@ export default function Challenges() {
                       className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
                       style={{ backgroundColor: challenge.badge_color || '#5C8A6E' }}
                     >
-                      {challenge.badge_icon || '🎯'}
+                      {challenge.badge_icon || <Target className="h-6 w-6 text-white" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">

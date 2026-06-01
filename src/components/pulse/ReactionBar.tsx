@@ -4,6 +4,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { PulsePost } from '@/hooks/usePulse';
+import { Heart, Flame, Coffee, HandHeart, PartyPopper, MapPin, type LucideIcon } from 'lucide-react';
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  Heart,
+  Flame,
+  Coffee,
+  HandHeart,
+  PartyPopper,
+  MapPin,
+};
 
 interface ReactionBarProps {
   post: PulsePost;
@@ -46,7 +56,7 @@ export function ReactionBar({ post }: ReactionBarProps) {
                 : 'border-border/60 text-muted-foreground hover:bg-secondary hover:text-foreground'
             )}
           >
-            <span className="text-sm leading-none">{reaction.emoji}</span>
+            {(() => { const Icon = ICON_MAP[reaction.icon]; return Icon ? <Icon className="h-3.5 w-3.5" /> : null; })()}
             {count > 0 && <span className="tabular-nums">{count}</span>}
           </button>
         );

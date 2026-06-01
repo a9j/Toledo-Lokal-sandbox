@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, Trash2, Lock, Rocket, Coins } from 'lucide-react';
+import { Sparkles, Trash2, Lock, Rocket, Coins, Building2, ShoppingBag, Coffee, Heart, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -31,10 +31,10 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TEMPLATES = [
-  { title: 'Downtown Week', emoji: '🏙️', campaign_type: 'challenge', point_multiplier: 2, description: 'Earn double points at Downtown businesses all week.' },
-  { title: 'Support Local Saturday', emoji: '🛍️', campaign_type: 'double_points', point_multiplier: 2, description: 'Double Loop Points everywhere this Saturday.' },
-  { title: 'Coffee Passport', emoji: '☕', campaign_type: 'passport', point_multiplier: 1, description: 'Visit local coffee shops to fill your passport.' },
-  { title: 'Nonprofit Month', emoji: '❤️', campaign_type: 'spotlight', point_multiplier: 1, description: 'Spotlighting Toledo nonprofits and ways to give back.' },
+  { title: 'Downtown Week', emoji: '', icon: Building2, campaign_type: 'challenge', point_multiplier: 2, description: 'Earn double points at Downtown businesses all week.' },
+  { title: 'Support Local Saturday', emoji: '', icon: ShoppingBag, campaign_type: 'double_points', point_multiplier: 2, description: 'Double Loop Points everywhere this Saturday.' },
+  { title: 'Coffee Passport', emoji: '', icon: Coffee, campaign_type: 'passport', point_multiplier: 1, description: 'Visit local coffee shops to fill your passport.' },
+  { title: 'Nonprofit Month', emoji: '', icon: Heart, campaign_type: 'spotlight', point_multiplier: 1, description: 'Spotlighting Toledo nonprofits and ways to give back.' },
 ];
 
 const EMPTY = { title: '', emoji: '', description: '', campaign_type: 'challenge', point_multiplier: '2', starts_at: '', ends_at: '' };
@@ -125,14 +125,14 @@ export function RewardsAdmin() {
               onClick={() => setForm({ ...EMPTY, ...tpl, point_multiplier: String(tpl.point_multiplier) })}
               className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-foreground/80 hover:bg-secondary"
             >
-              <span>{tpl.emoji}</span> {tpl.title}
+              {tpl.icon && <tpl.icon className="h-3.5 w-3.5" />} {tpl.title}
             </button>
           ))}
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
           <div className="sm:col-span-2 flex gap-2">
-            <Input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} placeholder="🏙️" className="w-16 text-center" maxLength={4} />
+            <Input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} placeholder="Icon" className="w-16 text-center" maxLength={4} />
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Campaign title" className="flex-1" maxLength={120} />
           </div>
           <div className="space-y-1">
@@ -174,7 +174,7 @@ export function RewardsAdmin() {
           <div className="space-y-2">
             {campaigns.map((c) => (
               <div key={c.id} className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-3 shadow-sm">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-secondary text-lg">{c.emoji || '🎯'}</div>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-secondary text-lg">{c.emoji || <Target className="h-5 w-5" />}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <p className="truncate text-sm font-semibold">{c.title}</p>

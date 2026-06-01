@@ -75,7 +75,7 @@ export function ProfileCompletion(props: ProfileCompletionInput) {
       </ul>
 
       {remaining.length === 0 && (
-        <p className="mt-2 text-xs font-medium text-primary">🎉 Your profile is complete!</p>
+        <p className="mt-2 text-xs font-medium text-primary">Your profile is complete!</p>
       )}
     </div>
   );

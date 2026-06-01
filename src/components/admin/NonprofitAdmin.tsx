@@ -26,11 +26,12 @@ import {
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
-  Plus, 
-  Pencil, 
-  Award, 
+  Plus,
+  Pencil,
+  Award,
   Heart,
-  Trash2
+  Trash2,
+  Check
 } from 'lucide-react';
 
 type CauseCategory = Database['public']['Enums']['cause_category'];
@@ -169,7 +170,7 @@ export function NonprofitAdmin() {
       queryClient.invalidateQueries({ queryKey: ['admin-nonprofits'] });
       queryClient.invalidateQueries({ queryKey: ['nonprofits'] });
       toast({ 
-        title: value ? '🏆 Founding Partner added!' : 'Founding Partner status removed' 
+        title: value ? 'Founding Partner added!' : 'Founding Partner status removed' 
       });
     },
   });
@@ -446,7 +447,7 @@ export function NonprofitAdmin() {
                   className="gap-1"
                 >
                   <Award className="h-4 w-4" />
-                  {nonprofit.founding_community_partner ? 'Founding ✓' : 'Make Founding'}
+                  {nonprofit.founding_community_partner ? <><Check className="h-3 w-3" /> Founding</> : 'Make Founding'}
                 </Button>
 
                 <Dialog open={editingId === nonprofit.id} onOpenChange={(open) => {

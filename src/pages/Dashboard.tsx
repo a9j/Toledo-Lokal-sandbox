@@ -23,7 +23,8 @@ import {
   Briefcase,
   Truck,
   MapPin,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Camera
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -298,7 +299,7 @@ export default function Dashboard() {
           {/* Quick tip about photo */}
           {!business.photos?.length && (
             <div className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-primary/10 text-sm">
-              <span>📸</span>
+              <Camera className="h-4 w-4 text-primary shrink-0" />
               <p className="text-muted-foreground">
                 Add a feed photo in <Link to={`/business/${business.id}/edit`} className="text-primary font-medium underline">My Business Profile</Link> to stand out!
               </p>

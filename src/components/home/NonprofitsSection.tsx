@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChevronRight, HeartHandshake } from 'lucide-react';
+import { ChevronRight, HeartHandshake, Handshake } from 'lucide-react';
 import { BusinessCard } from '@/components/cards/BusinessCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBusinesses } from '@/hooks/useBusinesses';
@@ -41,7 +41,7 @@ export function NonprofitsSection() {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 p-5 mb-4 text-white">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
-          <h3 className="text-lg font-bold mb-1">🤝 Join the Movement</h3>
+          <h3 className="text-lg font-bold mb-1 flex items-center gap-1.5"><Handshake className="h-5 w-5" /> Join the Movement</h3>
           <p className="text-white/80 text-sm">
             Volunteer your time, donate supplies, or support local causes. Every little bit helps!
           </p>

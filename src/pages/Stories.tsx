@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { useStories, useCreateStory, useLikeStory } from '@/hooks/useStories';
 import { useAuth } from '@/contexts/AuthContext';
-import { Heart, MapPin, Plus, Sparkles, MessageCircle, BookOpen } from 'lucide-react';
+import { Heart, MapPin, Plus, Sparkles, MessageCircle, BookOpen, Lightbulb, Gem, Camera, Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { SEOHead } from '@/components/seo/SEOHead';
 
-const storyTypeLabels: Record<string, { label: string; color: string }> = {
-  tip: { label: '💡 Tip', color: 'bg-toledo-gold/20 text-toledo-gold' },
-  hidden_gem: { label: '💎 Hidden Gem', color: 'bg-toledo-lavender/20 text-toledo-lavender' },
-  memory: { label: '📸 Memory', color: 'bg-toledo-rose/20 text-toledo-rose' },
-  recommendation: { label: '⭐ Recommendation', color: 'bg-primary/20 text-primary' },
+const storyTypeLabels: Record<string, { label: string; color: string; icon: typeof Lightbulb }> = {
+  tip: { label: 'Tip', color: 'bg-toledo-gold/20 text-toledo-gold', icon: Lightbulb },
+  hidden_gem: { label: 'Hidden Gem', color: 'bg-toledo-lavender/20 text-toledo-lavender', icon: Gem },
+  memory: { label: 'Memory', color: 'bg-toledo-rose/20 text-toledo-rose', icon: Camera },
+  recommendation: { label: 'Recommendation', color: 'bg-primary/20 text-primary', icon: Star },
 };
 
 export default function Stories() {
@@ -75,6 +75,7 @@ export default function Stories() {
                       variant="secondary" 
                       className={storyTypeLabels[story.story_type]?.color || ''}
                     >
+                      {(() => { const Icon = storyTypeLabels[story.story_type]?.icon; return Icon ? <Icon className="h-3 w-3 mr-1 inline" /> : null; })()}
                       {storyTypeLabels[story.story_type]?.label || story.story_type}
                     </Badge>
                     {story.featured && (

@@ -6,17 +6,17 @@ import { Button } from '@/components/ui/button';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useCategories } from '@/hooks/useCategories';
 import { toast } from 'sonner';
-import { MapPin, Heart, Sparkles, ChevronRight, X } from 'lucide-react';
+import { MapPin, Heart, Sparkles, ChevronRight, X, UtensilsCrossed, Palette, Trees, Wine, ShoppingBag, Users, Dumbbell, Music, HandMetal, Home, PartyPopper } from 'lucide-react';
 
 const interestOptions = [
-  { id: 'food', label: '🍽️ Food & Dining', icon: '🍽️' },
-  { id: 'arts', label: '🎨 Arts & Culture', icon: '🎨' },
-  { id: 'outdoors', label: '🌳 Outdoors', icon: '🌳' },
-  { id: 'nightlife', label: '🍸 Nightlife', icon: '🍸' },
-  { id: 'shopping', label: '🛍️ Shopping', icon: '🛍️' },
-  { id: 'family', label: '👨‍👩‍👧 Family', icon: '👨‍👩‍👧' },
-  { id: 'fitness', label: '💪 Fitness', icon: '💪' },
-  { id: 'music', label: '🎵 Music', icon: '🎵' },
+  { id: 'food', label: 'Food & Dining', icon: UtensilsCrossed },
+  { id: 'arts', label: 'Arts & Culture', icon: Palette },
+  { id: 'outdoors', label: 'Outdoors', icon: Trees },
+  { id: 'nightlife', label: 'Nightlife', icon: Wine },
+  { id: 'shopping', label: 'Shopping', icon: ShoppingBag },
+  { id: 'family', label: 'Family', icon: Users },
+  { id: 'fitness', label: 'Fitness', icon: Dumbbell },
+  { id: 'music', label: 'Music', icon: Music },
 ];
 
 interface WelcomeGuideProps {
@@ -98,7 +98,7 @@ export function WelcomeGuide({ onComplete, onSkip }: WelcomeGuideProps) {
                     isNewcomer === true ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <span className="font-medium">👋 I'm new here!</span>
+                  <span className="font-medium inline-flex items-center gap-1.5"><HandMetal className="h-4 w-4" /> I'm new here!</span>
                   <p className="text-sm text-muted-foreground mt-1">Show me the essentials</p>
                 </button>
                 <button
@@ -107,7 +107,7 @@ export function WelcomeGuide({ onComplete, onSkip }: WelcomeGuideProps) {
                     isNewcomer === false ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <span className="font-medium">🏠 I'm a local</span>
+                  <span className="font-medium inline-flex items-center gap-1.5"><Home className="h-4 w-4" /> I'm a local</span>
                   <p className="text-sm text-muted-foreground mt-1">Help me discover new spots</p>
                 </button>
               </div>
@@ -137,8 +137,8 @@ export function WelcomeGuide({ onComplete, onSkip }: WelcomeGuideProps) {
                         : 'border-border hover:border-primary/50'
                     }`}
                   >
-                    <span className="text-lg">{interest.icon}</span>
-                    <p className="text-sm font-medium mt-1">{interest.label.split(' ').slice(1).join(' ')}</p>
+                    <interest.icon className="h-5 w-5" />
+                    <p className="text-sm font-medium mt-1">{interest.label}</p>
                   </button>
                 ))}
               </div>
@@ -186,7 +186,7 @@ export function WelcomeGuide({ onComplete, onSkip }: WelcomeGuideProps) {
               onClick={handleComplete}
               className="w-full rounded-xl h-12 mt-6"
             >
-              Start Exploring 🎉
+              Start Exploring <PartyPopper className="h-4 w-4 ml-1" />
             </Button>
           </div>
         )}

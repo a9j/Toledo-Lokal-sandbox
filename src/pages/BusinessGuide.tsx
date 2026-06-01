@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Download } from 'lucide-react';
+import { Printer, Download, ClipboardList, Camera, Image, Images, Smartphone, Zap, ScanLine, Gift, Lightbulb, Calendar, Briefcase, Megaphone, Mail, Crown, Star, Check } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
 
 export default function BusinessGuide() {
@@ -115,7 +115,7 @@ export default function BusinessGuide() {
           </ol>
 
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-6">
-            <p className="font-semibold text-amber-800">📋 Pro Tip</p>
+            <p className="font-semibold text-amber-800"><ClipboardList className="h-4 w-4 inline mr-1" /> Pro Tip</p>
             <p className="text-amber-700">Complete profiles get 3x more engagement! Fill out every section for maximum visibility.</p>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function BusinessGuide() {
           <div className="grid md:grid-cols-2 gap-6 mt-6">
             {/* Logo Requirements */}
             <div className="border-2 border-primary rounded-lg p-6">
-              <h3 className="text-xl font-bold text-primary mb-4">📷 Logo</h3>
+              <h3 className="text-xl font-bold text-primary mb-4"><Camera className="h-5 w-5 inline mr-1" /> Logo</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="font-medium">Recommended Size:</span>
@@ -202,7 +202,7 @@ export default function BusinessGuide() {
 
             {/* Cover Photo Requirements */}
             <div className="border-2 border-primary rounded-lg p-6">
-              <h3 className="text-xl font-bold text-primary mb-4">🖼️ Cover Photo</h3>
+              <h3 className="text-xl font-bold text-primary mb-4"><Image className="h-5 w-5 inline mr-1" /> Cover Photo</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="font-medium">Recommended Size:</span>
@@ -233,7 +233,7 @@ export default function BusinessGuide() {
 
           {/* Gallery Photos */}
           <div className="border-2 border-muted rounded-lg p-6 mt-6">
-            <h3 className="text-xl font-bold mb-4">📸 Gallery Photos</h3>
+            <h3 className="text-xl font-bold mb-4"><Images className="h-5 w-5 inline mr-1" /> Gallery Photos</h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <span className="font-medium">Recommended:</span>
@@ -251,12 +251,12 @@ export default function BusinessGuide() {
           </div>
 
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
-            <p className="font-semibold text-blue-800">📱 iPhone Users</p>
+            <p className="font-semibold text-blue-800"><Smartphone className="h-4 w-4 inline mr-1" /> iPhone Users</p>
             <p className="text-blue-700">HEIC photos from iPhones are automatically converted to JPG during upload. No extra steps needed!</p>
           </div>
 
           <div className="bg-green-50 border-l-4 border-green-500 p-4 mt-4">
-            <p className="font-semibold text-green-800">⚡ Automatic Optimization</p>
+            <p className="font-semibold text-green-800"><Zap className="h-4 w-4 inline mr-1" /> Automatic Optimization</p>
             <p className="text-green-700">All images are automatically compressed and optimized for fast loading. Upload full-quality images - we'll handle the rest!</p>
           </div>
         </div>
@@ -280,19 +280,19 @@ export default function BusinessGuide() {
             </div>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Business name & category
+                <Check className="h-4 w-4 inline text-green-500" /> Business name & category
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Location on map
+                <Check className="h-4 w-4 inline text-green-500" /> Location on map
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Basic listing
+                <Check className="h-4 w-4 inline text-green-500" /> Basic listing
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 1 active job posting
+                <Check className="h-4 w-4 inline text-green-500" /> 1 active job posting
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 1 Pulse post per day
+                <Check className="h-4 w-4 inline text-green-500" /> 1 Pulse post per day
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <span>—</span> Jobs auto-expire in 30 days
@@ -311,28 +311,28 @@ export default function BusinessGuide() {
             </div>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Everything in Free
+                <Check className="h-4 w-4 inline text-green-500" /> Everything in Free
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 1 deal per month
+                <Check className="h-4 w-4 inline text-green-500" /> 1 deal per month
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> "Support Local" badge
+                <Check className="h-4 w-4 inline text-green-500" /> "Support Local" badge
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Enhanced listing
+                <Check className="h-4 w-4 inline text-green-500" /> Enhanced listing
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 3 active job postings
+                <Check className="h-4 w-4 inline text-green-500" /> 3 active job postings
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> "Local Employer" badge on jobs
+                <Check className="h-4 w-4 inline text-green-500" /> "Local Employer" badge on jobs
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Loop Starter included (500 pts/mo)
+                <Check className="h-4 w-4 inline text-green-500" /> Loop Starter included (500 pts/mo)
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 3 Pulse posts per day
+                <Check className="h-4 w-4 inline text-green-500" /> 3 Pulse posts per day
               </li>
             </ul>
           </div>
@@ -341,35 +341,35 @@ export default function BusinessGuide() {
           <div className="border rounded-lg p-6 mb-6 bg-gradient-to-r from-amber-50 to-transparent">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-2xl font-bold">Featured Local ⭐</h3>
+                <h3 className="text-2xl font-bold">Featured Local <Star className="h-5 w-5 inline text-amber-500" /></h3>
                 <p className="text-muted-foreground">Most popular choice</p>
               </div>
               <div className="text-3xl font-bold">$75<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
             </div>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Everything in Local Supporter
+                <Check className="h-4 w-4 inline text-green-500" /> Everything in Local Supporter
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> <strong>Unlimited deals</strong>
+                <Check className="h-4 w-4 inline text-green-500" /> <strong>Unlimited deals</strong>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> <strong>Post events</strong>
+                <Check className="h-4 w-4 inline text-green-500" /> <strong>Post events</strong>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Featured placement in search
+                <Check className="h-4 w-4 inline text-green-500" /> Featured placement in search
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Basic analytics dashboard
+                <Check className="h-4 w-4 inline text-green-500" /> Basic analytics dashboard
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 5 active job postings
+                <Check className="h-4 w-4 inline text-green-500" /> 5 active job postings
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Loop Growth included (2,000 pts/mo)
+                <Check className="h-4 w-4 inline text-green-500" /> Loop Growth included (2,000 pts/mo)
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 5 Pulse posts + 1 pinned per day
+                <Check className="h-4 w-4 inline text-green-500" /> 5 Pulse posts + 1 pinned per day
               </li>
             </ul>
           </div>
@@ -378,35 +378,35 @@ export default function BusinessGuide() {
           <div className="border-2 border-amber-500 rounded-lg p-6 bg-gradient-to-r from-amber-100 to-transparent">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-2xl font-bold text-amber-700">Anchor Partner 👑</h3>
+                <h3 className="text-2xl font-bold text-amber-700">Anchor Partner <Crown className="h-5 w-5 inline text-amber-700" /></h3>
                 <p className="text-muted-foreground">Maximum visibility & features</p>
               </div>
               <div className="text-3xl font-bold text-amber-700">$150<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
             </div>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Everything in Featured Local
+                <Check className="h-4 w-4 inline text-green-500" /> Everything in Featured Local
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> <strong>Homepage featured section</strong>
+                <Check className="h-4 w-4 inline text-green-500" /> <strong>Homepage featured section</strong>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Exclusive placements
+                <Check className="h-4 w-4 inline text-green-500" /> Exclusive placements
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Advanced analytics
+                <Check className="h-4 w-4 inline text-green-500" /> Advanced analytics
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Priority support
+                <Check className="h-4 w-4 inline text-green-500" /> Priority support
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> <strong>Unlimited job postings</strong>
+                <Check className="h-4 w-4 inline text-green-500" /> <strong>Unlimited job postings</strong>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> Loop Partner included (5,000 pts/mo)
+                <Check className="h-4 w-4 inline text-green-500" /> Loop Partner included (5,000 pts/mo)
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-500">✓</span> 10 Pulse posts + 3 pinned per day
+                <Check className="h-4 w-4 inline text-green-500" /> 10 Pulse posts + 3 pinned per day
               </li>
             </ul>
           </div>
@@ -428,17 +428,17 @@ export default function BusinessGuide() {
           <h3 className="text-xl font-semibold mt-6 mb-4">How It Works</h3>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="border rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">📲</div>
+              <div className="text-4xl mb-2"><ScanLine className="h-10 w-10 mx-auto text-primary" /></div>
               <h4 className="font-bold mb-2">1. Customer Scans</h4>
               <p className="text-sm text-muted-foreground">Customer scans your QR code at checkout or visits</p>
             </div>
             <div className="border rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">⭐</div>
+              <div className="text-4xl mb-2"><Star className="h-10 w-10 mx-auto text-primary" /></div>
               <h4 className="font-bold mb-2">2. Points Awarded</h4>
               <p className="text-sm text-muted-foreground">They earn Loop Points from your monthly allocation</p>
             </div>
             <div className="border rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">🎁</div>
+              <div className="text-4xl mb-2"><Gift className="h-10 w-10 mx-auto text-primary" /></div>
               <h4 className="font-bold mb-2">3. Redeem Anywhere</h4>
               <p className="text-sm text-muted-foreground">Points work at any Loop-participating business</p>
             </div>
@@ -504,7 +504,7 @@ export default function BusinessGuide() {
           </ol>
 
           <div className="bg-green-50 border-l-4 border-green-500 p-4 mt-6">
-            <p className="font-semibold text-green-800">💡 Best Practice</p>
+            <p className="font-semibold text-green-800"><Lightbulb className="h-4 w-4 inline mr-1" /> Best Practice</p>
             <p className="text-green-700">Start with a low-cost reward (like a small discount) to encourage first-time redemptions, then add premium rewards for loyal customers.</p>
           </div>
         </div>
@@ -549,7 +549,7 @@ export default function BusinessGuide() {
           </ol>
 
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mt-4">
-            <p className="font-semibold text-amber-800">📅 Event Tips</p>
+            <p className="font-semibold text-amber-800"><Calendar className="h-4 w-4 inline mr-1" /> Event Tips</p>
             <ul className="text-amber-700 mt-2 space-y-1">
               <li>• Post events at least 2 weeks in advance</li>
               <li>• Use high-quality images sized 1200x675 pixels</li>
@@ -616,7 +616,7 @@ export default function BusinessGuide() {
           </div>
 
           <div className="bg-green-50 border-l-4 border-green-500 p-4 mt-6">
-            <p className="font-semibold text-green-800">💼 Hiring Best Practices</p>
+            <p className="font-semibold text-green-800"><Briefcase className="h-4 w-4 inline mr-1" /> Hiring Best Practices</p>
             <ul className="text-green-700 mt-2 space-y-1">
               <li>• Be specific about pay ranges—listings with pay info get 2x more applicants</li>
               <li>• Include schedule expectations upfront</li>
@@ -672,7 +672,7 @@ export default function BusinessGuide() {
           </div>
 
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
-            <p className="font-semibold text-blue-800">📣 Pulse Tips</p>
+            <p className="font-semibold text-blue-800"><Megaphone className="h-4 w-4 inline mr-1" /> Pulse Tips</p>
             <ul className="text-blue-700 mt-2 space-y-1">
               <li>• Post during peak hours (11am-1pm, 5pm-7pm) for more visibility</li>
               <li>• Use photos—posts with images get 3x more engagement</li>
@@ -716,39 +716,39 @@ export default function BusinessGuide() {
               <tbody>
                 <tr>
                   <td className="border p-3">View Dashboard</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
                 <tr className="bg-muted/30">
                   <td className="border p-3">Approve Loop Scans</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
                 <tr>
                   <td className="border p-3">Create Deals/Events</td>
                   <td className="border p-3 text-center">—</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
                 <tr className="bg-muted/30">
                   <td className="border p-3">Edit Business Profile</td>
                   <td className="border p-3 text-center">—</td>
-                  <td className="border p-3 text-center">✓</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
                 <tr>
                   <td className="border p-3">Manage Staff</td>
                   <td className="border p-3 text-center">—</td>
                   <td className="border p-3 text-center">—</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
                 <tr className="bg-muted/30">
                   <td className="border p-3">Manage Subscription</td>
                   <td className="border p-3 text-center">—</td>
                   <td className="border p-3 text-center">—</td>
-                  <td className="border p-3 text-center">✓</td>
+                  <td className="border p-3 text-center"><Check className="h-4 w-4 inline" /></td>
                 </tr>
               </tbody>
             </table>
@@ -764,12 +764,12 @@ export default function BusinessGuide() {
           <h3 className="text-xl font-semibold mt-6 mb-4">Getting Help</h3>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="border rounded-lg p-6">
-              <h4 className="font-bold text-lg mb-2">📧 Email Support</h4>
+              <h4 className="font-bold text-lg mb-2"><Mail className="h-5 w-5 inline mr-1" /> Email Support</h4>
               <p className="text-muted-foreground mb-2">For general inquiries and technical issues</p>
               <p className="font-medium">support@toledo-lokal.com</p>
             </div>
             <div className="border rounded-lg p-6">
-              <h4 className="font-bold text-lg mb-2">⚡ Priority Support</h4>
+              <h4 className="font-bold text-lg mb-2"><Zap className="h-5 w-5 inline mr-1" /> Priority Support</h4>
               <p className="text-muted-foreground mb-2">For Anchor Partner members</p>
               <p className="font-medium">24-hour response guarantee</p>
             </div>

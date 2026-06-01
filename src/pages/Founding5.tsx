@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, LogIn } from 'lucide-react';
+import { ChevronDown, LogIn, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -132,8 +132,18 @@ export default function Founding5() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
-      {!user && (
-        <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        {user ? (
+          <Link to="/profile">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full shadow-lg backdrop-blur-md bg-background/60 hover:bg-background/80"
+            >
+              <UserCircle className="h-5 w-5" />
+            </Button>
+          </Link>
+        ) : (
           <Link to="/auth">
             <Button
               variant="default"
@@ -144,8 +154,8 @@ export default function Founding5() {
               Sign In
             </Button>
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ===== Section 1: Hero ===== */}
       <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 text-center">

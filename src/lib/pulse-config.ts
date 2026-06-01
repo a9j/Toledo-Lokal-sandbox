@@ -353,17 +353,17 @@ export type PulseReactionType =
 
 export interface PulseReactionConfig {
   id: PulseReactionType;
-  emoji: string;
+  icon: string;
   label: string;
 }
 
 export const PULSE_REACTIONS: PulseReactionConfig[] = [
-  { id: 'love', emoji: '❤️', label: 'Love this' },
-  { id: 'trending', emoji: '🔥', label: 'Trending' },
-  { id: 'want_to_go', emoji: '☕', label: 'Want to go' },
-  { id: 'community_favorite', emoji: '🙌', label: 'Community favorite' },
-  { id: 'looks_fun', emoji: '🎉', label: 'Looks fun' },
-  { id: 'my_list', emoji: '📍', label: 'Adding to my list' },
+  { id: 'love', icon: 'Heart', label: 'Love this' },
+  { id: 'trending', icon: 'Flame', label: 'Trending' },
+  { id: 'want_to_go', icon: 'Coffee', label: 'Want to go' },
+  { id: 'community_favorite', icon: 'HandHeart', label: 'Community favorite' },
+  { id: 'looks_fun', icon: 'PartyPopper', label: 'Looks fun' },
+  { id: 'my_list', icon: 'MapPin', label: 'Adding to my list' },
 ];
 
 // --- Feed tabs ---

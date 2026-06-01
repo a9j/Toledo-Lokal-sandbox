@@ -36,6 +36,7 @@ import {
   Plus,
   X,
   Star,
+  Check,
 } from 'lucide-react';
 import { isFreeEmailProvider } from '@/lib/email-utils';
 import { inferPreset, buildPresetBlocks } from '@/lib/profile-blocks';
@@ -261,7 +262,7 @@ export default function BusinessOnboarding() {
     await saveProgress.mutateAsync(6);
     await seedProfileBlocks();
     queryClient.invalidateQueries({ queryKey: ['user-business'] });
-    toast.success('Welcome to Toledo Lokal! 🎉');
+    toast.success('Welcome to Toledo Lokal!');
     navigate('/dashboard');
   };
 
@@ -792,15 +793,15 @@ export default function BusinessOnboarding() {
               <p className="text-sm font-medium">Here's what happens next:</p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">✓</span>
+                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   Your profile is now live on Toledo Lokal
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">✓</span>
+                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   You can update your info anytime from your dashboard
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">✓</span>
+                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                   We'll be in touch about Loop Points setup and community features
                 </li>
               </ul>
@@ -840,7 +841,7 @@ export default function BusinessOnboarding() {
               className="flex-1 h-12 text-base"
               disabled={saveProgress.isPending}
             >
-              {saveProgress.isPending ? 'Finishing...' : 'Go to My Dashboard 🎉'}
+              {saveProgress.isPending ? 'Finishing...' : 'Go to My Dashboard'}
             </Button>
           )}
         </div>

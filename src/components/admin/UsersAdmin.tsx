@@ -140,7 +140,7 @@ export function UsersAdmin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-roles'] });
       queryClient.invalidateQueries({ queryKey: ['admin-connectors'] });
-      toast({ title: '✨ Founding Connector assigned!' });
+      toast({ title: 'Founding Connector assigned!' });
     },
     onError: (err: any) => {
       toast({ variant: 'destructive', title: 'Error', description: err.message });

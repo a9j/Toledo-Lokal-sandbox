@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useCreateStory } from '@/hooks/useStories';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lightbulb, Gem, Camera, Star } from 'lucide-react';
 
 export default function CreateStory() {
   const navigate = useNavigate();
@@ -61,10 +61,10 @@ export default function CreateStory() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="tip">💡 Local Tip</SelectItem>
-              <SelectItem value="hidden_gem">💎 Hidden Gem</SelectItem>
-              <SelectItem value="memory">📸 Toledo Memory</SelectItem>
-              <SelectItem value="recommendation">⭐ Recommendation</SelectItem>
+              <SelectItem value="tip"><span className="inline-flex items-center gap-1.5"><Lightbulb className="h-4 w-4" /> Local Tip</span></SelectItem>
+              <SelectItem value="hidden_gem"><span className="inline-flex items-center gap-1.5"><Gem className="h-4 w-4" /> Hidden Gem</span></SelectItem>
+              <SelectItem value="memory"><span className="inline-flex items-center gap-1.5"><Camera className="h-4 w-4" /> Toledo Memory</span></SelectItem>
+              <SelectItem value="recommendation"><span className="inline-flex items-center gap-1.5"><Star className="h-4 w-4" /> Recommendation</span></SelectItem>
             </SelectContent>
           </Select>
         </div>

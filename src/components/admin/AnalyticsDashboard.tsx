@@ -204,7 +204,7 @@ export function AnalyticsDashboard() {
     { title: 'Businesses', value: businessStats?.approved || 0, subtitle: `${businessStats?.pending || 0} pending`, icon: Building2, color: 'text-green-500' },
     { title: 'Active Events', value: eventStats?.upcoming || 0, subtitle: `${eventStats?.total || 0} total`, icon: Calendar, color: 'text-purple-500' },
     { title: 'Active Deals', value: dealStats?.active || 0, subtitle: `${dealStats?.total || 0} total`, icon: Tag, color: 'text-orange-500' },
-    { title: 'Reviews', value: reviewStats?.total || 0, subtitle: `${reviewStats?.avgRating}★ avg`, icon: Star, color: 'text-yellow-500' },
+    { title: 'Reviews', value: reviewStats?.total || 0, subtitle: `${reviewStats?.avgRating} avg`, icon: Star, color: 'text-yellow-500' },
     { title: 'Saved Items', value: savedStats?.total || 0, icon: Bookmark, color: 'text-pink-500' },
   ];
 
