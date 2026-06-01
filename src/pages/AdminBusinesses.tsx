@@ -434,39 +434,39 @@ export default function AdminBusinesses() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {pendingApproval > 0 && (
             <button
-              className="card-elevated p-3 text-center hover:ring-2 hover:ring-lokal-amber/40 transition-all"
+              className="card-elevated p-3 text-center hover:ring-2 hover:ring-lokal-amber/40 transition-all min-w-[5.5rem] flex-shrink-0"
               onClick={() => setFilterStatus(filterStatus === 'pending' ? 'all' : 'pending')}
             >
               <p className="text-2xl font-bold text-lokal-amber">{pendingApproval}</p>
-              <p className="text-xs text-muted-foreground">Pending Approval</p>
+              <p className="text-[11px] text-muted-foreground whitespace-nowrap">Pending Approval</p>
             </button>
           )}
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-amber-500">{founding5Count}<span className="text-sm text-muted-foreground">/5</span></p>
-            <p className="text-xs text-muted-foreground">Founding 5</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 5</p>
           </div>
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-slate-400">{founding50Count}<span className="text-sm text-muted-foreground">/50</span></p>
-            <p className="text-xs text-muted-foreground">Founding 50</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 50</p>
           </div>
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-indigo-500">{proCount}</p>
-            <p className="text-xs text-muted-foreground">Pro</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Pro</p>
           </div>
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-emerald-500">{growthCount}</p>
-            <p className="text-xs text-muted-foreground">Growth</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Growth</p>
           </div>
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold">{communityCount}</p>
-            <p className="text-xs text-muted-foreground">Community</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Community</p>
           </div>
-          <div className="card-elevated p-3 text-center">
+          <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-lokal-terracotta">{pendingOnboarding}</p>
-            <p className="text-xs text-muted-foreground">Pending Onboarding</p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Pending Onboarding</p>
           </div>
         </div>
 
