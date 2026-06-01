@@ -42,19 +42,6 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const navigateAfterAuth = async (userId: string) => {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role_selected')
-      .eq('user_id', userId)
-      .single();
-    if (profile && !profile.role_selected) {
-      navigate('/role-select', { replace: true });
-    } else {
-      navigate('/', { replace: true });
-    }
-  };
-
   // Redirect if already logged in
   if (user) {
     navigate('/', { replace: true });
@@ -132,12 +119,7 @@ export default function Auth() {
         });
       } else {
         toast({ title: 'Email confirmed!' });
-        const { data: { user: confirmedUser } } = await supabase.auth.getUser();
-        if (confirmedUser) {
-          await navigateAfterAuth(confirmedUser.id);
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       }
     } catch {
       toast({
@@ -240,12 +222,7 @@ export default function Auth() {
           }
         } else {
           setFailedAttempts(0);
-          const { data: { user: signedInUser } } = await supabase.auth.getUser();
-          if (signedInUser) {
-            await navigateAfterAuth(signedInUser.id);
-          } else {
-            navigate('/');
-          }
+          navigate('/');
         }
       }
     } catch (error) {
