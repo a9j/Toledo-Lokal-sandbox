@@ -194,6 +194,17 @@ serve(async (req) => {
         hasAccess = await isBusinessOwnerOrStaff(userId);
       }
     }
+    // Allow authenticated users to access content folders (pulse, deals, events, admin, food-trucks)
+    else if (
+      userId &&
+      (rootFolder === "pulse" ||
+        rootFolder === "deals" ||
+        rootFolder === "events" ||
+        rootFolder === "admin" ||
+        rootFolder === "food-trucks")
+    ) {
+      hasAccess = true;
+    }
     // Check if it's user's own file (path starts with their user ID)
     else if (userId && rootFolder === userId) {
       hasAccess = true;

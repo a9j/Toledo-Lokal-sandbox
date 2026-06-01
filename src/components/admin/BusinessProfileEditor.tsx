@@ -89,8 +89,12 @@ export function BusinessProfileEditor({ businessId }: BusinessProfileEditorProps
 
   const updateBusiness = useMutation({
     mutationFn: async () => {
+      const normalizedWebsite = formData.website && !/^https?:\/\//i.test(formData.website)
+        ? `https://${formData.website}`
+        : formData.website;
       const updateData: Record<string, unknown> = {
         ...formData,
+        website: normalizedWebsite,
         logo_url: logoUrl,
         cover_image_url: coverUrl,
         hours,
@@ -226,7 +230,7 @@ export function BusinessProfileEditor({ businessId }: BusinessProfileEditorProps
             </div>
             <div>
               <Label htmlFor="website">Website</Label>
-              <Input id="website" type="url" value={formData.website} onChange={(e) => updateField('website', e.target.value)} />
+              <Input id="website" type="text" value={formData.website} onChange={(e) => updateField('website', e.target.value)} placeholder="yourbusiness.com" />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">

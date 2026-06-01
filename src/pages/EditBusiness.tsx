@@ -28,6 +28,7 @@ import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager
 import { TruckStopsManager } from '@/components/business/TruckStopsManager';
 import { ProfileCompletion } from '@/components/business/ProfileCompletion';
 import { useProfileBlocks } from '@/hooks/useProfileBlocks';
+import { isFoodTruckCategory } from '@/lib/business-access';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
@@ -49,7 +50,7 @@ export default function EditBusiness() {
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
   const { data: neighborhoods } = useNeighborhoods();
-  const { data: profileBlocks } = useProfileBlocks(id);
+  const { data: profileBlocks, seedFromPreset } = useProfileBlocks(id);
   const scheduleStopsEnabled = !!profileBlocks?.some(
     (b) => b.block_type === 'schedule_stops' && b.enabled
   );
@@ -71,6 +72,7 @@ export default function EditBusiness() {
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
   const [isInLoop, setIsInLoop] = useState(false);
   const [moduleContent, setModuleContent] = useState<ProfileModuleContent>({});
@@ -180,6 +182,7 @@ export default function EditBusiness() {
       setModuleContent(parseModuleContent(business.profile_modules));
       setMainPhoto(business.photos?.[0] || null);
       setLogoUrl(business.logo_url || null);
+      setCoverUrl(business.cover_image_url || null);
       setHours(parseBusinessHours(business.hours));
     }
   }, [business]);
@@ -190,6 +193,19 @@ export default function EditBusiness() {
       setIsInLoop(loopSettings.is_active || false);
     }
   }, [loopSettings]);
+
+  // Auto-seed profile blocks for food truck businesses that were created before
+  // the block system existed. Without this, schedule_stops never appears.
+  useEffect(() => {
+    if (
+      business &&
+      profileBlocks !== undefined &&
+      profileBlocks.length === 0 &&
+      isFoodTruckCategory(business.category)
+    ) {
+      seedFromPreset.mutate('food_truck');
+    }
+  }, [business, profileBlocks]);
 
   const updateBusiness = useMutation({
     mutationFn: async (data: typeof formData & { photos?: string[]; logo_url?: string | null }) => {
@@ -204,8 +220,9 @@ export default function EditBusiness() {
         updateData.photos = [mainPhoto, ...existingPhotos.filter(p => p !== mainPhoto)];
       }
       
-      // Handle logo
+      // Handle logo and cover
       updateData.logo_url = logoUrl;
+      updateData.cover_image_url = coverUrl;
       
       // Handle hours
       updateData.hours = hours;
@@ -317,7 +334,11 @@ export default function EditBusiness() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateBusiness.mutate(formData);
+    const normalized = { ...formData };
+    if (normalized.website && !/^https?:\/\//i.test(normalized.website)) {
+      normalized.website = `https://${normalized.website}`;
+    }
+    updateBusiness.mutate(normalized);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -471,8 +492,8 @@ export default function EditBusiness() {
                     className="w-full aspect-square object-cover rounded-lg"
                   />
                   <Button
-                    type="button" 
-                    variant="destructive" 
+                    type="button"
+                    variant="destructive"
                     size="icon"
                     className="absolute top-1 right-1 h-6 w-6"
                     onClick={() => setMainPhoto(null)}
@@ -488,6 +509,36 @@ export default function EditBusiness() {
                 />
               )}
             </div>
+          </div>
+
+          {/* Cover Photo */}
+          <div className="card-elevated p-3 space-y-2">
+            <Label className="text-sm font-medium">Cover Photo</Label>
+            <p className="text-xs text-muted-foreground">Banner image shown at the top of your public profile.</p>
+            {coverUrl ? (
+              <div className="relative">
+                <SecureImage
+                  storagePath={coverUrl}
+                  alt="Cover photo"
+                  className="w-full aspect-[3/1] object-cover rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6"
+                  onClick={() => setCoverUrl(null)}
+                >
+                  <span className="sr-only">Remove</span>×
+                </Button>
+              </div>
+            ) : (
+              <ImageUpload
+                onUpload={(url) => setCoverUrl(url)}
+                folder="businesses"
+                label="Upload cover"
+              />
+            )}
           </div>
 
           <div className="space-y-2">
@@ -584,14 +635,15 @@ export default function EditBusiness() {
           
           <div className="space-y-2">
             <Label htmlFor="website">Website</Label>
-            <Input 
-              id="website" 
+            <Input
+              id="website"
               value={formData.website}
               onChange={(e) => handleInputChange('website', e.target.value)}
-              type="url"
-              placeholder="https://yourbusiness.com"
+              type="text"
+              placeholder="yourbusiness.com"
               maxLength={500}
             />
+            <p className="text-xs text-muted-foreground">Enter your website (with or without https://)</p>
           </div>
           
           {/* Social Links */}

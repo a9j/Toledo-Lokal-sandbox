@@ -170,7 +170,7 @@ export default function BusinessOnboarding() {
         category_id: data.category_id || null,
         neighborhood_id: data.neighborhood_id || null,
         phone: primary?.phone || data.phone || null,
-        website: data.website || null,
+        website: data.website ? (!/^https?:\/\//i.test(data.website) ? `https://${data.website}` : data.website) : null,
         address: fullAddress || null,
         instagram: data.instagram || null,
         facebook: data.facebook || null,
@@ -364,32 +364,7 @@ export default function BusinessOnboarding() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Business Name *</Label>
-                <Input
-                  id="name"
-                  value={data.name}
-                  onChange={(e) => updateField('name', e.target.value)}
-                  placeholder="Your business name"
-                  maxLength={200}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Category *</Label>
-                <Select value={data.category_id} onValueChange={(v) => updateField('category_id', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map(cat => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>How do customers find you? *</Label>
+                <Label>What type of business are you? *</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -422,6 +397,31 @@ export default function BusinessOnboarding() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="name">Business Name *</Label>
+                <Input
+                  id="name"
+                  value={data.name}
+                  onChange={(e) => updateField('name', e.target.value)}
+                  placeholder="Your business name"
+                  maxLength={200}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Category *</Label>
+                <Select value={data.category_id} onValueChange={(v) => updateField('category_id', v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="desc">
                   Short Description *
                   <span className="text-muted-foreground text-xs ml-2">{charCount}/160</span>
@@ -447,7 +447,7 @@ export default function BusinessOnboarding() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="website">Website</Label>
-                  <Input id="website" value={data.website} onChange={(e) => updateField('website', e.target.value)} placeholder="https://..." />
+                  <Input id="website" value={data.website} onChange={(e) => updateField('website', e.target.value)} placeholder="yourbusiness.com" />
                 </div>
               </div>
             </div>

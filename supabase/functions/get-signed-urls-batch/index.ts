@@ -158,6 +158,17 @@ serve(async (req) => {
           if (isOwnerOrStaff) return true;
         }
       }
+      // Content folders accessible to authenticated users
+      else if (
+        userId &&
+        (rootFolder === "pulse" ||
+          rootFolder === "deals" ||
+          rootFolder === "events" ||
+          rootFolder === "admin" ||
+          rootFolder === "food-trucks")
+      ) {
+        return true;
+      }
       // User's own files
       else if (userId && rootFolder === userId) {
         return true;

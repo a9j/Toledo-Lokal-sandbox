@@ -171,6 +171,10 @@ export default function AdminBusinesses() {
     mutationFn: async ({ businessId }: { businessId: string }) => {
       const { error } = await supabase.from('businesses').update({ status: 'approved' }).eq('id', businessId);
       if (error) throw error;
+      // Fire-and-forget: send approval notification email
+      supabase.functions.invoke('notify-business-approved', {
+        body: { businessId },
+      }).catch((err) => console.error('Approval email failed:', err));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });

@@ -27,6 +27,7 @@ export const NEIGHBORHOOD_OPTIONS = [
   'Maumee',
   'Sylvania',
   'Oregon',
+  'Mobile / Citywide',
   'Virtual',
   'Other',
 ];

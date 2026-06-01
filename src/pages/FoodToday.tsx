@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useFoodTruckLocations } from '@/hooks/useFoodTruckLocations';
@@ -36,13 +36,19 @@ const formatTime12hr = (time: string): string => {
 
 export default function FoodToday() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const { apiKey: mapsKey, isLoading: mapsKeyLoading } = useGoogleMapsKey();
+  const [viewMode, setViewMode] = useState<ViewMode>(mapsKey ? 'map' : 'list');
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mapsKeyLoading && !mapsKey && viewMode === 'map') {
+      setViewMode('list');
+    }
+  }, [mapsKeyLoading, mapsKey]);
 
   const dateString = format(selectedDate, 'yyyy-MM-dd');
   const { data: locations, isLoading } = useFoodTruckLocations({ date: dateString });
-  const { apiKey: mapsKey, isLoading: mapsKeyLoading } = useGoogleMapsKey();
-  
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: mapsKey || '',
   });

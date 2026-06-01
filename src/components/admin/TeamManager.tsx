@@ -102,6 +102,7 @@ export function TeamManager({ businessId }: TeamManagerProps) {
       const email = inviteEmail.trim().toLowerCase();
       if (!email) throw new Error('Email required');
 
+      // Try to find an existing user first
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
@@ -109,21 +110,59 @@ export function TeamManager({ businessId }: TeamManagerProps) {
         .maybeSingle();
 
       if (profileError) throw profileError;
-      if (!profile) throw new Error('No account found with that email. They need to sign up first.');
 
-      const { error } = await supabase.from('business_staff').insert({
-        business_id: businessId,
-        user_id: profile.id,
-        role: inviteRole,
-      });
-      if (error) {
-        if (error.code === '23505') throw new Error('This person is already on your team.');
-        throw error;
+      if (profile) {
+        // Existing user — add directly to business_staff
+        const { error } = await supabase.from('business_staff').insert({
+          business_id: businessId,
+          user_id: profile.id,
+          role: inviteRole,
+        });
+        if (error) {
+          if (error.code === '23505') throw new Error('This person is already on your team.');
+          throw error;
+        }
+        return { type: 'direct' as const };
       }
+
+      // No account — create an invitation and send email
+      const token = crypto.randomUUID();
+      const { data: invitation, error: invError } = await supabase
+        .from('business_invitations')
+        .insert({
+          business_id: businessId,
+          email,
+          role: inviteRole,
+          token,
+          invited_by: user!.id,
+        })
+        .select('id')
+        .single();
+
+      if (invError) {
+        if (invError.code === '23505') throw new Error('An invitation has already been sent to this email.');
+        throw invError;
+      }
+
+      // Send the invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-business-invite', {
+        body: { invitationId: invitation.id },
+      });
+
+      if (emailError) {
+        console.error('Failed to send invite email:', emailError);
+      }
+
+      return { type: 'invited' as const };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['admin-team', businessId] });
-      toast({ title: 'Team member added' });
+      toast({
+        title: result.type === 'direct' ? 'Team member added' : 'Invitation sent',
+        description: result.type === 'invited'
+          ? `We sent an invite email to ${inviteEmail.trim()}`
+          : undefined,
+      });
       setInviteOpen(false);
       setInviteEmail('');
       setInviteRole('scanner');
@@ -305,7 +344,7 @@ export function TeamManager({ businessId }: TeamManagerProps) {
                 placeholder="team@example.com"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                They must have a Toledo Lokal account
+                If they don't have an account yet, we'll send an invite email
               </p>
             </div>
             <div>

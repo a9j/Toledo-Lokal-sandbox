@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 export interface AdminNavItem {
@@ -27,9 +28,17 @@ interface AdminShellProps {
 // Linear/Notion-style admin shell: persistent left rail on desktop, slide-over on mobile.
 export function AdminShell({ groups, active, onSelect, title, subtitle, children }: AdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const Nav = (
-    <nav className="flex flex-col gap-5 p-3">
+    <nav className="flex flex-col gap-5 p-3 pb-24">
+      <button
+        onClick={() => navigate('/profile')}
+        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/70 hover:bg-secondary transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4 flex-shrink-0" />
+        <span className="flex-1 text-left">Back to Profile</span>
+      </button>
       {groups.map((group) => (
         <div key={group.label}>
           <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">{group.label}</p>

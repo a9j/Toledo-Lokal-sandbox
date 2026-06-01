@@ -72,9 +72,9 @@ export function ImageUpload({
         throw new Error('Please select an image file');
       }
 
-      // Validate file size (max 5MB)
-      if (workingFile.size > 5 * 1024 * 1024) {
-        throw new Error('Image must be less than 5MB');
+      // Validate file size (max 10MB)
+      if (workingFile.size > 10 * 1024 * 1024) {
+        throw new Error('Image must be less than 10MB');
       }
 
       // Create preview
@@ -194,7 +194,7 @@ export function ImageUpload({
         >
           <Upload className="h-8 w-8 text-muted-foreground mb-2" />
           <span className="text-sm text-muted-foreground">{label}</span>
-          <span className="text-xs text-muted-foreground mt-1">Max 5MB</span>
+          <span className="text-xs text-muted-foreground mt-1">Max 10MB</span>
         </label>
       )}
 
