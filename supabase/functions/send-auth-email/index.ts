@@ -85,21 +85,29 @@ const getEmailContent = (type: string, confirmUrl: string, token?: string) => {
               <h1 style="color: #2563eb; margin: 0;">ToledoLokal</h1>
               <p style="color: #666; margin-top: 5px;">Your daily local guide</p>
             </div>
-            
+
             <h2 style="color: #1f2937;">Welcome to the community!</h2>
-            
-            <p>Thanks for signing up for ToledoLokal. Please confirm your email address to get started:</p>
-            
+
+            <p>Thanks for signing up for ToledoLokal. Enter this code on the confirmation screen to verify your email:</p>
+
+            ${token ? `
             <div style="text-align: center; margin: 30px 0;">
+              <div style="display: inline-block; background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 12px; padding: 20px 40px;">
+                <span style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #1f2937; font-family: monospace;">${token}</span>
+              </div>
+            </div>
+            ` : ""}
+
+            <p style="color: #666; font-size: 14px; text-align: center;">Or click the button below:</p>
+
+            <div style="text-align: center; margin: 16px 0 30px;">
               <a href="${confirmUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Confirm Email</a>
             </div>
-            
-            ${token ? `<p style="color: #666; font-size: 14px;">Or use this code: <strong>${token}</strong></p>` : ""}
-            
+
             <p style="color: #666; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
-            
+
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-            
+
             <p style="color: #999; font-size: 12px; text-align: center;">
               © ${new Date().getFullYear()} ToledoLokal. Discover what's happening in Toledo.
             </p>
