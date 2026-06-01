@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Building2, User, Sparkles, Heart } from 'lucide-react';
+import { Building2, User, Sparkles, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import tlLogo from '@/assets/tl-logo.png';
@@ -10,7 +10,7 @@ import tlLogo from '@/assets/tl-logo.png';
 export default function RoleSelect() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<'resident' | 'business' | 'nonprofit' | null>(null);
+  const [selected, setSelected] = useState<'resident' | 'business' | 'food_truck' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!user) {
@@ -26,7 +26,7 @@ export default function RoleSelect() {
       // Mark role as selected in profile
       // For business/nonprofit, also mark profile_completed since they don't need the resident wizard
       const updateData: Record<string, boolean> = { role_selected: true };
-      if (selected === 'business' || selected === 'nonprofit') {
+      if (selected === 'business' || selected === 'food_truck') {
         updateData.profile_completed = true;
       }
       await supabase
@@ -34,10 +34,8 @@ export default function RoleSelect() {
         .update(updateData as any)
         .eq('user_id', user.id);
 
-      if (selected === 'business') {
+      if (selected === 'business' || selected === 'food_truck') {
         navigate('/create-business', { replace: true });
-      } else if (selected === 'nonprofit') {
-        navigate('/create-business?type=nonprofit', { replace: true });
       } else {
         navigate('/profile-setup', { replace: true });
       }
@@ -74,74 +72,37 @@ export default function RoleSelect() {
 
         {/* Options */}
         <div className="space-y-3">
-          <button
-            onClick={() => setSelected('resident')}
-            className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${
-              selected === 'resident'
-                ? 'border-primary bg-primary/5 shadow-sm'
-                : 'border-border hover:border-primary/40'
-            }`}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                selected === 'resident' ? 'bg-primary/15' : 'bg-secondary'
-              }`}>
-                <User className={`h-6 w-6 ${selected === 'resident' ? 'text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <div>
-                <span className="font-semibold text-base">Explore Toledo</span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Find local spots, events, deals & earn rewards
-                </p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setSelected('business')}
-            className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${
-              selected === 'business'
-                ? 'border-primary bg-primary/5 shadow-sm'
-                : 'border-border hover:border-primary/40'
-            }`}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                selected === 'business' ? 'bg-primary/15' : 'bg-secondary'
-              }`}>
-                <Building2 className={`h-6 w-6 ${selected === 'business' ? 'text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <div>
-                <span className="font-semibold text-base">List My Business</span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Get your business on ToledoLokal — it only takes 2 minutes
-                </p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setSelected('nonprofit')}
-            className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${
-              selected === 'nonprofit'
-                ? 'border-primary bg-primary/5 shadow-sm'
-                : 'border-border hover:border-primary/40'
-            }`}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                selected === 'nonprofit' ? 'bg-primary/15' : 'bg-secondary'
-              }`}>
-                <Heart className={`h-6 w-6 ${selected === 'nonprofit' ? 'text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <div>
-                <span className="font-semibold text-base">Register a Nonprofit</span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  List your nonprofit organization & connect with the community
-                </p>
-              </div>
-            </div>
-          </button>
+          {([
+            { id: 'resident' as const, icon: User, title: 'Toledo Explorer', desc: 'Find local spots, events, deals & earn rewards' },
+            { id: 'business' as const, icon: Building2, title: 'Business', desc: 'Get your business on ToledoLokal — takes 2 minutes' },
+            { id: 'food_truck' as const, icon: Truck, title: 'Food Truck', desc: 'Share your location, menu & schedule with Toledo' },
+          ]).map((opt) => {
+            const Icon = opt.icon;
+            const isSelected = selected === opt.id;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setSelected(opt.id)}
+                className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${
+                  isSelected
+                    ? 'border-primary bg-primary/5 shadow-sm'
+                    : 'border-border hover:border-primary/40'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    isSelected ? 'bg-primary/15' : 'bg-secondary'
+                  }`}>
+                    <Icon className={`h-6 w-6 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-base">{opt.title}</span>
+                    <p className="text-sm text-muted-foreground mt-1">{opt.desc}</p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* Continue */}
