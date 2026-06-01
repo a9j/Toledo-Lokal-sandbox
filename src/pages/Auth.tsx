@@ -8,8 +8,16 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { siteUrl } from '@/lib/site-url';
 import { z } from 'zod';
-import { Check, Circle } from 'lucide-react';
+import { Check, Circle, Compass, Building2, Truck } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
+
+const SIGNUP_TYPES = [
+  { value: 'explorer', label: 'Toledo Explorer', icon: Compass, desc: 'Find local spots & earn rewards' },
+  { value: 'business', label: 'Business', icon: Building2, desc: 'List your business on ToledoLokal' },
+  { value: 'food_truck', label: 'Food Truck', icon: Truck, desc: 'Get your food truck discovered' },
+] as const;
+
+type SignupType = (typeof SIGNUP_TYPES)[number]['value'];
 
 const emailSchema = z.string().email('Please enter a valid email');
 
@@ -30,6 +38,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [signupType, setSignupType] = useState<SignupType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [failedAttempts, setFailedAttempts] = useState(0);
@@ -165,7 +174,7 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, name);
+        const { error } = await signUp(email, password, name, signupType || 'explorer');
         if (error) {
           const msg = error.message?.toLowerCase() || '';
           if (msg.includes('already registered') || msg.includes('already been registered') || msg.includes('already exists')) {
@@ -318,17 +327,44 @@ export default function Auth() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {isSignUp && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>I am a...</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {SIGNUP_TYPES.map((t) => {
+                    const Icon = t.icon;
+                    const active = signupType === t.value;
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setSignupType(t.value)}
+                        className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 text-center transition-all ${
+                          active
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-border hover:border-primary/40'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-xs font-semibold leading-tight">{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
           )}
 
           <div className="space-y-2">
@@ -420,6 +456,7 @@ export default function Auth() {
               setIsSignUp(!isSignUp);
               setErrors({});
               setFailedAttempts(0);
+              setSignupType(null);
             }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

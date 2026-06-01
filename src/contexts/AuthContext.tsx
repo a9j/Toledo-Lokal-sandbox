@@ -10,7 +10,7 @@ interface AuthContextType {
   session: Session | null;
   roles: AppRole[];
   isLoading: boolean;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, name?: string, signupType?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, name?: string) => {
+  const signUp = async (email: string, password: string, name?: string, signupType?: string) => {
     // Use the canonical domain, not window.location.origin: signups on a raw
     // Vercel deployment URL would otherwise email a link back to the
     // protected *.vercel.app host. See src/lib/site-url.ts.
@@ -94,10 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { name: name || email }
+        data: { name: name || email, signup_type: signupType || 'explorer' }
       }
     });
-    
+
     return { error };
   };
 
