@@ -4,7 +4,6 @@ import { SecureAvatar } from '@/components/ui/secure-avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Store, HeartHandshake, CalendarDays, ChevronRight } from 'lucide-react';
-import { NeighborhoodEnergy } from './NeighborhoodEnergy';
 
 // Pulse should NEVER feel dead. When the live feed is quiet, surface real local
 // discovery: active neighborhoods, local spots, nonprofits, and upcoming events.
@@ -39,11 +38,6 @@ export function PulseEmptyState() {
           It's quiet on this view right now — here's what's worth checking out around the city.
         </p>
       </div>
-
-      <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Neighborhood energy</h3>
-        <NeighborhoodEnergy />
-      </section>
 
       {isLoading ? (
         <div className="space-y-3">
