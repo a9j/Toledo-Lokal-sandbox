@@ -61,7 +61,7 @@ export default function Auth() {
           name: (await supabase.auth.getUser()).data.user?.user_metadata?.name || email,
           role_selected: true,
           profile_completed: true,
-        } as any,
+        },
         { onConflict: 'user_id' },
       );
       navigate('/create-business', { replace: true });

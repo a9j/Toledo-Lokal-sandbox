@@ -205,8 +205,14 @@ export default function DashboardBoost() {
                 {/* TODO: wire payment — replace this disabled stub with the real
                     checkout (e.g. supabase.functions.invoke('create-checkout', ...))
                     once boost billing is ready. Do not write to `boosts` until then. */}
-                <Button disabled title="Payments coming soon">
-                  Payments coming soon
+                <Button
+                  disabled
+                  variant="secondary"
+                  className="gap-1.5 cursor-default"
+                  title="Payments coming soon"
+                >
+                  <Zap className="h-4 w-4" />
+                  Coming Soon
                 </Button>
               </DialogFooter>
             </>

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import heic2any from 'heic2any';
+
 
 interface UploadOptions {
   bucket?: string;
@@ -73,6 +73,7 @@ export function useImageUpload() {
 
   const convertHeicToJpeg = useCallback(async (file: File): Promise<File> => {
     try {
+      const { default: heic2any } = await import('heic2any');
       const convertedBlob = await heic2any({
         blob: file,
         toType: 'image/jpeg',

@@ -1,6 +1,6 @@
 import { SecureImage } from '@/components/ui/secure-image';
-import { MapPin, Building2, Award, Heart, Briefcase, Truck, type LucideIcon } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { MapPin, Building2, Award, Heart, Briefcase, Truck } from 'lucide-react';
+import { resolveIcon } from '@/lib/icon-resolver';
 
 interface IdentityCardProps {
   business: {
@@ -19,13 +19,7 @@ interface IdentityCardProps {
 }
 
 export function IdentityCard({ business, isFoodTruck }: IdentityCardProps) {
-  const getIcon = (iconName?: string | null) => {
-    if (!iconName) return Building2;
-    const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, LucideIcon>)[name] || Building2;
-  };
-
-  const CategoryIcon = getIcon(business.category?.icon);
+  const CategoryIcon = resolveIcon(business.category?.icon, Building2);
 
   // Determine tier badge based on spec
   const getTierBadge = () => {
