@@ -51,6 +51,34 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
+    const effectiveType = storedSignupType || signupType;
+    if (effectiveType === 'business' || effectiveType === 'food_truck') {
+      await supabase.from('profiles').upsert(
+        {
+          user_id: userId,
+          name: (await supabase.auth.getUser()).data.user?.user_metadata?.name || email,
+          role_selected: true,
+          profile_completed: true,
+        } as any,
+        { onConflict: 'user_id' },
+      );
+      navigate('/create-business', { replace: true });
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role_selected')
+      .eq('user_id', userId)
+      .single();
+    if (profile && !profile.role_selected) {
+      navigate('/role-select', { replace: true });
+    } else {
+      navigate('/', { replace: true });
+    }
+  };
+
   // Redirect if already logged in
   if (user) {
     navigate('/', { replace: true });
@@ -128,6 +156,12 @@ export default function Auth() {
         });
       } else {
         toast({ title: 'Email confirmed!' });
+        const { data: { user: confirmedUser } } = await supabase.auth.getUser();
+        if (confirmedUser) {
+          await navigateAfterAuth(confirmedUser.id, confirmedUser.user_metadata?.signup_type);
+        } else {
+          navigate('/');
+        }
         navigate('/');
       }
     } catch {
