@@ -56,14 +56,31 @@ export default function Today() {
     }
   }, [user, authLoading]);
 
-  // Redirect new users who haven't selected a role or completed profile
+  // Redirect new users who haven't selected a role or completed profile.
+  // If the user already picked a signup_type on the sign-up form, skip
+  // RoleSelect and route them based on that choice.
   useEffect(() => {
-    if (user && profile) {
-      if (profile.role_selected === false) {
+    if (!user || !profile) return;
+
+    if (profile.role_selected === false) {
+      const signupType = user.user_metadata?.signup_type as string | undefined;
+      if (signupType === 'business' || signupType === 'food_truck') {
+        supabase
+          .from('profiles')
+          .update({ role_selected: true, profile_completed: true } as any)
+          .eq('user_id', user.id)
+          .then(() => navigate('/create-business', { replace: true }));
+      } else if (signupType === 'explorer') {
+        supabase
+          .from('profiles')
+          .update({ role_selected: true } as any)
+          .eq('user_id', user.id)
+          .then(() => navigate('/profile-setup', { replace: true }));
+      } else {
         navigate('/role-select', { replace: true });
-      } else if (profile.profile_completed === false) {
-        navigate('/profile-setup', { replace: true });
       }
+    } else if (profile.profile_completed === false) {
+      navigate('/profile-setup', { replace: true });
     }
   }, [user, profile, navigate]);
 

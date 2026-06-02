@@ -109,6 +109,12 @@ export default function CreateBusiness() {
       }).select('id').single();
       
       if (error) throw error;
+
+      // Add business role to user (best-effort — may fail if policy is missing)
+      await supabase.from('user_roles').upsert({
+        user_id: user.id,
+        role: 'business',
+      }, { onConflict: 'user_id,role', ignoreDuplicates: true }).then(() => {});
       
       // Add business role to user
       const { error: roleError } = await supabase.from('user_roles').insert({
