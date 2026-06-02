@@ -56,47 +56,66 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
-      // The categories relation already uses the "category" alias, so the scalar
-      // enum column is aliased to business_category to avoid a name clash.
-      const primary = supabase
-        .from('businesses_public')
-        .select(`
-          ${PUBLIC_BUSINESS_COLUMNS},
-          ${NEW_COLUMNS},
-          neighborhood:neighborhoods(name),
-          category:categories(name, icon),
-          business_loop_settings(is_active, loop_tier_id, is_founding_member)
-        `);
-      let { data, error } = await (isUUID ? primary.eq('id', id) : primary.eq('slug', id)).single();
+      // Read the scalar row WITHOUT relational embeds. Embedding related tables
+      // from the businesses_public *view* relies on PostgREST detecting
+      // view→table relationships, which is brittle: a relation it can't resolve
+      // (notably the reverse business_loop_settings embed) 400s the whole
+      // request and surfaces to the user as a spurious "business not found".
+      // We load the related rows separately below, so a readable business always
+      // renders. `business_category` is the scalar enum column (aliased to avoid
+      // clashing with the category relation we attach afterwards).
+      const fetchRow = (select: string) => {
+        const q = supabase.from('businesses_public').select(select);
+        return (isUUID ? q.eq('id', id) : q.eq('slug', id)).single();
+      };
 
-      // On any error (e.g. a pending migration), retry with base columns.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let { data, error } = await fetchRow(`${PUBLIC_BUSINESS_COLUMNS}, ${NEW_COLUMNS}`) as { data: any; error: unknown };
+      // Retry with only the stable columns in case a newer column (visit_link_*,
+      // category enum, profile_modules) hasn't reached the view yet.
       if (error) {
-        const fallbackSelect: string = `
-          ${PUBLIC_BUSINESS_COLUMNS},
-          neighborhood:neighborhoods(name),
-          category:categories(name, icon),
-          business_loop_settings(is_active, loop_tier_id, is_founding_member)
-        `;
-        const fb = supabase.from('businesses_public').select(fallbackSelect);
-        const res = await (isUUID ? fb.eq('id', id) : fb.eq('slug', id)).single();
-        data = res.data as unknown as typeof data;
+        const res = await fetchRow(PUBLIC_BUSINESS_COLUMNS);
+        data = res.data;
         error = res.error;
       }
-
       if (error) throw error;
 
-      const isFoodTruck = data.category?.name?.toLowerCase().includes('food truck') || data.category?.icon === 'truck';
-      const isNonprofit = data.category?.name?.toLowerCase().includes('nonprofit') ||
-        data.category?.name?.toLowerCase().includes('non-profit');
+      // Related data via direct table reads (no view embedding). Each degrades
+      // gracefully to null — e.g. business_loop_settings is RLS-restricted and
+      // simply returns nothing for anonymous visitors.
+      const [nbRes, catRes, loopRes] = await Promise.all([
+        data.neighborhood_id
+          ? supabase.from('neighborhoods').select('name').eq('id', data.neighborhood_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+        data.category_id
+          ? supabase.from('categories').select('name, icon').eq('id', data.category_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+        supabase
+          .from('business_loop_settings')
+          .select('is_active, loop_tier_id, is_founding_member, is_founding_50')
+          .eq('business_id', data.id)
+          .maybeSingle(),
+      ]);
+
+      const neighborhood = nbRes.data ?? null;
+      const category = (catRes.data ?? null) as { name?: string; icon?: string } | null;
+      const business_loop_settings = loopRes.data ?? null;
+
+      const isFoodTruck = category?.name?.toLowerCase().includes('food truck') || category?.icon === 'truck';
+      const isNonprofit = category?.name?.toLowerCase().includes('nonprofit') ||
+        category?.name?.toLowerCase().includes('non-profit');
 
       return {
         ...data,
+        neighborhood,
+        category,
+        business_loop_settings,
         isFoodTruck,
         isNonprofit,
-        isInLoop: LP_ENABLED && data.business_loop_settings?.is_active &&
-          ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
-        isFoundingMember: data.business_loop_settings?.is_founding_member,
-        isFounding50: data.business_loop_settings?.is_founding_50,
+        isInLoop: LP_ENABLED && business_loop_settings?.is_active &&
+          ['community', 'growth', 'pro'].includes(business_loop_settings?.loop_tier_id),
+        isFoundingMember: business_loop_settings?.is_founding_member,
+        isFounding50: business_loop_settings?.is_founding_50,
         tierStatus: data.tier_status,
         tierBadgeVisible: data.tier_badge_visible,
         tierAssignedAt: data.tier_assigned_at,
