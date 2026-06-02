@@ -108,6 +108,7 @@ function FeaturedCard({ business }: { business: FeaturedBusiness }) {
         <button
           type="button"
           onClick={(e) => {
+            e.stopPropagation();
             e.preventDefault();
           }}
           aria-label="Save"
