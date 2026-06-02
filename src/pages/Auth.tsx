@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { siteUrl } from '@/lib/site-url';
 import { z } from 'zod';
-import { Check, Circle, Compass, Building2, Truck } from 'lucide-react';
+import { Check, Circle, Compass, Building2, Truck, Mail } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
 
 const SIGNUP_TYPES = [
@@ -43,9 +43,7 @@ export default function Auth() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const [showOtpScreen, setShowOtpScreen] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [showCheckEmail, setShowCheckEmail] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -81,9 +79,23 @@ export default function Auth() {
     }
   };
 
-  // Redirect if already logged in (skip if we're handling navigation ourselves)
-  if (user && !isHandlingNavRef.current) {
-    navigate('/', { replace: true });
+  // The email confirmation link redirects back here already signed in. If a
+  // signup is pending in this browser, route the user to the right next step
+  // (business → create-business, etc.); otherwise just send them home. This
+  // also covers the case of an already-logged-in user landing on /auth.
+  useEffect(() => {
+    if (!user || isHandlingNavRef.current) return;
+    isHandlingNavRef.current = true;
+    const pendingSignupType = localStorage.getItem('signup_type');
+    if (pendingSignupType) {
+      navigateAfterAuth(user.id, pendingSignupType);
+    } else {
+      navigate('/', { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  if (user) {
     return null;
   }
 
@@ -141,54 +153,18 @@ export default function Auth() {
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otpCode.trim()) return;
-    setIsVerifyingOtp(true);
-    isHandlingNavRef.current = true;
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otpCode.trim(),
-        type: 'signup',
-      });
-      if (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Invalid code',
-          description: 'Please check the code and try again, or request a new one.',
-        });
-      } else {
-        toast({ title: 'Email confirmed!' });
-        const { data: { user: confirmedUser } } = await supabase.auth.getUser();
-        if (confirmedUser) {
-          await navigateAfterAuth(confirmedUser.id, confirmedUser.user_metadata?.signup_type);
-        } else {
-          navigate('/');
-        }
-      }
-    } catch {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not verify code. Please try again.',
-      });
-    } finally {
-      setIsVerifyingOtp(false);
-    }
-  };
-
   const handleResendConfirmation = async () => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
-        options: { emailRedirectTo: siteUrl('/') },
+        options: { emailRedirectTo: siteUrl('/auth') },
       });
       if (error) throw error;
       toast({
         title: 'Email resent',
-        description: 'Check your inbox (and spam folder) for a new code.',
+        description: 'Check your inbox (and spam folder) for a new confirmation link.',
       });
     } catch {
       toast({
@@ -248,7 +224,7 @@ export default function Auth() {
             });
           }
         } else {
-          setShowOtpScreen(true);
+          setShowCheckEmail(true);
         }
       } else {
         const { error } = await signIn(email, password);
@@ -290,44 +266,23 @@ export default function Auth() {
     }
   };
 
-  if (showOtpScreen) {
+  if (showCheckEmail) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
         <div className="w-full max-w-sm space-y-8">
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-3">
             <img src={tlLogo} alt="ToledoLokal" className="h-20 w-auto mx-auto mb-2" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <Mail className="h-7 w-7 text-primary" />
+            </div>
             <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
             <p className="text-muted-foreground text-sm">
-              We sent a 6-digit code to <strong>{email}</strong>
+              We sent a confirmation link to <strong>{email}</strong>. Click the link
+              in that email to verify your account and finish signing up.
             </p>
             <p className="text-muted-foreground text-xs">
-              Check your spam/junk folder if you don't see it
+              Can't find it? Check your spam/junk folder.
             </p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="otp">Confirmation code</Label>
-              <Input
-                id="otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="000000"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="h-14 rounded-xl text-center text-2xl tracking-[0.3em] font-mono"
-                maxLength={6}
-              />
-            </div>
-
-            <Button
-              onClick={handleVerifyOtp}
-              className="w-full h-12 rounded-xl text-base font-medium"
-              disabled={otpCode.length < 6 || isVerifyingOtp}
-            >
-              {isVerifyingOtp ? 'Verifying...' : 'Confirm Email'}
-            </Button>
           </div>
 
           <div className="text-center space-y-2">
@@ -337,12 +292,12 @@ export default function Auth() {
               disabled={isLoading}
               className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
             >
-              {isLoading ? 'Sending...' : "Didn't get the code? Resend"}
+              {isLoading ? 'Sending...' : "Didn't get the link? Resend"}
             </button>
             <br />
             <button
               type="button"
-              onClick={() => { setShowOtpScreen(false); setOtpCode(''); }}
+              onClick={() => { setShowCheckEmail(false); }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Back to sign in
