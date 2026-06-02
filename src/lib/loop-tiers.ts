@@ -81,7 +81,7 @@ export const isLoopParticipant = (tierId: LoopTierId | string | null): boolean =
 
 /**
  * Get the effective monthly LP allocation for a business,
- * accounting for Founding 5 and Founding 50 overrides.
+ * accounting for Founding 5 and Founding 25 overrides.
  */
 export const getEffectivePointsCap = (
   tierId: LoopTierId | string | null,

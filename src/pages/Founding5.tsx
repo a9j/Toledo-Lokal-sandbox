@@ -16,7 +16,7 @@ import { useFoundingMembers } from '@/hooks/useFoundingMembers';
 import { useAuth } from '@/contexts/AuthContext';
 import { celebrate } from '@/lib/celebrate';
 
-const FOUNDING_50_TOTAL = 50;
+const FOUNDING_25_TOTAL = 25;
 
 // TODO: swap for the real Toledo footage. The hero supports an image or a
 // looping muted <video>; this placeholder uses an image for now.
@@ -101,7 +101,7 @@ export default function Founding5() {
     const newcomers = all.filter((m) => !knownFoundingIds.current!.has(m.id));
     if (newcomers.length > 0) {
       newcomers.forEach((m) => {
-        const tier = data.founding5.some((f) => f.id === m.id) ? 'Founding 5' : 'Founding 50';
+        const tier = data.founding5.some((f) => f.id === m.id) ? 'Founding 5' : 'Founding 25';
         toast.success(`Welcome ${m.name} to the ${tier}`);
       });
       celebrate();
@@ -234,21 +234,21 @@ export default function Founding5() {
         </section>
       )}
 
-      {/* ===== Founding 50 progress ===== */}
+      {/* ===== Founding 25 progress ===== */}
       <section className="px-6 pb-24 sm:pb-28">
         <div className="mx-auto max-w-md text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            The Founding 50
+            The Founding 25
           </p>
           <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
-            {founding50Display} of {FOUNDING_50_TOTAL} claimed
+            {founding50Display} of {FOUNDING_25_TOTAL} claimed
           </p>
           <Progress
-            value={(founding50Count / FOUNDING_50_TOTAL) * 100}
+            value={(founding50Count / FOUNDING_25_TOTAL) * 100}
             className="mt-5 h-2"
           />
           <p className="mt-3 text-sm text-muted-foreground">
-            After the first five, the next fifty help shape what comes next.
+            After the first five, the next twenty-five help shape what comes next.
           </p>
         </div>
       </section>

@@ -31,7 +31,7 @@ const TIER_INFO: Record<string, { label: string; description: string; className:
     className: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-amber-950',
   },
   founding_50: {
-    label: 'Founding 50',
+    label: 'Founding 25',
     description: 'Free forever on core. Ranked above every business that signs up later. 50% off everything optional for life.',
     className: 'bg-gradient-to-r from-slate-400 to-slate-300 text-slate-900',
   },
@@ -142,7 +142,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
             isF5 ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'
           )}>
             <p className={cn('text-sm font-medium', isF5 ? 'text-amber-900' : 'text-slate-900')}>
-              {isF5 ? 'Founding 5' : 'Founding 50'} member #{billing.founding_number} — Est. {estYear}
+              {isF5 ? 'Founding 5' : 'Founding 25'} member #{billing.founding_number} — Est. {estYear}
             </p>
             <p className={cn('text-xs mt-0.5', isF5 ? 'text-amber-700' : 'text-slate-600')}>
               {isF5

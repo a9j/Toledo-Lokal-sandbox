@@ -458,8 +458,8 @@ export default function AdminBusinesses() {
             <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 5</p>
           </div>
           <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
-            <p className="text-2xl font-bold text-slate-400">{founding50Count}<span className="text-sm text-muted-foreground">/50</span></p>
-            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 50</p>
+            <p className="text-2xl font-bold text-slate-400">{founding50Count}<span className="text-sm text-muted-foreground">/25</span></p>
+            <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 25</p>
           </div>
           <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
             <p className="text-2xl font-bold text-indigo-500">{proCount}</p>
@@ -491,7 +491,7 @@ export default function AdminBusinesses() {
               <SelectContent>
                 <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="founding_5">Founding 5</SelectItem>
-                <SelectItem value="founding_50">Founding 50</SelectItem>
+                <SelectItem value="founding_50">Founding 25</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="growth">Growth</SelectItem>
                 <SelectItem value="community">Community</SelectItem>
@@ -743,7 +743,7 @@ export default function AdminBusinesses() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
-                  <SelectItem value="founding_50">Founding 50</SelectItem>
+                  <SelectItem value="founding_50">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro / Anchor</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="community">Community</SelectItem>
@@ -940,7 +940,7 @@ export default function AdminBusinesses() {
                 <SelectContent>
                   <SelectItem value="all">All owners</SelectItem>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
-                  <SelectItem value="founding_50">Founding 50</SelectItem>
+                  <SelectItem value="founding_50">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="community">Community</SelectItem>

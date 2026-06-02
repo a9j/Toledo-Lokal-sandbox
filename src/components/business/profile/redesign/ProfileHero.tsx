@@ -98,7 +98,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
           )}
           {!business.isFoundingMember && business.tierStatus === 'founding_50' && (
             <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-slate-400 to-slate-300 border border-slate-300/50 px-2 py-0.5 text-[10px] font-bold text-slate-900">
-              <Shield className="h-3 w-3 fill-current" /> Founding 50
+              <Shield className="h-3 w-3 fill-current" /> Founding 25
             </span>
           )}
         </div>

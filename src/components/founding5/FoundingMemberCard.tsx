@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
 import { FoundingMember } from './types';
@@ -10,13 +10,9 @@ interface FoundingMemberCardProps {
 const padded = (n: number) => String(n).padStart(2, '0');
 
 export function FoundingMemberCard({ member }: FoundingMemberCardProps) {
-  const navigate = useNavigate();
-  const go = () => navigate(`/business/${member.slug ?? member.id}`);
-
   return (
-    <button
-      type="button"
-      onClick={go}
+    <Link
+      to={`/business/${member.slug ?? member.id}`}
       className="group relative block w-full overflow-hidden rounded-3xl bg-card text-left shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-xl hover:ring-border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       {/* Founding badge */}
@@ -74,6 +70,6 @@ export function FoundingMemberCard({ member }: FoundingMemberCardProps) {
           </div>
         )}
       </div>
-    </button>
+    </Link>
   );
 }
