@@ -16,7 +16,8 @@ export function useNeighborhoodActivity() {
   return useQuery<NeighborhoodActivity[]>({
     queryKey: ['neighborhood-activity'],
     queryFn: async () => {
-      const { data, error } = await (supabase.from('neighborhood_activity' as any) as any)
+      const { data, error } = await supabase
+        .from('neighborhood_activity')
         .select('*')
         .order('activity_score', { ascending: false });
       if (error) throw error;

@@ -90,12 +90,12 @@ export function useAdminAttachStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: AttachInput) => {
-      const { data, error } = await (supabase.rpc as any)('admin_attach_business_staff', {
+      const { data, error } = await supabase.rpc('admin_attach_business_staff', {
         p_business_id: input.businessId,
         p_role: input.role,
-        p_target_user_id: input.userId ?? null,
-        p_target_email: input.email ?? null,
-        p_note: input.note ?? null,
+        p_target_user_id: input.userId ?? undefined,
+        p_target_email: input.email ?? undefined,
+        p_note: input.note ?? undefined,
       });
       if (error) throw error;
       return data as { action: 'attach' | 'invite'; staff_id: string | null; invitation_id: string | null; user_id: string | null };
@@ -111,9 +111,9 @@ export function useAdminRemoveStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ staffId, businessId, note }: { staffId: string; businessId: string; note?: string }) => {
-      const { error } = await (supabase.rpc as any)('admin_remove_business_staff', {
+      const { error } = await supabase.rpc('admin_remove_business_staff', {
         p_staff_id: staffId,
-        p_note: note ?? null,
+        p_note: note ?? undefined,
       });
       if (error) throw error;
       return businessId;
@@ -128,9 +128,9 @@ export function useAdminCancelInvitation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ invitationId, businessId, note }: { invitationId: string; businessId: string; note?: string }) => {
-      const { error } = await (supabase.rpc as any)('admin_cancel_business_invitation', {
+      const { error } = await supabase.rpc('admin_cancel_business_invitation', {
         p_invitation_id: invitationId,
-        p_note: note ?? null,
+        p_note: note ?? undefined,
       });
       if (error) throw error;
       return businessId;

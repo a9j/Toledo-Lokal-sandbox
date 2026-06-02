@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Clock, CheckCircle2, Infinity, ArrowUpRight } from 'lucide-react';
+import { MapPin, Star, Clock, CheckCircle2, Infinity as InfinityIcon, ArrowUpRight } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
 import { Json } from '@/integrations/supabase/types';
 
@@ -139,7 +139,7 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                     </h3>
                     {business.isInLoop && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/90 text-primary-foreground text-[10px] font-semibold flex-shrink-0">
-                        <Infinity className="h-2.5 w-2.5" />
+                        <InfinityIcon className="h-2.5 w-2.5" />
                         Loop
                       </span>
                     )}
@@ -180,7 +180,7 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                     )}
                     {business.isInLoop && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
-                        <Infinity className="h-2.5 w-2.5" />
+                        <InfinityIcon className="h-2.5 w-2.5" />
                         Loop
                       </span>
                     )}

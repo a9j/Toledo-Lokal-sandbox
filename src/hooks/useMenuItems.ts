@@ -20,7 +20,8 @@ export function useMenuItems(businessId: string | undefined) {
     queryKey: ['menu-items', businessId],
     queryFn: async () => {
       if (!businessId) return [];
-      const { data, error } = await (supabase.from('menu_items' as any) as any)
+      const { data, error } = await supabase
+        .from('menu_items')
         .select('*')
         .eq('business_id', businessId)
         .order('category', { ascending: true, nullsFirst: false })
@@ -40,12 +41,13 @@ export function useCreateMenuItem() {
 
   return useMutation({
     mutationFn: async (item: Omit<MenuItem, 'id' | 'created_at'>) => {
-      const { data, error } = await (supabase.from('menu_items' as any) as any)
-        .insert(item)
+      const { data, error } = await supabase
+        .from('menu_items')
+        .insert(item as never)
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as MenuItem;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['menu-items', data.business_id] });
@@ -63,13 +65,14 @@ export function useUpdateMenuItem() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<MenuItem> & { id: string }) => {
-      const { data, error } = await (supabase.from('menu_items' as any) as any)
-        .update(updates as any)
+      const { data, error } = await supabase
+        .from('menu_items')
+        .update(updates as never)
         .eq('id', id)
         .select()
         .single();
       if (error) throw error;
-      return data;
+      return data as MenuItem;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['menu-items', data.business_id] });
@@ -86,7 +89,8 @@ export function useDeleteMenuItem() {
 
   return useMutation({
     mutationFn: async ({ id, businessId }: { id: string; businessId: string }) => {
-      const { error } = await (supabase.from('menu_items' as any) as any)
+      const { error } = await supabase
+        .from('menu_items')
         .delete()
         .eq('id', id);
       if (error) throw error;
@@ -108,7 +112,7 @@ export function useReorderMenuItems() {
   return useMutation({
     mutationFn: async (items: { id: string; sort_order: number; business_id: string }[]) => {
       const updates = items.map(({ id, sort_order }) =>
-        (supabase.from('menu_items' as any) as any).update({ sort_order }).eq('id', id)
+        supabase.from('menu_items').update({ sort_order } as never).eq('id', id)
       );
       await Promise.all(updates);
       return items[0]?.business_id;

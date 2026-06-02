@@ -17,6 +17,8 @@ export function LoopAnalyticsDashboard() {
         supabase.from('loop_wallets').select('points_balance, lifetime_earned, lifetime_redeemed, lifetime_donated'),
         supabase.from('loop_transactions').select('transaction_type, points, created_at'),
       ]);
+      if (wallets.error) throw wallets.error;
+      if (transactions.error) throw transactions.error;
 
       const totalCirculating = wallets.data?.reduce((sum, w) => sum + (w.points_balance || 0), 0) || 0;
       const totalIssued = wallets.data?.reduce((sum, w) => sum + (w.lifetime_earned || 0), 0) || 0;
@@ -91,10 +93,11 @@ export function LoopAnalyticsDashboard() {
   const { data: supplyCap } = useQuery({
     queryKey: ['admin-lp-supply-cap'],
     queryFn: async () => {
-      const { data: settings } = await supabase
+      const { data: settings, error } = await supabase
         .from('business_loop_settings')
         .select('points_issued_this_month, is_founding_member')
         .eq('is_active', true);
+      if (error) throw error;
 
       const totalIssued = settings?.reduce((sum, s) => sum + (s.points_issued_this_month || 0), 0) || 0;
       const founding5Issued = settings?.filter(s => s.is_founding_member)

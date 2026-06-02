@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 
 export type JobType = 'full-time' | 'part-time' | 'seasonal' | 'entry-level' | 'skilled-trades' | 'internship' | 'gig';
 export type PayType = 'hourly' | 'salary' | 'flat-rate' | 'tips';
@@ -142,9 +143,10 @@ export function useUpdateJob() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Job> & { id: string }) => {
+      const { business: _business, ...dbUpdates } = updates;
       const { data, error } = await supabase
         .from('jobs')
-        .update(updates as any)
+        .update(dbUpdates as TablesUpdate<'jobs'>)
         .eq('id', id)
         .select()
         .single();

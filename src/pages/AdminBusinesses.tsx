@@ -76,16 +76,17 @@ export default function AdminBusinesses() {
   const [filterOnboarding, setFilterOnboarding] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
+  type BusinessRecord = NonNullable<typeof businesses>[number];
   // Action modals
-  const [assignModal, setAssignModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [assignModal, setAssignModal] = useState<{ open: boolean; business: BusinessRecord | null }>({ open: false, business: null });
   const [selectedTier, setSelectedTier] = useState<TierStatus>('community');
-  const [revokeModal, setRevokeModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
-  const [archiveModal, setArchiveModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [revokeModal, setRevokeModal] = useState<{ open: boolean; business: BusinessRecord | null }>({ open: false, business: null });
+  const [archiveModal, setArchiveModal] = useState<{ open: boolean; business: BusinessRecord | null }>({ open: false, business: null });
   const [reason, setReason] = useState('');
   const [logModal, setLogModal] = useState<{ open: boolean; businessId: string | null }>({ open: false, businessId: null });
 
   // Owner messaging
-  const [messageModal, setMessageModal] = useState<{ open: boolean; business: any | null }>({ open: false, business: null });
+  const [messageModal, setMessageModal] = useState<{ open: boolean; business: BusinessRecord | null }>({ open: false, business: null });
   const [staffModal, setStaffModal] = useState<{ open: boolean; business: { id: string; name: string } | null }>({ open: false, business: null });
   const { can } = usePermissions();
   const [broadcastModal, setBroadcastModal] = useState(false);
@@ -110,7 +111,7 @@ export default function AdminBusinesses() {
       setMessageModal({ open: false, business: null });
       resetMessageForm();
     },
-    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
+    onError: (e: Error) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
   });
 
   const sendBroadcast = useMutation({
@@ -126,7 +127,7 @@ export default function AdminBusinesses() {
       setBroadcastModal(false);
       resetMessageForm();
     },
-    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
+    onError: (e: Error) => toast({ variant: 'destructive', title: 'Could not send', description: e.message }),
   });
 
   const { data: businesses, isLoading } = useQuery({
@@ -152,7 +153,7 @@ export default function AdminBusinesses() {
       toast({ title: 'Business removed', description: 'Hidden from the public site. You can restore it anytime.' });
       setArchiveModal({ open: false, business: null });
     },
-    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not remove', description: e.message }),
+    onError: (e: Error) => toast({ variant: 'destructive', title: 'Could not remove', description: e.message }),
   });
 
   const restoreBusiness = useMutation({
@@ -164,7 +165,7 @@ export default function AdminBusinesses() {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
       toast({ title: 'Business restored', description: 'Back on the public site.' });
     },
-    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not restore', description: e.message }),
+    onError: (e: Error) => toast({ variant: 'destructive', title: 'Could not restore', description: e.message }),
   });
 
   const approveBusiness = useMutation({
@@ -180,7 +181,7 @@ export default function AdminBusinesses() {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
       toast({ title: 'Business approved', description: 'Now live on the platform.' });
     },
-    onError: (e: any) => toast({ variant: 'destructive', title: 'Could not approve', description: e.message }),
+    onError: (e: Error) => toast({ variant: 'destructive', title: 'Could not approve', description: e.message }),
   });
 
   // Tier change log for a specific business
@@ -205,7 +206,7 @@ export default function AdminBusinesses() {
       if (!business || !user) return;
 
       // Log the change
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -214,9 +215,10 @@ export default function AdminBusinesses() {
         new_badge_visible: true,
         reason: reason || null,
       });
+      if (logError) throw logError;
 
       // Update the business
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: newTier,
         tier_badge_visible: true,
         tier_assigned_at: new Date().toISOString(),
@@ -224,6 +226,7 @@ export default function AdminBusinesses() {
         tier_revoked_at: null,
         tier_revoked_by: null,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -239,7 +242,7 @@ export default function AdminBusinesses() {
       const business = businesses?.find(b => b.id === businessId);
       if (!business || !user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -247,10 +250,12 @@ export default function AdminBusinesses() {
         previous_badge_visible: business.tier_badge_visible,
         new_badge_visible: visible,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_badge_visible: visible,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -264,7 +269,7 @@ export default function AdminBusinesses() {
       const business = businesses?.find(b => b.id === businessId);
       if (!business || !user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -273,13 +278,15 @@ export default function AdminBusinesses() {
         new_badge_visible: false,
         reason: reason || null,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: 'community',
         tier_badge_visible: false,
         tier_revoked_at: new Date().toISOString(),
         tier_revoked_by: user.id,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -294,7 +301,7 @@ export default function AdminBusinesses() {
     mutationFn: async ({ businessId, previousTier }: { businessId: string; previousTier: string }) => {
       if (!user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: 'community',
@@ -302,13 +309,15 @@ export default function AdminBusinesses() {
         previous_badge_visible: false,
         new_badge_visible: true,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: previousTier,
         tier_badge_visible: true,
         tier_revoked_at: null,
         tier_revoked_by: null,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -524,7 +533,7 @@ export default function AdminBusinesses() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-sm">{biz.name}</h3>
-                    <TierBadge tier={biz.tier_status as any} size="sm" visible={biz.tier_badge_visible} />
+                    <TierBadge tier={biz.tier_status as TierStatus} size="sm" visible={biz.tier_badge_visible} />
                     {!biz.tier_badge_visible && biz.tier_status !== 'community' && biz.tier_status !== 'growth' && (
                       <Badge variant="outline" className="text-[10px] gap-1"><EyeOff className="h-3 w-3" /> Hidden</Badge>
                     )}
@@ -870,9 +879,9 @@ export default function AdminBusinesses() {
             {tierLogs?.length ? tierLogs.map(log => (
               <div key={log.id} className="p-3 rounded-lg bg-secondary text-sm space-y-1">
                 <div className="flex items-center gap-2">
-                  <TierBadge tier={log.previous_tier as any} size="sm" />
+                  <TierBadge tier={log.previous_tier as TierStatus} size="sm" />
                   <span>→</span>
-                  <TierBadge tier={log.new_tier as any} size="sm" />
+                  <TierBadge tier={log.new_tier as TierStatus} size="sm" />
                 </div>
                 {log.reason && <p className="text-xs text-muted-foreground">{log.reason}</p>}
                 <p className="text-[10px] text-muted-foreground">{new Date(log.created_at).toLocaleString()}</p>

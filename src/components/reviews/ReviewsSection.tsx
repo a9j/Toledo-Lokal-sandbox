@@ -113,7 +113,7 @@ export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0,
       setIsDialogOpen(false);
       toast.success('Review submitted!');
     },
-    onError: (error: any) => {
+    onError: (error: Error & { code?: string }) => {
       const isRateLimit = error?.message?.includes('row-level security') || error?.code === '42501';
       if (isRateLimit) {
         toast.error('Slow down! You can only post 5 reviews per day, and new accounts must wait 1 hour before reviewing.');

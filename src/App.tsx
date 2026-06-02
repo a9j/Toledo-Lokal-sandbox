@@ -1,7 +1,7 @@
 import { lazy as reactLazy, Suspense, ComponentType } from "react";
 
 // Reload once on stale chunk errors (common after a redeploy)
-const lazy = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) =>
+const lazy = <T extends ComponentType<Record<string, never>>>(factory: () => Promise<{ default: T }>) =>
   reactLazy(() =>
     factory().catch((err) => {
       const msg = String(err?.message || err);

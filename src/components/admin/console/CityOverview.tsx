@@ -44,7 +44,7 @@ function useCityMetrics() {
           .gte('created_at', today);
         pointsToday = tx?.reduce((s, t) => s + (t.points || 0), 0) ?? 0;
         checkinsToday = tx?.length ?? 0;
-      } catch { /* ignore */ }
+      } catch (err) { console.error('Failed to fetch loop transactions:', err); }
 
       const pendingList = (await supabase
         .from('businesses')

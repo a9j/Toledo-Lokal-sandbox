@@ -3,10 +3,24 @@ import { ChevronRight, Calendar } from 'lucide-react';
 import { EventCardRich } from '@/components/cards/EventCardRich';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface EventItem {
+  id: string;
+  title: string;
+  description?: string | null;
+  start_date_time: string;
+  location_text?: string | null;
+  featured?: boolean | null;
+  business?: {
+    id: string;
+    name: string;
+    neighborhood?: { name: string } | null;
+  } | null;
+}
+
 interface EventsCarouselProps {
   title: string;
   subtitle?: string;
-  events: any[] | undefined;
+  events: EventItem[] | undefined;
   isLoading: boolean;
   viewAllLink?: string;
 }

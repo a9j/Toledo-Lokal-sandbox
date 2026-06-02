@@ -274,7 +274,7 @@ export default function DashboardEvents() {
   );
 }
 
-function EventCard({ event }: { event: any }) {
+function EventCard({ event }: { event: { id: string; title: string; start_date_time: string; location_text?: string | null } }) {
   const dt = new Date(event.start_date_time);
   return (
     <div className="card-elevated p-4 flex items-start gap-3">

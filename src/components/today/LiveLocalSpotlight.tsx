@@ -1,9 +1,10 @@
+import { type ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, ChevronRight, Store, Truck, Heart } from 'lucide-react';
 import { SecureImage } from '@/components/ui/secure-image';
 import { DailyDropSpotlight } from '@/hooks/useDailyDrop';
 
-const TYPE_LABEL: Record<string, { label: string; icon: any }> = {
+const TYPE_LABEL: Record<string, { label: string; icon: ElementType }> = {
   business: { label: 'FEATURED BUSINESS', icon: Store },
   food_truck: { label: 'FOOD TRUCK', icon: Truck },
   nonprofit: { label: 'NONPROFIT', icon: Heart },

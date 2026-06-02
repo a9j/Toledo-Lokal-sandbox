@@ -43,6 +43,7 @@ export default function ScanQR() {
     }
 
     processScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- navigate is stable from react-router; processScan is defined below and uses refs/state that should not re-trigger the effect
   }, [qrCodeId, user, session]);
 
   const processScan = async () => {
@@ -86,7 +87,7 @@ export default function ScanQR() {
       } else {
         setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Scan error:', error);
       setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
     }

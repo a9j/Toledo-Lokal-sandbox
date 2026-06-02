@@ -1,3 +1,4 @@
+import { type ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar,
@@ -10,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { DailyDropHighlight } from '@/hooks/useDailyDrop';
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, ElementType> = {
   event: Calendar,
   deal: Tag,
   announcement: Megaphone,

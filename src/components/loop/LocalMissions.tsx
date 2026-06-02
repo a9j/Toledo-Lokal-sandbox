@@ -234,10 +234,10 @@ export function LocalMissions() {
         title: "You're in!",
         description: `Started "${mission.title}" — visit local spots to make progress`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Couldn't join",
-        description: error.message || "Something went wrong",
+        description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     }
@@ -250,10 +250,10 @@ export function LocalMissions() {
         title: "Mission Complete",
         description: `You earned ${result.points} Loop Points for completing "${missionTitle}"`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to claim reward",
+        description: error instanceof Error ? error.message : "Failed to claim reward",
         variant: "destructive",
       });
     }

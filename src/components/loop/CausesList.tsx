@@ -48,10 +48,10 @@ export function CausesList() {
       });
       setSelectedCause(null);
       setDonationAmount('100');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Donation failed",
-        description: error.message || "Failed to donate points",
+        description: error instanceof Error ? error.message : "Failed to donate points",
         variant: "destructive",
       });
     }

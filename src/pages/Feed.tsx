@@ -74,7 +74,7 @@ export default function Feed() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast({ title: 'Posted!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error & { code?: string }) => {
       const isRateLimit = error?.message?.includes('row-level security') || error?.code === '42501';
       toast({ 
         variant: 'destructive', 

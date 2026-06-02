@@ -164,7 +164,7 @@ export default function BusinessQRCodes() {
                   <Label>QR Type</Label>
                   <Select
                     value={formData.qr_type}
-                    onValueChange={v => setFormData(f => ({ ...f, qr_type: v as any }))}
+                    onValueChange={v => setFormData(f => ({ ...f, qr_type: v as LoopQRCode['qr_type'] }))}
                   >
                     <SelectTrigger>
                       <SelectValue />

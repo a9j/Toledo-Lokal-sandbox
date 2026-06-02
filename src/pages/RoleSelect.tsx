@@ -22,7 +22,7 @@ export default function RoleSelect() {
     const { error } = await supabase
       .from('profiles')
       .upsert(
-        { user_id: user.id, name: user.user_metadata?.name || user.email, ...data } as any,
+        { user_id: user.id, name: (user.user_metadata?.name as string | undefined) || user.email, ...data },
         { onConflict: 'user_id' },
       );
     if (error) {

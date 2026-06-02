@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Infinity, QrCode, Gift } from 'lucide-react';
+import { Infinity as InfinityIcon, QrCode, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface LoopActionCardProps {
@@ -29,7 +29,7 @@ export function LoopActionCard({
       {pointsAvailable > 0 && (
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Infinity className="h-5 w-5 text-primary" />
+            <InfinityIcon className="h-5 w-5 text-primary" />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Earn</p>

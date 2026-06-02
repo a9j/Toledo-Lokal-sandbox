@@ -1,3 +1,4 @@
+import { type ElementType } from 'react';
 import { Coins, Sparkles, Gift, Heart, AlertTriangle, QrCode, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,7 +131,7 @@ export function WalletBalance() {
   );
 }
 
-function StatPill({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
+function StatPill({ icon: Icon, label, value }: { icon: ElementType; label: string; value: number }) {
   return (
     <div className="text-center bg-foreground/[0.04] border border-border/40 rounded-xl py-2 px-1">
       <Icon className="h-3 w-3 mx-auto text-muted-foreground mb-1" />
@@ -140,7 +141,7 @@ function StatPill({ icon: Icon, label, value }: { icon: any; label: string; valu
   );
 }
 
-function QuickAction({ icon: Icon, label, onClick }: { icon: any; label: string; onClick: () => void }) {
+function QuickAction({ icon: Icon, label, onClick }: { icon: ElementType; label: string; onClick: () => void }) {
   return (
     <Button
       variant="outline"

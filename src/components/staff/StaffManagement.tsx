@@ -295,7 +295,7 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">
-                  {(member as any).profile?.name || 'Staff Member'}
+                  {(member as { profile?: { name?: string } }).profile?.name || 'Staff Member'}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {member.role} • Added {formatDistanceToNow(new Date(member.created_at), { addSuffix: true })}

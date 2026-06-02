@@ -48,10 +48,19 @@ import {
   MapPin
 } from 'lucide-react';
 
+interface EditDialogItem {
+  id: string;
+  name?: string;
+  title?: string;
+  photos?: string[];
+  editor_pick_image?: string;
+  image_url?: string;
+}
+
 interface EditDialogState {
   open: boolean;
   type: 'business' | 'deal' | 'event' | null;
-  item: any;
+  item: EditDialogItem | null;
 }
 
 export default function Admin() {
@@ -193,7 +202,7 @@ export default function Admin() {
 
   const updateBusinessStatus = useMutation({
     mutationFn: async ({ id, status, featured, name: bizName }: { id: string; status?: string; featured?: boolean; name?: string }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string | boolean> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
 
@@ -216,7 +225,7 @@ export default function Admin() {
 
       const { error } = await supabase
         .from('businesses')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
 
       if (error) throw error;
@@ -234,13 +243,13 @@ export default function Admin() {
 
   const updateBusinessImages = useMutation({
     mutationFn: async ({ id, photos, editorPickImage }: { id: string; photos?: string[]; editorPickImage?: string }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string[] | string> = {};
       if (photos !== undefined) updates.photos = photos;
       if (editorPickImage !== undefined) updates.editor_pick_image = editorPickImage;
-      
+
       const { error } = await supabase
         .from('businesses')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
       
       if (error) throw error;
@@ -259,14 +268,14 @@ export default function Admin() {
 
   const updateDealStatus = useMutation({
     mutationFn: async ({ id, status, featured, imageUrl }: { id: string; status?: string; featured?: boolean; imageUrl?: string }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string | boolean> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
       if (imageUrl !== undefined) updates.image_url = imageUrl;
-      
+
       const { error } = await supabase
         .from('deals')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
       
       if (error) throw error;
@@ -284,14 +293,14 @@ export default function Admin() {
 
   const updateEventStatus = useMutation({
     mutationFn: async ({ id, status, featured, imageUrl }: { id: string; status?: string; featured?: boolean; imageUrl?: string }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string | boolean> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
       if (imageUrl !== undefined) updates.image_url = imageUrl;
-      
+
       const { error } = await supabase
         .from('events')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
       
       if (error) throw error;
@@ -309,13 +318,13 @@ export default function Admin() {
 
   const updateJobStatus = useMutation({
     mutationFn: async ({ id, status, featured }: { id: string; status?: string; featured?: boolean }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string | boolean> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
-      
+
       const { error } = await supabase
         .from('jobs')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
       
       if (error) throw error;
@@ -332,13 +341,13 @@ export default function Admin() {
 
   const updateFoodLocationStatus = useMutation({
     mutationFn: async ({ id, status, featured }: { id: string; status?: string; featured?: boolean }) => {
-      const updates: Record<string, any> = {};
+      const updates: Record<string, string | boolean> = {};
       if (status !== undefined) updates.status = status;
       if (featured !== undefined) updates.featured = featured;
-      
+
       const { error } = await supabase
         .from('food_truck_locations')
-        .update(updates as any)
+        .update(updates)
         .eq('id', id);
       
       if (error) throw error;
@@ -466,7 +475,7 @@ export default function Admin() {
     },
   });
 
-  const openEditDialog = (type: 'business' | 'deal' | 'event', item: any) => {
+  const openEditDialog = (type: 'business' | 'deal' | 'event', item: EditDialogItem) => {
     setEditDialog({ open: true, type, item });
     if (type === 'business') {
       setEditorPickImage(item.editor_pick_image || '');

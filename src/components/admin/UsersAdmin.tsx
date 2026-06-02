@@ -36,13 +36,27 @@ const AFFILIATION_STYLE: Record<BusinessAffiliation['role'], string> = {
   staff: 'bg-secondary text-muted-foreground border-border',
 };
 
+interface AdminProfile {
+  avatar_url: string | null;
+  created_at: string;
+  favorite_categories: string[] | null;
+  id: string;
+  name: string | null;
+  neighborhood_id: string | null;
+  profile_completed: boolean;
+  role_selected: boolean;
+  updated_at: string;
+  user_id: string;
+  vibe: string[];
+}
+
 export function UsersAdmin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const [search, setSearch] = useState('');
-  const [revokeTarget, setRevokeTarget] = useState<any | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<AdminProfile | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminProfile | null>(null);
   const [confirmText, setConfirmText] = useState('');
 
   const { data: profiles, isLoading } = useQuery({
@@ -142,7 +156,7 @@ export function UsersAdmin() {
       queryClient.invalidateQueries({ queryKey: ['admin-connectors'] });
       toast({ title: 'Founding Connector assigned!' });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast({ variant: 'destructive', title: 'Error', description: err.message });
     },
   });
@@ -187,7 +201,7 @@ export function UsersAdmin() {
       toast({ title: 'Access revoked', description: 'User reset to a basic resident account.' });
       setRevokeTarget(null);
     },
-    onError: (err: any) => toast({ variant: 'destructive', title: 'Error', description: err.message }),
+    onError: (err: Error) => toast({ variant: 'destructive', title: 'Error', description: err.message }),
   });
 
   // Hard removal: permanently delete the auth account (cascades to profile,
@@ -196,7 +210,8 @@ export function UsersAdmin() {
     mutationFn: async (userId: string) => {
       const { data, error } = await supabase.functions.invoke('admin-delete-user', { body: { userId } });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
+      const result = data as { error?: string } | null;
+      if (result?.error) throw new Error(result.error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-profiles'] });
@@ -206,7 +221,7 @@ export function UsersAdmin() {
       setDeleteTarget(null);
       setConfirmText('');
     },
-    onError: (err: any) => toast({ variant: 'destructive', title: 'Could not delete', description: err.message }),
+    onError: (err: Error) => toast({ variant: 'destructive', title: 'Could not delete', description: err.message }),
   });
 
   const getRolesForUser = (userId: string) => {
@@ -252,18 +267,18 @@ export function UsersAdmin() {
     if (!search) return true;
     const term = search.toLowerCase();
     const profileMatch =
-      (p as any).name?.toLowerCase().includes(term) ||
-      (p as any).user_id?.toLowerCase().includes(term);
+      (p as AdminProfile).name?.toLowerCase().includes(term) ||
+      (p as AdminProfile).user_id?.toLowerCase().includes(term);
     if (profileMatch) return true;
     // Match by business affiliation too — typing a business name surfaces
     // everyone attached to it.
-    const affiliations = getAffiliationsForUser((p as any).user_id);
+    const affiliations = getAffiliationsForUser((p as AdminProfile).user_id);
     return affiliations.some((a) => a.business_name.toLowerCase().includes(term));
   }) || [];
 
-  const sortedProfiles = [...filtered].sort((a: any, b: any) => {
-    const aDate = new Date(a.created_at || 0).getTime();
-    const bDate = new Date(b.created_at || 0).getTime();
+  const sortedProfiles = [...filtered].sort((a, b) => {
+    const aDate = new Date((a as AdminProfile).created_at || 0).getTime();
+    const bDate = new Date((b as AdminProfile).created_at || 0).getTime();
     return bDate - aDate;
   });
 
@@ -295,7 +310,7 @@ export function UsersAdmin() {
         <p className="text-center text-muted-foreground py-8">Loading users...</p>
       ) : (
         <div className="space-y-2">
-          {sortedProfiles.map((profile: any) => {
+          {sortedProfiles.map((profile) => {
             const roles = getRolesForUser(profile.user_id);
             const isConn = isConnectorUser(profile.user_id);
             const code = getConnectorCode(profile.user_id);

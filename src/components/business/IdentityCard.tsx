@@ -1,5 +1,5 @@
 import { SecureImage } from '@/components/ui/secure-image';
-import { MapPin, Building2, Award, Heart, Briefcase, Truck } from 'lucide-react';
+import { MapPin, Building2, Award, Heart, Briefcase, Truck, type LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 interface IdentityCardProps {
@@ -22,7 +22,7 @@ export function IdentityCard({ business, isFoodTruck }: IdentityCardProps) {
   const getIcon = (iconName?: string | null) => {
     if (!iconName) return Building2;
     const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, any>)[name] || Building2;
+    return (LucideIcons as Record<string, LucideIcon>)[name] || Building2;
   };
 
   const CategoryIcon = getIcon(business.category?.icon);

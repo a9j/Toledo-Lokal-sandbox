@@ -22,6 +22,9 @@ export function PulseEmptyState() {
           .order('start_date_time', { ascending: true })
           .limit(4),
       ]);
+      if (businesses.error) throw businesses.error;
+      if (nonprofits.error) throw nonprofits.error;
+      if (events.error) throw events.error;
       return {
         businesses: businesses.data || [],
         nonprofits: nonprofits.data || [],

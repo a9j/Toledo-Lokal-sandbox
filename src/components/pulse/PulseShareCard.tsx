@@ -133,6 +133,7 @@ export function PulseShareCard({
     const dataUrl = canvas.toDataURL('image/png');
     setImageUrl(dataUrl);
     onImageGenerated?.(dataUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onImageGenerated is a callback prop that may not be memoized by the parent; including it would cause unnecessary canvas redraws
   }, [headline, category, businessName, categoryConfig.label, colors]);
 
   return (
