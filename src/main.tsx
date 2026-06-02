@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-const CACHE_VERSION = "v2-2026-06-02";
+const CACHE_VERSION = "v3-2026-06-02";
 
 (async () => {
   if (localStorage.getItem("cache_version") === CACHE_VERSION) return;

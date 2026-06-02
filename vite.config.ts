@@ -123,6 +123,17 @@ export default defineConfig(({ mode }) => {
               },
             },
           },
+          {
+            urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "pages",
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60,
+              },
+            },
+          },
         ],
       },
     }),
