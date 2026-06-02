@@ -30,6 +30,7 @@ export interface ProfileBusiness {
   isFoodTruck: boolean;
   isNonprofit: boolean;
   isFoundingMember: boolean;
+  isFounding50?: boolean;
   isInLoop?: boolean;
   tierStatus?: string | null;
   tierBadgeVisible?: boolean | null;

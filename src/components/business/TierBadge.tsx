@@ -97,7 +97,7 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
   if (tier === 'founding_5') {
     return (
       <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
-        Founding Partner — Est. {year}
+        Founding 5, Est. {year}
       </p>
     );
   }
@@ -105,7 +105,7 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
   if (tier === 'founding_50') {
     return (
       <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-        Founding 50 Member — Est. {year}
+        Founding 50 Member, Est. {year}
       </p>
     );
   }
