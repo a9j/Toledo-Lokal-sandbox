@@ -149,11 +149,11 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         }
       }
       
-      // Sort by tier priority: founding_5 > founding_50 > pro > growth > community
+      // Sort by tier priority: founding_5 > pro > founding_50 > growth > community
       const tierPriority: Record<string, number> = {
         founding_5: 1,
-        founding_50: 2,
-        pro: 3,
+        pro: 2,
+        founding_50: 3,
         growth: 4,
         community: 5,
       };

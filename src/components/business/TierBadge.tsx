@@ -105,7 +105,7 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
   if (tier === 'founding_50') {
     return (
       <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-        Founding 50 Member, Est. {year}
+        Founding Member, Est. {year}
       </p>
     );
   }

@@ -32,7 +32,7 @@ const TIER_INFO: Record<string, { label: string; description: string; className:
   },
   founding_50: {
     label: 'Founding 50',
-    description: 'Free forever — launch pricing locked in. Early supporter benefits included.',
+    description: 'Free forever on core. Ranked above every business that signs up later. 50% off everything optional for life.',
     className: 'bg-gradient-to-r from-slate-400 to-slate-300 text-slate-900',
   },
   pro: {
@@ -145,7 +145,9 @@ export function BillingManager({ businessId }: BillingManagerProps) {
               {isF5 ? 'Founding 5' : 'Founding 50'} member #{billing.founding_number} — Est. {estYear}
             </p>
             <p className={cn('text-xs mt-0.5', isF5 ? 'text-amber-700' : 'text-slate-600')}>
-              Your founding status is permanent and includes all {isF5 ? 'premium' : 'core'} features at no cost.
+              {isF5
+                ? 'Your founding status is permanent and includes all premium features at no cost.'
+                : 'Free forever on core. 50% off every paid add-on and premium tier for life. Never issued again.'}
             </p>
           </div>
         )}
@@ -166,7 +168,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
           <p className="text-sm text-muted-foreground">
             {isF5
               ? "You have a full advisory seat with direct input on platform direction. You'll be consulted on major product decisions and new feature rollouts."
-              : "Your voice informs platform direction. You'll receive updates and opportunities to share feedback on the platform's evolution."}
+              : "Your voice informs platform direction — not a formal seat, but your feedback shapes what we build."}
           </p>
         </div>
       )}
@@ -189,20 +191,32 @@ export function BillingManager({ businessId }: BillingManagerProps) {
 
       {/* Plan limits */}
       <div className="card-elevated p-5 space-y-3">
-        <h3 className="font-semibold text-sm">Plan limits</h3>
+        <h3 className="font-semibold text-sm">{isF5 ? 'Plan limits' : isF50 ? 'Core plan limits' : 'Plan limits'}</h3>
         <div className="grid gap-2 sm:grid-cols-2">
-          {foundingConfig ? (
+          {isF5 ? (
             <>
               <PlanLimitRow label="Deals" value="Unlimited" />
               <PlanLimitRow label="Events" value="Unlimited" />
               <PlanLimitRow label="Jobs" value="Unlimited" />
-              <PlanLimitRow label="Pulse posts/day" value={String(foundingConfig.limits.pulsePostsPerDay)} />
+              <PlanLimitRow label="Pulse posts/day" value="10" />
               <PlanLimitRow label="Active offers" value="Unlimited" />
               <PlanLimitRow label="Featured placement" value="Yes" />
-              <PlanLimitRow label="Analytics" value={isF5 ? 'Full' : 'Standard'} />
-              <PlanLimitRow label="Loop multiplier cap" value={`${foundingConfig.maxMultiplier}×`} />
-              <PlanLimitRow label="Priority support" value={isF5 ? 'Yes' : 'No'} />
+              <PlanLimitRow label="Analytics" value="Full" />
+              <PlanLimitRow label="Loop multiplier cap" value="10×" />
+              <PlanLimitRow label="Priority support" value="Yes" />
               <PlanLimitRow label="Cost" value="Free forever" />
+            </>
+          ) : isF50 ? (
+            <>
+              <PlanLimitRow label="Deals" value={String(tierConfig.limits.deals)} />
+              <PlanLimitRow label="Events" value={String(tierConfig.limits.events)} />
+              <PlanLimitRow label="Jobs" value={String(tierConfig.limits.jobs)} />
+              <PlanLimitRow label="Pulse posts/day" value={String(tierConfig.limits.pulsePostsPerDay)} />
+              <PlanLimitRow label="Active offers" value={String(tierConfig.limits.maxActiveOffers)} />
+              <PlanLimitRow label="Launch LP" value="15,000/mo × 6 months" />
+              <PlanLimitRow label="Launch boosts" value="5 free" />
+              <PlanLimitRow label="Add-on discount" value="50% off for life" />
+              <PlanLimitRow label="Core cost" value="Free forever" />
             </>
           ) : (
             <>
@@ -218,6 +232,21 @@ export function BillingManager({ businessId }: BillingManagerProps) {
           )}
         </div>
       </div>
+
+      {/* F50 upgrade nudge — core is free, but extras are half price */}
+      {isF50 && (
+        <Link to="/dashboard/subscription">
+          <div className="card-elevated p-5 flex items-center gap-3 border-dashed border-2 border-slate-300 hover-lift cursor-pointer">
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm">Unlock more with your 50% founding discount</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Upgrade to Growth or Pro at half price for life. Boosts, premium LP features, and more — always 50% off.
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </Link>
+      )}
 
       {/* Upgrade CTA */}
       {tier === 'free' && !isFounder && (
