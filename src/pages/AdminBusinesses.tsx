@@ -206,7 +206,7 @@ export default function AdminBusinesses() {
       if (!business || !user) return;
 
       // Log the change
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -215,9 +215,10 @@ export default function AdminBusinesses() {
         new_badge_visible: true,
         reason: reason || null,
       });
+      if (logError) throw logError;
 
       // Update the business
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: newTier,
         tier_badge_visible: true,
         tier_assigned_at: new Date().toISOString(),
@@ -225,6 +226,7 @@ export default function AdminBusinesses() {
         tier_revoked_at: null,
         tier_revoked_by: null,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -240,7 +242,7 @@ export default function AdminBusinesses() {
       const business = businesses?.find(b => b.id === businessId);
       if (!business || !user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -248,10 +250,12 @@ export default function AdminBusinesses() {
         previous_badge_visible: business.tier_badge_visible,
         new_badge_visible: visible,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_badge_visible: visible,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -265,7 +269,7 @@ export default function AdminBusinesses() {
       const business = businesses?.find(b => b.id === businessId);
       if (!business || !user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: business.tier_status,
@@ -274,13 +278,15 @@ export default function AdminBusinesses() {
         new_badge_visible: false,
         reason: reason || null,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: 'community',
         tier_badge_visible: false,
         tier_revoked_at: new Date().toISOString(),
         tier_revoked_by: user.id,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });
@@ -295,7 +301,7 @@ export default function AdminBusinesses() {
     mutationFn: async ({ businessId, previousTier }: { businessId: string; previousTier: string }) => {
       if (!user) return;
 
-      await supabase.from('tier_change_log').insert({
+      const { error: logError } = await supabase.from('tier_change_log').insert({
         business_id: businessId,
         changed_by: user.id,
         previous_tier: 'community',
@@ -303,13 +309,15 @@ export default function AdminBusinesses() {
         previous_badge_visible: false,
         new_badge_visible: true,
       });
+      if (logError) throw logError;
 
-      await supabase.from('businesses').update({
+      const { error: updateError } = await supabase.from('businesses').update({
         tier_status: previousTier,
         tier_badge_visible: true,
         tier_revoked_at: null,
         tier_revoked_by: null,
       }).eq('id', businessId);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-businesses'] });

@@ -209,11 +209,15 @@ export default function BusinessOnboarding() {
 
         // Add business role
         try {
-          await supabase.from('user_roles').insert({
+          const { error: roleError } = await supabase.from('user_roles').insert({
             user_id: user.id,
             role: 'business',
           });
-        } catch { /* role may already exist */ }
+          if (roleError && !roleError.message.includes('duplicate')) throw roleError;
+        } catch (err) {
+          // Role may already exist — only swallow genuine duplicates
+          console.error('Failed to insert user role:', err);
+        }
       }
 
       // Save locations when leaving step 2
@@ -233,9 +237,11 @@ export default function BusinessOnboarding() {
         }));
 
         // Delete existing and re-insert
-        await supabase.from('business_locations').delete().eq('business_id', currentBusinessId);
+        const { error: deleteError } = await supabase.from('business_locations').delete().eq('business_id', currentBusinessId);
+        if (deleteError) throw deleteError;
         if (rows.length > 0) {
-          await supabase.from('business_locations').insert(rows);
+          const { error: insertError } = await supabase.from('business_locations').insert(rows);
+          if (insertError) throw insertError;
         }
       }
     },
@@ -282,9 +288,11 @@ export default function BusinessOnboarding() {
       const categoryName = categories?.find((c) => c.id === data.category_id)?.name ?? null;
       const presetId = inferPreset({ categoryName, movesAround: data.movesAround });
       const rows = buildPresetBlocks(presetId).map((b) => ({ ...b, business_id: businessId }));
-      await supabase.from('profile_blocks').insert(rows);
-    } catch {
+      const { error: insertError } = await supabase.from('profile_blocks').insert(rows);
+      if (insertError) throw insertError;
+    } catch (err) {
       // Non-fatal: the owner can still pick a layout from the profile editor.
+      console.error('Failed to seed profile blocks:', err);
     }
   };
 
