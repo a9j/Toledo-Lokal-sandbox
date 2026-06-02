@@ -63,7 +63,8 @@ export default function Today() {
     if (!user || !profile) return;
 
     if (profile.role_selected === false) {
-      const signupType = user.user_metadata?.signup_type as string | undefined;
+      const signupType = (user.user_metadata?.signup_type || localStorage.getItem('signup_type')) as string | undefined;
+      localStorage.removeItem('signup_type');
       if (signupType === 'business' || signupType === 'food_truck') {
         supabase
           .from('profiles')
