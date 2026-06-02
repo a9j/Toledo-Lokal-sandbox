@@ -164,7 +164,6 @@ export default function Auth() {
         } else {
           navigate('/');
         }
-        navigate('/');
       }
     } catch {
       toast({
