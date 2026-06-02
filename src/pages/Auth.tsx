@@ -195,11 +195,18 @@ export default function Auth() {
               title: 'Password issue',
               description: error.message,
             });
+          } else if (msg.includes('security') || msg.includes('rate') || msg.includes('429')) {
+            toast({
+              variant: 'destructive',
+              title: 'Too many attempts',
+              description: 'Please wait a moment and try again.',
+            });
           } else {
+            console.error('Signup error:', error.message);
             toast({
               variant: 'destructive',
               title: 'Sign up failed',
-              description: 'Could not create account. Please check your details and try again.',
+              description: error.message || 'Could not create account. Please try again.',
             });
           }
         } else {

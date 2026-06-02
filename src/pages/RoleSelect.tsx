@@ -42,18 +42,10 @@ export default function RoleSelect() {
       if (selected === 'business' || selected === 'nonprofit') {
         updateData.profile_completed = true;
       }
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData as any)
-        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error saving role selection:', error);
-        toast.error('Something went wrong. Please try again.');
-        return;
-      }
+      if (!(await saveRoleSelection(updateData))) return;
 
-      if (selected === 'business' || selected === 'food_truck') {
+      if (selected === 'business') {
         navigate('/create-business', { replace: true });
       } else if (selected === 'nonprofit') {
         navigate('/create-business?type=nonprofit', { replace: true });
@@ -70,15 +62,6 @@ export default function RoleSelect() {
 
   const handleSkip = async () => {
     if (!(await saveRoleSelection({ role_selected: true }))) return;
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role_selected: true } as any)
-      .eq('user_id', user.id);
-    if (error) {
-      console.error('Error skipping role selection:', error);
-      toast.error('Something went wrong. Please try again.');
-      return;
-    }
     navigate('/', { replace: true });
   };
 
