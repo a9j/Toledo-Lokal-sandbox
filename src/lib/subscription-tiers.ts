@@ -193,7 +193,7 @@ export const FOUNDING_TIERS = {
     },
   },
   founding_50: {
-    name: 'Founding 50',
+    name: 'Founding 25',
     lpMonthlyLaunch: 15000,
     lpLaunchMonths: 6,
     launchBoosts: 5,
@@ -202,9 +202,9 @@ export const FOUNDING_TIERS = {
     subscriptionPrice: 0,
     features: [
       'Free forever on core platform access',
-      'Silver Founding 50 shield badge — permanent, never issued again',
+      'Silver Founding 25 shield badge — permanent, never issued again',
       'Ranked ahead of every non-founding free business, permanently',
-      'Named on the permanent "Founding 50" origin wall',
+      'Named on the permanent "Founding 25" origin wall',
       '"Founding Member, Est. 2026" on your profile forever',
       '15,000 LP/month for the first 6 months at Loop launch',
       '5 free launch boosts (then pay-as-you-go)',

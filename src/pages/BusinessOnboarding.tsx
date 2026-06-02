@@ -792,7 +792,7 @@ export default function BusinessOnboarding() {
               <div className="flex flex-col items-center gap-3 py-6">
                 <TierBadge tier={tierStatus as 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro'} size="lg" />
                 <p className="text-sm text-muted-foreground">
-                  You're one of our {tierStatus === 'founding_5' ? 'Founding 5' : 'Founding 50'} partners!
+                  You're one of our {tierStatus === 'founding_5' ? 'Founding 5' : 'Founding 25'} partners!
                 </p>
               </div>
             )}

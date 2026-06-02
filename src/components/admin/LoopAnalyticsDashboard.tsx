@@ -201,7 +201,7 @@ export function LoopAnalyticsDashboard() {
                       <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">F5</span>
                     )}
                     {issuer.is_founding_50 && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">F50</span>
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">F25</span>
                     )}
                   </div>
                   <span className="font-mono font-medium">{issuer.points_issued_this_month?.toLocaleString() || 0} LP</span>

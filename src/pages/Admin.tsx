@@ -428,7 +428,7 @@ export default function Admin() {
     },
   });
 
-  // Toggle Founding 50 status
+  // Toggle Founding 25 status
   const toggleFounding50 = useMutation({
     mutationFn: async ({ businessId, isFounding50 }: { businessId: string; isFounding50: boolean }) => {
       const { data: existing } = await supabase
@@ -469,7 +469,7 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
       toast({ 
-        title: isFounding50 ? 'Founding 50 member added!' : 'Founding 50 status removed',
+        title: isFounding50 ? 'Founding 25 member added!' : 'Founding 25 status removed',
         description: isFounding50 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
       });
     },
@@ -619,8 +619,8 @@ export default function Admin() {
                 <p className="text-xs text-muted-foreground">Founding 5</p>
               </div>
               <div className="card-elevated p-3 text-center">
-                <p className="text-2xl font-bold text-slate-400">{founding50Count}/50</p>
-                <p className="text-xs text-muted-foreground">Founding 50</p>
+                <p className="text-2xl font-bold text-slate-400">{founding50Count}/25</p>
+                <p className="text-xs text-muted-foreground">Founding 25</p>
               </div>
             </div>
 
@@ -964,7 +964,7 @@ export default function Admin() {
                 </Badge>
                 <Badge variant="outline" className="gap-1 bg-gradient-to-r from-slate-50 to-gray-50 border-slate-300 dark:from-slate-950/30 dark:to-gray-950/30 dark:border-slate-700">
                   <Shield className="h-3 w-3 text-slate-500" />
-                  <span className="text-slate-600 dark:text-slate-400">{founding50Count}/50</span>
+                  <span className="text-slate-600 dark:text-slate-400">{founding50Count}/25</span>
                 </Badge>
               </div>
             </div>
@@ -1000,7 +1000,7 @@ export default function Admin() {
                           {isFounding50 && (
                             <Badge className="gap-1 bg-gradient-to-r from-slate-400 to-gray-400 text-white border-0 text-[10px]">
                               <Shield className="h-3 w-3" />
-                              Founding 50
+                              Founding 25
                             </Badge>
                           )}
                           {biz.featured && (
@@ -1039,14 +1039,14 @@ export default function Admin() {
                         F5
                       </Button>
 
-                      {/* Founding 50 Toggle */}
+                      {/* Founding 25 Toggle */}
                       <Button
                         size="sm"
                         variant={isFounding50 ? "secondary" : "ghost"}
                         onClick={() => {
-                          if (!isFounding50 && founding50Count >= 50) {
+                          if (!isFounding50 && founding50Count >= 25) {
                             toast({ 
-                              title: 'Founding 50 is full',
+                              title: 'Founding 25 is full',
                               description: 'Remove a member first.',
                               variant: 'destructive'
                             });
@@ -1055,11 +1055,11 @@ export default function Admin() {
                           toggleFounding50.mutate({ businessId: biz.id, isFounding50: !isFounding50 });
                         }}
                         className={`h-7 text-xs gap-1 ${isFounding50 ? 'bg-gradient-to-r from-slate-400 to-gray-400 text-white hover:from-slate-500 hover:to-gray-500' : ''}`}
-                        title={isFounding50 ? 'Remove from Founding 50' : 'Add to Founding 50'}
+                        title={isFounding50 ? 'Remove from Founding 25' : 'Add to Founding 25'}
                         disabled={toggleFounding50.isPending || isFoundingMember}
                       >
                         <Shield className="h-3 w-3" />
-                        F50
+                        F25
                       </Button>
 
                       <Button

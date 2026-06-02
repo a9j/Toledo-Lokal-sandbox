@@ -18,7 +18,7 @@ const tierConfig = {
     shieldColor: 'text-amber-950',
   },
   founding_50: {
-    label: 'Founding 50',
+    label: 'Founding 25',
     gradient: 'from-slate-400 to-slate-300',
     textColor: 'text-slate-900',
     border: 'border-slate-300/50',
