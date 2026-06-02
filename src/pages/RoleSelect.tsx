@@ -23,16 +23,20 @@ export default function RoleSelect() {
     setIsSubmitting(true);
 
     try {
-      // Mark role as selected in profile
-      // For business/nonprofit, also mark profile_completed since they don't need the resident wizard
       const updateData: Record<string, boolean> = { role_selected: true };
       if (selected === 'business' || selected === 'nonprofit') {
         updateData.profile_completed = true;
       }
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update(updateData as any)
         .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error saving role selection:', error);
+        toast.error('Something went wrong. Please try again.');
+        return;
+      }
 
       if (selected === 'business') {
         navigate('/create-business', { replace: true });
@@ -50,10 +54,15 @@ export default function RoleSelect() {
   };
 
   const handleSkip = async () => {
-    await supabase
+    const { error } = await supabase
       .from('profiles')
-      .update({ role_selected: true })
+      .update({ role_selected: true } as any)
       .eq('user_id', user.id);
+    if (error) {
+      console.error('Error skipping role selection:', error);
+      toast.error('Something went wrong. Please try again.');
+      return;
+    }
     navigate('/', { replace: true });
   };
 
