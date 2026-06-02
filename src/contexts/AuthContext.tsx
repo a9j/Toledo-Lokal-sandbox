@@ -87,7 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Use the canonical domain, not window.location.origin: signups on a raw
     // Vercel deployment URL would otherwise email a link back to the
     // protected *.vercel.app host. See src/lib/site-url.ts.
-    const redirectUrl = siteUrl('/');
+    // Land on /auth so the confirmation-link click can be routed to the right
+    // next step (e.g. business signups → /create-business). See Auth.tsx.
+    const redirectUrl = siteUrl('/auth');
 
     const { error } = await supabase.auth.signUp({
       email,
