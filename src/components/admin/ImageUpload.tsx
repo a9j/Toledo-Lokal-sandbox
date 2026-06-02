@@ -106,7 +106,7 @@ export function ImageUpload({
       const moderationPromise = moderateContent({ imageUrl: signedUrl });
       const timeoutPromise = new Promise<{ safe: boolean; flaggedReasons: string[] }>((resolve) => {
         setTimeout(() => {
-          console.log('Moderation timeout - allowing upload');
+          console.warn('Moderation timeout - allowing upload');
           resolve({ safe: true, flaggedReasons: [] });
         }, 20000); // 20 second timeout
       });
