@@ -105,6 +105,7 @@ export default function ScannerMode() {
     return () => {
       scanner.clear().catch(() => {});
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleScan is defined after this effect and relies on state (isProcessing, businessId) that should not restart the scanner; including it would cause the scanner to teardown/reinit on every state change
   }, [scanState]);
 
   const handleScan = async (qrData: string) => {

@@ -21,7 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Infinity, Crown, Instagram } from 'lucide-react';
+import { ArrowLeft, Loader2, Infinity as InfinityIcon, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
 import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
@@ -205,6 +205,7 @@ export default function EditBusiness() {
     ) {
       seedFromPreset.mutate('food_truck');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seedFromPreset is a mutation object from react-query whose reference changes every render; including it would cause infinite re-seeding
   }, [business, profileBlocks]);
 
   const updateBusiness = useMutation({
@@ -424,7 +425,7 @@ export default function EditBusiness() {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isInLoop ? 'bg-primary/20' : 'bg-muted'}`}>
-                  <Infinity className={`h-4 w-4 ${isInLoop ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <InfinityIcon className={`h-4 w-4 ${isInLoop ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

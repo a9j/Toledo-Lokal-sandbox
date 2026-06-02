@@ -179,7 +179,7 @@ async function handleScan(supabase: ReturnType<typeof createClient>, qrCodeId: s
   }
 
   // 10. Get or create wallet
-  let { data: wallet, error: walletError } = await supabase
+  const { data: wallet, error: walletError } = await supabase
     .from('loop_wallets')
     .select('*')
     .eq('user_id', userId)

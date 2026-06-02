@@ -193,7 +193,7 @@ export function hasSuspiciousPatterns(text: string): boolean {
   const patterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b.*\b(FROM|INTO|TABLE|WHERE)\b)/i,
     /(\b(OR|AND)\b\s+\d+\s*=\s*\d+)/i,
-    /(--|\#|\/\*|\*\/)/,
+    /(--|#|\/\*|\*\/)/,
     /(\bEXEC\b|\bEXECUTE\b)/i,
   ];
   

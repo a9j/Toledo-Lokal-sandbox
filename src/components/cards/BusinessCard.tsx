@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, CheckCircle, Infinity, ChevronRight } from 'lucide-react';
+import { MapPin, CheckCircle, Infinity as InfinityIcon, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SecureImage } from '@/components/ui/secure-image';
 import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
@@ -92,7 +92,7 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
                 )}
                 {business.isInLoop && (
                   <Badge className="bg-primary/10 text-primary border-0 text-[10px] px-2 py-0.5 font-medium flex items-center gap-1">
-                    <Infinity className="h-3 w-3" />
+                    <InfinityIcon className="h-3 w-3" />
                     Loop
                   </Badge>
                 )}

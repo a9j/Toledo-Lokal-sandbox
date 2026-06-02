@@ -24,7 +24,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.style.colorScheme = theme;
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
-    } catch {}
+    } catch { /* localStorage may be unavailable */ }
   }, [theme]);
 
   const value: ThemeCtx = {

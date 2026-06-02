@@ -64,7 +64,7 @@ export function LoopProvider({ children }: { children: ReactNode }) {
     if (!user) { setWallet(null); return; }
     setIsLoading(true);
     try {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('loop_wallets').select('*')
         .eq('user_id', user.id).eq('city', 'toledo').maybeSingle();
       if (error && error.code !== 'PGRST116') { console.error('Error fetching wallet:', error); return; }
@@ -122,11 +122,13 @@ export function LoopProvider({ children }: { children: ReactNode }) {
     } else {
       loadedForUser.current = null; // allow re-fetch on next ensureLoaded
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we intentionally depend on user?.id rather than the full user object to avoid reset loops on reference changes
   }, [user?.id]);
 
   // Fetch transactions when wallet changes
   useEffect(() => {
     if (wallet) refreshTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we intentionally depend on wallet?.id to refetch only when wallet identity changes, not on every wallet reference or refreshTransactions update
   }, [wallet?.id]);
 
   const redeemReward = useCallback(async (rewardId: string) => {

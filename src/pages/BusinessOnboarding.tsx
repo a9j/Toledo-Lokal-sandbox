@@ -213,7 +213,7 @@ export default function BusinessOnboarding() {
             user_id: user.id,
             role: 'business',
           });
-        } catch {}
+        } catch { /* role may already exist */ }
       }
 
       // Save locations when leaving step 2

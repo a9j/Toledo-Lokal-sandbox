@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SITE_URL } from '@/lib/site-url';
 
 interface SEOHeadProps {
@@ -39,7 +39,11 @@ export function SEOHead({
     'Toledo community',
   ];
   
-  const allKeywords = [...new Set([...defaultKeywords, ...keywords])];
+  const allKeywords = useMemo(
+    () => [...new Set([...defaultKeywords, ...keywords])],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- defaultKeywords is a static local array
+    [keywords]
+  );
 
   useEffect(() => {
     // Update document title

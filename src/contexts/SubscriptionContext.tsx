@@ -65,6 +65,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     } else {
       loadedForUser.current = null;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we intentionally depend on user?.id rather than the full user object to reset state only on user identity changes
   }, [user?.id]);
 
   // Cleanup interval on unmount

@@ -44,6 +44,7 @@ export default function FoodToday() {
     if (!mapsKeyLoading && !mapsKey && viewMode === 'map') {
       setViewMode('list');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- viewMode is read but not a trigger; we only want to run this when the maps key loading state resolves, not when the user manually switches view modes
   }, [mapsKeyLoading, mapsKey]);
 
   const dateString = format(selectedDate, 'yyyy-MM-dd');
