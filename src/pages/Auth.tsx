@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,9 +50,10 @@ export default function Auth() {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isHandlingNavRef = useRef(false);
 
   const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
-    const effectiveType = storedSignupType || signupType;
+    const effectiveType = storedSignupType || signupType || 'explorer';
     if (effectiveType === 'business' || effectiveType === 'food_truck') {
       await supabase.from('profiles').upsert(
         {
@@ -79,8 +80,8 @@ export default function Auth() {
     }
   };
 
-  // Redirect if already logged in
-  if (user) {
+  // Redirect if already logged in (skip if we're handling navigation ourselves)
+  if (user && !isHandlingNavRef.current) {
     navigate('/', { replace: true });
     return null;
   }
@@ -142,6 +143,7 @@ export default function Auth() {
   const handleVerifyOtp = async () => {
     if (!otpCode.trim()) return;
     setIsVerifyingOtp(true);
+    isHandlingNavRef.current = true;
     try {
       const { error } = await supabase.auth.verifyOtp({
         email,
