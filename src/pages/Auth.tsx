@@ -53,7 +53,8 @@ export default function Auth() {
   const isHandlingNavRef = useRef(false);
 
   const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
-    const effectiveType = storedSignupType || signupType || 'explorer';
+    const effectiveType = storedSignupType || signupType || localStorage.getItem('signup_type') || 'explorer';
+    localStorage.removeItem('signup_type');
     if (effectiveType === 'business' || effectiveType === 'food_truck') {
       await supabase.from('profiles').upsert(
         {
@@ -209,7 +210,9 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, name, signupType || 'explorer');
+        const chosenType = signupType || 'explorer';
+        localStorage.setItem('signup_type', chosenType);
+        const { error } = await signUp(email, password, name, chosenType);
         if (error) {
           const msg = error.message?.toLowerCase() || '';
           if (msg.includes('already registered') || msg.includes('already been registered') || msg.includes('already exists')) {
