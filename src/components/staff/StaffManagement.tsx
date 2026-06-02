@@ -98,22 +98,39 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['business-invitations', businessId] });
       setIsInviteOpen(false);
       setInviteEmail('');
-      
-      // Show success with link
-      const inviteLink = `${window.location.origin}/accept-invitation?token=${data.token}`;
-      toast.success('Invitation created! Share the link with your staff member.', {
-        action: {
-          label: 'Copy Link',
-          onClick: () => {
-            navigator.clipboard.writeText(inviteLink);
-            toast.success('Link copied!');
-          },
-        },
+
+      // Send the invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-business-invite', {
+        body: { invitationId: data.id },
       });
+
+      const inviteLink = `${window.location.origin}/accept-invitation?token=${data.token}`;
+      if (emailError) {
+        console.error('Failed to send invite email:', emailError);
+        toast.success('Invitation created! Copy the link to share it.', {
+          action: {
+            label: 'Copy Link',
+            onClick: () => {
+              navigator.clipboard.writeText(inviteLink);
+              toast.success('Link copied!');
+            },
+          },
+        });
+      } else {
+        toast.success('Invitation email sent!', {
+          action: {
+            label: 'Copy Link',
+            onClick: () => {
+              navigator.clipboard.writeText(inviteLink);
+              toast.success('Link copied!');
+            },
+          },
+        });
+      }
     },
     onError: () => {
       toast.error('Failed to send invitation. Please try again.');
