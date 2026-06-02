@@ -1,4 +1,4 @@
-import { Bookmark, Share2, MapPin, Crown, Sparkles, Radio, Store, ArrowLeft, Settings } from 'lucide-react';
+import { Bookmark, Share2, MapPin, Shield, Sparkles, Radio, Store, ArrowLeft, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SecureImage } from '@/components/ui/secure-image';
@@ -7,6 +7,7 @@ import { getOpenStatus } from '@/lib/business-hours';
 import { ResolvedAction } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
 import { Chip, ProfileCard } from './ProfilePrimitives';
+import { TierLabel } from '@/components/business/TierBadge';
 
 interface ProfileHeroProps {
   business: ProfileBusiness;
@@ -91,13 +92,24 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
         <div className="mt-3 flex items-start gap-2">
           <h1 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground">{business.name}</h1>
           {business.isFoundingMember && (
-            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-lokal-amber to-yellow-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              <Crown className="h-3 w-3" /> Founding 5
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 border border-amber-400/50 px-2 py-0.5 text-[10px] font-bold text-amber-950">
+              <Shield className="h-3 w-3 fill-current" /> Founding 5
+            </span>
+          )}
+          {!business.isFoundingMember && business.tierStatus === 'founding_50' && (
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-slate-400 to-slate-300 border border-slate-300/50 px-2 py-0.5 text-[10px] font-bold text-slate-900">
+              <Shield className="h-3 w-3 fill-current" /> Founding 50
             </span>
           )}
         </div>
 
         {tagline && <p className="mt-1 text-sm text-muted-foreground">{tagline}</p>}
+
+        {business.tierStatus && (business.tierStatus === 'founding_5' || business.tierStatus === 'founding_50') && (
+          <div className="mt-1">
+            <TierLabel tier={business.tierStatus} assignedAt={business.tierAssignedAt} />
+          </div>
+        )}
 
         {/* Chips */}
         <div className="mt-3 flex flex-wrap gap-1.5">

@@ -96,6 +96,7 @@ export default function BusinessDetail() {
         isInLoop: LP_ENABLED && data.business_loop_settings?.is_active &&
           ['community', 'growth', 'pro'].includes(data.business_loop_settings?.loop_tier_id),
         isFoundingMember: data.business_loop_settings?.is_founding_member,
+        isFounding50: data.business_loop_settings?.is_founding_50,
         tierStatus: data.tier_status,
         tierBadgeVisible: data.tier_badge_visible,
         tierAssignedAt: data.tier_assigned_at,

@@ -218,7 +218,7 @@ export default function EditBusiness() {
       
       // Build photos array: main photo first, then gallery
       const allPhotos = [mainPhoto, ...galleryPhotos].filter(Boolean) as string[];
-      updateData.photos = allPhotos;
+      updateData.photos = allPhotos.length > 0 ? allPhotos : null;
       
       // Handle logo and cover
       updateData.logo_url = logoUrl;
@@ -273,11 +273,12 @@ export default function EditBusiness() {
       });
       navigate('/dashboard');
     },
-    onError: () => {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Error', 
-        description: 'Failed to update business. Please try again.' 
+    onError: (err: unknown) => {
+      console.error('Business update error:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Failed to update business. Please try again.'
       });
     },
   });
@@ -575,6 +576,7 @@ export default function EditBusiness() {
             )}
             {galleryPhotos.length < 8 && (
               <ImageUpload
+                key={`gallery-upload-${galleryPhotos.length}`}
                 onUpload={(url) => setGalleryPhotos(prev => [...prev, url])}
                 folder="businesses/gallery"
                 bucket="public-assets"
