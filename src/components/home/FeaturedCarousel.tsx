@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { ChevronRight, Heart, MapPin } from 'lucide-react';
+import { ChevronRight, Heart, MapPin, Store } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SecureImage } from '@/components/ui/secure-image';
 
 interface FeaturedBusiness {
   id: string;
@@ -10,6 +11,7 @@ interface FeaturedBusiness {
   cover_image_url?: string | null;
   logo_url?: string | null;
   image_url?: string | null;
+  photos?: string[] | null;
   description?: string | null;
   neighborhood?: { name: string } | null;
 }
@@ -75,11 +77,7 @@ function FeaturedCard({ business }: { business: FeaturedBusiness }) {
       ? 'EVENT'
       : 'BUSINESS';
 
-  const imageUrl =
-    business.cover_image_url ||
-    business.logo_url ||
-    business.image_url ||
-    `https://source.unsplash.com/600x400/?toledo,${type.toLowerCase()}`;
+  const heroPath = business.cover_image_url || business.photos?.[0] || business.logo_url || business.image_url || null;
 
   return (
     <Link
@@ -87,12 +85,23 @@ function FeaturedCard({ business }: { business: FeaturedBusiness }) {
       className="shrink-0 w-[260px] snap-start rounded-2xl border border-border/60 bg-card overflow-hidden hover:border-primary/40 transition-all"
     >
       <div className="relative aspect-[16/11] bg-muted overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={business.name || 'Featured listing'}
-          loading="lazy"
-          className="w-full h-full object-cover"
-        />
+        {heroPath ? (
+          <SecureImage
+            storagePath={heroPath}
+            alt={business.name || 'Featured listing'}
+            className="h-full w-full"
+            imgClassName="object-cover"
+            fallback={
+              <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                <Store className="h-10 w-10 text-primary/30" />
+              </div>
+            }
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-primary/10">
+            <Store className="h-10 w-10 text-primary/30" />
+          </div>
+        )}
         <span className="absolute top-2.5 left-2.5 text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground">
           {type}
         </span>
@@ -111,15 +120,15 @@ function FeaturedCard({ business }: { business: FeaturedBusiness }) {
         <h3 className="text-[15px] font-bold text-foreground leading-tight line-clamp-2">
           {business.name}
         </h3>
-        {business.tagline && (
+        {business.description && (
           <p className="mt-1 text-[12px] text-muted-foreground line-clamp-2">
-            {business.tagline}
+            {business.description}
           </p>
         )}
-        {business.neighborhood && (
+        {business.neighborhood?.name && (
           <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
             <MapPin className="h-3 w-3" />
-            {business.neighborhood}
+            {business.neighborhood.name}
           </div>
         )}
       </div>

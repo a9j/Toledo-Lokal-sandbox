@@ -33,7 +33,7 @@ export function PhotosTab({ business }: { business: ProfileBusiness }) {
               onClick={() => setActive(path)}
               className="aspect-square overflow-hidden rounded-xl bg-secondary focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <SecureImage storagePath={path} alt={`${business.name} photo ${i + 1}`} className="h-full w-full object-cover transition-transform hover:scale-105" />
+              <SecureImage storagePath={path} alt={`${business.name} photo ${i + 1}`} className="h-full w-full" imgClassName="object-cover transition-transform hover:scale-105" />
             </button>
           ))}
         </div>

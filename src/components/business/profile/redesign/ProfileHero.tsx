@@ -29,7 +29,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
       {/* Image header */}
       <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-primary/15 via-secondary to-background sm:h-60">
         {heroImage ? (
-          <SecureImage storagePath={heroImage} alt={business.name} className="h-full w-full object-cover" />
+          <SecureImage storagePath={heroImage} alt={business.name} className="h-full w-full" imgClassName="object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <Store className="h-14 w-14 text-primary/30" />
