@@ -14,7 +14,8 @@ export function useMyPulseReactions(postIds: string[]) {
     queryKey: ['my-pulse-reactions', user?.id, key],
     queryFn: async () => {
       if (!user || postIds.length === 0) return {};
-      const { data, error } = await (supabase.from('pulse_reactions' as any) as any)
+      const { data, error } = await supabase
+        .from('pulse_reactions')
         .select('post_id, reaction_type')
         .eq('user_id', user.id)
         .in('post_id', postIds);
@@ -49,14 +50,15 @@ export function useTogglePulseReaction() {
       // reaction on this post first. If they tapped the one they already had
       // (active), that's a toggle-off and we stop here; otherwise insert the
       // newly chosen reaction (replacing whatever they had).
-      const { error: clearError } = await (supabase.from('pulse_reactions' as any) as any)
+      const { error: clearError } = await supabase
+        .from('pulse_reactions')
         .delete()
         .eq('post_id', postId)
         .eq('user_id', user.id);
       if (clearError) throw clearError;
 
       if (!active) {
-        const { error } = await (supabase.from('pulse_reactions' as any) as any).insert({
+        const { error } = await supabase.from('pulse_reactions').insert({
           post_id: postId,
           user_id: user.id,
           reaction_type: reactionType,

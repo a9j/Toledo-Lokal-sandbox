@@ -86,7 +86,7 @@ export default function ScanQR() {
       } else {
         setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Scan error:', error);
       setResult({ status: 'paused', message: 'Loop rewards are paused — check back soon!' });
     }

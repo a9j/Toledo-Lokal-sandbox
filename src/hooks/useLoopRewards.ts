@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 
 export interface LoopReward {
   id: string;
@@ -125,9 +126,10 @@ export function useBusinessRewards() {
 
   const updateReward = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<LoopReward> & { id: string }) => {
+      const { business: _business, ...dbUpdates } = updates;
       const { data, error } = await supabase
         .from('loop_rewards')
-        .update(updates as any)
+        .update(dbUpdates as TablesUpdate<'loop_rewards'>)
         .eq('id', id)
         .select()
         .single();

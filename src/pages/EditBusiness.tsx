@@ -172,8 +172,8 @@ export default function EditBusiness() {
         phone: business.phone || '',
         website: business.website || '',
         instagram: business.instagram || '',
-        tiktok: (business as any).tiktok || '',
-        facebook: (business as any).facebook || '',
+        tiktok: business.tiktok || '',
+        facebook: business.facebook || '',
         address: business.address || '',
         visit_link_type: business.visit_link_type || '',
         visit_link_url: business.visit_link_url || '',
@@ -211,7 +211,7 @@ export default function EditBusiness() {
     mutationFn: async (data: typeof formData & { photos?: string[]; logo_url?: string | null }) => {
       if (!id) throw new Error('No business ID');
       
-      const updateData: any = { ...data };
+      const updateData: Record<string, unknown> = { ...data };
       
       // Handle photos array
       if (mainPhoto) {

@@ -144,14 +144,14 @@ export default function BusinessOnboarding() {
           instagram: biz.instagram || '',
           facebook: biz.facebook || '',
           tiktok: biz.tiktok || '',
-          hours: (biz.hours as any) || DEFAULT_HOURS,
+          hours: (biz.hours as OnboardingData['hours']) || DEFAULT_HOURS,
         }));
       }
     };
     loadExisting();
   }, [user]);
 
-  const updateField = (field: keyof OnboardingData, value: any) => {
+  const updateField = (field: keyof OnboardingData, value: OnboardingData[keyof OnboardingData]) => {
     setData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -165,7 +165,7 @@ export default function BusinessOnboarding() {
         ? `${primary.street_address}, ${primary.city}, ${primary.state} ${primary.zip_code}`.trim()
         : (data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim() : '');
 
-      const payload: Record<string, any> = {
+      const payload: Record<string, string | boolean | null | OnboardingData['hours']> = {
         name: data.name,
         description: data.description,
         category_id: data.category_id || null,
@@ -194,13 +194,13 @@ export default function BusinessOnboarding() {
       if (currentBusinessId) {
         const { error } = await supabase
           .from('businesses')
-          .update(payload as any)
+          .update(payload)
           .eq('id', currentBusinessId);
         if (error) throw error;
       } else {
         const { data: newBiz, error } = await supabase
           .from('businesses')
-          .insert(payload as any)
+          .insert(payload)
           .select('id')
           .single();
         if (error) throw error;
@@ -211,7 +211,7 @@ export default function BusinessOnboarding() {
         try {
           await supabase.from('user_roles').insert({
             user_id: user.id,
-            role: 'business' as any,
+            role: 'business',
           });
         } catch {}
       }
@@ -782,7 +782,7 @@ export default function BusinessOnboarding() {
 
             {tierStatus !== 'community' && tierStatus !== 'growth' && (
               <div className="flex flex-col items-center gap-3 py-6">
-                <TierBadge tier={tierStatus as any} size="lg" />
+                <TierBadge tier={tierStatus as 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro'} size="lg" />
                 <p className="text-sm text-muted-foreground">
                   You're one of our {tierStatus === 'founding_5' ? 'Founding 5' : 'Founding 50'} partners!
                 </p>

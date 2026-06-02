@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { SecureImage } from '@/components/ui/secure-image';
 import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
 import { TierBadge } from '@/components/business/TierBadge';
+import type { LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 interface BusinessCardProps {
@@ -28,7 +29,7 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
   const iconName = business.category?.icon 
     ? business.category.icon.charAt(0).toUpperCase() + business.category.icon.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase())
     : 'Building2';
-  const IconComponent = (LucideIcons as Record<string, any>)[iconName] || LucideIcons.Building2;
+  const IconComponent = (LucideIcons as unknown as Record<string, LucideIcon>)[iconName] || LucideIcons.Building2;
 
   return (
     <Link to={`/business/${business.id}`} className="block group">
@@ -61,7 +62,7 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
                 {business.name}
               </h3>
               {business.tier_status && business.tier_status !== 'community' && business.tier_status !== 'growth' && business.tier_badge_visible && (
-                <TierBadge tier={business.tier_status as any} size="sm" />
+                <TierBadge tier={business.tier_status as 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro'} size="sm" />
               )}
             </div>
             

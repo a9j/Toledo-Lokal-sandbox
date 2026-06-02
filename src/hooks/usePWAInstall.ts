@@ -14,7 +14,7 @@ export function usePWAInstall() {
   useEffect(() => {
     // Check if iOS / Android (detect regardless of install state so the
     // settings install guide can show the right walkthrough)
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window);
     setIsIOS(isIOSDevice);
     setIsAndroid(/Android/.test(navigator.userAgent));
 

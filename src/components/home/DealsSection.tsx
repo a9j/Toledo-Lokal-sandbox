@@ -3,8 +3,20 @@ import { ChevronRight, Tag, Clock, Percent } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 
+interface Deal {
+  id: string;
+  title: string;
+  end_date: string;
+  featured?: boolean | null;
+  business?: {
+    name: string;
+    category?: { name: string } | null;
+    neighborhood?: { name: string } | null;
+  } | null;
+}
+
 interface DealsSectionProps {
-  deals: any[] | undefined;
+  deals: Deal[] | undefined;
   isLoading: boolean;
 }
 

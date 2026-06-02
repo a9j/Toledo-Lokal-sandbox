@@ -27,7 +27,8 @@ export function usePulseTrust() {
     queryKey: ['pulse-trust', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const { data, error } = await (supabase.from('pulse_trust_scores' as any) as any)
+      const { data, error } = await supabase
+        .from('pulse_trust_scores')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();

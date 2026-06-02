@@ -2,12 +2,26 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Sparkles } from 'lucide-react';
 import { FeaturedListingCard } from '@/components/cards/FeaturedListingCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Json } from '@/integrations/supabase/types';
+
+interface FeaturedSectionBusiness {
+  id: string;
+  name: string;
+  description?: string | null;
+  verified?: boolean | null;
+  featured?: boolean | null;
+  isInLoop?: boolean;
+  photos?: string[] | null;
+  hours?: Json | null;
+  neighborhood?: { name: string } | null;
+  category?: { name: string; icon: string } | null;
+}
 
 interface FeaturedSectionProps {
   title: string;
   subtitle?: string;
   viewAllLink?: string;
-  businesses: any[] | undefined;
+  businesses: FeaturedSectionBusiness[] | undefined;
   isLoading: boolean;
   showLabel?: boolean;
   labelText?: string;

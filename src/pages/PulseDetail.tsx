@@ -144,7 +144,7 @@ export default function PulseDetail() {
   }
 
   const typeConfig = PULSE_CONTENT_TYPES[post.content_type] ?? PULSE_CONTENT_TYPES.business_activity;
-  const authorName = post.anonymous ? 'Anonymous' : (post.business?.name || (post as any).author?.name || 'Toledo Local');
+  const authorName = post.anonymous ? 'Anonymous' : (post.business?.name || post.author?.name || 'Toledo Local');
   const authorInitial = authorName.charAt(0).toUpperCase();
   const timeRemaining = formatTimeRemaining(new Date(post.expires_at));
 
@@ -198,7 +198,7 @@ export default function PulseDetail() {
                   />
                 ) : (
                   <SecureAvatar
-                    storagePath={(post as any).author?.avatar_url}
+                    storagePath={post.author?.avatar_url ?? null}
                     fallbackText={authorName}
                     className="h-12 w-12"
                     fallbackClassName="bg-secondary text-foreground"
@@ -222,25 +222,25 @@ export default function PulseDetail() {
               </div>
 
               {/* Event details */}
-              {(post as any).post_type === 'event' && (post as any).event_date && (
+              {post.post_type === 'event' && post.event_date && (
                 <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl bg-secondary/50 px-4 py-3 text-sm font-medium text-foreground">
                   <span className="inline-flex items-center gap-1.5">
                     <CalendarDays className="h-4 w-4 text-primary" />
-                    {new Date((post as any).event_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                    {new Date(post.event_date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                   </span>
-                  {(post as any).event_start_time && (
+                  {post.event_start_time && (
                     <span className="inline-flex items-center gap-1.5">
                       <Clock className="h-4 w-4 text-primary" />
-                      {(post as any).event_start_time.slice(0, 5)}
-                      {(post as any).event_end_time ? ` – ${(post as any).event_end_time.slice(0, 5)}` : ''}
+                      {post.event_start_time.slice(0, 5)}
+                      {post.event_end_time ? ` – ${post.event_end_time.slice(0, 5)}` : ''}
                     </span>
                   )}
-                  {(post as any).location_name && (
+                  {post.location_name && (
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin className="h-4 w-4 text-primary" />
-                      {(post as any).location_name}
-                      {(post as any).location_address && (
-                        <span className="text-xs text-muted-foreground ml-0.5">{(post as any).location_address}</span>
+                      {post.location_name}
+                      {post.location_address && (
+                        <span className="text-xs text-muted-foreground ml-0.5">{post.location_address}</span>
                       )}
                     </span>
                   )}

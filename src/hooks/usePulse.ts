@@ -87,10 +87,7 @@ export function usePulse(options: UsePulseOptions = {}) {
   const query = useQuery({
     queryKey: ['pulse', options],
     queryFn: async () => {
-      // Several restructure columns (content_type, neighborhood, tags,
-      // template_key, reaction_count) aren't in the generated types yet, so
-      // build the query with an untyped builder for the filter chain.
-      let q: any = supabase
+      let q = supabase
         .from('pulse_posts')
         .select(`
           *,
@@ -141,9 +138,9 @@ export function usePulse(options: UsePulseOptions = {}) {
         profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       }
 
-      return posts.map(post => ({
+      return posts.map((post: Record<string, unknown>) => ({
         ...post,
-        author: post.user_id ? profileMap.get(post.user_id) || null : null,
+        author: post.user_id ? profileMap.get(post.user_id as string) || null : null,
       })) as unknown as PulsePost[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -331,12 +328,12 @@ export function useCreatePulsePost() {
           end_date_time: endDateTime || null,
           location_text: input.locationName || input.locationText || null,
           status: 'approved',
-          pulse_post_id: (data as any).id,
+          pulse_post_id: (data as { id: string }).id,
         } as never);
       }
 
       // Trust score reflects real participation; recompute after posting.
-      void (supabase.rpc as any)('recompute_pulse_trust', { p_user_id: user.id });
+      void supabase.rpc('recompute_pulse_trust', { p_user_id: user.id });
 
       return data;
     },

@@ -20,7 +20,8 @@ export function useCitySignals(limit = 12) {
   return useQuery<CitySignal[]>({
     queryKey: ['city-signals', limit],
     queryFn: async () => {
-      const { data, error } = await (supabase.from('city_signals' as any) as any)
+      const { data, error } = await supabase
+        .from('city_signals')
         .select('*')
         .gt('valid_until', new Date().toISOString())
         .order('created_at', { ascending: false })

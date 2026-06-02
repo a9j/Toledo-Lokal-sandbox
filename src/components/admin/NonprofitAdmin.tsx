@@ -187,7 +187,7 @@ export function NonprofitAdmin() {
     },
   });
 
-  const openEdit = (nonprofit: any) => {
+  const openEdit = (nonprofit: Database['public']['Tables']['nonprofits']['Row'] & { neighborhood?: { id: string; name: string } | null }) => {
     setEditingId(nonprofit.id);
     setFormData({
       name: nonprofit.name,

@@ -50,7 +50,7 @@ export default function ScannerMode() {
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (staff) return { access: true, businessName: (staff.businesses as any)?.name };
+      if (staff) return { access: true, businessName: (staff.businesses as { name: string } | null)?.name ?? null };
       
       return { access: false, businessName: null };
     },
@@ -76,7 +76,7 @@ export default function ScannerMode() {
         .select('business_id, businesses(id, name)')
         .eq('user_id', user.id);
       
-      const staffBusinesses = staffOf?.map(s => (s.businesses as any)) || [];
+      const staffBusinesses = staffOf?.map(s => s.businesses as { id: string; name: string } | null) || [];
       
       return [...(owned || []), ...staffBusinesses].filter(Boolean);
     },
@@ -128,9 +128,9 @@ export default function ScannerMode() {
         setScanState('error');
         setScanResult({ message: data.error || 'Scan failed' });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setScanState('error');
-      setScanResult({ message: err.message || 'Scan failed' });
+      setScanResult({ message: err instanceof Error ? err.message : 'Scan failed' });
     } finally {
       setIsProcessing(false);
     }

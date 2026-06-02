@@ -138,7 +138,7 @@ export function MenuManager({ businessId }: MenuManagerProps) {
       const { business_id, sort_order, ...updates } = payload;
       updateItem.mutate({ id: editingId, ...updates });
     } else {
-      createItem.mutate(payload as any);
+      createItem.mutate(payload as Omit<MenuItem, 'id' | 'created_at'>);
     }
     setDialogOpen(false);
   };
