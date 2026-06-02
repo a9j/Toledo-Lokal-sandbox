@@ -128,11 +128,9 @@ export function BillingManager({ businessId }: BillingManagerProps) {
           </div>
         )}
 
-        {subscriptionEnd && !isFounder && (
+        {!isFounder && (
           <div className="text-sm text-muted-foreground">
-            {tier === 'free' ? 'No active subscription' : (
-              <>Current period ends {new Date(subscriptionEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</>
-            )}
+            {tier === 'free' ? 'No active subscription' : 'Active subscription'}
           </div>
         )}
       </div>

@@ -71,6 +71,7 @@ export default function EditBusiness() {
     category: 'restaurant',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
@@ -181,6 +182,7 @@ export default function EditBusiness() {
       });
       setModuleContent(parseModuleContent(business.profile_modules));
       setMainPhoto(business.photos?.[0] || null);
+      setGalleryPhotos(business.photos?.slice(1) || []);
       setLogoUrl(business.logo_url || null);
       setCoverUrl(business.cover_image_url || null);
       setHours(parseBusinessHours(business.hours));
@@ -214,12 +216,9 @@ export default function EditBusiness() {
       
       const updateData: Record<string, unknown> = { ...data };
       
-      // Handle photos array
-      if (mainPhoto) {
-        const existingPhotos = business?.photos || [];
-        // Put new main photo first, keep others
-        updateData.photos = [mainPhoto, ...existingPhotos.filter(p => p !== mainPhoto)];
-      }
+      // Build photos array: main photo first, then gallery
+      const allPhotos = [mainPhoto, ...galleryPhotos].filter(Boolean) as string[];
+      updateData.photos = allPhotos;
       
       // Handle logo and cover
       updateData.logo_url = logoUrl;
@@ -491,7 +490,8 @@ export default function EditBusiness() {
                   <SecureImage
                     storagePath={mainPhoto}
                     alt="Feed photo"
-                    className="w-full aspect-square object-cover rounded-lg"
+                    className="w-full aspect-square rounded-lg"
+                    imgClassName="object-cover"
                   />
                   <Button
                     type="button"
@@ -523,7 +523,8 @@ export default function EditBusiness() {
                 <SecureImage
                   storagePath={coverUrl}
                   alt="Cover photo"
-                  className="w-full aspect-[3/1] object-cover rounded-lg"
+                  className="w-full aspect-[3/1] rounded-lg"
+                  imgClassName="object-cover"
                 />
                 <Button
                   type="button"
@@ -545,10 +546,47 @@ export default function EditBusiness() {
             )}
           </div>
 
+          {/* Gallery Photos */}
+          <div className="card-elevated p-3 space-y-2">
+            <Label className="text-sm font-medium">Gallery Photos</Label>
+            <p className="text-xs text-muted-foreground">Add up to 8 photos to showcase your business.</p>
+            {galleryPhotos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {galleryPhotos.map((photo, i) => (
+                  <div key={`${photo}-${i}`} className="relative aspect-square rounded-lg overflow-hidden">
+                    <SecureImage
+                      storagePath={photo}
+                      alt={`Gallery photo ${i + 1}`}
+                      className="h-full w-full"
+                      imgClassName="object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={() => setGalleryPhotos(prev => prev.filter((_, idx) => idx !== i))}
+                    >
+                      <span className="sr-only">Remove</span>×
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {galleryPhotos.length < 8 && (
+              <ImageUpload
+                onUpload={(url) => setGalleryPhotos(prev => [...prev, url])}
+                folder="businesses/gallery"
+                bucket="public-assets"
+                label="Add photo"
+              />
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="name">Business Name *</Label>
-            <Input 
-              id="name" 
+            <Input
+              id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Your business name"
@@ -793,7 +831,7 @@ export default function EditBusiness() {
                           <div className="grid grid-cols-3 gap-2">
                             {getModuleImages(module.id, field.key).map((path, i) => (
                               <div key={`${path}-${i}`} className="relative">
-                                <SecureImage storagePath={path} alt={`${field.label} ${i + 1}`} className="aspect-square w-full rounded-lg object-cover" />
+                                <SecureImage storagePath={path} alt={`${field.label} ${i + 1}`} className="aspect-square w-full rounded-lg" imgClassName="object-cover" />
                                 <Button
                                   type="button"
                                   variant="destructive"
