@@ -1,5 +1,5 @@
 import { useState, useRef, useId } from 'react';
-import heic2any from 'heic2any';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,6 +53,7 @@ export function ImageUpload({
 
       if (isHeic) {
         try {
+          const { default: heic2any } = await import('heic2any');
           const converted = (await heic2any({
             blob: file,
             toType: 'image/jpeg',

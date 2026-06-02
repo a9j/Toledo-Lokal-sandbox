@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { SecureImage } from '@/components/ui/secure-image';
 import { SavedCountBadge } from '@/components/discovery/SavedCountBadge';
 import { TierBadge } from '@/components/business/TierBadge';
-import type { LucideIcon } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { Building2 } from 'lucide-react';
+import { resolveIcon } from '@/lib/icon-resolver';
 
 interface BusinessCardProps {
   business: {
@@ -25,11 +25,7 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
-  // Get the icon component dynamically (fallback when no logo)
-  const iconName = business.category?.icon 
-    ? business.category.icon.charAt(0).toUpperCase() + business.category.icon.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase())
-    : 'Building2';
-  const IconComponent = (LucideIcons as unknown as Record<string, LucideIcon>)[iconName] || LucideIcons.Building2;
+  const IconComponent = resolveIcon(business.category?.icon, Building2);
 
   return (
     <Link to={`/business/${business.id}`} className="block group">

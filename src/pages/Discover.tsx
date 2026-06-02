@@ -9,7 +9,8 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useBusinessesSavedCounts } from '@/hooks/useDiscoverySignals';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import * as LucideIcons from 'lucide-react';
+import { Building2, X, Briefcase, ChevronRight, Search } from 'lucide-react';
+import { resolveIcon } from '@/lib/icon-resolver';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { cn } from '@/lib/utils';
@@ -36,10 +37,7 @@ export default function Discover() {
            biz.description?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const getIcon = (iconName: string) => {
-    const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[name] || LucideIcons.Building2;
-  };
+  const getIcon = (iconName: string) => resolveIcon(iconName, Building2);
 
   return (
     <>
@@ -110,7 +108,7 @@ export default function Discover() {
                 onClick={() => setSelectedCategory(null)}
               >
                 {categories?.find(c => c.id === selectedCategory)?.name}
-                <LucideIcons.X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" />
               </Button>
             )}
             {selectedNeighborhood && (
@@ -121,7 +119,7 @@ export default function Discover() {
                 onClick={() => setSelectedNeighborhood(null)}
               >
                 {neighborhoods?.find(n => n.id === selectedNeighborhood)?.name}
-                <LucideIcons.X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
@@ -158,13 +156,13 @@ export default function Discover() {
           className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
         >
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <LucideIcons.Briefcase className="h-5 w-5 text-primary" />
+            <Briefcase className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">Local Jobs</p>
             <p className="text-xs text-muted-foreground">Browse open positions at Toledo businesses</p>
           </div>
-          <LucideIcons.ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </Link>
 
         {/* Business List */}
@@ -192,7 +190,7 @@ export default function Discover() {
         ) : (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <LucideIcons.Search className="h-8 w-8 text-muted-foreground/50" />
+              <Search className="h-8 w-8 text-muted-foreground/50" />
             </div>
             <p className="text-muted-foreground font-medium mb-1">No businesses found</p>
             <p className="text-sm text-muted-foreground/70 mb-4">Try adjusting your filters</p>

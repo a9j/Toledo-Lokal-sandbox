@@ -1,15 +1,11 @@
-import * as Icons from 'lucide-react';
-import { LucideProps } from 'lucide-react';
+import { Circle, type LucideProps } from 'lucide-react';
+import { resolveIcon } from '@/lib/icon-resolver';
 
 interface PulseIconProps extends LucideProps {
   name: string | null | undefined;
-  fallback?: keyof typeof Icons;
 }
 
-// Resolves a lucide icon by name from our config strings. Falls back gracefully
-// so a renamed/missing icon never crashes the feed.
-export function PulseIcon({ name, fallback = 'Circle', ...props }: PulseIconProps) {
-  const lib = Icons as unknown as Record<string, React.ComponentType<LucideProps>>;
-  const Cmp = (name && lib[name]) || lib[fallback] || Icons.Circle;
+export function PulseIcon({ name, ...props }: PulseIconProps) {
+  const Cmp = resolveIcon(name, Circle);
   return <Cmp {...props} />;
 }
