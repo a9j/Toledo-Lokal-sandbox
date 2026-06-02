@@ -76,7 +76,7 @@ export default function PendingScans() {
       queryClient.invalidateQueries({ queryKey: ['pending-scans'] });
       queryClient.invalidateQueries({ queryKey: ['business-loop-stats'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({ title: error.message || 'Failed to confirm', variant: 'destructive' });
     },
   });

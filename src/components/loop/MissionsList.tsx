@@ -47,10 +47,10 @@ export function MissionsList() {
         title: "Mission joined!",
         description: `You've joined "${mission.title}"`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to join mission",
+        description: error instanceof Error ? error.message : "Failed to join mission",
         variant: "destructive",
       });
     }
@@ -63,10 +63,10 @@ export function MissionsList() {
         title: "Reward claimed!",
         description: `You earned ${result.points} Loop Points and a badge for completing "${missionTitle}"!`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to claim reward",
+        description: error instanceof Error ? error.message : "Failed to claim reward",
         variant: "destructive",
       });
     }

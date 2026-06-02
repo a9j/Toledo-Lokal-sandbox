@@ -38,7 +38,7 @@ export default function Discover() {
 
   const getIcon = (iconName: string) => {
     const name = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase());
-    return (LucideIcons as Record<string, any>)[name] || LucideIcons.Building2;
+    return (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[name] || LucideIcons.Building2;
   };
 
   return (

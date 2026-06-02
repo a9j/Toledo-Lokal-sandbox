@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
 
 const PAUSED_MSG = 'Loop rewards are paused at this location — check back soon!';
 
-async function handleScan(supabase: any, qrCodeId: string, userId: string) {
+async function handleScan(supabase: ReturnType<typeof createClient>, qrCodeId: string, userId: string) {
   // 1. Get QR code details
   const { data: qrCode, error: qrError } = await supabase
     .from('loop_qr_codes')
@@ -179,7 +179,7 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
   }
 
   // 10. Get or create wallet
-  let { data: wallet, error: walletError } = await supabase
+  const { data: wallet, error: walletError } = await supabase
     .from('loop_wallets')
     .select('*')
     .eq('user_id', userId)
@@ -265,7 +265,7 @@ async function handleScan(supabase: any, qrCodeId: string, userId: string) {
   });
 }
 
-async function handleStaffConfirm(supabase: any, scanId: string, staffUserId: string) {
+async function handleStaffConfirm(supabase: ReturnType<typeof createClient>, scanId: string, staffUserId: string) {
   // 1. Get scan details
   const { data: scan, error: scanError } = await supabase
     .from('loop_qr_scans')

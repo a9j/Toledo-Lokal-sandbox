@@ -21,7 +21,8 @@ export function useOwnerMessages() {
     queryFn: async (): Promise<OwnerMessage[]> => {
       // Cast until `owner_messages` is added to the generated Supabase types
       // (happens automatically after the migration runs + types are regenerated).
-      const { data, error } = await (supabase.from('owner_messages' as any) as any)
+      const { data, error } = await supabase
+        .from('owner_messages')
         .select('id, subject, body, is_broadcast, read_at, created_at, business_id')
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -34,7 +35,8 @@ export function useOwnerMessages() {
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase.from('owner_messages' as any) as any)
+      const { error } = await supabase
+        .from('owner_messages')
         .update({ read_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;

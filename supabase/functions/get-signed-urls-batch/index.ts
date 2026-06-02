@@ -72,7 +72,7 @@ serve(async (req) => {
     );
     
     // Fetch all approved business references in one query
-    let approvedBusinessRefs = new Set<string>();
+    const approvedBusinessRefs = new Set<string>();
     if (businessPaths.length > 0) {
       const { data: businesses } = await supabaseService
         .from("businesses")

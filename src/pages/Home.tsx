@@ -226,11 +226,11 @@ function PulseView() {
 }
 
 interface DiscoverViewProps {
-  featuredBusinesses: any[] | undefined;
+  featuredBusinesses: ReturnType<typeof useBusinesses>['data'];
   featuredLoading: boolean;
-  upcomingEvents: any[] | undefined;
+  upcomingEvents: ReturnType<typeof useEvents>['data'];
   eventsLoading: boolean;
-  deals: any[] | undefined;
+  deals: ReturnType<typeof useDeals>['data'];
   dealsLoading: boolean;
 }
 

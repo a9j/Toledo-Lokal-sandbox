@@ -74,9 +74,9 @@ export function useSignedUrl(
       } else {
         throw new Error('No signed URL returned');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to get signed URL:', err);
-      setError(err.message || 'Failed to load image');
+      setError(err instanceof Error ? err.message : 'Failed to load image');
       setSignedUrl(null);
     } finally {
       setLoading(false);

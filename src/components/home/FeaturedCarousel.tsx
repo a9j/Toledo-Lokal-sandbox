@@ -2,11 +2,23 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Heart, MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface FeaturedBusiness {
+  id: string;
+  name?: string | null;
+  slug?: string | null;
+  business_type?: string | null;
+  cover_image_url?: string | null;
+  logo_url?: string | null;
+  image_url?: string | null;
+  description?: string | null;
+  neighborhood?: { name: string } | null;
+}
+
 interface FeaturedCarouselProps {
   title?: string;
   subtitle?: string;
   viewAllLink?: string;
-  businesses: any[] | undefined;
+  businesses: FeaturedBusiness[] | undefined;
   isLoading: boolean;
 }
 
@@ -55,7 +67,7 @@ export function FeaturedCarousel({
   );
 }
 
-function FeaturedCard({ business }: { business: any }) {
+function FeaturedCard({ business }: { business: FeaturedBusiness }) {
   const type =
     business.business_type === 'nonprofit'
       ? 'NONPROFIT'

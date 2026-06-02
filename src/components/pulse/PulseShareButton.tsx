@@ -35,15 +35,15 @@ export function PulseShareButton({
   const [isSharing, setIsSharing] = useState(false);
 
   // Generate shareable URL using pulse_id
-  const pulseId = (post as any).pulse_id || post.id;
+  const pulseId = post.pulse_id || post.id;
   const shareUrl = `${window.location.origin}/pulse/${pulseId}`;
-  
+
   // Generate headline from content (first sentence or up to 60 chars)
-  const headline = (post as any).headline || 
+  const headline = post.headline ||
     post.content.split('.')[0].substring(0, 60) + (post.content.length > 60 ? '...' : '');
-  
+
   // Preview text for sharing
-  const previewText = (post as any).preview_text || post.content.substring(0, 160);
+  const previewText = post.preview_text || post.content.substring(0, 160);
 
   // Default share text template
   const shareText = `${headline}\n\nToledo locals are talking.\nJoin the Pulse`;
@@ -103,7 +103,7 @@ export function PulseShareButton({
   };
 
   // Check if share_enabled is false
-  if ((post as any).share_enabled === false) {
+  if (post.share_enabled === false) {
     return null;
   }
 

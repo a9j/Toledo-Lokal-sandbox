@@ -37,7 +37,7 @@ export function LocationForm({
 }: LocationFormProps) {
   const [showHours, setShowHours] = useState(false);
 
-  const update = (field: keyof BusinessLocation, value: any) => {
+  const update = (field: keyof BusinessLocation, value: BusinessLocation[keyof BusinessLocation]) => {
     onChange({ ...location, [field]: value });
   };
 

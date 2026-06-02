@@ -115,13 +115,21 @@ export default function CreateBusiness() {
         user_id: user.id,
         role: 'business',
       }, { onConflict: 'user_id,role', ignoreDuplicates: true }).then(() => {});
+      
+      // Add business role to user
+      const { error: roleError } = await supabase.from('user_roles').insert({
+        user_id: user.id,
+        role: 'business',
+      });
+      if (roleError && !roleError.message.includes('duplicate')) throw roleError;
 
       // Create connector referral record if connected
       if (finalConnectorId && biz) {
-        await supabase.from('connector_referrals').insert({
+        const { error: referralError } = await supabase.from('connector_referrals').insert({
           connector_id: finalConnectorId,
           business_id: biz.id,
         });
+        if (referralError) throw referralError;
       }
     },
     onSuccess: () => {

@@ -106,7 +106,7 @@ export function ImageUpload({
       const moderationPromise = moderateContent({ imageUrl: signedUrl });
       const timeoutPromise = new Promise<{ safe: boolean; flaggedReasons: string[] }>((resolve) => {
         setTimeout(() => {
-          console.log('Moderation timeout - allowing upload');
+          console.warn('Moderation timeout - allowing upload');
           resolve({ safe: true, flaggedReasons: [] });
         }, 20000); // 20 second timeout
       });
@@ -132,9 +132,9 @@ export function ImageUpload({
       onUpload(fileName);
       toast({ title: 'Image uploaded successfully' });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err);
-      setError(err.message || 'Failed to upload image');
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
       setPreview(null);
     } finally {
       setUploading(false);

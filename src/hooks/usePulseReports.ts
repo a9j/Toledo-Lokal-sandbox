@@ -30,7 +30,7 @@ export function useReportPulsePost() {
   return useMutation({
     mutationFn: async ({ postId, reason, note }: { postId: string; reason: string; note?: string }) => {
       if (!user) throw new Error('Must be logged in');
-      const { error } = await (supabase.from('pulse_reports' as any) as any).insert({
+      const { error } = await supabase.from('pulse_reports').insert({
         post_id: postId,
         reporter_id: user.id,
         reason,
@@ -49,7 +49,8 @@ export function usePulseReportQueue(status: 'pending' | 'all' = 'pending') {
   return useQuery<PulseReport[]>({
     queryKey: ['pulse-reports', status],
     queryFn: async () => {
-      let q = (supabase.from('pulse_reports' as any) as any)
+      let q = supabase
+        .from('pulse_reports')
         .select('*, post:pulse_posts(id, content, content_type, neighborhood, status, author_type)')
         .order('created_at', { ascending: false });
       if (status === 'pending') q = q.eq('status', 'pending');
@@ -76,7 +77,8 @@ export function useResolvePulseReport() {
       action: 'dismiss' | 'remove';
       note?: string;
     }) => {
-      const { error: reportError } = await (supabase.from('pulse_reports' as any) as any)
+      const { error: reportError } = await supabase
+        .from('pulse_reports')
         .update({
           status: action === 'remove' ? 'actioned' : 'dismissed',
           reviewed_by: user?.id ?? null,

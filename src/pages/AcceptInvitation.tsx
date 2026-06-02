@@ -72,9 +72,9 @@ export default function AcceptInvitation() {
         setStatus('error');
         setErrorMessage(result.error || 'Failed to accept invitation');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
-      setErrorMessage(err.message || 'Failed to accept invitation');
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to accept invitation');
     }
   };
 
@@ -116,7 +116,7 @@ export default function AcceptInvitation() {
         </div>
         <h1 className="text-2xl font-bold mb-2">You're In!</h1>
         <p className="text-muted-foreground mb-6 text-center">
-          You've been added as staff for {(invitation?.businesses as any)?.name}
+          You've been added as staff for {(invitation?.businesses as { name: string } | null)?.name}
         </p>
         <Button size="lg" onClick={() => navigate(`/scanner-mode?business=${businessId}`)}>
           Open Scanner Mode
@@ -137,7 +137,7 @@ export default function AcceptInvitation() {
           You've been invited to join
         </p>
         <p className="text-xl font-semibold mb-6">
-          {(invitation?.businesses as any)?.name}
+          {(invitation?.businesses as { name: string } | null)?.name}
         </p>
         <p className="text-sm text-muted-foreground mb-6 text-center">
           Sign in or create an account to accept this invitation
@@ -159,7 +159,7 @@ export default function AcceptInvitation() {
         You've been invited to join
       </p>
       <p className="text-xl font-semibold mb-2">
-        {(invitation?.businesses as any)?.name}
+        {(invitation?.businesses as { name: string } | null)?.name}
       </p>
       <p className="text-sm text-muted-foreground mb-6">
         Role: <span className="capitalize">{invitation?.role}</span>

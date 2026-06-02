@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 
 export interface FoodTruckLocation {
   id: string;
@@ -126,9 +127,10 @@ export function useUpdateFoodLocation() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<FoodTruckLocation> & { id: string }) => {
+      const { business: _business, ...dbUpdates } = updates;
       const { data, error } = await supabase
         .from('food_truck_locations')
-        .update(updates as any)
+        .update(dbUpdates as TablesUpdate<'food_truck_locations'>)
         .eq('id', id)
         .select()
         .single();

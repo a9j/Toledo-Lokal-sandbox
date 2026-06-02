@@ -296,15 +296,13 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("Error in send-auth-email function:", error);
-    // Returning an error object tells Supabase Auth the email wasn't sent.
-    return new Response(
-      JSON.stringify({ error: { http_code: 500, message } }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    console.error("Error in send-auth-email function:", message);
+    // Return 200 so Supabase Auth does not roll back the signup.
+    // The user can resend the confirmation code from the OTP screen.
+    return new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 

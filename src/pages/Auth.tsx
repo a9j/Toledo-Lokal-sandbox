@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,9 +50,38 @@ export default function Auth() {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isHandlingNavRef = useRef(false);
 
-  // Redirect if already logged in
-  if (user) {
+  const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
+    const effectiveType = storedSignupType || signupType || 'explorer';
+    if (effectiveType === 'business' || effectiveType === 'food_truck') {
+      await supabase.from('profiles').upsert(
+        {
+          user_id: userId,
+          name: (await supabase.auth.getUser()).data.user?.user_metadata?.name || email,
+          role_selected: true,
+          profile_completed: true,
+        } as any,
+        { onConflict: 'user_id' },
+      );
+      navigate('/create-business', { replace: true });
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role_selected')
+      .eq('user_id', userId)
+      .single();
+    if (profile && !profile.role_selected) {
+      navigate('/role-select', { replace: true });
+    } else {
+      navigate('/', { replace: true });
+    }
+  };
+
+  // Redirect if already logged in (skip if we're handling navigation ourselves)
+  if (user && !isHandlingNavRef.current) {
     navigate('/', { replace: true });
     return null;
   }
@@ -114,6 +143,7 @@ export default function Auth() {
   const handleVerifyOtp = async () => {
     if (!otpCode.trim()) return;
     setIsVerifyingOtp(true);
+    isHandlingNavRef.current = true;
     try {
       const { error } = await supabase.auth.verifyOtp({
         email,
@@ -128,7 +158,12 @@ export default function Auth() {
         });
       } else {
         toast({ title: 'Email confirmed!' });
-        navigate('/');
+        const { data: { user: confirmedUser } } = await supabase.auth.getUser();
+        if (confirmedUser) {
+          await navigateAfterAuth(confirmedUser.id, confirmedUser.user_metadata?.signup_type);
+        } else {
+          navigate('/');
+        }
       }
     } catch {
       toast({

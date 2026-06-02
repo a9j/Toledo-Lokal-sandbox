@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ElementType } from 'react';
 import { format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { ArrowUpCircle, ArrowDownCircle, Gift, Heart, RefreshCw, Award, Filter, RotateCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 
 type TransactionType = 'earn' | 'redeem' | 'donate' | 'bonus' | 'refund' | 'expire';
 
-const transactionIcons: Record<TransactionType, any> = {
+const transactionIcons: Record<TransactionType, ElementType> = {
   earn: ArrowUpCircle,
   redeem: Gift,
   donate: Heart,
