@@ -18,6 +18,21 @@ export default function RoleSelect() {
     return null;
   }
 
+  const saveRoleSelection = async (data: Record<string, unknown>) => {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert(
+        { user_id: user.id, name: user.user_metadata?.name || user.email, ...data } as any,
+        { onConflict: 'user_id' },
+      );
+    if (error) {
+      console.error('Error saving role selection:', error);
+      toast.error('Something went wrong. Please try again.');
+      return false;
+    }
+    return true;
+  };
+
   const handleContinue = async () => {
     if (!selected) return;
     setIsSubmitting(true);
@@ -27,28 +42,8 @@ export default function RoleSelect() {
       if (selected === 'business' || selected === 'nonprofit') {
         updateData.profile_completed = true;
       }
-      const { data: updated, error } = await supabase
-        .from('profiles')
-        .update(updateData as any)
-        .eq('user_id', user.id)
-        .select('user_id');
 
-      if (error) {
-        console.error('Error saving role selection:', error);
-        toast.error('Something went wrong. Please try again.');
-        return;
-      }
-
-      if (!updated || updated.length === 0) {
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({ user_id: user.id, name: user.user_metadata?.name || user.email, ...updateData } as any);
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          toast.error('Something went wrong. Please try again.');
-          return;
-        }
-      }
+      if (!(await saveRoleSelection(updateData))) return;
 
       if (selected === 'business') {
         navigate('/create-business', { replace: true });
@@ -66,26 +61,7 @@ export default function RoleSelect() {
   };
 
   const handleSkip = async () => {
-    const { data: updated, error } = await supabase
-      .from('profiles')
-      .update({ role_selected: true } as any)
-      .eq('user_id', user.id)
-      .select('user_id');
-    if (error) {
-      console.error('Error skipping role selection:', error);
-      toast.error('Something went wrong. Please try again.');
-      return;
-    }
-    if (!updated || updated.length === 0) {
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert({ user_id: user.id, name: user.user_metadata?.name || user.email, role_selected: true } as any);
-      if (insertError) {
-        console.error('Error creating profile:', insertError);
-        toast.error('Something went wrong. Please try again.');
-        return;
-      }
-    }
+    if (!(await saveRoleSelection({ role_selected: true }))) return;
     navigate('/', { replace: true });
   };
 
