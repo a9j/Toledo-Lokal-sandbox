@@ -13,15 +13,17 @@ interface ImageUploadProps {
   onUpload: (url: string) => void;
   onRemove?: () => void;
   folder?: string;
+  bucket?: 'uploads' | 'public-assets';
   label?: string;
   className?: string;
 }
 
-export function ImageUpload({ 
-  currentUrl, 
-  onUpload, 
+export function ImageUpload({
+  currentUrl,
+  onUpload,
   onRemove,
   folder = 'admin',
+  bucket = 'uploads',
   label = 'Upload Image',
   className = ''
 }: ImageUploadProps) {
@@ -88,36 +90,37 @@ export function ImageUpload({
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('uploads')
+        .from(bucket)
         .upload(fileName, workingFile, { contentType: workingFile.type, upsert: false });
 
       if (uploadError) throw uploadError;
 
-      // Get signed URL for the uploaded file
-      const signedUrl = await generateSignedUrl(fileName);
-      
-      if (!signedUrl) {
-        throw new Error('Failed to generate signed URL');
+      // For public buckets, build the URL directly; for private buckets, generate a signed URL
+      let previewUrl: string;
+      if (bucket === 'public-assets') {
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        previewUrl = urlData.publicUrl;
+      } else {
+        const signed = await generateSignedUrl(fileName);
+        if (!signed) throw new Error('Failed to generate preview URL');
+        previewUrl = signed;
       }
 
-      // Moderate the image using signed URL with timeout
+      // Moderate the image with timeout
       setModerating(true);
-      
-      // Set a client-side timeout for moderation
-      const moderationPromise = moderateContent({ imageUrl: signedUrl });
+      const moderationPromise = moderateContent({ imageUrl: previewUrl });
       const timeoutPromise = new Promise<{ safe: boolean; flaggedReasons: string[] }>((resolve) => {
         setTimeout(() => {
           console.warn('Moderation timeout - allowing upload');
           resolve({ safe: true, flaggedReasons: [] });
-        }, 20000); // 20 second timeout
+        }, 20000);
       });
 
       const modResult = await Promise.race([moderationPromise, timeoutPromise]);
       setModerating(false);
 
       if (!modResult.safe) {
-        // Delete the uploaded file
-        await supabase.storage.from('uploads').remove([fileName]);
+        await supabase.storage.from(bucket).remove([fileName]);
         setPreview(null);
         setError(`Image rejected: ${modResult.flaggedReasons.join(', ')}`);
         toast({
@@ -128,9 +131,13 @@ export function ImageUpload({
         return;
       }
 
-      // Store the file path (not the signed URL) for persistence
-      // The signed URL will be regenerated when displaying the image
-      onUpload(fileName);
+      // For public buckets, store the full public URL; for private buckets, store the path
+      if (bucket === 'public-assets') {
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        onUpload(urlData.publicUrl);
+      } else {
+        onUpload(fileName);
+      }
       toast({ title: 'Image uploaded successfully' });
 
     } catch (err: unknown) {

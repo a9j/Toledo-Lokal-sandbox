@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+import { SUBSCRIPTION_TIERS, type SubscriptionTier, type TierConfig } from '@/lib/subscription-tiers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -66,11 +66,16 @@ function useBusinessBilling(businessId: string) {
   });
 }
 
+function tierStatusToSubscriptionTier(tierStatus: string): SubscriptionTier {
+  if (tierStatus === 'founding_5' || tierStatus === 'pro') return 'pro';
+  if (tierStatus === 'founding_50' || tierStatus === 'growth') return 'growth';
+  return 'free';
+}
+
 export function BillingManager({ businessId }: BillingManagerProps) {
-  const { tier, tierConfig, isLoading: subLoading, subscriptionEnd } = useSubscription();
   const { data: billing, isLoading } = useBusinessBilling(businessId);
 
-  if (isLoading || subLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -81,6 +86,8 @@ export function BillingManager({ businessId }: BillingManagerProps) {
   const tierStatus = billing?.tier_status || 'community';
   const info = TIER_INFO[tierStatus] || TIER_INFO.community;
   const isFounder = tierStatus === 'founding_5' || tierStatus === 'founding_50';
+  const tier = tierStatusToSubscriptionTier(tierStatus);
+  const tierConfig: TierConfig = SUBSCRIPTION_TIERS[tier];
 
   return (
     <div className="space-y-6">
@@ -159,7 +166,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
       </div>
 
       {/* Upgrade CTA */}
-      {tier === 'free' && (
+      {tier === 'free' && !isFounder && (
         <Link to="/dashboard/subscription">
           <div className="card-elevated p-5 flex items-center gap-3 border-dashed border-2 hover-lift cursor-pointer">
             <div className="flex-1">

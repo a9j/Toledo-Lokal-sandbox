@@ -16,9 +16,12 @@ let batchTimeout: ReturnType<typeof setTimeout> | null = null;
 const BATCH_DELAY_MS = 50; // Wait 50ms to collect batch requests
 const MAX_BATCH_SIZE = 20;
 
-// Check if URL is external (Unsplash, etc.)
+// Check if URL is external (Unsplash, etc.) or a public Supabase storage URL
 export function isExternalUrl(url: string): boolean {
-  return url.startsWith('http') && !url.includes('supabase.co');
+  if (!url.startsWith('http')) return false;
+  if (!url.includes('supabase.co')) return true;
+  if (url.includes('/storage/v1/object/public/')) return true;
+  return false;
 }
 
 // Check if this is a storage path (not a full URL)

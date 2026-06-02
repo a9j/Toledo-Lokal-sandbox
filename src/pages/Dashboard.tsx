@@ -257,15 +257,16 @@ export default function Dashboard() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Profile
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => navigate(`/business/${business.id}`)}
-          >
-            <Building2 className="h-4 w-4" />
-            View My Public Profile
-          </Button>
+          <Link to={`/business/${business.id}`}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Building2 className="h-4 w-4" />
+              View My Public Profile
+            </Button>
+          </Link>
         </div>
 
         {/* Business header */}
