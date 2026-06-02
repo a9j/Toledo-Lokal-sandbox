@@ -477,6 +477,7 @@ export default function EditBusiness() {
                 <ImageUpload
                   onUpload={(url) => setLogoUrl(url)}
                   folder="businesses/logos"
+                  bucket="public-assets"
                   label="Upload"
                 />
               )}
@@ -506,6 +507,7 @@ export default function EditBusiness() {
                 <ImageUpload
                   onUpload={(url) => setMainPhoto(url)}
                   folder="businesses"
+                  bucket="public-assets"
                   label="Upload"
                 />
               )}
@@ -536,7 +538,8 @@ export default function EditBusiness() {
             ) : (
               <ImageUpload
                 onUpload={(url) => setCoverUrl(url)}
-                folder="businesses"
+                folder="businesses/covers"
+                bucket="public-assets"
                 label="Upload cover"
               />
             )}
