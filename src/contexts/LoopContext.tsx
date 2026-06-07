@@ -64,7 +64,7 @@ export function LoopProvider({ children }: { children: ReactNode }) {
     if (!user) { setWallet(null); return; }
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('loop_wallets').select('*')
         .eq('user_id', user.id).eq('city', 'toledo').maybeSingle();
       if (error && error.code !== 'PGRST116') { console.error('Error fetching wallet:', error); return; }
