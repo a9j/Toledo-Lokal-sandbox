@@ -52,6 +52,7 @@ const DashboardEvents = lazy(() => import("./pages/DashboardEvents"));
 const DashboardLeads = lazy(() => import("./pages/DashboardLeads"));
 const DashboardBoost = lazy(() => import("./pages/DashboardBoost"));
 const ScannerMode = lazy(() => import("./pages/ScannerMode"));
+const CustomerScanner = lazy(() => import("./pages/CustomerScanner"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Jobs = lazy(() => import("./pages/Jobs"));
@@ -68,6 +69,7 @@ const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
+const LoopEventDetail = lazy(() => import("./pages/LoopEventDetail"));
 
 
 // Lazy-load the chat widget since it's non-critical
@@ -151,6 +153,7 @@ const App = () => (
                   <Route path="/wallet" element={<LoopWallet />} />
                   <Route path="/scan/:qrCodeId" element={<ScanQR />} />
                   <Route path="/scanner-mode" element={<ScannerMode />} />
+                  <Route path="/scan-camera" element={<CustomerScanner />} />
                   <Route path="/accept-invitation" element={<AcceptInvitation />} />
                   <Route path="/jobs" element={<Jobs />} />
                   <Route path="/food-today" element={<FoodToday />} />
@@ -164,6 +167,7 @@ const App = () => (
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
+                  <Route path="/loop/event/:rewardId" element={<LoopEventDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

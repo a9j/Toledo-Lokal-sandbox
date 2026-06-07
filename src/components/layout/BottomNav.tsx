@@ -1,5 +1,5 @@
-import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, MapPin, Compass, Radio, Repeat } from 'lucide-react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Newspaper, MapPin, Compass, Radio, Repeat, QrCode } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,14 +13,26 @@ const navItems = [
 
 export function BottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Hide on auth page, scanner mode, and accept invitation pages
-  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation'];
+  // Hide on auth page, scanner mode, accept invitation, and customer scanner
+  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation', '/scan-camera'];
   if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom overflow-visible">
+      {/* Floating Scan FAB */}
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20">
+        <button
+          onClick={() => navigate('/scan-camera')}
+          className="flex items-center gap-1.5 bg-primary text-primary-foreground px-5 py-2.5 rounded-full shadow-soft-lg text-sm font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-150"
+        >
+          <QrCode className="h-4 w-4" />
+          Scan
+        </button>
+      </div>
+
       {/* Frosted glass background */}
       <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-t border-border/50" />
       

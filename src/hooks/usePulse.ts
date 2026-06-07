@@ -185,6 +185,12 @@ interface CreatePulsePostInput {
   locationText?: string;
   businessId?: string;
   isPinned?: boolean;
+  // Business post fields
+  postType?: 'update' | 'menu_item' | 'event' | 'milestone' | 'popup';
+  title?: string;
+  imageUrl?: string;
+  authorId?: string;
+  businessTier?: string;
   // Sharing fields
   headline?: string;
   previewText?: string;
@@ -215,6 +221,11 @@ export function useCreatePulsePost() {
           user_id: input.businessId ? null : user.id,
           business_id: input.businessId || null,
           is_pinned: input.isPinned || false,
+          // Business post fields
+          post_type: input.postType || null,
+          title: input.title || null,
+          image_url: input.imageUrl || null,
+          author_id: input.authorId || null,
           // Sharing fields
           headline: input.headline || null,
           preview_text: input.previewText || null,
@@ -223,7 +234,7 @@ export function useCreatePulsePost() {
           share_enabled: input.shareEnabled !== false,
           anonymous: input.anonymous || false,
           author_type: input.businessId ? 'business' : 'user',
-          business_tier: input.businessId ? 'paid' : 'free', // TODO: fetch actual tier
+          business_tier: input.businessTier || (input.businessId ? 'paid' : 'free'),
         })
         .select()
         .single();

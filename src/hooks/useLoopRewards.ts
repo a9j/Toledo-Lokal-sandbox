@@ -17,10 +17,23 @@ export interface LoopReward {
   valid_from: string | null;
   valid_until: string | null;
   created_at: string;
+  // Marketplace fields
+  reward_type: 'discount' | 'freebie' | 'exclusive_event' | 'early_access' |
+               'vip_upgrade' | 'raffle_entry' | 'experience' | 'donation_match' | null;
+  event_date: string | null;
+  event_location: string | null;
+  capacity: number | null;
+  spots_remaining: number | null;
+  requires_attendance: boolean;
+  min_tier: string | null;
+  image_url: string | null;
+  raffle_drawing_date: string | null;
+  raffle_entries_count: number;
   business?: {
     id: string;
     name: string;
     logo_url: string | null;
+    cover_image_url?: string | null;
     neighborhood?: {
       name: string;
     };
@@ -51,6 +64,30 @@ export function useLoopRewards(options?: { businessId?: string; limit?: number }
       const { data, error } = await query;
       if (error) throw error;
       return data as LoopReward[];
+    },
+  });
+}
+
+export function useMarketplaceRewards(typeFilter?: string) {
+  return useQuery({
+    queryKey: ['marketplace-rewards', typeFilter],
+    queryFn: async () => {
+      let query = supabase
+        .from('loop_rewards')
+        .select(`
+          *,
+          business:businesses(id, name, logo_url, cover_image_url, neighborhood:neighborhoods(name))
+        `)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (typeFilter && typeFilter !== 'all') {
+        query = query.eq('reward_type', typeFilter);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as LoopReward[];
     },
   });
 }
@@ -86,7 +123,7 @@ export function useBusinessRewards() {
   });
 
   const createReward = useMutation({
-    mutationFn: async (reward: Omit<LoopReward, 'id' | 'business_id' | 'created_at' | 'quantity_redeemed'>) => {
+    mutationFn: async (reward: Omit<LoopReward, 'id' | 'business_id' | 'created_at' | 'quantity_redeemed' | 'business'>) => {
       if (!user) throw new Error('Not logged in');
 
       const { data: business, error: bizError } = await supabase
@@ -111,6 +148,15 @@ export function useBusinessRewards() {
           valid_from: reward.valid_from,
           valid_until: reward.valid_until,
           business_id: business.id,
+          reward_type: reward.reward_type,
+          event_date: reward.event_date,
+          event_location: reward.event_location,
+          capacity: reward.capacity,
+          spots_remaining: reward.capacity, // initialize spots_remaining = capacity
+          requires_attendance: reward.requires_attendance,
+          min_tier: reward.min_tier,
+          image_url: reward.image_url,
+          raffle_drawing_date: reward.raffle_drawing_date,
         })
         .select()
         .single();

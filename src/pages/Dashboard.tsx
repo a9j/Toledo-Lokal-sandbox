@@ -1,17 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useBusinessPulsePostsToday } from '@/hooks/usePulse';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  Building2, 
-  Tag, 
-  Calendar, 
-  Inbox, 
-  CreditCard, 
+import {
+  Building2,
+  Tag,
+  Calendar,
+  Inbox,
+  CreditCard,
   Zap,
   ChevronRight,
   ArrowLeft,
@@ -21,19 +22,22 @@ import {
   ClipboardCheck,
   Users,
   Briefcase,
-  Truck
+  Truck,
+  Radio,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
 import { StaffManagement } from '@/components/staff/StaffManagement';
 import { LogoLoader } from '@/components/ui/logo-loader';
+import { BusinessPulseCreateModal } from '@/components/pulse/BusinessPulseCreateModal';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { ensureLoaded: ensureSubLoaded } = useSubscription();
+  const { tierConfig, ensureLoaded: ensureSubLoaded } = useSubscription();
   useEffect(() => { ensureSubLoaded(); }, [ensureSubLoaded]);
   const navigate = useNavigate();
+  const [pulseModalOpen, setPulseModalOpen] = useState(false);
 
   const { data: business, isLoading } = useQuery({
     queryKey: ['user-business-full', user?.id],
@@ -75,6 +79,9 @@ export default function Dashboard() {
     enabled: !!business?.id,
     refetchInterval: 30000,
   });
+
+  // Pulse posts today — MUST be before any early returns
+  const { data: businessPostsToday = 0 } = useBusinessPulsePostsToday(business?.id);
 
   useEffect(() => {
     if (!user) {
@@ -252,6 +259,38 @@ export default function Dashboard() {
 
         {/* Loop Lokal Stats */}
         <BusinessLoopStats businessId={business.id} />
+
+        {/* Post to Pulse — featured action */}
+        <div
+          role="button"
+          tabIndex={0}
+          className="card-elevated p-4 flex items-center gap-3 hover-lift cursor-pointer"
+          onClick={() => setPulseModalOpen(true)}
+          onKeyDown={(e) => e.key === 'Enter' && setPulseModalOpen(true)}
+        >
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Radio className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium">Post to Pulse</span>
+              <Badge variant="secondary" className="text-[10px]">
+                {Math.max(0, tierConfig.limits.pulsePostsPerDay - businessPostsToday)} left today
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground leading-tight mt-0.5">
+              Share updates, specials &amp; more with the community
+            </p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+        </div>
+
+        <BusinessPulseCreateModal
+          businessId={business.id}
+          businessName={business.name}
+          open={pulseModalOpen}
+          onOpenChange={setPulseModalOpen}
+        />
 
         {/* Dashboard items */}
         <div className="space-y-2">

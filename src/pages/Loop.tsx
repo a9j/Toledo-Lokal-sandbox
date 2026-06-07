@@ -4,14 +4,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletBalance } from '@/components/loop/WalletBalance';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { TransactionHistory } from '@/components/loop/TransactionHistory';
-import { RewardsList } from '@/components/loop/RewardsList';
+import { LoopMarketplace } from '@/components/loop/LoopMarketplace';
 import { LocalMissions } from '@/components/loop/LocalMissions';
 import { BadgesDisplay } from '@/components/loop/BadgesDisplay';
 import { CausesList } from '@/components/loop/CausesList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogIn, Gift, Compass, Heart, History } from 'lucide-react';
+import { LogIn, ShoppingBag, Compass, Heart, History } from 'lucide-react';
 import { useLoop } from '@/contexts/LoopContext';
 
 export default function Loop() {
@@ -79,12 +79,12 @@ export default function Loop() {
                 <Compass className="h-4 w-4" />
                 <span className="text-[10px]">Missions</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="rewards" 
+              <TabsTrigger
+                value="rewards"
                 className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm flex flex-col gap-0.5 py-1.5"
               >
-                <Gift className="h-4 w-4" />
-                <span className="text-[10px]">Rewards</span>
+                <ShoppingBag className="h-4 w-4" />
+                <span className="text-[10px]">Marketplace</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="causes"
@@ -107,7 +107,7 @@ export default function Loop() {
             </TabsContent>
             
             <TabsContent value="rewards" className="mt-4">
-              <RewardsList />
+              <LoopMarketplace />
             </TabsContent>
             
             <TabsContent value="causes" className="mt-4">

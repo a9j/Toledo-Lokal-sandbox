@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QrCode, Plus, Trash2, Edit2, Eye, EyeOff, Clock, Users, Shield } from 'lucide-react';
+import { QrCode, Plus, Trash2, Eye, EyeOff, Clock, Users, Shield, BarChart2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useBusinessQRCodes, LoopQRCode } from '@/hooks/useLoopQRCodes';
 import { QRCodeDisplay } from '@/components/loop/QRCodeDisplay';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 const QR_TYPES = [
   { value: 'visit', label: 'Visit Completed', description: 'Customer visited your business' },
@@ -40,6 +45,32 @@ export default function BusinessQRCodes() {
     valid_from: '',
     valid_until: '',
     is_active: true,
+  });
+
+  // Scan analytics — queries loop_qr_scans for this business's QR codes
+  const qrIds = qrCodes?.map(q => q.id) ?? [];
+  const { data: scanStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['qr-scan-stats', qrIds],
+    queryFn: async () => {
+      if (!qrIds.length) return { today: 0, week: 0, month: 0, recent: [] as any[] };
+      const monthAgo = new Date(Date.now() - 30 * 86_400_000).toISOString();
+      const { data } = await supabase
+        .from('loop_qr_scans')
+        .select('id, created_at, status, qr_code_id, loop_qr_codes(name, points_value)')
+        .in('qr_code_id', qrIds)
+        .gte('created_at', monthAgo)
+        .order('created_at', { ascending: false });
+      const scans = data ?? [];
+      const todayStr = new Date().toDateString();
+      const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+      return {
+        today: scans.filter(s => new Date(s.created_at).toDateString() === todayStr).length,
+        week: scans.filter(s => s.created_at >= weekAgo).length,
+        month: scans.length,
+        recent: scans.slice(0, 10),
+      };
+    },
+    enabled: qrIds.length > 0,
   });
 
   const resetForm = () => {
@@ -333,6 +364,85 @@ export default function BusinessQRCodes() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Scan Analytics */}
+        {(qrCodes.length > 0 || statsLoading) && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <BarChart2 className="h-5 w-5 text-primary" />
+              <h2 className="font-semibold text-foreground">Scan Analytics</h2>
+            </div>
+
+            {/* Stat cards */}
+            {statsLoading ? (
+              <div className="grid grid-cols-3 gap-3">
+                {[0, 1, 2].map(i => (
+                  <Skeleton key={i} className="h-20 rounded-2xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Today', value: scanStats?.today ?? 0 },
+                  { label: 'This Week', value: scanStats?.week ?? 0 },
+                  { label: 'This Month', value: scanStats?.month ?? 0 },
+                ].map(stat => (
+                  <div key={stat.label} className="card-elevated p-4 text-center">
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Recent scans list */}
+            {!statsLoading && (scanStats?.recent.length ?? 0) > 0 && (
+              <div className="card-elevated overflow-hidden">
+                <div className="px-4 py-3 border-b border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.08em]">
+                    Recent Scans
+                  </p>
+                </div>
+                <div className="divide-y divide-border">
+                  {scanStats!.recent.map((scan: any) => {
+                    const status = scan.status ?? 'pending';
+                    const isEarned = status === 'success';
+                    const isPending = status === 'pending' || status === 'pending_confirmation';
+                    const isRejected = status === 'rejected';
+                    const qrName = (scan.loop_qr_codes as any)?.name ?? 'QR Code';
+                    return (
+                      <div key={scan.id} className="flex items-center gap-3 px-4 py-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{qrName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(scan.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                        <span
+                          className={cn(
+                            'text-xs font-semibold px-2.5 py-1 rounded-full',
+                            isEarned && 'bg-success/10 text-success',
+                            isPending && 'bg-lokal-amber/10 text-lokal-amber',
+                            isRejected && 'bg-destructive/10 text-destructive',
+                            !isEarned && !isPending && !isRejected && 'bg-secondary text-muted-foreground'
+                          )}
+                        >
+                          {isEarned ? 'Earned' : isPending ? 'Pending' : isRejected ? 'Rejected' : status}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {!statsLoading && (scanStats?.recent.length ?? 0) === 0 && (
+              <div className="card-elevated p-6 text-center">
+                <p className="text-sm text-muted-foreground">No scans yet this month</p>
+              </div>
+            )}
           </div>
         )}
 
