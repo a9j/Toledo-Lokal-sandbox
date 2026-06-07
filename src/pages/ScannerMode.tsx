@@ -6,8 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-
 type ScanState = 'ready' | 'scanning' | 'success' | 'error';
 
 interface ScanResult {
@@ -86,24 +84,26 @@ export default function ScannerMode() {
   useEffect(() => {
     if (scanState !== 'scanning') return;
 
-    const scanner = new Html5QrcodeScanner(
-      'scanner-container',
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false
-    );
+    let scanner: import('html5-qrcode').Html5QrcodeScanner | null = null;
 
-    scanner.render(
-      async (decodedText) => {
-        scanner.clear();
-        await handleScan(decodedText);
-      },
-      (error) => {
-        // Ignore scan errors
-      }
-    );
+    import('html5-qrcode').then(({ Html5QrcodeScanner }) => {
+      scanner = new Html5QrcodeScanner(
+        'scanner-container',
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+
+      scanner.render(
+        async (decodedText) => {
+          scanner?.clear();
+          await handleScan(decodedText);
+        },
+        () => {},
+      );
+    });
 
     return () => {
-      scanner.clear().catch(() => {});
+      scanner?.clear().catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleScan is defined after this effect and relies on state (isProcessing, businessId) that should not restart the scanner; including it would cause the scanner to teardown/reinit on every state change
   }, [scanState]);
