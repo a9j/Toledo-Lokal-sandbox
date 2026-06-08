@@ -15,7 +15,7 @@ export default function BusinessGuide() {
   return (
     <div className="min-h-screen bg-white">
       {/* Print Controls - Hidden when printing */}
-      <div className="print:hidden fixed top-4 right-4 z-50 flex gap-2">
+      <div className="print:hidden fixed top-[calc(env(safe-area-inset-top,0px)+1rem)] right-4 z-50 flex gap-2">
         <Button onClick={handlePrint} className="shadow-lg">
           <Printer className="h-4 w-4 mr-2" />
           Print / Save as PDF
