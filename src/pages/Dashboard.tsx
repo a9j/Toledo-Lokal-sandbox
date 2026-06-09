@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useEffectiveBusinessRole } from '@/hooks/useEffectiveBusinessRole';
+import { isOwnerOrAdmin } from '@/lib/businessPermissions';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Building2, 
@@ -101,6 +103,10 @@ export default function Dashboard() {
     refetchInterval: 30000,
   });
 
+  // Effective role on this business (owner via owner_user_id, manager via
+  // business_staff, platform admin → 'admin'). Gates owner-only dashboard items.
+  const { data: effectiveRole } = useEffectiveBusinessRole(business?.id);
+
   useEffect(() => {
     if (!user) {
       navigate('/auth');
@@ -125,7 +131,10 @@ export default function Dashboard() {
   }
 
   const newLeadsCount = business.leads?.filter(l => l.status === 'new').length || 0;
-  const isOwner = business.owner_user_id === user.id;
+  // Owner-only dashboard items (staff admin, etc.) are reserved for the owner or
+  // a business/platform admin — never a manager. Falls back to the literal
+  // owner check while the role query is still resolving.
+  const isOwner = isOwnerOrAdmin(effectiveRole) || business.owner_user_id === user.id;
 
   // Feature gating by business category + plan. `category` here is the join
   // alias (categories.name); the raw enum ships under `business_category`.

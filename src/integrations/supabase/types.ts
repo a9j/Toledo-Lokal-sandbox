@@ -825,7 +825,7 @@ export type Database = {
           onboarding_step: number
           owner_image_url: string | null
           owner_name: string | null
-          owner_user_id: string
+          owner_user_id: string | null
           ownership_review_notes: string | null
           ownership_review_started_at: string | null
           ownership_review_status: string
@@ -877,7 +877,7 @@ export type Database = {
           onboarding_step?: number
           owner_image_url?: string | null
           owner_name?: string | null
-          owner_user_id: string
+          owner_user_id?: string | null
           ownership_review_notes?: string | null
           ownership_review_started_at?: string | null
           ownership_review_status?: string
@@ -931,7 +931,7 @@ export type Database = {
           onboarding_step?: number
           owner_image_url?: string | null
           owner_name?: string | null
-          owner_user_id?: string
+          owner_user_id?: string | null
           ownership_review_notes?: string | null
           ownership_review_started_at?: string | null
           ownership_review_status?: string
@@ -3808,6 +3808,64 @@ export type Database = {
           },
         ]
       }
+      pending_claims: {
+        Row: {
+          business_id: string
+          claimant_user_id: string
+          claimed_role: string
+          created_at: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          verification_method: string
+        }
+        Insert: {
+          business_id: string
+          claimant_user_id: string
+          claimed_role?: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          verification_method: string
+        }
+        Update: {
+          business_id?: string
+          claimant_user_id?: string
+          claimed_role?: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          verification_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_claims_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_claims_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_claims_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           boost_credits_per_month: number | null
@@ -5798,10 +5856,15 @@ export type Database = {
         Args: { p_note?: string; p_staff_id: string }
         Returns: Json
       }
+      approve_claim: {
+        Args: { p_approve?: boolean; p_claim_id: string }
+        Returns: Json
+      }
       business_follower_count: {
         Args: { _business_id: string }
         Returns: number
       }
+      business_role_rank: { Args: { _role: string }; Returns: number }
       can_moderate: { Args: { _user_id: string }; Returns: boolean }
       can_view_lead: {
         Args: { _business_id: string; _user_id?: string }
@@ -5822,8 +5885,32 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      claim_ownership: {
+        Args: { p_business_id: string; p_verification_method?: string }
+        Returns: Json
+      }
       compute_neighborhood_activity: { Args: never; Returns: undefined }
+      create_managed_business: {
+        Args: { p_category_id?: string; p_description?: string; p_name: string }
+        Returns: string
+      }
+      effective_business_role: {
+        Args: { p_business_id: string; p_user?: string }
+        Returns: string
+      }
       expire_pulse_posts: { Args: never; Returns: undefined }
+      find_duplicate_business: {
+        Args: { p_name: string; p_street?: string }
+        Returns: {
+          address: string
+          has_manager: boolean
+          has_owner: boolean
+          id: string
+          name: string
+          status: string
+          street_address: string
+        }[]
+      }
       generate_business_slug: {
         Args: { business_name: string }
         Returns: string
@@ -5907,6 +5994,10 @@ export type Database = {
         }[]
       }
       get_user_business_id: { Args: { _user_id: string }; Returns: string }
+      grant_business_owner: {
+        Args: { p_business_id: string; p_user: string }
+        Returns: undefined
+      }
       has_business_permission: {
         Args: {
           check_business_id: string
@@ -5964,6 +6055,10 @@ export type Database = {
         Returns: Json
       }
       reset_monthly_loop_caps: { Args: never; Returns: undefined }
+      transfer_ownership: {
+        Args: { p_business_id: string; p_new_owner_user_id: string }
+        Returns: Json
+      }
       update_ticket_purchase_from_webhook: {
         Args: {
           _new_status: string

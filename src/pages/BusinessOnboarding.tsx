@@ -40,6 +40,14 @@ import {
 } from 'lucide-react';
 import { isFreeEmailProvider } from '@/lib/email-utils';
 import { inferPreset, buildPresetBlocks } from '@/lib/profile-blocks';
+import { ClaimBusinessPrompt } from '@/components/business/ClaimBusinessPrompt';
+import {
+  findDuplicateBusiness,
+  createManagedBusiness,
+  claimOwnership,
+  type DuplicateMatch,
+  type VerificationMethod,
+} from '@/hooks/useBusinessClaim';
 
 interface OnboardingData {
   name: string;
@@ -114,6 +122,12 @@ export default function BusinessOnboarding() {
   ]);
   const saveLocationsMutation = useSaveBusinessLocations(businessId);
 
+  // Manager-first vs owner signup + duplicate-detection / claim state.
+  const [isOwner, setIsOwner] = useState(true);
+  const [dupMatches, setDupMatches] = useState<DuplicateMatch[]>([]);
+  const [dupDismissed, setDupDismissed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+
   // Check if user already has a business with incomplete onboarding
   useEffect(() => {
     if (!user) return;
@@ -155,6 +169,68 @@ export default function BusinessOnboarding() {
     setData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Grant the 'business' role once; duplicates are expected on re-runs.
+  const ensureBusinessRole = async () => {
+    if (!user) return;
+    const { error } = await supabase.from('user_roles').insert({
+      user_id: user.id,
+      role: 'business',
+    });
+    if (error && !error.message.includes('duplicate')) {
+      console.error('Failed to insert user role:', error);
+    }
+  };
+
+  // Before creating a brand-new business, look for an existing profile with the
+  // same normalized name (+ street once we know it). If we find one, surface the
+  // claim path instead of letting the user create a duplicate.
+  const runDuplicateCheck = async (): Promise<boolean> => {
+    if (businessId || dupDismissed || !data.name.trim()) return false;
+    try {
+      const primary = locations.find(l => l.is_primary) || locations[0];
+      const matches = await findDuplicateBusiness(data.name, primary?.street_address || null);
+      // Ignore a profile this user already owns/manages — those are handled by
+      // the resume-onboarding lookup, not the claim flow.
+      if (matches.length > 0) {
+        setDupMatches(matches);
+        return true;
+      }
+    } catch (err) {
+      // Non-fatal: never block onboarding on a lookup failure.
+      console.error('Duplicate check failed:', err);
+    }
+    return false;
+  };
+
+  const handleClaim = async (claimBusinessId: string, method: VerificationMethod) => {
+    setClaiming(true);
+    try {
+      await ensureBusinessRole();
+      const result = await claimOwnership(claimBusinessId, method);
+      if (result.status === 'approved' || result.status === 'already_owner') {
+        toast.success("You're now the owner of this business.");
+        queryClient.invalidateQueries({ queryKey: ['user-business'] });
+        navigate('/dashboard');
+      } else {
+        toast.success(
+          result.requires === 'manager_or_admin_approval'
+            ? 'Claim submitted — the current manager or an admin will review it.'
+            : 'Claim submitted — an admin will review it shortly.',
+        );
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not submit claim');
+    } finally {
+      setClaiming(false);
+    }
+  };
+
+  const dismissDuplicates = () => {
+    setDupDismissed(true);
+    setDupMatches([]);
+  };
+
   const saveProgress = useMutation({
     mutationFn: async (nextStep: number) => {
       if (!user) throw new Error('Not authenticated');
@@ -180,7 +256,6 @@ export default function BusinessOnboarding() {
         cover_image_url: data.cover_image_url || null,
         hours: data.hours,
         onboarding_step: nextStep,
-        owner_user_id: user.id,
         status: 'pending',
       };
 
@@ -192,32 +267,39 @@ export default function BusinessOnboarding() {
       let currentBusinessId = businessId;
 
       if (currentBusinessId) {
+        // Updates never touch owner_user_id — ownership is set on create (owner
+        // path) or later via the claim flow (manager-first path).
         const { error } = await supabase
           .from('businesses')
           .update(payload)
           .eq('id', currentBusinessId);
         if (error) throw error;
-      } else {
+      } else if (isOwner) {
+        // Owner signup: the creator owns the business outright.
         const { data: newBiz, error } = await supabase
           .from('businesses')
-          .insert(payload)
+          .insert({ ...payload, owner_user_id: user.id })
           .select('id')
           .single();
         if (error) throw error;
         currentBusinessId = newBiz.id;
         setBusinessId(newBiz.id);
-
-        // Add business role
-        try {
-          const { error: roleError } = await supabase.from('user_roles').insert({
-            user_id: user.id,
-            role: 'business',
-          });
-          if (roleError && !roleError.message.includes('duplicate')) throw roleError;
-        } catch (err) {
-          // Role may already exist — only swallow genuine duplicates
-          console.error('Failed to insert user role:', err);
-        }
+        await ensureBusinessRole();
+      } else {
+        // Manager-first signup: create with an empty owner seat, attach the
+        // caller as manager, then fill in the rest of the profile.
+        currentBusinessId = await createManagedBusiness({
+          name: data.name,
+          description: data.description || null,
+          categoryId: data.category_id || null,
+        });
+        setBusinessId(currentBusinessId);
+        const { error: updErr } = await supabase
+          .from('businesses')
+          .update(payload)
+          .eq('id', currentBusinessId);
+        if (updErr) throw updErr;
+        await ensureBusinessRole();
       }
 
       // Save locations when leaving step 2
@@ -254,6 +336,11 @@ export default function BusinessOnboarding() {
     if (step === 1 && !data.name.trim()) {
       toast.error('Business name is required');
       return;
+    }
+    // Gate the very first save: don't create a duplicate of an existing profile.
+    if (step === 1 && !businessId) {
+      const hasDuplicate = await runDuplicateCheck();
+      if (hasDuplicate) return; // claim prompt is now shown
     }
     const next = step + 1;
     await saveProgress.mutateAsync(next);
@@ -371,7 +458,53 @@ export default function BusinessOnboarding() {
               </div>
             )}
 
+            {dupMatches.length > 0 && (
+              <ClaimBusinessPrompt
+                matches={dupMatches}
+                userEmail={user?.email}
+                claiming={claiming}
+                onClaim={handleClaim}
+                onDismiss={dismissDuplicates}
+              />
+            )}
+
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Are you the owner of this business?</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsOwner(true)}
+                    className={`rounded-xl border p-3 text-left text-sm transition-colors ${
+                      isOwner
+                        ? 'border-primary bg-primary/5 font-medium text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/40'
+                    }`}
+                  >
+                    <span className="block font-semibold">I'm the owner</span>
+                    <span className="text-xs">I own this business</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsOwner(false)}
+                    className={`rounded-xl border p-3 text-left text-sm transition-colors ${
+                      !isOwner
+                        ? 'border-primary bg-primary/5 font-medium text-foreground'
+                        : 'border-border text-muted-foreground hover:border-primary/40'
+                    }`}
+                  >
+                    <span className="block font-semibold">I'm a manager</span>
+                    <span className="text-xs">I run it; owner can claim it later</span>
+                  </button>
+                </div>
+                {!isOwner && (
+                  <p className="text-xs text-muted-foreground">
+                    You'll manage this profile with full edit access. The owner
+                    can claim ownership later without creating a duplicate.
+                  </p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label>What type of business are you? *</Label>
                 <div className="grid grid-cols-2 gap-2">
