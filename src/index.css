@@ -201,11 +201,7 @@
   }
 
   .safe-area-fixed-top {
-    top: env(safe-area-inset-top, 0px);
-  }
-
-  .capacitor-native .safe-area-fixed-top {
-    top: max(env(safe-area-inset-top, 0px), 47px);
+    top: max(env(safe-area-inset-top, 0px), 47px) !important;
   }
 
   .safe-area-pad-top {

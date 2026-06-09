@@ -15,7 +15,7 @@ export default function Founding5Guide() {
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased">
       {/* Print Controls */}
-      <div className="print:hidden fixed safe-area-fixed-top right-6 z-50 mt-6">
+      <div className="print:hidden fixed safe-area-fixed-top right-6 z-50">
         <Button
           onClick={handlePrint}
           variant="outline"
