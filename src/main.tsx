@@ -1,6 +1,14 @@
 import { createRoot } from "react-dom/client";
+import { Capacitor } from "@capacitor/core";
 import App from "./App.tsx";
 import "./index.css";
+
+if (Capacitor.isNativePlatform()) {
+  import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
+    StatusBar.setOverlaysWebView({ overlay: true });
+    StatusBar.setStyle({ style: Style.Dark });
+  });
+}
 
 const CACHE_VERSION = "v3-2026-06-02";
 
