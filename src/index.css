@@ -201,8 +201,8 @@
   }
 
   .safe-area-fixed-top {
-    top: max(env(safe-area-inset-top, 0px), 47px) !important;
-  }
+  top: max(env(safe-area-inset-top), 47px) !important;
+}
 
   .safe-area-pad-top {
     padding-top: env(safe-area-inset-top, 0px);
