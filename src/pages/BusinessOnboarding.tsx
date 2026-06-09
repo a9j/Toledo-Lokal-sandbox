@@ -324,7 +324,7 @@ export default function BusinessOnboarding() {
   return (
     <div className="min-h-screen bg-background">
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+      <div className="fixed top-[env(safe-area-inset-top,0px)] left-0 right-0 z-50 bg-background border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center gap-1">
             {STEPS.map((s, i) => (
