@@ -55,7 +55,7 @@ export default function BusinessImageGuide() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased">
-      <div className="print:hidden fixed right-6 top-6 z-50">
+      <div className="print:hidden fixed safe-area-fixed-top right-6 z-50 mt-4">
         <Button
           onClick={() => window.print()}
           variant="outline"
