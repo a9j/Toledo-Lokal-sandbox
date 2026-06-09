@@ -200,9 +200,19 @@ BEGIN
     IF coalesce(current_setting('app.allow_owner_claim', true), '') = '1' THEN
       RETURN NEW;
     END IF;
-    IF NOT (OLD.owner_user_id = auth.uid() OR public.has_role(auth.uid(), 'admin')) THEN
-      RAISE EXCEPTION 'Only the business owner can transfer ownership';
+    -- Platform admins may reassign ownership directly.
+    IF public.has_role(auth.uid(), 'admin') THEN
+      RETURN NEW;
     END IF;
+    -- A current owner may transfer their own business. Note the explicit
+    -- IS NOT NULL guard: an empty owner seat (OLD.owner_user_id IS NULL) makes
+    -- `OLD.owner_user_id = auth.uid()` evaluate to NULL, so without this check
+    -- three-valued logic would let ANY user with update access grab the seat.
+    -- Empty seats may be filled only through the claim/transfer RPCs above.
+    IF OLD.owner_user_id IS NOT NULL AND OLD.owner_user_id = auth.uid() THEN
+      RETURN NEW;
+    END IF;
+    RAISE EXCEPTION 'Ownership can only be assigned through the claim or transfer flow';
   END IF;
   RETURN NEW;
 END;
