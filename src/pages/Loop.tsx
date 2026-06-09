@@ -28,7 +28,7 @@ export default function Loop() {
           description="Earn and redeem Loop Points at local Toledo businesses"
         />
         <div className="min-h-screen bg-background pb-24">
-          <div className="px-4 pt-safe-top">
+          <div className="px-4 safe-area-pad-top">
             <header className="py-4">
               <h1 className="text-xl font-bold text-foreground">Loop</h1>
             </header>
@@ -58,7 +58,7 @@ export default function Loop() {
         description="Earn and redeem Loop Points at local Toledo businesses"
       />
       <div className="min-h-screen bg-background pb-24">
-        <div className="px-4 pt-safe-top">
+        <div className="px-4 safe-area-pad-top">
           <header className="py-4">
             <h1 className="text-xl font-bold text-foreground">Loop</h1>
             <p className="text-sm text-muted-foreground">Earn rewards. Support local.</p>

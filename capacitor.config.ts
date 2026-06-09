@@ -4,9 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.toledolokal.app',
   appName: 'Toledo Lokal',
   webDir: 'dist',
-  ios: {
-    contentInset: 'always',
-  },
+  ios: {},
 };
 
 export default config;

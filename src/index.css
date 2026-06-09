@@ -192,11 +192,28 @@
   }
 
   .safe-area-top {
-    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* On native, guarantee a minimum offset in case env() returns 0 */
+  .capacitor-native .safe-area-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 47px);
   }
 
   .safe-area-fixed-top {
     top: env(safe-area-inset-top, 0px);
+  }
+
+  .capacitor-native .safe-area-fixed-top {
+    top: max(env(safe-area-inset-top, 0px), 47px);
+  }
+
+  .safe-area-pad-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .capacitor-native .safe-area-pad-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 47px);
   }
 }
 

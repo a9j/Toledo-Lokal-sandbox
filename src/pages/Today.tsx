@@ -101,7 +101,7 @@ export default function Today() {
         url="/"
       />
 
-      <div className="px-4 pt-safe-top">
+      <div className="px-4 safe-area-pad-top">
         {/* Brand header — matches Discover */}
         <header className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center gap-0">
