@@ -132,7 +132,7 @@ export default function Founding5() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
-      <div className="fixed top-[calc(env(safe-area-inset-top,0px)+1rem)] right-4 z-50 flex items-center gap-2">
+      <div className="fixed safe-area-fixed-top right-4 z-50 flex items-center gap-2 mt-4">
         {user ? (
           <Link to="/profile">
             <Button

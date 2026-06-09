@@ -198,6 +198,10 @@
   .safe-area-top {
     padding-top: env(safe-area-inset-top, 0);
   }
+
+  .safe-area-fixed-top {
+    top: env(safe-area-inset-top, 0px);
+  }
 }
 
 @layer components {
