@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 if (Capacitor.isNativePlatform()) {
+  document.documentElement.classList.add("capacitor-native");
   import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
     StatusBar.setOverlaysWebView({ overlay: true });
     StatusBar.setStyle({ style: Style.Dark });
