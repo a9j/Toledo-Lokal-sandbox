@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -463,6 +463,14 @@ export default function Auth() {
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
           </button>
         </div>
+
+        {isSignUp && (
+          <p className="text-center text-xs text-muted-foreground">
+            By creating an account you agree to our{' '}
+            <Link to="/terms" className="underline hover:text-foreground">Terms of Service</Link> and{' '}
+            <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
+          </p>
+        )}
       </div>
     </div>
   );

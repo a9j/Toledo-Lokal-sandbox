@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Heart, Crown, MapPin, BadgeCheck, Mail,
+  Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale,
 } from 'lucide-react';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -323,6 +323,23 @@ export default function Profile() {
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
           )}
+        </div>
+
+        <div className="space-y-1">
+          <Link to="/privacy">
+            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+              <Shield className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 font-medium">Privacy Policy</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Link>
+          <Link to="/terms">
+            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+              <Scale className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 font-medium">Terms of Service</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Link>
         </div>
 
         <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
