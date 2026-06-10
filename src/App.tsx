@@ -94,6 +94,8 @@ const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
 const DashboardMenu = lazy(() => import("./pages/DashboardMenu"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -194,6 +196,8 @@ const App = () => (
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
