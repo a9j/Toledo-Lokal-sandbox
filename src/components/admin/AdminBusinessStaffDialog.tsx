@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Copy, Mail, Shield, Trash2, UserPlus, Crown } from 'lucide-react';
+import { Copy, Mail, Shield, Trash2, UserPlus, Crown, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,9 @@ import {
   useAdminBusinessInvitations,
   useAdminAttachStaff,
   useAdminRemoveStaff,
+  useAdminChangeRole,
   useAdminCancelInvitation,
+  type BusinessStaffRole,
 } from '@/hooks/useAdminBusinessStaff';
 
 interface AdminBusinessStaffDialogProps {
@@ -37,15 +39,23 @@ interface AdminBusinessStaffDialogProps {
   businessName: string | null;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: 'Owner',
-  manager: 'Manager',
-  staff: 'Staff',
-};
+const ALL_ROLES: { value: BusinessStaffRole; label: string; desc: string }[] = [
+  { value: 'owner', label: 'Owner', desc: 'Full control' },
+  { value: 'admin', label: 'Admin', desc: 'All except transfer' },
+  { value: 'manager', label: 'Manager', desc: 'Edit profile & content' },
+  { value: 'hiring', label: 'Hiring', desc: 'Manage jobs' },
+  { value: 'viewer', label: 'Viewer', desc: 'Read-only' },
+  { value: 'staff', label: 'Staff', desc: 'Scanner only' },
+];
+
+const ROLE_LABELS: Record<string, string> = Object.fromEntries(ALL_ROLES.map(r => [r.value, r.label]));
 
 const ROLE_STYLES: Record<string, string> = {
   owner: 'bg-amber-100 text-amber-700',
+  admin: 'bg-purple-100 text-purple-700',
   manager: 'bg-blue-100 text-blue-700',
+  hiring: 'bg-emerald-100 text-emerald-700',
+  viewer: 'bg-secondary text-muted-foreground',
   staff: 'bg-secondary text-muted-foreground',
 };
 
@@ -58,32 +68,58 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
   const { data: invitations, isLoading: invLoading } = useAdminBusinessInvitations(businessId);
   const attach = useAdminAttachStaff();
   const remove = useAdminRemoveStaff();
+  const changeRole = useAdminChangeRole();
   const cancel = useAdminCancelInvitation();
 
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'staff' | 'manager'>('staff');
+  const [role, setRole] = useState<BusinessStaffRole>('manager');
   const [note, setNote] = useState('');
+
+  const hasOwner = staff?.some(s => s.role === 'owner');
 
   const submit = async () => {
     if (!businessId || !email.trim()) return;
+    const isOwnerAssign = role === 'owner' && hasOwner;
     try {
       const result = await attach.mutateAsync({
         businessId,
         role,
         email: email.trim(),
         note: note.trim() || undefined,
+        force: isOwnerAssign,
       });
-      if (result.action === 'attach') {
-        toast.success('Added to business staff', { description: `${email.trim()} now has access as ${ROLE_LABELS[role]}.` });
+      if (result.action === 'noop') {
+        toast.info(result.message || 'No changes made');
+      } else if (result.action === 'attach') {
+        toast.success('Added to business', { description: `${email.trim()} assigned as ${ROLE_LABELS[role]}.` });
       } else {
-        toast.success('Invitation sent', {
-          description: `No account found for ${email.trim()} — created an invitation link they can accept.`,
+        toast.success('Invitation created', {
+          description: `No account for ${email.trim()} — invitation link created.`,
         });
       }
       setEmail('');
       setNote('');
     } catch (err) {
-      toast.error('Could not attach staff', { description: err instanceof Error ? err.message : 'Check your admin permissions.' });
+      toast.error('Could not assign role', { description: err instanceof Error ? err.message : 'Check your admin permissions.' });
+    }
+  };
+
+  const doChangeRole = async (staffId: string, newRole: BusinessStaffRole, label: string, bId: string) => {
+    const isOwnerPromotion = newRole === 'owner' && hasOwner;
+    try {
+      const result = await changeRole.mutateAsync({
+        staffId,
+        businessId: bId,
+        newRole,
+        force: isOwnerPromotion,
+      });
+      if (result.action === 'noop') {
+        toast.info(result.message || 'No changes made');
+      } else {
+        toast.success(`${label} role changed to ${ROLE_LABELS[newRole]}`);
+      }
+    } catch (err) {
+      toast.error('Could not change role', { description: err instanceof Error ? err.message : undefined });
     }
   };
 
@@ -91,9 +127,9 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
     if (!businessId) return;
     try {
       await remove.mutateAsync({ staffId, businessId });
-      toast.success(`${label} removed from staff`);
+      toast.success(`${label} removed`);
     } catch (err) {
-      toast.error('Could not remove staff', { description: err instanceof Error ? err.message : undefined });
+      toast.error('Could not remove', { description: err instanceof Error ? err.message : undefined });
     }
   };
 
@@ -113,21 +149,29 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Manage staff
+            Members
             {businessName && <span className="font-normal text-muted-foreground">· {businessName}</span>}
           </DialogTitle>
           <DialogDescription>
-            Admin override. Use this when the business can't add a teammate themselves. Every action is logged.
+            Admin override. Assign any role directly — admin authority is the verification. Every action is logged.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Add */}
+          {/* Owner seat status */}
+          {!staffLoading && !hasOwner && (
+            <div className="flex items-center gap-2 rounded-xl border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-700/40 dark:bg-amber-950/30 dark:text-amber-200">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+              <span><strong>Owner: unclaimed.</strong> This business has no owner assigned.</span>
+            </div>
+          )}
+
+          {/* Assign member */}
           <section className="space-y-3 rounded-2xl border border-border/60 bg-secondary/30 p-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <UserPlus className="h-4 w-4" /> Attach a person
+              <UserPlus className="h-4 w-4" /> Assign member
             </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_140px]">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_160px]">
               <div>
                 <Label className="mb-1 block text-xs">Email</Label>
                 <Input
@@ -140,13 +184,16 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
               </div>
               <div>
                 <Label className="mb-1 block text-xs">Role</Label>
-                <Select value={role} onValueChange={(v) => setRole(v as 'staff' | 'manager')}>
+                <Select value={role} onValueChange={(v) => setRole(v as BusinessStaffRole)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border">
-                    <SelectItem value="staff">Staff (scanner)</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
+                    {ALL_ROLES.map(r => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label} <span className="text-muted-foreground ml-1">— {r.desc}</span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -160,21 +207,26 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                 maxLength={200}
               />
             </div>
+            {role === 'owner' && hasOwner && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                An owner already exists and will be demoted to Manager.
+              </p>
+            )}
             <Button
               className="w-full sm:w-auto"
               disabled={!email.trim() || !businessId || attach.isPending}
               onClick={submit}
             >
-              {attach.isPending ? 'Attaching…' : 'Attach to business'}
+              {attach.isPending ? 'Assigning…' : 'Assign to business'}
             </Button>
             <p className="text-[11px] text-muted-foreground">
-              If the email already has an account, the person is added directly. Otherwise, an invitation link is created.
+              If the email has an account, they're added directly. Otherwise, an invitation link is created.
             </p>
           </section>
 
-          {/* Current staff */}
+          {/* Current members */}
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Current staff</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Current members</h3>
             {staffLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 2 }).map((_, i) => (
@@ -182,12 +234,11 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                 ))}
               </div>
             ) : !staff || staff.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No one is attached to this business yet.</p>
+              <p className="text-sm text-muted-foreground">No one is assigned to this business yet.</p>
             ) : (
               <div className="space-y-2">
                 {staff.map((row) => {
                   const label = row.profile?.name || 'Resident';
-                  const initial = label.charAt(0).toUpperCase();
                   return (
                     <div key={row.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
                       <SecureAvatar
@@ -198,17 +249,30 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">{label}</p>
-                        <p className="truncate text-xs text-muted-foreground">{ROLE_LABELS[row.role] ?? row.role} · since {new Date(row.created_at).toLocaleDateString()}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          since {new Date(row.created_at).toLocaleDateString()}
+                        </p>
                       </div>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium',
-                          ROLE_STYLES[row.role] ?? 'bg-secondary'
-                        )}
+                      <Select
+                        value={row.role}
+                        onValueChange={(v) => doChangeRole(row.id, v as BusinessStaffRole, label, row.business_id)}
+                        disabled={changeRole.isPending}
                       >
-                        {row.role === 'owner' && <Crown className="h-3 w-3" />}
-                        {ROLE_LABELS[row.role] ?? row.role}
-                      </span>
+                        <SelectTrigger
+                          className={cn(
+                            'h-7 w-auto min-w-[100px] gap-1 rounded-full border-0 px-2.5 text-[11px] font-medium',
+                            ROLE_STYLES[row.role] ?? 'bg-secondary'
+                          )}
+                        >
+                          {row.role === 'owner' && <Crown className="h-3 w-3" />}
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border">
+                          {ALL_ROLES.map(r => (
+                            <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {row.role !== 'owner' && (
                         <Button
                           variant="ghost"
@@ -216,7 +280,7 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                           className="h-8 w-8 text-destructive hover:text-destructive"
                           disabled={remove.isPending}
                           onClick={() => doRemove(row.id, label)}
-                          title="Remove from staff"
+                          title="Remove from business"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -249,7 +313,7 @@ export function AdminBusinessStaffDialog({ open, onOpenChange, businessId, busin
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-foreground">{target}</p>
                           <p className="text-xs text-muted-foreground">
-                            {ROLE_LABELS[inv.role]} ·{' '}
+                            {ROLE_LABELS[inv.role] ?? inv.role} ·{' '}
                             {expired
                               ? 'Expired'
                               : `Expires ${formatDistanceToNow(new Date(inv.expires_at), { addSuffix: true })}`}

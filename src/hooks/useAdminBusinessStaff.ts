@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export type BusinessStaffRole = 'owner' | 'staff' | 'manager';
+export type BusinessStaffRole = 'owner' | 'admin' | 'manager' | 'hiring' | 'viewer' | 'staff';
 
 export interface BusinessStaffRow {
   id: string;
@@ -80,10 +80,11 @@ export function useAdminBusinessInvitations(businessId: string | null) {
 
 interface AttachInput {
   businessId: string;
-  role: 'staff' | 'manager';
+  role: BusinessStaffRole;
   email?: string;
   userId?: string;
   note?: string;
+  force?: boolean;
 }
 
 export function useAdminAttachStaff() {
@@ -96,7 +97,8 @@ export function useAdminAttachStaff() {
         p_target_user_id: input.userId ?? undefined,
         p_target_email: input.email ?? undefined,
         p_note: input.note ?? undefined,
-      });
+        p_force: input.force ?? false,
+      } as any);
       if (error) throw error;
       return data as { action: 'attach' | 'invite'; staff_id: string | null; invitation_id: string | null; user_id: string | null };
     },
@@ -120,6 +122,31 @@ export function useAdminRemoveStaff() {
     },
     onSuccess: (businessId) => {
       qc.invalidateQueries({ queryKey: ['admin-business-staff', businessId] });
+    },
+  });
+}
+
+export function useAdminChangeRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ staffId, businessId, newRole, force, note }: {
+      staffId: string;
+      businessId: string;
+      newRole: BusinessStaffRole;
+      force?: boolean;
+      note?: string;
+    }) => {
+      const { data, error } = await supabase.rpc('admin_change_staff_role', {
+        p_staff_id: staffId,
+        p_new_role: newRole,
+        p_force: force ?? false,
+        p_note: note ?? undefined,
+      } as any);
+      if (error) throw error;
+      return data as { action: string; old_role: string; new_role: string; business_id: string };
+    },
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ['admin-business-staff', vars.businessId] });
     },
   });
 }
