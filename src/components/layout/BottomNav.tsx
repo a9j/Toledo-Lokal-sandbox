@@ -32,7 +32,7 @@ export function BottomNav() {
         {/* Frosted glass background */}
         <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-t border-border/50" />
 
-        <div className="relative flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+        <div className="relative flex items-center justify-around h-16 max-w-lg lg:max-w-3xl mx-auto px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
 

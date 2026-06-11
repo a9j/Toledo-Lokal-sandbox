@@ -229,7 +229,7 @@ export default function BusinessDetail() {
         })}
       />
 
-      <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
+      <div className="mx-auto min-h-screen max-w-lg lg:max-w-3xl bg-background pb-24">
         <ProfileHero
           business={pb}
           liveStatus={liveStatus}

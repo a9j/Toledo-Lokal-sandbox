@@ -68,7 +68,7 @@ export default function Discover() {
                 {categories?.length || 0} categories
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
               {categories?.map((category, index) => {
                 const Icon = getIcon(category.icon || 'building2');
                 return (
@@ -173,15 +173,15 @@ export default function Discover() {
             ))}
           </div>
         ) : filteredBusinesses?.length ? (
-          <div className="space-y-3">
+          <div className="space-y-3 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4 lg:space-y-0">
             {filteredBusinesses.map((business, index) => (
-              <div 
-                key={business.id} 
+              <div
+                key={business.id}
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${index * 40}ms` }}
               >
-                <BusinessCard 
-                  business={business} 
+                <BusinessCard
+                  business={business}
                   savedCount={savedCounts[business.id] || 0}
                 />
               </div>
