@@ -101,7 +101,7 @@ export default function Today() {
         url="/"
       />
 
-      <div className="px-4 safe-area-pad-top">
+      <div className="px-4 lg:px-8 xl:px-12 safe-area-pad-top">
         {/* Brand header — matches Discover */}
         <header className="flex items-center justify-between py-4">
           <Link to="/" className="flex items-center gap-0">
@@ -145,7 +145,7 @@ export default function Today() {
         </header>
 
         {/* Content */}
-        <div className="space-y-4 pb-4">
+        <div className="space-y-4 pb-4 lg:max-w-2xl lg:mx-auto">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-36 rounded-3xl animate-pulse" />

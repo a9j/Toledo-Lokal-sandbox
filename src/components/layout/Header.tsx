@@ -29,7 +29,7 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
       {/* Frosted glass background */}
       <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-b border-border/50" />
       
-      <div className="relative flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
+      <div className="relative flex items-center justify-between h-14 px-4 lg:px-8 xl:px-12 max-w-lg lg:max-w-none mx-auto">
         <div className="flex items-center gap-3">
           {showBack && (
             <Button 
