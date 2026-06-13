@@ -22,8 +22,9 @@ export function BottomNav() {
   const { user } = useAuth();
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
 
-  // Hide on auth page, scanner mode, and accept invitation pages
-  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation'];
+  // Hide on auth page, scanner mode, accept invitation, and the unlisted
+  // /join marketing pages (which should read as a standalone landing page).
+  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation', '/join'];
   if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (
