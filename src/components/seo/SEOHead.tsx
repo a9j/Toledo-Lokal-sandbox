@@ -9,6 +9,8 @@ interface SEOHeadProps {
   type?: 'website' | 'article' | 'business.business' | 'event';
   keywords?: string[];
   jsonLd?: Record<string, unknown>;
+  /** When true, emits robots noindex,nofollow for unlisted pages (e.g. /join). */
+  noindex?: boolean;
 }
 
 const DEFAULT_TITLE = 'ToledoLokal - Discover the Glass City';
@@ -23,6 +25,7 @@ export function SEOHead({
   type = 'website',
   keywords = [],
   jsonLd,
+  noindex = false,
 }: SEOHeadProps) {
   const fullTitle = title ? `${title} | ToledoLokal` : DEFAULT_TITLE;
   const fullUrl = url ? `${SITE_URL}${url}` : SITE_URL;
@@ -91,6 +94,20 @@ export function SEOHead({
     }
     canonical.setAttribute('href', fullUrl);
 
+    // Robots: keep unlisted pages out of search indexes. Only present while
+    // this page is mounted; removed on unmount so it never leaks to other
+    // client-navigated pages.
+    let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+    if (noindex) {
+      if (!robots) {
+        robots = document.createElement('meta');
+        robots.setAttribute('name', 'robots');
+        robots.setAttribute('data-seo-robots', 'true');
+        document.head.appendChild(robots);
+      }
+      robots.setAttribute('content', 'noindex, nofollow');
+    }
+
     // JSON-LD structured data
     const existingScript = document.querySelector('script[data-seo-jsonld]');
     if (existingScript) {
@@ -111,8 +128,13 @@ export function SEOHead({
       if (seoScript) {
         seoScript.remove();
       }
+      // Drop any robots tag we added so it doesn't carry into the next page.
+      const seoRobots = document.querySelector('meta[data-seo-robots]');
+      if (seoRobots) {
+        seoRobots.remove();
+      }
     };
-  }, [fullTitle, description, image, fullUrl, type, allKeywords, jsonLd]);
+  }, [fullTitle, description, image, fullUrl, type, allKeywords, jsonLd, noindex]);
 
   return null;
 }
