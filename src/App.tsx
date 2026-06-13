@@ -96,6 +96,7 @@ const DashboardLocations = lazy(() => import("./pages/DashboardLocations"));
 const DashboardMenu = lazy(() => import("./pages/DashboardMenu"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Join = lazy(() => import("./pages/Join"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -141,6 +142,10 @@ const App = () => (
                   <Route path="/pulse/:pulseId" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <PulseDetail />} />
                   <Route path="/feed" element={<Feed />} />
                   <Route path="/auth" element={<Auth />} />
+                  {/* Public, unlisted Founding Partner landing page (QR / shared link only) */}
+                  <Route path="/join" element={<Join />} />
+                  {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
+                  <Route path="/signup" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/events/:id" element={<EventDetail />} />
