@@ -11,13 +11,12 @@ interface JoinQRCodeProps {
 }
 
 // Brand the code in lokal navy on white. Navy is near-black so contrast stays
-// high enough to scan reliably, and a high error-correction level leaves room
-// for the center logo without breaking the code.
+// well within scanning tolerance, while looking on-brand next to a plain black
+// code. No center logo: it muddied the code and looked cheap at this size.
 const NAVY = '#0F1D35';
-const LOGO_SRC = '/pwa-512x512.png';
 
-// Reusable branded QR: navy-on-white with a centered logo, plus download and
-// copy actions. Shared by the public /join/qr page and the admin console.
+// Reusable branded QR plus download and copy actions. Shared by the public
+// /join/qr page and the admin console.
 export function JoinQRCode({ url, size = 280 }: JoinQRCodeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
@@ -26,39 +25,11 @@ export function JoinQRCode({ url, size = 280 }: JoinQRCodeProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    QRCodeLib.toCanvas(
-      canvas,
-      url,
-      {
-        width: size,
-        margin: 2,
-        errorCorrectionLevel: 'H',
-        color: { dark: NAVY, light: '#ffffff' },
-      },
-      (err) => {
-        if (err) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Draw the brand mark in the center over a white quiet zone so the
-        // surrounding modules keep scanning.
-        const logo = new Image();
-        logo.onload = () => {
-          const badge = canvas.width * 0.22;
-          const logoSize = canvas.width * 0.16;
-          const cx = canvas.width / 2;
-          const cy = canvas.height / 2;
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          const r = badge / 2;
-          // Rounded white square behind the logo.
-          ctx.roundRect(cx - r, cy - r, badge, badge, 8);
-          ctx.fill();
-          ctx.drawImage(logo, cx - logoSize / 2, cy - logoSize / 2, logoSize, logoSize);
-        };
-        logo.src = LOGO_SRC;
-      },
-    );
+    QRCodeLib.toCanvas(canvas, url, {
+      width: size,
+      margin: 2,
+      color: { dark: NAVY, light: '#ffffff' },
+    });
   }, [url, size]);
 
   const handleDownload = () => {
