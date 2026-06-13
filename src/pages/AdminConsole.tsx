@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
-  Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight,
+  Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -18,6 +18,8 @@ import { PulseModerationQueue } from '@/components/admin/console/PulseModeration
 import { PulsePostsAdmin } from '@/components/admin/console/PulsePostsAdmin';
 import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
+import { JoinQRCode } from '@/components/join/JoinQRCode';
+import { siteUrl } from '@/lib/site-url';
 
 const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'City', items: [
@@ -37,6 +39,9 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'messaging', label: 'Announcements', icon: Megaphone, soon: true },
     { id: 'whitelabel', label: 'White-label Cities', icon: Building2 },
   ] },
+  { label: 'Growth', items: [
+    { id: 'founding-qr', label: 'Founding Partner QR', icon: QrCode },
+  ] },
 ];
 
 const SECTION_META: Record<string, { title: string; subtitle: string }> = {
@@ -49,6 +54,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   moderation: { title: 'Moderation', subtitle: 'Reports, content, and community trust' },
   rewards: { title: 'Rewards & Campaigns', subtitle: 'Loop campaigns and city challenges' },
   whitelabel: { title: 'White-label Cities', subtitle: 'Tenant cities and per-city branding' },
+  'founding-qr': { title: 'Founding Partner QR', subtitle: 'Show or print this to recruit Founding partners' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -74,6 +80,24 @@ function ManagementLauncher() {
           <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground/50" />
         </Link>
       ))}
+    </div>
+  );
+}
+
+function FoundingQRPanel() {
+  return (
+    <div className="mx-auto max-w-md text-center">
+      <p className="mb-6 text-sm text-muted-foreground">
+        Scanning this code opens the Founding Partner page. Show it on your phone
+        while talking to businesses, or download it to print and hand out.
+      </p>
+      <JoinQRCode url={siteUrl('/join')} />
+      <Link
+        to="/join/qr"
+        className="mt-6 inline-block text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        Open full-screen QR page
+      </Link>
     </div>
   );
 }
@@ -124,6 +148,7 @@ export default function AdminConsole() {
       )}
       {active === 'rewards' && <RewardsAdmin />}
       {active === 'whitelabel' && <CitiesAdmin />}
+      {active === 'founding-qr' && <FoundingQRPanel />}
     </AdminShell>
   );
 }

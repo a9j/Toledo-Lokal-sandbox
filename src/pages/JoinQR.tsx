@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import QRCodeLib from 'qrcode';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Copy, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { JoinQRCode } from '@/components/join/JoinQRCode';
 import { siteUrl } from '@/lib/site-url';
 import { CITY } from '@/lib/city';
 
@@ -13,39 +11,9 @@ import { CITY } from '@/lib/city';
 const JOIN_URL = siteUrl('/join');
 
 export default function JoinQR() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    QRCodeLib.toCanvas(canvasRef.current, JOIN_URL, {
-      width: 280,
-      margin: 2,
-      color: { dark: '#000000', light: '#ffffff' },
-    });
-  }, []);
-
-  const handleDownload = () => {
-    if (!canvasRef.current) return;
-    const link = document.createElement('a');
-    link.download = 'toledolokal-join-qr.png';
-    link.href = canvasRef.current.toDataURL('image/png');
-    link.click();
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(JOIN_URL);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard may be unavailable */
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
@@ -62,41 +30,16 @@ export default function JoinQR() {
           Point a phone camera at this code to open the Founding Partner page.
         </p>
 
-        <div className="mt-8 rounded-2xl bg-white p-5 shadow-soft-lg">
-          <canvas ref={canvasRef} />
+        <div className="mt-8">
+          <JoinQRCode url={JOIN_URL} />
         </div>
 
-        <p className="mt-5 break-all font-mono text-xs text-muted-foreground">{JOIN_URL}</p>
-
-        <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
-          <Button onClick={handleDownload} className="h-11 rounded-full font-semibold">
-            <Download className="mr-2 h-4 w-4" />
-            Download QR
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleCopy}
-            className="h-11 rounded-full font-semibold"
-          >
-            {copied ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Link copied
-              </>
-            ) : (
-              <>
-                <Copy className="mr-2 h-4 w-4" />
-                Copy link
-              </>
-            )}
-          </Button>
-          <Link
-            to="/join"
-            className="mt-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            Open the page
-          </Link>
-        </div>
+        <Link
+          to="/join"
+          className="mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Open the page
+        </Link>
       </section>
     </div>
   );
