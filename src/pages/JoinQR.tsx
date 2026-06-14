@@ -17,17 +17,17 @@ export default function JoinQR() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
-      <SEOHead title="Founding Partner QR" url="/join/qr" noindex />
+      <SEOHead title="Join QR" url="/join/qr" noindex />
 
       <section className="safe-area-pad-top flex min-h-[100svh] flex-col items-center justify-center px-6 py-12 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lokal-gold">
-          {CITY.name} Founding Partners
+          Join {`${CITY.name}Lokal`}
         </p>
         <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
           Scan to learn more
         </h1>
         <p className="mt-2 max-w-sm text-sm font-light leading-relaxed text-muted-foreground">
-          Point a phone camera at this code to open the Founding Partner page.
+          Point a phone camera at this code to get your business on {CITY.name}Lokal.
         </p>
 
         <div className="mt-8">
