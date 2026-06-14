@@ -40,7 +40,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'whitelabel', label: 'White-label Cities', icon: Building2 },
   ] },
   { label: 'Growth', items: [
-    { id: 'founding-qr', label: 'Founding Partner QR', icon: QrCode },
+    { id: 'founding-qr', label: 'Join QR', icon: QrCode },
   ] },
 ];
 
@@ -54,7 +54,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   moderation: { title: 'Moderation', subtitle: 'Reports, content, and community trust' },
   rewards: { title: 'Rewards & Campaigns', subtitle: 'Loop campaigns and city challenges' },
   whitelabel: { title: 'White-label Cities', subtitle: 'Tenant cities and per-city branding' },
-  'founding-qr': { title: 'Founding Partner QR', subtitle: 'Show or print this to recruit Founding partners' },
+  'founding-qr': { title: 'Join QR', subtitle: 'Show or print this to recruit local businesses' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -88,8 +88,8 @@ function FoundingQRPanel() {
   return (
     <div className="mx-auto max-w-md text-center">
       <p className="mb-6 text-sm text-muted-foreground">
-        Scanning this code opens the Founding Partner page. Show it on your phone
-        while talking to businesses, or download it to print and hand out.
+        Scanning this code opens the join page. Show it on your phone while
+        talking to businesses, or download it to print and hand out.
       </p>
       <JoinQRCode url={siteUrl('/join')} />
       <Link

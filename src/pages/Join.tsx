@@ -7,6 +7,9 @@ import { CITY } from '@/lib/city';
 
 // Public, unlisted landing page reached by QR code or a shared link.
 // No auth: this renders for everyone and must read top-to-bottom on a phone.
+// Audience is any local business (food trucks, shops, restaurants, services),
+// so the page sells joining the network first; the Founding tier is one
+// limited early-mover bonus, not the whole pitch.
 
 const WHY = [
   {
@@ -43,13 +46,13 @@ const STEPS = [
   },
   {
     n: '2',
-    title: 'Claim your Founding seat',
-    body: 'Tell us who you are. Seats in the First Wave are limited.',
+    title: 'Add your business',
+    body: 'Food truck, shop, restaurant, or service. Tell us who you are and what you do.',
   },
   {
     n: '3',
-    title: 'Help shape what comes next',
-    body: 'Your badge, your credit, and your advisory voice are locked in for good.',
+    title: 'Start showing up across Toledo',
+    body: 'Reach neighbors who are actively looking to spend local.',
   },
 ];
 
@@ -61,8 +64,8 @@ export default function Join() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
       <SEOHead
-        title="Become a Founding Partner"
-        description={`Join the first wave of ${CITY.name} businesses, residents, nonprofits, and schools building local civic infrastructure that keeps community spending circulating at home.`}
+        title="Join ToledoLokal"
+        description={`Get your business on ${CITY.name}'s local network. One interconnected platform of businesses, residents, nonprofits, and schools that keeps community spending circulating at home.`}
         url="/join"
         noindex
       />
@@ -87,7 +90,7 @@ export default function Join() {
 
           <a href="#signup" className="mt-9 inline-block">
             <Button className="h-12 rounded-full px-8 text-base font-semibold">
-              Become a Founding Partner
+              Join {`${CITY.name}Lokal`}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </a>
@@ -115,29 +118,29 @@ export default function Join() {
         </div>
       </section>
 
-      {/* ===== Section 3: The Founding 25 (First Wave) ===== */}
+      {/* ===== Section 3: Founding tier (limited early-mover bonus) ===== */}
       <section className="bg-muted/30 px-6 py-20 sm:py-28">
         <div className="mx-auto max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lokal-gold">
-            The Founding 25 . First Wave
-          </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-lokal-gold/40 bg-lokal-gold/10 px-3 py-1 text-sm font-medium text-lokal-gold">
+          <div className="inline-flex items-center gap-2 rounded-full border border-lokal-gold/40 bg-lokal-gold/10 px-3 py-1 text-sm font-medium text-lokal-gold">
             <BadgeCheck className="h-4 w-4" />
-            Silver Founding badge
+            Founding tier . limited
           </div>
           <h2 className="mt-6 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            A permanent place in how {CITY.name} got built.
+            Joining early counts for more.
           </h2>
           <p className="mt-4 text-lg font-light leading-relaxed text-muted-foreground">
-            The First Wave is finite. Once the seats are claimed they are gone, and
-            the identity that comes with one is permanent.
+            {CITY.name}Lokal is open to every local business. The first wave to join
+            also locks in a Founding tier that never comes back once the seats are
+            gone:
           </p>
 
-          <ul className="mt-10 space-y-5">
+          <ul className="mt-8 space-y-4">
             {FOUNDING_BENEFITS.map((benefit) => (
               <li key={benefit} className="flex gap-3">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lokal-gold" />
-                <span className="text-lg font-light leading-relaxed">{benefit}</span>
+                <span className="text-base font-light leading-relaxed sm:text-lg">
+                  {benefit}
+                </span>
               </li>
             ))}
           </ul>
@@ -149,7 +152,7 @@ export default function Join() {
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <Sparkles className="h-5 w-5 shrink-0 text-lokal-gold" />
           <p className="text-base font-light leading-relaxed text-muted-foreground sm:text-lg">
-            Loop Points, civic rewards for Founding partners, are on the way.
+            Loop Points, civic rewards for the whole network, are on the way.
           </p>
         </div>
       </section>
@@ -168,8 +171,8 @@ export default function Join() {
           </h2>
           <p className="mt-3 text-lg font-light leading-relaxed text-muted-foreground">
             Our iOS and Android apps are on the way. You do not have to wait for
-            them. Everything you need to claim a Founding seat is on the web right
-            now.
+            them. Everything you need to get your business on {CITY.name}Lokal is on
+            the web right now.
           </p>
 
           <ol className="mt-10 space-y-8">
@@ -210,7 +213,7 @@ export default function Join() {
       {/* ===== Section 6: Footer ===== */}
       <footer className="safe-area-bottom border-t border-border/60 px-6 py-12">
         <div className="mx-auto max-w-2xl space-y-3 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">MyMomentous LLC</p>
+          <p className="font-medium text-foreground">Loop Lokal LLC</p>
           <p>
             <a
               href="mailto:anthony@toledolokal.com"
