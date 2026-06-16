@@ -320,26 +320,25 @@ export function UsersAdmin() {
             const hasElevatedRoles = roles.some((r: string) => r !== 'resident');
 
             return (
-              <div 
-                key={profile.id} 
+              <div
+                key={profile.id}
                 className={`card-elevated p-3 ${isConn ? 'ring-1 ring-amber-400/40' : ''}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
+                <div className="space-y-2">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium truncate">{profile.name || 'Unnamed'}</span>
+                      <span className="font-medium break-words">{profile.name || 'Unnamed'}</span>
                       {roles.filter(r => r !== 'resident').map(role => (
                         <Badge
                           key={role}
                           variant="outline"
-                          className={`text-[10px] gap-1 ${roleColor(role)}`}
+                          className={`text-[10px] gap-1 shrink-0 ${roleColor(role)}`}
                         >
                           {roleIcon(role)}
                           {role}
                         </Badge>
                       ))}
                     </div>
-                    {/* Business affiliations — who they work for and in what role */}
                     {(() => {
                       const affiliations = getAffiliationsForUser(profile.user_id);
                       if (affiliations.length === 0) return null;
@@ -349,26 +348,26 @@ export function UsersAdmin() {
                             <Link
                               key={`${a.business_id}-${a.role}`}
                               to={`/business/${a.business_id}`}
-                              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium hover:underline ${AFFILIATION_STYLE[a.role]}`}
+                              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium hover:underline max-w-full ${AFFILIATION_STYLE[a.role]}`}
                               title={`${AFFILIATION_LABEL[a.role]} ${a.business_name}`}
                             >
-                              <Building2 className="h-2.5 w-2.5" />
-                              {AFFILIATION_LABEL[a.role]} {a.business_name}
+                              <Building2 className="h-2.5 w-2.5 shrink-0" />
+                              <span className="truncate">{AFFILIATION_LABEL[a.role]} {a.business_name}</span>
                             </Link>
                           ))}
                         </div>
                       );
                     })()}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                      <Calendar className="h-3 w-3" />
+                      <Calendar className="h-3 w-3 shrink-0" />
                       {format(new Date(profile.created_at), 'MMM d, yyyy')}
                       {code && (
                         <span className="text-amber-600 font-mono">{code}</span>
                       )}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-1 flex-shrink-0">
+
+                  <div className="flex items-center gap-1 flex-wrap">
                     {isConn ? (
                       <Button
                         size="sm"
