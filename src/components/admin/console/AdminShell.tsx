@@ -84,7 +84,7 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
         {mobileOpen && (
           <div className="fixed inset-0 z-50 md:hidden">
             <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-            <aside className="absolute left-0 top-0 h-full w-64 overflow-y-auto bg-background shadow-xl">
+            <aside className="absolute left-0 top-0 h-full w-64 overflow-y-auto bg-background shadow-xl safe-area-top">
               <div className="flex items-center justify-between border-b border-border px-4 py-4">
                 <div>
                   <p className="font-display text-base font-bold tracking-tight">Toledo Lokal</p>
@@ -99,11 +99,13 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
 
         {/* Content */}
         <main className="min-w-0 flex-1">
-          <header className="safe-area-top sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-md sm:px-6">
-            <button onClick={() => setMobileOpen(true)} className="rounded-lg p-1.5 hover:bg-secondary md:hidden"><Menu className="h-5 w-5" /></button>
-            <div className="min-w-0">
-              <h1 className="truncate font-display text-lg font-bold tracking-tight">{title}</h1>
-              {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
+          <header className="safe-area-top sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
+            <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
+              <button onClick={() => setMobileOpen(true)} className="rounded-lg p-1.5 hover:bg-secondary md:hidden"><Menu className="h-5 w-5" /></button>
+              <div className="min-w-0">
+                <h1 className="truncate font-display text-lg font-bold tracking-tight">{title}</h1>
+                {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
+              </div>
             </div>
           </header>
           {/* pb-24 clears the global fixed-position BottomNav so the last
