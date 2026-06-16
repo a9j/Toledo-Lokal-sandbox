@@ -152,7 +152,7 @@ export default function DashboardLocations() {
           </Button>
         )}
 
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border safe-area-bottom">
+        <div className="fixed bottom-16 left-0 right-0 z-40 bg-background border-t border-border safe-area-bottom">
           <div className="max-w-lg mx-auto px-4 py-3">
             <Button
               onClick={handleSave}
