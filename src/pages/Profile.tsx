@@ -4,11 +4,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale,
+  Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale, Trash2,
 } from 'lucide-react';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -29,6 +37,9 @@ export default function Profile() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const { unreadCount } = useOwnerMessages();
 
   const { data: profile } = useQuery({
@@ -75,6 +86,17 @@ export default function Profile() {
   });
 
   const handleSignOut = async () => { await signOut(); navigate('/'); };
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase.functions.invoke('delete-own-account');
+      if (error) throw error;
+      await signOut();
+      navigate('/');
+    } catch {
+      setIsDeleting(false);
+    }
+  };
   const handleAvatarUpdate = () => queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
 
   if (!user) { navigate('/auth'); return null; }
@@ -348,6 +370,46 @@ export default function Profile() {
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+          onClick={() => { setShowDeleteDialog(true); setDeleteConfirmText(''); }}
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete Account
+        </Button>
+
+        <Dialog open={showDeleteDialog} onOpenChange={(o) => { if (!o) { setShowDeleteDialog(false); setDeleteConfirmText(''); } }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete your account?</DialogTitle>
+              <DialogDescription>
+                This permanently deletes your account, profile, saved places, and any businesses
+                you own. This cannot be undone. Type{' '}
+                <span className="font-semibold text-foreground">DELETE</span> to confirm.
+              </DialogDescription>
+            </DialogHeader>
+            <Input
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Type DELETE"
+              className="mt-2"
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => { setShowDeleteDialog(false); setDeleteConfirmText(''); }}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                onClick={handleDeleteAccount}
+              >
+                {isDeleting ? 'Deleting…' : 'Delete permanently'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </PageContainer>
     </>
   );
