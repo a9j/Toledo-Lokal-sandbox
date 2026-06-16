@@ -223,6 +223,29 @@ export const FOUNDING_TIERS = {
       prioritySupport: false,
     },
   },
+  civic_partner: {
+    name: 'Civic Partner',
+    lpMonthly: 0,
+    maxMultiplier: 1,
+    maxActiveOffers: 0,
+    subscriptionPrice: 0,
+    features: [
+      'Civic profile page with district/mission info',
+      'Events-calendar posting rights',
+      'District/neighborhood association on the map',
+      'Civic Partner badge on profile & search',
+    ],
+    limits: {
+      deals: 0,
+      events: -1,
+      jobs: 0,
+      pulsePostsPerDay: 1,
+      maxActiveOffers: 0,
+      featuredPlacement: false,
+      analytics: false,
+      prioritySupport: false,
+    },
+  },
 } as const;
 
 export const getTierByProductId = (productId: string | null): SubscriptionTier => {

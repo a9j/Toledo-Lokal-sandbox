@@ -42,7 +42,10 @@ export const FREE_TIER_STATUS = 'community';
 export const isFreeTier = (tierStatus?: string | null): boolean =>
   !tierStatus || tierStatus === FREE_TIER_STATUS;
 
-export const loopEnabled = (tierStatus?: string | null): boolean => !isFreeTier(tierStatus);
+const LOOP_EXCLUDED_TIERS: readonly string[] = ['community', 'civic_partner'];
+
+export const loopEnabled = (tierStatus?: string | null): boolean =>
+  !!tierStatus && !LOOP_EXCLUDED_TIERS.includes(tierStatus);
 
 /** Upgrade nudge shown where Loop issuing UI is gated off for free-tier businesses. */
 export const LOOP_UPGRADE_NUDGE = 'Loop Points are available on paid plans.';

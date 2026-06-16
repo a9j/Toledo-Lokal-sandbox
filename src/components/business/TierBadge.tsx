@@ -1,8 +1,8 @@
-import { Shield } from 'lucide-react';
+import { Shield, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TierBadgeProps {
-  tier: 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
+  tier: 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro' | 'civic_partner';
   size?: 'sm' | 'md' | 'lg';
   visible?: boolean;
   className?: string;
@@ -16,6 +16,7 @@ const tierConfig = {
     border: 'border-amber-400/50',
     bg: 'bg-gradient-to-r from-amber-500 to-yellow-400',
     shieldColor: 'text-amber-950',
+    icon: Shield,
   },
   founding_50: {
     label: 'Founding 25',
@@ -24,6 +25,7 @@ const tierConfig = {
     border: 'border-slate-300/50',
     bg: 'bg-gradient-to-r from-slate-400 to-slate-300',
     shieldColor: 'text-slate-900',
+    icon: Shield,
   },
   pro: {
     label: 'Pro',
@@ -32,6 +34,16 @@ const tierConfig = {
     border: 'border-indigo-400/50',
     bg: 'bg-gradient-to-r from-indigo-500 to-violet-500',
     shieldColor: 'text-white',
+    icon: Shield,
+  },
+  civic_partner: {
+    label: 'Civic Partner',
+    gradient: 'from-teal-600 to-emerald-500',
+    textColor: 'text-white',
+    border: 'border-teal-400/50',
+    bg: 'bg-gradient-to-r from-teal-600 to-emerald-500',
+    shieldColor: 'text-white',
+    icon: Landmark,
   },
   growth: {
     label: '',
@@ -40,6 +52,7 @@ const tierConfig = {
     border: '',
     bg: '',
     shieldColor: '',
+    icon: Shield,
   },
   community: {
     label: '',
@@ -48,6 +61,7 @@ const tierConfig = {
     border: '',
     bg: '',
     shieldColor: '',
+    icon: Shield,
   },
 };
 
@@ -71,6 +85,7 @@ export function TierBadge({ tier, size = 'md', visible = true, className }: Tier
 
   const config = tierConfig[tier];
   const sizeStyle = sizeConfig[size];
+  const Icon = config.icon;
 
   return (
     <span
@@ -83,7 +98,7 @@ export function TierBadge({ tier, size = 'md', visible = true, className }: Tier
         className
       )}
     >
-      <Shield className={cn(sizeStyle.icon, config.shieldColor, 'fill-current')} />
+      <Icon className={cn(sizeStyle.icon, config.shieldColor, 'fill-current')} />
       {config.label}
     </span>
   );
@@ -114,6 +129,14 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
     return (
       <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
         Pro Partner
+      </p>
+    );
+  }
+
+  if (tier === 'civic_partner') {
+    return (
+      <p className="text-sm font-medium text-teal-600 dark:text-teal-400">
+        Civic Partner
       </p>
     );
   }
