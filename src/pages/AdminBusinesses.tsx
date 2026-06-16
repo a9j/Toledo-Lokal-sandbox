@@ -50,7 +50,7 @@ import {
 import { usePermissions } from '@/hooks/usePermissions';
 import { AdminBusinessStaffDialog } from '@/components/admin/AdminBusinessStaffDialog';
 
-type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro';
+type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro' | 'civic_partner';
 
 interface TierChangeLog {
   id: string;
@@ -494,6 +494,7 @@ export default function AdminBusinesses() {
                 <SelectItem value="founding_50">Founding 25</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="growth">Growth</SelectItem>
+                <SelectItem value="civic_partner">Civic Partner</SelectItem>
                 <SelectItem value="community">Community</SelectItem>
               </SelectContent>
             </Select>
@@ -746,6 +747,7 @@ export default function AdminBusinesses() {
                   <SelectItem value="founding_50">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro / Anchor</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
+                  <SelectItem value="civic_partner">Civic Partner</SelectItem>
                   <SelectItem value="community">Community</SelectItem>
                 </SelectContent>
               </Select>
@@ -943,6 +945,7 @@ export default function AdminBusinesses() {
                   <SelectItem value="founding_50">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
+                  <SelectItem value="civic_partner">Civic Partner</SelectItem>
                   <SelectItem value="community">Community</SelectItem>
                 </SelectContent>
               </Select>

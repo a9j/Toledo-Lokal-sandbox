@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   Store, Clock3, Users, UserPlus, Radio, Coins, QrCode, HeartHandshake,
   CheckCircle2, Plus, Megaphone, Star, Gift, ShieldAlert, CalendarPlus, ChevronRight, Activity,
-  Shield, Crown,
+  Shield, Crown, Landmark,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,6 +99,7 @@ const QUICK_ACTIONS: { label: string; icon: LucideIcon; to: string }[] = [
   { label: 'Create reward', icon: Gift, to: '/dashboard/rewards' },
   { label: 'Assign Founding 5', icon: Crown, to: '/admin/businesses?tier=founding_5' },
   { label: 'Assign Founding 25', icon: Shield, to: '/admin/businesses?tier=founding_50' },
+  { label: 'Assign Civic Partner', icon: Landmark, to: '/admin/businesses?tier=civic_partner' },
 ];
 
 export function CityOverview() {

@@ -39,6 +39,7 @@ import {
   Briefcase,
   Truck,
   Crown,
+  Landmark,
   Heart,
   Users,
   Eye,
@@ -471,6 +472,25 @@ export default function Admin() {
       toast({ 
         title: isFounding50 ? 'Founding 25 member added!' : 'Founding 25 status removed',
         description: isFounding50 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
+      });
+    },
+  });
+
+  const toggleCivicPartner = useMutation({
+    mutationFn: async ({ businessId, isCivic }: { businessId: string; isCivic: boolean }) => {
+      await supabase.from('businesses').update({
+        tier_status: isCivic ? 'civic_partner' : 'community',
+        tier_badge_visible: true,
+        tier_assigned_at: new Date().toISOString(),
+        tier_assigned_by: user!.id,
+      }).eq('id', businessId);
+    },
+    onSuccess: (_, { isCivic }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      toast({
+        title: isCivic ? 'Civic Partner assigned!' : 'Civic Partner status removed',
+        description: isCivic ? 'They can now post events and appear as a civic org.' : undefined
       });
     },
   });
@@ -972,10 +992,13 @@ export default function Admin() {
               approvedBusinesses.map(biz => {
                 const isFoundingMember = biz.business_loop_settings?.is_founding_member || false;
                 const isFounding50 = biz.tier_status === 'founding_50';
-                const highlightClass = isFoundingMember 
+                const isCivicPartner = biz.tier_status === 'civic_partner';
+                const highlightClass = isFoundingMember
                   ? 'ring-2 ring-amber-400/50 bg-gradient-to-r from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/20'
                   : isFounding50
                   ? 'ring-2 ring-slate-300/50 bg-gradient-to-r from-slate-50/50 to-gray-50/50 dark:from-slate-950/20 dark:to-gray-950/20'
+                  : isCivicPartner
+                  ? 'ring-2 ring-teal-400/50 bg-gradient-to-r from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20'
                   : '';
                 return (
                   <div key={biz.id} className={`card-elevated p-4 ${highlightClass}`}>
@@ -1001,6 +1024,12 @@ export default function Admin() {
                             <Badge className="gap-1 bg-gradient-to-r from-slate-400 to-gray-400 text-white border-0 text-[10px]">
                               <Shield className="h-3 w-3" />
                               Founding 25
+                            </Badge>
+                          )}
+                          {isCivicPartner && (
+                            <Badge className="gap-1 bg-gradient-to-r from-teal-600 to-emerald-500 text-white border-0 text-[10px]">
+                              <Landmark className="h-3 w-3" />
+                              Civic Partner
                             </Badge>
                           )}
                           {biz.featured && (
@@ -1060,6 +1089,21 @@ export default function Admin() {
                       >
                         <Shield className="h-3 w-3" />
                         F25
+                      </Button>
+
+                      {/* Civic Partner Toggle */}
+                      <Button
+                        size="sm"
+                        variant={isCivicPartner ? "secondary" : "ghost"}
+                        onClick={() => {
+                          toggleCivicPartner.mutate({ businessId: biz.id, isCivic: !isCivicPartner });
+                        }}
+                        className={`h-7 text-xs gap-1 ${isCivicPartner ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white hover:from-teal-700 hover:to-emerald-600' : ''}`}
+                        title={isCivicPartner ? 'Remove Civic Partner' : 'Assign Civic Partner'}
+                        disabled={toggleCivicPartner.isPending || isFoundingMember || isFounding50}
+                      >
+                        <Landmark className="h-3 w-3" />
+                        Civic
                       </Button>
 
                       <Button
