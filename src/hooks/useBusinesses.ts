@@ -62,16 +62,14 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       }
 
       // Use businesses_public view which masks phone for unauthenticated users.
-      // Note: do NOT embed business_loop_settings here — that view→table embed
-      // is unreliable and 400s the whole request. Loop membership is fetched
-      // separately below.
+      // Note: do NOT embed related resources here (neighborhoods, categories,
+      // business_loop_settings). PostgREST embeds on this view→table are
+      // unreliable and 400 the whole request, which makes every list render
+      // empty ("No businesses found"). Category/neighborhood are resolved from
+      // lightweight lookup maps below; loop membership is fetched separately.
       let query = supabase
         .from('businesses_public')
-        .select(`
-          ${PUBLIC_BUSINESS_COLUMNS},
-          neighborhood:neighborhoods(id, name),
-          category:categories(id, name, icon)
-        `)
+        .select(PUBLIC_BUSINESS_COLUMNS)
         // Public lists only ever show approved businesses. The businesses_public
         // view also returns the viewer's own pending businesses (for previews),
         // so this filter keeps pending/rejected out of public lineups.
@@ -127,11 +125,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
               // location leaking into an "Auto & Transport + Sylvania" search).
               let extraQuery = supabase
                 .from('businesses_public')
-                .select(`
-                  ${PUBLIC_BUSINESS_COLUMNS},
-                  neighborhood:neighborhoods(id, name),
-                  category:categories(id, name, icon)
-                `)
+                .select(PUBLIC_BUSINESS_COLUMNS)
                 .eq('status', 'approved')
                 .in('id', extraIds);
 
@@ -170,6 +164,20 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
       
+      // Resolve category + neighborhood from lightweight lookup maps instead of
+      // PostgREST embeds (see note on the main query above). Both tables are
+      // tiny and readable by anon, so a single fetch of each is cheap.
+      const categoryById = new Map<string, { id: string; name: string; icon: string | null }>();
+      const neighborhoodById = new Map<string, { id: string; name: string }>();
+      if (sorted && sorted.length > 0) {
+        const [catRes, nbRes] = await Promise.all([
+          supabase.from('categories').select('id, name, icon'),
+          supabase.from('neighborhoods').select('id, name'),
+        ]);
+        (catRes.data ?? []).forEach(c => categoryById.set(c.id, c));
+        (nbRes.data ?? []).forEach(n => neighborhoodById.set(n.id, n));
+      }
+
       // Loop membership drives the ∞ badge, but only when the Loop program is
       // live. Fetch it in a separate query (the businesses_public→
       // business_loop_settings embed is unreliable and 400s the whole request).
@@ -186,6 +194,8 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         const loop = loopByBusiness.get(business.id);
         return {
           ...business,
+          category: business.category_id ? categoryById.get(business.category_id) ?? null : null,
+          neighborhood: business.neighborhood_id ? neighborhoodById.get(business.neighborhood_id) ?? null : null,
           isInLoop: !!(LP_ENABLED && loop?.is_active &&
             ['community', 'growth', 'pro'].includes(loop?.loop_tier_id ?? '')),
         };
