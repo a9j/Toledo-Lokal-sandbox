@@ -22,13 +22,6 @@ import { SecureImage } from '@/components/ui/secure-image';
 import { postSchema, validateInput, sanitizeText } from '@/lib/validation-schemas';
 import { moderateTextContent } from '@/hooks/useContentModeration';
 
-// Placeholder images
-const heroImages = [
-  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=800&h=600&fit=crop',
-];
-
 export default function Feed() {
   const [newPostContent, setNewPostContent] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -167,35 +160,43 @@ export default function Feed() {
           </div>
           
           <div className="flex gap-4 overflow-x-auto scrollbar-hide px-5 -mx-5">
-            {featuredBusinesses.slice(0, 4).map((business, i) => (
+            {featuredBusinesses.slice(0, 4).map((business) => {
+              const rating = typeof business.average_rating === 'number' && (business.review_count ?? 0) > 0
+                ? business.average_rating
+                : null;
+              return (
               <Link
                 key={business.id}
                 to={`/business/${business.id}`}
                 className="flex-shrink-0 w-[280px] group"
               >
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-                  <SecureImage
-                    storagePath={business.photos?.[0] || heroImages[i % heroImages.length]}
-                    alt={business.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span className="badge-open flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                      Open
-                    </span>
-                  </div>
+                  {business.photos?.[0] ? (
+                    <SecureImage
+                      storagePath={business.photos[0]}
+                      alt={business.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-lokal-midnight to-lokal-midnight/80">
+                      <span className="font-display text-4xl font-bold text-white/30">
+                        {business.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-medium text-foreground group-hover:text-accent transition-colors">
                       {business.name}
                     </h3>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star className="h-3.5 w-3.5 fill-toledo-gold text-toledo-gold" />
-                      <span className="font-medium">4.8</span>
-                    </div>
+                    {rating !== null && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Star className="h-3.5 w-3.5 fill-toledo-gold text-toledo-gold" />
+                        <span className="font-medium">{rating.toFixed(1)}</span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
@@ -203,7 +204,8 @@ export default function Feed() {
                   </p>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

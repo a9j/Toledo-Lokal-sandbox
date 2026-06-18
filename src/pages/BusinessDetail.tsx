@@ -253,7 +253,11 @@ export default function BusinessDetail() {
           <ProfileTabs
             active={tab}
             onChange={setTab}
-            hiddenTabs={FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) ? [] : ['menu']}
+            hiddenTabs={[
+              ...(FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) ? [] : ['menu' as const]),
+              // The Rewards tab is Loop Points UI; keep it hidden until Loop launches.
+              ...(LP_ENABLED ? [] : ['rewards' as const]),
+            ]}
           />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
@@ -264,7 +268,7 @@ export default function BusinessDetail() {
               <TodayTab business={pb} />
             )}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
-            {tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
+            {LP_ENABLED && tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
             {tab === 'community' && <CommunityTab business={pb} />}
             {tab === 'photos' && <PhotosTab business={pb} />}
             {tab === 'about' && <AboutTab business={pb} actions={contactActions} />}

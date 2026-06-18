@@ -1,4 +1,4 @@
-import { Phone, Globe, Instagram, Facebook, Clock, Sparkles, Heart } from 'lucide-react';
+import { Phone, Globe, Instagram, Facebook, Clock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LocationsSection } from '@/components/business/LocationsSection';
 import { getHoursList } from '@/lib/business-hours';
@@ -18,11 +18,6 @@ function socialHref(kind: 'instagram' | 'facebook' | 'tiktok', value: string): s
   if (kind === 'facebook') return `https://facebook.com/${handle}`;
   return `https://tiktok.com/@${handle}`;
 }
-
-const PERSONALIZATION = [
-  { match: '94% match', reason: 'Because you like locally owned spots' },
-  { match: 'Popular nearby', reason: 'Pairs well with coffee, parks, and events around here' },
-];
 
 export function AboutTab({ business, actions }: { business: ProfileBusiness; actions: ResolvedAction[] }) {
   const story = business.story?.trim() || business.description?.trim();
@@ -121,22 +116,6 @@ export function AboutTab({ business, actions }: { business: ProfileBusiness; act
 
       {/* Local Signals — replaces the old reviews section */}
       <LocalSignals business={business} />
-
-      {/* Personalization-ready (mock for now) */}
-      <div className="space-y-2">
-        <SectionLabel>For you</SectionLabel>
-        {PERSONALIZATION.map((p) => (
-          <ProfileCard key={p.reason} className="flex items-center gap-3">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Heart className="h-4 w-4 text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-foreground">{p.match}</p>
-              <p className="text-xs text-muted-foreground">{p.reason}</p>
-            </div>
-          </ProfileCard>
-        ))}
-      </div>
 
       {/* Report */}
       <div className="pt-1 text-center">

@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { useFoodTruckLocations } from '@/hooks/useFoodTruckLocations';
+import { useFoodTruckLocations, useFoodTrucks } from '@/hooks/useFoodTruckLocations';
 import { FoodTruckCard } from '@/components/cards/FoodTruckCard';
+import { BusinessCard } from '@/components/cards/BusinessCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +50,7 @@ export default function FoodToday() {
 
   const dateString = format(selectedDate, 'yyyy-MM-dd');
   const { data: locations, isLoading } = useFoodTruckLocations({ date: dateString });
+  const { data: allTrucks } = useFoodTrucks();
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: mapsKey || '',
@@ -153,9 +155,9 @@ export default function FoodToday() {
             <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
               <Utensils className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="font-medium text-foreground">No food trucks today</h3>
+            <h3 className="font-medium text-foreground">No trucks scheduled today</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Check back later or try another day
+              No truck has posted a stop for this day yet — browse all Toledo trucks below.
             </p>
             <Button
               variant="outline"
@@ -270,6 +272,24 @@ export default function FoodToday() {
           <p className="text-xs text-muted-foreground text-center">
             Some trucks haven't shared a map pin yet — switch to List to see them all.
           </p>
+        )}
+
+        {/* Directory: every signed-up truck, so they're discoverable even before
+            they post a stop for the day. */}
+        {allTrucks && allTrucks.length > 0 && (
+          <section className="space-y-3 pt-4 border-t border-border/50">
+            <div>
+              <h2 className="text-sm font-semibold text-foreground tracking-tight">All Toledo Food Trucks</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Tap a truck to see its profile, menu, and how to follow it.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {allTrucks.map(truck => (
+                <BusinessCard key={truck.id} business={truck} />
+              ))}
+            </div>
+          </section>
         )}
       </PageContainer>
     </>

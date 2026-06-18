@@ -14,7 +14,7 @@ const navItems = [
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   // Loop stays visible but locked (Coming Soon) until Loop Points launch.
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
-  { path: '/food-today', icon: Truck, label: 'Trucks', show: !SOFT_LAUNCH },
+  { path: '/food-today', icon: Truck, label: 'Trucks' },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
@@ -24,7 +24,7 @@ export function BottomNav() {
 
   // Hide on auth page, scanner mode, accept invitation, and the unlisted
   // /join marketing pages (which should read as a standalone landing page).
-  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation', '/join'];
+  const hiddenPaths = ['/auth', '/scanner-mode', '/accept-invitation', '/join', '/save'];
   if (hiddenPaths.some(path => location.pathname.startsWith(path))) return null;
 
   return (

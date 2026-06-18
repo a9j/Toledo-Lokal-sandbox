@@ -49,6 +49,7 @@ const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
+const SaveContact = lazy(() => import("./pages/SaveContact"));
 const EditBusiness = lazy(() => import("./pages/EditBusiness"));
 const CreateBusiness = lazy(() => import("./pages/CreateBusiness"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -159,6 +160,8 @@ const App = () => (
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/messages" element={<Messages />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
+                  {/* Public contact card reached by scanning a founding QR code */}
+                  <Route path="/save/:id" element={<SaveContact />} />
                   <Route path="/business/:id/edit" element={<EditBusiness />} />
                   <Route path="/create-business" element={<CreateBusiness />} />
                   <Route path="/manage" element={<BusinessAdmin />} />
@@ -189,7 +192,7 @@ const App = () => (
                   <Route path="/scanner-mode" element={<ScannerMode />} />
                   <Route path="/accept-invitation" element={<AcceptInvitation />} />
                   <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/food-today" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <FoodToday />} />
+                  <Route path="/food-today" element={<FoodToday />} />
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />

@@ -13,6 +13,8 @@ interface FeaturedListingCardProps {
     isInLoop?: boolean;
     photos?: string[] | null;
     hours?: Json | null;
+    average_rating?: number | null;
+    review_count?: number | null;
     neighborhood?: { name: string } | null;
     category?: { name: string; icon: string } | null;
   };
@@ -70,29 +72,32 @@ const getTodayHoursStatus = (hours: Json | null): { text: string; isOpen: boolea
   return { text: '', isOpen: false };
 };
 
-// Placeholder images for demo
-const placeholderImages = [
-  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=300&fit=crop',
-];
-
 export function FeaturedListingCard({ business, showImage = true }: FeaturedListingCardProps) {
-  const imageUrl = business.photos?.[0] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+  const imageUrl = business.photos?.[0] ?? null;
   const hoursStatus = getTodayHoursStatus(business.hours);
+  const rating = typeof business.average_rating === 'number' && (business.review_count ?? 0) > 0
+    ? business.average_rating
+    : null;
 
   return (
     <Link to={`/business/${business.id}`} className="block group">
       <div className="card-elevated overflow-hidden hover-lift">
         {showImage && (
           <div className="relative aspect-[16/10] overflow-hidden">
-            <SecureImage
-              storagePath={imageUrl}
-              alt={business.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
-            />
+            {imageUrl ? (
+              <SecureImage
+                storagePath={imageUrl}
+                alt={business.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-lokal-midnight to-lokal-midnight/80">
+                <span className="font-display text-5xl font-bold text-white/30">
+                  {business.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
 
             {/* Refined overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
@@ -145,10 +150,12 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                     )}
                   </div>
                   <div className="flex items-center gap-3 text-white/90 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
-                      <span className="font-semibold">4.8</span>
-                    </div>
+                    {rating !== null && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
+                        <span className="font-semibold">{rating.toFixed(1)}</span>
+                      </div>
+                    )}
                     {business.neighborhood && (
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" />
@@ -189,10 +196,12 @@ export function FeaturedListingCard({ business, showImage = true }: FeaturedList
                     <p className="text-sm text-muted-foreground">{business.category.name}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-1 text-sm">
-                  <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
-                  <span className="font-semibold">4.8</span>
-                </div>
+                {rating !== null && (
+                  <div className="flex items-center gap-1 text-sm">
+                    <Star className="h-4 w-4 fill-lokal-amber text-lokal-amber" />
+                    <span className="font-semibold">{rating.toFixed(1)}</span>
+                  </div>
+                )}
               </div>
             </>
           )}
