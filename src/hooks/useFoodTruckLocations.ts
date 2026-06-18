@@ -88,17 +88,46 @@ export function useFoodTrucks() {
   return useQuery({
     queryKey: ['food-trucks-directory'],
     queryFn: async () => {
+      // Do NOT embed neighborhoods/categories on the businesses_public view —
+      // PostgREST embeds on this view→table relationship are unreliable and 400
+      // the whole request, which made the food truck directory render empty.
+      // Resolve them from lightweight lookup maps instead (same pattern as
+      // useBusinesses).
       const { data, error } = await supabase
         .from('businesses_public')
         .select(
-          'id, name, description, verified, featured, logo_url, tier_status, tier_badge_visible, neighborhood:neighborhoods(name), category:categories(name, icon)',
+          'id, name, description, verified, featured, logo_url, tier_status, tier_badge_visible, category_id, neighborhood_id',
         )
         .eq('status', 'approved')
         .eq('category', 'food_truck')
         .order('name', { ascending: true });
 
       if (error) throw error;
-      return data as unknown as FoodTruckBusiness[];
+
+      const rows = data ?? [];
+      const categoryById = new Map<string, { name: string; icon: string }>();
+      const neighborhoodById = new Map<string, { name: string }>();
+      if (rows.length > 0) {
+        const [catRes, nbRes] = await Promise.all([
+          supabase.from('categories').select('id, name, icon'),
+          supabase.from('neighborhoods').select('id, name'),
+        ]);
+        (catRes.data ?? []).forEach(c => categoryById.set(c.id, { name: c.name, icon: c.icon ?? '' }));
+        (nbRes.data ?? []).forEach(n => neighborhoodById.set(n.id, { name: n.name }));
+      }
+
+      return rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        verified: row.verified,
+        featured: row.featured,
+        logo_url: row.logo_url,
+        tier_status: row.tier_status,
+        tier_badge_visible: row.tier_badge_visible,
+        category: row.category_id ? categoryById.get(row.category_id) ?? null : null,
+        neighborhood: row.neighborhood_id ? neighborhoodById.get(row.neighborhood_id) ?? null : null,
+      })) as FoodTruckBusiness[];
     },
   });
 }
