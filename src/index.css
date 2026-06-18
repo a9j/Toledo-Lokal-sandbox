@@ -209,6 +209,18 @@
     padding-top: max(env(safe-area-inset-top, 0px), 47px);
   }
 
+  /* Larger floor for headers that sit directly under the status bar with
+     tappable controls (e.g. the admin console hamburger). When env() returns
+     0 on native, 47px is too short for Dynamic Island devices (~59px), leaving
+     controls partly under the status bar and unusable. */
+  .safe-area-top-lg {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .capacitor-native .safe-area-top-lg {
+    padding-top: max(env(safe-area-inset-top, 0px), 59px);
+  }
+
   .safe-area-fixed-top {
   top: max(env(safe-area-inset-top), 47px) !important;
 }
