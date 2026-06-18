@@ -28,12 +28,15 @@ import { ProfileWalletCard } from '@/components/loop/ProfileWalletCard';
 import { UserWalletQR } from '@/components/loop/UserWalletQR';
 import { UserPulseToggle } from '@/components/pulse/UserPulseToggle';
 import { useLoop } from '@/contexts/LoopContext';
+import { LP_ENABLED } from '@/lib/flags';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isConnector } = useAuth();
   const { isInstalled } = usePWAInstall();
   const { ensureLoaded } = useLoop();
-  useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
+  // Only spin up the Loop wallet when the Loop Points program is live. With the
+  // flag off there is no Loop UI to feed, so skip the fetch entirely.
+  useEffect(() => { if (LP_ENABLED) ensureLoaded(); }, [ensureLoaded]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showInstallGuide, setShowInstallGuide] = useState(false);
@@ -192,8 +195,8 @@ export default function Profile() {
           ))}
         </div>
 
-        {/* Loop Wallet Card */}
-        <ProfileWalletCard />
+        {/* Loop Wallet Card — only when the Loop Points program is live. */}
+        {LP_ENABLED && <ProfileWalletCard />}
 
         {/* Toledo Passport map preview */}
         <Link
@@ -245,7 +248,7 @@ export default function Profile() {
         {/* Your Vibe chips */}
         <VibeEditor userId={user.id} vibe={profileVibe} />
 
-        <UserWalletQR />
+        {LP_ENABLED && <UserWalletQR />}
         <UserPulseToggle />
 
         {/* Business section */}

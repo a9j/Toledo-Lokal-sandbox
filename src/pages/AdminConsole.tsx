@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
-  Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode,
+  Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode, Contact,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -19,6 +19,7 @@ import { PulsePostsAdmin } from '@/components/admin/console/PulsePostsAdmin';
 import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 import { JoinQRCode } from '@/components/join/JoinQRCode';
+import { FoundingContactCards } from '@/components/admin/console/FoundingContactCards';
 import { siteUrl } from '@/lib/site-url';
 
 const NAV_GROUPS: AdminNavGroup[] = [
@@ -41,6 +42,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   ] },
   { label: 'Growth', items: [
     { id: 'founding-qr', label: 'Join QR', icon: QrCode },
+    { id: 'founding-cards', label: 'Founding 25 Cards', icon: Contact },
   ] },
 ];
 
@@ -55,6 +57,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   rewards: { title: 'Rewards & Campaigns', subtitle: 'Loop campaigns and city challenges' },
   whitelabel: { title: 'White-label Cities', subtitle: 'Tenant cities and per-city branding' },
   'founding-qr': { title: 'Join QR', subtitle: 'Show or print this to recruit local businesses' },
+  'founding-cards': { title: 'Founding 25 Contact Cards', subtitle: 'Printable QR codes that save the business and open its profile' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -149,6 +152,7 @@ export default function AdminConsole() {
       {active === 'rewards' && <RewardsAdmin />}
       {active === 'whitelabel' && <CitiesAdmin />}
       {active === 'founding-qr' && <FoundingQRPanel />}
+      {active === 'founding-cards' && <FoundingContactCards />}
     </AdminShell>
   );
 }
