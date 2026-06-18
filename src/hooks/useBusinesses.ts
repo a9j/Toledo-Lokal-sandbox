@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { LP_ENABLED } from '@/lib/flags';
-import { buildCategoryOrFilter } from '@/lib/category-filter';
 
 // Define public-safe columns that don't expose owner_user_id
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -40,28 +39,38 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
     queryFn: async () => {
       // A business appears in a category bucket via its primary category
       // (businesses.category_id) OR via a secondary tag in business_categories.
-      // Resolve any secondary-tag matches up front so we can OR them in. A
-      // PostgREST `.or()` string applies the same primary-or-secondary match
-      // everywhere we filter by category; when there are no secondary matches we
-      // fall back to a plain equality on category_id.
-      let categoryOrFilter: string | null = null;
+      // Resolve the full set of matching business ids up front and filter with a
+      // single `.in('id', ...)`. This is more robust than a PostgREST `.or()`
+      // string (which combined awkwardly with the view's embedded resources).
+      let categoryMatchIds: string[] | null = null;
       if (options?.categoryId) {
-        const { data: tagged } = await supabase
-          .from('business_categories')
-          .select('business_id')
-          .eq('category_id', options.categoryId);
-        const secondaryIds = (tagged ?? []).map(t => t.business_id);
-        categoryOrFilter = buildCategoryOrFilter(options.categoryId, secondaryIds);
+        const [primaryRes, taggedRes] = await Promise.all([
+          supabase
+            .from('businesses_public')
+            .select('id')
+            .eq('status', 'approved')
+            .eq('category_id', options.categoryId),
+          supabase
+            .from('business_categories')
+            .select('business_id')
+            .eq('category_id', options.categoryId),
+        ]);
+        const ids = new Set<string>();
+        (primaryRes.data ?? []).forEach((r: { id: string }) => ids.add(r.id));
+        (taggedRes.data ?? []).forEach((r: { business_id: string }) => ids.add(r.business_id));
+        categoryMatchIds = [...ids];
       }
 
-      // Use businesses_public view which masks phone for unauthenticated users
+      // Use businesses_public view which masks phone for unauthenticated users.
+      // Note: do NOT embed business_loop_settings here — that view→table embed
+      // is unreliable and 400s the whole request. Loop membership is fetched
+      // separately below.
       let query = supabase
         .from('businesses_public')
         .select(`
           ${PUBLIC_BUSINESS_COLUMNS},
           neighborhood:neighborhoods(id, name),
-          category:categories(id, name, icon),
-          business_loop_settings(is_active, loop_tier_id)
+          category:categories(id, name, icon)
         `)
         // Public lists only ever show approved businesses. The businesses_public
         // view also returns the viewer's own pending businesses (for previews),
@@ -74,9 +83,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       }
 
       if (options?.categoryId) {
-        query = categoryOrFilter
-          ? query.or(categoryOrFilter)
-          : query.eq('category_id', options.categoryId);
+        query = query.in('id', categoryMatchIds ?? []);
       }
 
       if (options?.neighborhoodId) {
@@ -123,8 +130,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
                 .select(`
                   ${PUBLIC_BUSINESS_COLUMNS},
                   neighborhood:neighborhoods(id, name),
-                  category:categories(id, name, icon),
-                  business_loop_settings(is_active, loop_tier_id)
+                  category:categories(id, name, icon)
                 `)
                 .eq('status', 'approved')
                 .in('id', extraIds);
@@ -134,9 +140,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
               }
 
               if (options?.categoryId) {
-                extraQuery = categoryOrFilter
-                  ? extraQuery.or(categoryOrFilter)
-                  : extraQuery.eq('category_id', options.categoryId);
+                extraQuery = extraQuery.in('id', categoryMatchIds ?? []);
               }
 
               const { data: extraBiz } = await extraQuery;
@@ -166,12 +170,26 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
       
-      // Transform to include isInLoop flag
-      return sorted?.map(business => ({
-        ...business,
-        isInLoop: LP_ENABLED && business.business_loop_settings?.is_active &&
-          ['community', 'growth', 'pro'].includes(business.business_loop_settings?.loop_tier_id)
-      }));
+      // Loop membership drives the ∞ badge, but only when the Loop program is
+      // live. Fetch it in a separate query (the businesses_public→
+      // business_loop_settings embed is unreliable and 400s the whole request).
+      const loopByBusiness = new Map<string, { is_active: boolean | null; loop_tier_id: string | null }>();
+      if (LP_ENABLED && sorted && sorted.length > 0) {
+        const { data: loopRows } = await supabase
+          .from('business_loop_settings')
+          .select('business_id, is_active, loop_tier_id')
+          .in('business_id', sorted.map(b => b.id));
+        (loopRows ?? []).forEach(r => loopByBusiness.set(r.business_id, r));
+      }
+
+      return sorted?.map(business => {
+        const loop = loopByBusiness.get(business.id);
+        return {
+          ...business,
+          isInLoop: !!(LP_ENABLED && loop?.is_active &&
+            ['community', 'growth', 'pro'].includes(loop?.loop_tier_id ?? '')),
+        };
+      });
     },
   });
 }

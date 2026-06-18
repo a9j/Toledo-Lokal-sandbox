@@ -68,6 +68,41 @@ export function useFoodTruckLocations(filters?: FoodTruckFilters) {
   });
 }
 
+export interface FoodTruckBusiness {
+  id: string;
+  name: string;
+  description: string | null;
+  verified: boolean | null;
+  featured: boolean | null;
+  logo_url: string | null;
+  tier_status: string | null;
+  tier_badge_visible: boolean | null;
+  neighborhood: { name: string } | null;
+  category: { name: string; icon: string } | null;
+}
+
+// Every approved business that signed up as a food truck, whether or not it has
+// posted a location for today. Powers the "all food trucks" directory so a truck
+// is discoverable the moment it joins — it doesn't have to post a stop first.
+export function useFoodTrucks() {
+  return useQuery({
+    queryKey: ['food-trucks-directory'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('businesses_public')
+        .select(
+          'id, name, description, verified, featured, logo_url, tier_status, tier_badge_visible, neighborhood:neighborhoods(name), category:categories(name, icon)',
+        )
+        .eq('status', 'approved')
+        .eq('category', 'food_truck')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return data as unknown as FoodTruckBusiness[];
+    },
+  });
+}
+
 export function useBusinessFoodLocations(businessId: string | undefined) {
   return useQuery({
     queryKey: ['business-food-locations', businessId],

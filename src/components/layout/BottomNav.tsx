@@ -14,7 +14,7 @@ const navItems = [
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   // Loop stays visible but locked (Coming Soon) until Loop Points launch.
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
-  { path: '/food-today', icon: Truck, label: 'Trucks', show: !SOFT_LAUNCH },
+  { path: '/food-today', icon: Truck, label: 'Trucks' },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {

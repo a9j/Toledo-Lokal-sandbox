@@ -192,7 +192,7 @@ const App = () => (
                   <Route path="/scanner-mode" element={<ScannerMode />} />
                   <Route path="/accept-invitation" element={<AcceptInvitation />} />
                   <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/food-today" element={SOFT_LAUNCH ? <Navigate to="/" replace /> : <FoodToday />} />
+                  <Route path="/food-today" element={<FoodToday />} />
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />
                   <Route path="/dashboard/locations" element={<DashboardLocations />} />
