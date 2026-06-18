@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Coins, Bookmark, Share2, Trophy, Flame, MapPin, Stamp } from 'lucide-react';
+import { Coins, Bookmark, Share2, MapPin, Stamp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
@@ -25,23 +25,6 @@ function ActionRow({ icon: Icon, title, subtitle, cta }: { icon: LucideIcon; tit
         <p className="text-xs text-muted-foreground">{subtitle}</p>
       </div>
       <div className="flex-shrink-0">{cta}</div>
-    </ProfileCard>
-  );
-}
-
-// Personalization-ready progress card (mock values for now).
-function ProgressCard({ icon: Icon, title, subtitle, value, max }: { icon: LucideIcon; title: string; subtitle: string; value: number; max: number }) {
-  const pct = Math.min(100, Math.round((value / max) * 100));
-  return (
-    <ProfileCard className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-primary" />
-        <p className="text-sm font-medium text-foreground">{title}</p>
-      </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-      </div>
-      <p className="text-xs text-muted-foreground">{subtitle}</p>
     </ProfileCard>
   );
 }
@@ -77,9 +60,6 @@ export function RewardsTab({ business, isSaved, onSave, onShare }: RewardsTabPro
           </div>
         </ProfileCard>
       )}
-
-      <ProgressCard icon={Trophy} title="Downtown Explorer badge" subtitle="You're 1 visit away from unlocking this city badge." value={2} max={3} />
-      <ProgressCard icon={Flame} title="Weekly local streak" subtitle="Visit 3 locally owned spots this week to keep your streak." value={1} max={3} />
 
       <SectionLabel>Connect</SectionLabel>
       <ActionRow
