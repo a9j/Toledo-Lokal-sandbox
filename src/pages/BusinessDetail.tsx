@@ -7,7 +7,6 @@ import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useBusinessSavedCount } from '@/hooks/useDiscoverySignals';
-import { useMenuItems } from '@/hooks/useMenuItems';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
@@ -31,6 +30,7 @@ import { CommunityTab } from '@/components/business/profile/redesign/CommunityTa
 import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
+import { useAvailableMenuCount } from '@/hooks/useMenuItems';
 import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
 
 // Public-safe columns - owner_user_id is masked in the view for non-owners
@@ -127,6 +127,11 @@ export default function BusinessDetail() {
     enabled: !!id,
   });
 
+  // The Menu tab appears only when the business actually has at least one
+  // available menu item — category alone no longer surfaces it.
+  const { data: availableMenuCount = 0 } = useAvailableMenuCount(business?.id);
+  const hasMenu = availableMenuCount > 0;
+
   // The Manage affordance shows for anyone who can administer this business —
   // the owner OR a user attached as a 'manager' via business_staff.
   const { data: canManage = false } = useQuery({
@@ -155,13 +160,6 @@ export default function BusinessDetail() {
     },
     enabled: !!user && (!!business?.id || !!id),
   });
-
-  // The Menu tab is gated on BOTH a food category AND at least one available
-  // item, so we load the items here (not just inside MenuTab) to decide
-  // visibility. Returns [] / undefined for non-food businesses, which keeps the
-  // tab hidden either way.
-  const { data: menuItems } = useMenuItems(business?.id);
-  const hasAvailableMenuItems = !!menuItems?.some((item) => item.is_available);
 
   const isSaved = !!savedItems?.some((item) => item.item_id === business?.id);
 
@@ -212,7 +210,7 @@ export default function BusinessDetail() {
   // selecting it via a non-tab path (e.g. the "View Menu" action) falls back
   // to the Today tab below.
   const showMenuTab =
-    FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && hasAvailableMenuItems;
+    FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && hasMenu;
 
   const actionCtx: ProfileActionContext = { onSave: handleSave, onShare: handleShare, isSaved, setTab };
   const primaryAction = resolveAction(config.primaryAction, pb, pb.moduleContent, actionCtx);
@@ -276,12 +274,8 @@ export default function BusinessDetail() {
           />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
-            {tab === 'menu' && showMenuTab && (
-              <MenuTab businessId={business.id} />
-            )}
-            {tab === 'menu' && !showMenuTab && (
-              <TodayTab business={pb} />
-            )}
+            {tab === 'menu' && showMenuTab && <MenuTab businessId={business.id} />}
+            {tab === 'menu' && !showMenuTab && <TodayTab business={pb} />}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
             {LP_ENABLED && tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
             {tab === 'community' && <CommunityTab business={pb} />}
