@@ -10,6 +10,10 @@ interface PricingCardProps {
   currentTier: SubscriptionTier;
   onSelect: (priceId: string) => void;
   isLoading: boolean;
+  // When true, this plan is the one the owner's founding membership includes for
+  // free, so it is marked as included rather than offered as an upgrade target.
+  includedThroughFounding?: boolean;
+  foundingMembershipName?: string | null;
 }
 
 const tierIcons: Record<SubscriptionTier, React.ReactNode> = {
@@ -18,8 +22,8 @@ const tierIcons: Record<SubscriptionTier, React.ReactNode> = {
   pro: <Crown className="h-6 w-6" />,
 };
 
-export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: PricingCardProps) {
-  const isCurrentPlan = currentTier === tierConfig.id;
+export function PricingCard({ tierConfig, currentTier, onSelect, isLoading, includedThroughFounding = false, foundingMembershipName = null }: PricingCardProps) {
+  const isCurrentPlan = !includedThroughFounding && currentTier === tierConfig.id;
   const isPopular = tierConfig.id === 'growth';
   const isFree = tierConfig.id === 'free';
   const hasLoopFeatures = tierConfig.loopFeatures && tierConfig.loopFeatures.length > 0;
@@ -27,9 +31,14 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
   return (
     <div className={cn(
       "relative",
-      (isPopular || isCurrentPlan) && "pt-3"
+      (isPopular || isCurrentPlan || includedThroughFounding) && "pt-3"
     )}>
-      {isPopular && !isCurrentPlan && (
+      {includedThroughFounding && (
+        <Badge className="absolute top-0 left-1/2 -translate-x-1/2 bg-lokal-amber text-lokal-midnight whitespace-nowrap z-10">
+          Included with founding
+        </Badge>
+      )}
+      {isPopular && !isCurrentPlan && !includedThroughFounding && (
         <Badge className="absolute top-0 left-1/2 -translate-x-1/2 bg-primary whitespace-nowrap z-10">
           Most Popular
         </Badge>
@@ -42,7 +51,8 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
       <Card className={cn(
         "relative flex flex-col h-full",
         isCurrentPlan && "border-primary ring-2 ring-primary/20",
-        isPopular && !isCurrentPlan && "border-primary/50"
+        includedThroughFounding && "border-lokal-amber ring-2 ring-lokal-amber/30",
+        isPopular && !isCurrentPlan && !includedThroughFounding && "border-primary/50"
       )}>
       
       <CardHeader className="text-center pb-2 px-4">
@@ -96,7 +106,15 @@ export function PricingCard({ tierConfig, currentTier, onSelect, isLoading }: Pr
       </CardContent>
 
       <CardFooter className="px-4">
-        {isFree ? (
+        {includedThroughFounding ? (
+          <Button
+            className="w-full"
+            variant="outline"
+            disabled
+          >
+            {foundingMembershipName ? `Included with ${foundingMembershipName}` : 'Included'}
+          </Button>
+        ) : isFree ? (
           <Button 
             className="w-full" 
             variant="outline" 

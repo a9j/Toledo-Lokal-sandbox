@@ -4,11 +4,13 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SubscriptionManager } from '@/components/subscription/SubscriptionManager';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useBusinessGate } from '@/hooks/useBusinessGate';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Subscription() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { refreshSubscription, ensureLoaded } = useSubscription();
+  const { data: businessGate } = useBusinessGate();
   const { toast } = useToast();
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
 
@@ -43,7 +45,7 @@ export default function Subscription() {
             </p>
           </div>
           
-          <SubscriptionManager />
+          <SubscriptionManager foundingTierStatus={businessGate?.tier_status ?? null} />
         </div>
       </main>
     </>
