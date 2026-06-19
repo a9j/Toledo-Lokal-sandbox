@@ -34,7 +34,7 @@ import { LP_ENABLED } from '@/lib/flags';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isConnector } = useAuth();
-  const { activeBusiness, isBusinessView } = useActiveRole();
+  const { activeBusiness, businesses } = useActiveRole();
   const [showQR, setShowQR] = useState(false);
   const { isInstalled } = usePWAInstall();
   const { ensureLoaded } = useLoop();
@@ -116,6 +116,12 @@ export default function Profile() {
     { icon: Bookmark, label: 'Saved Places', href: '/saved' },
     { icon: FileText, label: 'My Requests', href: '/requests' },
   ];
+
+  // Business whose QR we offer: the one picked in the account switcher, else the
+  // user's own business. Stays null (item hidden) for residents with no business.
+  const qrBusiness = activeBusiness ??
+    businesses[0] ??
+    (userBusiness ? { id: userBusiness.id, name: userBusiness.name } : null);
 
   const displayName = profile?.name || user.email?.split('@')[0] || 'Toledoan';
   const memberSince = profile?.created_at
@@ -322,8 +328,8 @@ export default function Profile() {
             </Link>
           ))}
 
-          {/* Shown only when the active account in the switcher is a business. */}
-          {isBusinessView && activeBusiness && (
+          {/* Shown to anyone who owns or manages a business. */}
+          {qrBusiness && (
             <button
               onClick={() => setShowQR(true)}
               className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
@@ -385,12 +391,12 @@ export default function Profile() {
 
         <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
 
-        {activeBusiness && (
+        {qrBusiness && (
           <BusinessQRModal
             open={showQR}
             onOpenChange={setShowQR}
-            businessId={activeBusiness.id}
-            businessName={activeBusiness.name}
+            businessId={qrBusiness.id}
+            businessName={qrBusiness.name}
           />
         )}
 

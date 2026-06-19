@@ -115,7 +115,7 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => { setActiveView('personal'); navigate('/'); }}>
+                <DropdownMenuItem onClick={() => { setActiveView('personal'); navigate('/profile'); }}>
                   <UserCircle className="h-4 w-4 mr-2" />
                   Personal
                 </DropdownMenuItem>
