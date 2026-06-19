@@ -16,8 +16,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
-  Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale, Trash2,
+  Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale, Trash2, QrCode,
 } from 'lucide-react';
+import { useActiveRole } from '@/contexts/ActiveRoleContext';
+import { BusinessQRModal } from '@/components/business/BusinessQRModal';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useOwnerMessages } from '@/hooks/useOwnerMessages';
@@ -32,6 +34,8 @@ import { LP_ENABLED } from '@/lib/flags';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isConnector } = useAuth();
+  const { activeBusiness, isBusinessView } = useActiveRole();
+  const [showQR, setShowQR] = useState(false);
   const { isInstalled } = usePWAInstall();
   const { ensureLoaded } = useLoop();
   // Only spin up the Loop wallet when the Loop Points program is live. With the
@@ -318,6 +322,18 @@ export default function Profile() {
             </Link>
           ))}
 
+          {/* Shown only when the active account in the switcher is a business. */}
+          {isBusinessView && activeBusiness && (
+            <button
+              onClick={() => setShowQR(true)}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
+            >
+              <QrCode className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 font-medium">My QR Code</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          )}
+
           {isConnector && (
             <Link to="/connector-dashboard">
               <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
@@ -368,6 +384,15 @@ export default function Profile() {
         </div>
 
         <InstallAppGuide open={showInstallGuide} onOpenChange={setShowInstallGuide} />
+
+        {activeBusiness && (
+          <BusinessQRModal
+            open={showQR}
+            onOpenChange={setShowQR}
+            businessId={activeBusiness.id}
+            businessName={activeBusiness.name}
+          />
+        )}
 
         <Button variant="outline" className="w-full gap-2" onClick={handleSignOut}>
           <LogOut className="h-4 w-4" />

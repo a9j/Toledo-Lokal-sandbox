@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ import { CommunityTab } from '@/components/business/profile/redesign/CommunityTa
 import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
+import { QrConversionBanner } from '@/components/business/QrConversionBanner';
 import { useAvailableMenuCount } from '@/hooks/useMenuItems';
 import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
 
@@ -48,7 +49,11 @@ const NEW_COLUMNS = 'visit_link_type, visit_link_url, business_category:category
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  // Visitors arriving from a scanned QR code with no session get a slim, one-tap
+  // nudge to install the app.
+  const showQrBanner = searchParams.get('via') === 'qr' && !user;
   const { savedItems, toggleSave } = useSavedItems();
   const { data: savedCount = 0 } = useBusinessSavedCount(id || '');
   const [tab, setTab] = useState<ProfileTab>('today');
@@ -284,6 +289,8 @@ export default function BusinessDetail() {
           </div>
         </div>
       </div>
+
+      {showQrBanner && <QrConversionBanner />}
     </>
   );
 }
