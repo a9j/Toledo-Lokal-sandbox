@@ -1,8 +1,10 @@
-import { Bookmark, Share2, MapPin, Shield, Sparkles, Radio, Store, ArrowLeft, Settings } from 'lucide-react';
+import { Bookmark, Share2, MapPin, Shield, Sparkles, Radio, Store, ArrowLeft, Settings, Contact } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SecureImage } from '@/components/ui/secure-image';
 import { cn } from '@/lib/utils';
+import { downloadVCard } from '@/lib/vcard';
+import { siteUrl } from '@/lib/site-url';
 import { getOpenStatus } from '@/lib/business-hours';
 import { ResolvedAction } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
@@ -24,6 +26,19 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
   const heroImage = business.cover_image_url || business.photos?.[0] || null;
   const status = getOpenStatus(business.hours);
   const tagline = business.description?.split('\n')[0]?.trim();
+
+  // Save the business straight to the phone's contacts as a vCard. This works
+  // with no account and no app install, so it is never gated. The contact's
+  // website points at the Toledo Lokal business page.
+  const handleSaveContact = () => {
+    const profileUrl = siteUrl(`/business/${business.slug ?? business.id}`);
+    downloadVCard({
+      name: business.name,
+      phone: business.phone,
+      website: profileUrl,
+      address: business.address,
+    });
+  };
 
   return (
     <section>
@@ -132,6 +147,17 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
             <Radio className="h-4 w-4 flex-shrink-0 text-primary" />
           </ProfileCard>
         )}
+
+        {/* Save Contact — vCard download, never gated. The in-app "Save to
+            Toledo Lokal" save sits in the CTA row directly below. */}
+        <Button
+          onClick={handleSaveContact}
+          variant="outline"
+          className="mt-3 h-11 w-full gap-2 rounded-xl text-sm font-semibold"
+        >
+          <Contact className="h-4 w-4" />
+          Save Contact
+        </Button>
 
         {/* CTAs */}
         <div className="mt-3 flex items-center gap-2">

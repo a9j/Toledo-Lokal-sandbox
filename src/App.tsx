@@ -50,6 +50,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Messages = lazy(() => import("./pages/Messages"));
 const BusinessDetail = lazy(() => import("./pages/BusinessDetail"));
 const SaveContact = lazy(() => import("./pages/SaveContact"));
+const QRResolver = lazy(() => import("./pages/QRResolver"));
 const EditBusiness = lazy(() => import("./pages/EditBusiness"));
 const CreateBusiness = lazy(() => import("./pages/CreateBusiness"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -160,6 +161,9 @@ const App = () => (
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/messages" element={<Messages />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
+                  {/* Permanent business QR target. Encodes the immutable business id
+                      and forwards to the current public page, keeping ?via=qr. */}
+                  <Route path="/qr/:businessId" element={<QRResolver />} />
                   {/* Public contact card reached by scanning a founding QR code */}
                   <Route path="/save/:id" element={<SaveContact />} />
                   <Route path="/business/:id/edit" element={<EditBusiness />} />
