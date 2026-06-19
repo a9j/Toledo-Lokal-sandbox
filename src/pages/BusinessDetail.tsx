@@ -31,6 +31,7 @@ import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
 import { QrConversionBanner } from '@/components/business/QrConversionBanner';
+import { fetchPublicContactCard } from '@/lib/contact-cards';
 import { useAvailableMenuCount } from '@/hooks/useMenuItems';
 import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
 
@@ -54,6 +55,14 @@ export default function BusinessDetail() {
   // Visitors arriving from a scanned QR code with no session get a slim, one-tap
   // nudge to install the app.
   const showQrBanner = searchParams.get('via') === 'qr' && !user;
+
+  // When the QR carried a person (?c=), the saved contact is filed under them.
+  const contactId = searchParams.get('c');
+  const { data: contactCard } = useQuery({
+    queryKey: ['contact-card-public', contactId],
+    queryFn: () => fetchPublicContactCard(contactId!),
+    enabled: !!contactId,
+  });
   const { savedItems, toggleSave } = useSavedItems();
   const { data: savedCount = 0 } = useBusinessSavedCount(id || '');
   const [tab, setTab] = useState<ProfileTab>('today');
@@ -256,6 +265,7 @@ export default function BusinessDetail() {
           canManage={canManage}
           onSave={handleSave}
           onShare={handleShare}
+          contactCard={contactCard ?? null}
         />
 
         {/* Food-truck schedule lives above the tabs: the profile is built around

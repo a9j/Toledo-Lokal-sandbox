@@ -397,6 +397,9 @@ export default function Profile() {
             onOpenChange={setShowQR}
             businessId={qrBusiness.id}
             businessName={qrBusiness.name}
+            userId={user.id}
+            personName={displayName}
+            personEmail={user.email ?? null}
           />
         )}
 

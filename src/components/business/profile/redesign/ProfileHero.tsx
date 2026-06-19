@@ -20,9 +20,11 @@ interface ProfileHeroProps {
   canManage: boolean;
   onSave: () => void;
   onShare: () => void;
+  /** Person who shared this page (from a scanned QR), filed into the saved card. */
+  contactCard?: { name: string | null; title: string | null; email: string | null } | null;
 }
 
-export function ProfileHero({ business, liveStatus, primary, isSaved, canManage, onSave, onShare }: ProfileHeroProps) {
+export function ProfileHero({ business, liveStatus, primary, isSaved, canManage, onSave, onShare, contactCard }: ProfileHeroProps) {
   const heroImage = business.cover_image_url || business.photos?.[0] || null;
   const status = getOpenStatus(business.hours);
   const tagline = business.description?.split('\n')[0]?.trim();
@@ -37,6 +39,9 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
       phone: business.phone,
       website: profileUrl,
       address: business.address,
+      contactName: contactCard?.name,
+      contactTitle: contactCard?.title,
+      email: contactCard?.email,
     });
   };
 

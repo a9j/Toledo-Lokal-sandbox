@@ -5,6 +5,10 @@ import { siteUrl } from './site-url';
 // code keeps working forever even if the business renames or its slug changes.
 // The /qr/:businessId route looks up the business and forwards to its current
 // public page, carrying ?via=qr through.
-export function businessQrUrl(businessId: string): string {
-  return siteUrl(`/qr/${businessId}?via=qr`);
+//
+// An optional contactId attaches the person who shared it (?c=), so the saved
+// contact is filed under that individual rather than the business alone.
+export function businessQrUrl(businessId: string, contactId?: string | null): string {
+  const contact = contactId ? `&c=${encodeURIComponent(contactId)}` : '';
+  return siteUrl(`/qr/${businessId}?via=qr${contact}`);
 }
