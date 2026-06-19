@@ -35,6 +35,27 @@ export function useMenuItems(businessId: string | undefined) {
   });
 }
 
+// Lightweight gate for whether to surface the Menu tab at all. Uses a head
+// count (no row bodies) so it's cheap to run on every business profile, and
+// only counts rows the public would actually see (is_available = true).
+export function useAvailableMenuCount(businessId: string | undefined) {
+  return useQuery({
+    queryKey: ['menu-items-available-count', businessId],
+    queryFn: async () => {
+      if (!businessId) return 0;
+      const { count, error } = await supabase
+        .from('menu_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('business_id', businessId)
+        .eq('is_available', true);
+
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: !!businessId,
+  });
+}
+
 export function useCreateMenuItem() {
   const queryClient = useQueryClient();
   const { toast } = useToast();

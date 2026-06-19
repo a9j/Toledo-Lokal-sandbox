@@ -30,7 +30,7 @@ import { CommunityTab } from '@/components/business/profile/redesign/CommunityTa
 import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
-import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
+import { useAvailableMenuCount } from '@/hooks/useMenuItems';
 
 // Public-safe columns - owner_user_id is masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -125,6 +125,11 @@ export default function BusinessDetail() {
     },
     enabled: !!id,
   });
+
+  // The Menu tab appears only when the business actually has at least one
+  // available menu item — category alone no longer surfaces it.
+  const { data: availableMenuCount = 0 } = useAvailableMenuCount(business?.id);
+  const hasMenu = availableMenuCount > 0;
 
   // The Manage affordance shows for anyone who can administer this business —
   // the owner OR a user attached as a 'manager' via business_staff.
@@ -254,19 +259,14 @@ export default function BusinessDetail() {
             active={tab}
             onChange={setTab}
             hiddenTabs={[
-              ...(FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) ? [] : ['menu' as const]),
+              ...(hasMenu ? [] : ['menu' as const]),
               // The Rewards tab is Loop Points UI; keep it hidden until Loop launches.
               ...(LP_ENABLED ? [] : ['rewards' as const]),
             ]}
           />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
-            {tab === 'menu' && FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
-              <MenuTab businessId={business.id} />
-            )}
-            {tab === 'menu' && !FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
-              <TodayTab business={pb} />
-            )}
+            {tab === 'menu' && hasMenu && <MenuTab businessId={business.id} />}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
             {LP_ENABLED && tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
             {tab === 'community' && <CommunityTab business={pb} />}
