@@ -7,6 +7,7 @@ import { LogoLoader } from '@/components/ui/logo-loader';
 import { SEOHead, createBusinessJsonLd } from '@/components/seo/SEOHead';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useBusinessSavedCount } from '@/hooks/useDiscoverySignals';
+import { useMenuItems } from '@/hooks/useMenuItems';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
@@ -155,6 +156,13 @@ export default function BusinessDetail() {
     enabled: !!user && (!!business?.id || !!id),
   });
 
+  // The Menu tab is gated on BOTH a food category AND at least one available
+  // item, so we load the items here (not just inside MenuTab) to decide
+  // visibility. Returns [] / undefined for non-food businesses, which keeps the
+  // tab hidden either way.
+  const { data: menuItems } = useMenuItems(business?.id);
+  const hasAvailableMenuItems = !!menuItems?.some((item) => item.is_available);
+
   const isSaved = !!savedItems?.some((item) => item.item_id === business?.id);
 
   const handleSave = () => {
@@ -198,6 +206,13 @@ export default function BusinessDetail() {
   const pb = business as unknown as ProfileBusiness;
   const photos = business.photos?.length ? business.photos : [];
   const config = BUSINESS_TYPE_CONFIG[pb.profileCategory];
+
+  // Menu tab requires BOTH: a food category (restaurant/food_truck) AND at
+  // least one available menu item. If either is false the tab is hidden, and
+  // selecting it via a non-tab path (e.g. the "View Menu" action) falls back
+  // to the Today tab below.
+  const showMenuTab =
+    FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && hasAvailableMenuItems;
 
   const actionCtx: ProfileActionContext = { onSave: handleSave, onShare: handleShare, isSaved, setTab };
   const primaryAction = resolveAction(config.primaryAction, pb, pb.moduleContent, actionCtx);
@@ -254,17 +269,17 @@ export default function BusinessDetail() {
             active={tab}
             onChange={setTab}
             hiddenTabs={[
-              ...(FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) ? [] : ['menu' as const]),
+              ...(showMenuTab ? [] : ['menu' as const]),
               // The Rewards tab is Loop Points UI; keep it hidden until Loop launches.
               ...(LP_ENABLED ? [] : ['rewards' as const]),
             ]}
           />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
-            {tab === 'menu' && FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
+            {tab === 'menu' && showMenuTab && (
               <MenuTab businessId={business.id} />
             )}
-            {tab === 'menu' && !FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && (
+            {tab === 'menu' && !showMenuTab && (
               <TodayTab business={pb} />
             )}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
