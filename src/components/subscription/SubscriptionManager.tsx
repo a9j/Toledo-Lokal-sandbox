@@ -7,10 +7,25 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
-import { SUBSCRIPTION_TIERS, SubscriptionTier } from '@/lib/subscription-tiers';
+import { SUBSCRIPTION_TIERS, FOUNDING_TIERS, SubscriptionTier } from '@/lib/subscription-tiers';
 import { PricingCard } from './PricingCard';
 
-export function SubscriptionManager() {
+// Founding businesses receive a paid plan free through their membership. Map the
+// founding tier_status to the subscription tier it includes so the view reflects
+// the effective plan instead of defaulting to the Stripe-derived Community tier.
+const FOUNDING_INCLUDED_TIER: Record<'founding_5' | 'founding_50', SubscriptionTier> = {
+  founding_5: 'pro',
+  founding_50: 'growth',
+};
+
+interface SubscriptionManagerProps {
+  // The owner's business tier_status, fetched at the page level. When this is a
+  // founding tier we override the display only; the Stripe-derived subscription
+  // logic is untouched for everyone else.
+  foundingTierStatus?: string | null;
+}
+
+export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionManagerProps) {
   const { user, session } = useAuth();
   const { tier, tierConfig, subscriptionEnd, refreshSubscription, isLoading: subscriptionLoading, ensureLoaded } = useSubscription();
   useEffect(() => { ensureLoaded(); }, [ensureLoaded]);
@@ -86,6 +101,12 @@ export function SubscriptionManager() {
 
   const tiers = Object.values(SUBSCRIPTION_TIERS) as typeof SUBSCRIPTION_TIERS[SubscriptionTier][];
 
+  const isFounding = foundingTierStatus === 'founding_5' || foundingTierStatus === 'founding_50';
+  const foundingKey = isFounding ? (foundingTierStatus as 'founding_5' | 'founding_50') : null;
+  const includedTier = foundingKey ? FOUNDING_INCLUDED_TIER[foundingKey] : null;
+  const foundingMembershipName = foundingKey ? FOUNDING_TIERS[foundingKey].name : null;
+  const includedConfig = includedTier ? SUBSCRIPTION_TIERS[includedTier] : null;
+
   return (
     <div className="space-y-6">
       {/* Current Subscription Status */}
@@ -102,16 +123,23 @@ export function SubscriptionManager() {
               <RefreshCw className={`h-4 w-4 ${subscriptionLoading ? 'animate-spin' : ''}`} />
             </Button>
           </CardTitle>
-          <CardDescription>
-            You are currently on the <strong>{tierConfig.name}</strong> plan
-            {subscriptionEnd && (
-              <span className="block mt-1">
-                Renews on {new Date(subscriptionEnd).toLocaleDateString()}
-              </span>
-            )}
-          </CardDescription>
+          {isFounding && includedConfig ? (
+            <CardDescription>
+              You are on the <strong>{includedConfig.name}</strong> plan, included free through your{' '}
+              <strong>{foundingMembershipName}</strong> membership
+            </CardDescription>
+          ) : (
+            <CardDescription>
+              You are currently on the <strong>{tierConfig.name}</strong> plan
+              {subscriptionEnd && (
+                <span className="block mt-1">
+                  Renews on {new Date(subscriptionEnd).toLocaleDateString()}
+                </span>
+              )}
+            </CardDescription>
+          )}
         </CardHeader>
-        {tier !== 'free' && (
+        {!isFounding && tier !== 'free' && (
           <CardContent>
             <Button
               variant="outline"
@@ -134,6 +162,8 @@ export function SubscriptionManager() {
             currentTier={tier}
             onSelect={handleSubscribe}
             isLoading={checkoutLoading}
+            includedThroughFounding={includedTier === tierItem.id}
+            foundingMembershipName={foundingMembershipName}
           />
         ))}
       </div>
