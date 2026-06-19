@@ -1,5 +1,6 @@
 import { useBusinessDashboard } from '@/hooks/useBusinessDashboard';
 import { StatCard } from './StatCard';
+import { OwnerContactQRCard } from '@/components/business/OwnerContactQRCard';
 import {
   Eye,
   Bookmark,
@@ -59,6 +60,9 @@ export function BusinessDashboardView({ businessId, businessName }: BusinessDash
           </p>
         </div>
       )}
+
+      {/* Owner/admin-only digital business card. Self-gates on effective role. */}
+      <OwnerContactQRCard businessId={businessId} />
     </div>
   );
 }
