@@ -200,6 +200,13 @@
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
+  /* On native, guarantee a minimum offset in case env() returns 0, mirroring
+     the .safe-area-top floors. Without this the fixed BottomNav collides with
+     the home indicator on devices where env() resolves to 0. */
+  .capacitor-native .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px);
+  }
+
   .safe-area-top {
     padding-top: env(safe-area-inset-top, 0px);
   }
