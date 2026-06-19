@@ -31,6 +31,7 @@ import { PhotosTab } from '@/components/business/profile/redesign/PhotosTab';
 import { AboutTab } from '@/components/business/profile/redesign/AboutTab';
 import { MenuTab } from '@/components/business/profile/redesign/MenuTab';
 import { useAvailableMenuCount } from '@/hooks/useMenuItems';
+import { FOOD_BUSINESS_CATEGORIES } from '@/lib/business-profile-config';
 
 // Public-safe columns - owner_user_id is masked in the view for non-owners
 const PUBLIC_BUSINESS_COLUMNS = `
@@ -204,6 +205,13 @@ export default function BusinessDetail() {
   const photos = business.photos?.length ? business.photos : [];
   const config = BUSINESS_TYPE_CONFIG[pb.profileCategory];
 
+  // Menu tab requires BOTH: a food category (restaurant/food_truck) AND at
+  // least one available menu item. If either is false the tab is hidden, and
+  // selecting it via a non-tab path (e.g. the "View Menu" action) falls back
+  // to the Today tab below.
+  const showMenuTab =
+    FOOD_BUSINESS_CATEGORIES.includes(pb.profileCategory) && hasMenu;
+
   const actionCtx: ProfileActionContext = { onSave: handleSave, onShare: handleShare, isSaved, setTab };
   const primaryAction = resolveAction(config.primaryAction, pb, pb.moduleContent, actionCtx);
   const contactActions = resolveActions(
@@ -259,14 +267,15 @@ export default function BusinessDetail() {
             active={tab}
             onChange={setTab}
             hiddenTabs={[
-              ...(hasMenu ? [] : ['menu' as const]),
+              ...(showMenuTab ? [] : ['menu' as const]),
               // The Rewards tab is Loop Points UI; keep it hidden until Loop launches.
               ...(LP_ENABLED ? [] : ['rewards' as const]),
             ]}
           />
           <div className="px-4 py-4">
             {tab === 'today' && <TodayTab business={pb} />}
-            {tab === 'menu' && hasMenu && <MenuTab businessId={business.id} />}
+            {tab === 'menu' && showMenuTab && <MenuTab businessId={business.id} />}
+            {tab === 'menu' && !showMenuTab && <TodayTab business={pb} />}
             {tab === 'pulse' && <PulseTab business={pb} savedCount={savedCount} isSaved={isSaved} onSave={handleSave} />}
             {LP_ENABLED && tab === 'rewards' && <RewardsTab business={pb} isSaved={isSaved} onSave={handleSave} onShare={handleShare} />}
             {tab === 'community' && <CommunityTab business={pb} />}
