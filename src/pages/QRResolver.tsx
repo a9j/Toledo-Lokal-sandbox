@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Navigate, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Navigate, Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ type ResolveState =
 // value never has to change when a business renames or its slug changes.
 export default function QRResolver() {
   const { businessId } = useParams<{ businessId: string }>();
+  const [searchParams] = useSearchParams();
+  const contactId = searchParams.get('c');
   const [state, setState] = useState<ResolveState>({ status: 'loading' });
   const logged = useRef(false);
 
@@ -51,14 +53,15 @@ export default function QRResolver() {
 
       if (business) {
         const ref = business.slug ?? business.id;
-        setState({ status: 'redirect', to: `/business/${ref}?via=qr` });
+        const contact = contactId ? `&c=${encodeURIComponent(contactId)}` : '';
+        setState({ status: 'redirect', to: `/business/${ref}?via=qr${contact}` });
       } else {
         setState({ status: 'missing' });
       }
     })();
 
     return () => { active = false; };
-  }, [businessId]);
+  }, [businessId, contactId]);
 
   if (state.status === 'redirect') {
     return <Navigate to={state.to} replace />;
