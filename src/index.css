@@ -239,6 +239,15 @@
   .capacitor-native .safe-area-pad-top {
     padding-top: max(env(safe-area-inset-top, 0px), 47px);
   }
+
+  /* Admin console content area. env(safe-area-inset-bottom) resolves to 0
+     inside the Capacitor WebView, so the inline calc() bottom padding would
+     not actually clear the home indicator on native. This floor guarantees a
+     real bottom inset (home indicator ≈ 34px) on top of the 9rem BottomNav
+     clearance, so the last City Overview cards are always scrollable. */
+  .capacitor-native .admin-content {
+    padding-bottom: calc(9rem + max(env(safe-area-inset-bottom, 0px), 34px)) !important;
+  }
 }
 
 @layer components {
