@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Download, X, Share, Plus, Smartphone, Home, MoreVertical, EllipsisVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { isNativeApp } from '@/lib/platform';
 
 const FAVORITES_THRESHOLD = 2; // Show after 2-3 favorites
 const STORAGE_KEY = 'pwa-prompt-dismissed';
@@ -56,6 +57,10 @@ export function InstallPrompt() {
     setDismissed(true);
     localStorage.setItem(STORAGE_KEY, 'true');
   };
+
+  // Never show inside the native app — it's already "installed", and the
+  // Safari "Add to Home Screen" walkthrough is meaningless (and confusing) there.
+  if (isNativeApp()) return null;
 
   // Don't show if already installed, dismissed, or banner not ready
   if (isInstalled || dismissed || !showBanner) return null;

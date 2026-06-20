@@ -89,9 +89,9 @@ export default function Tours() {
           ) : (
             <div className="text-center py-12">
               <Footprints className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-              <h3 className="font-semibold mb-1">Tours Coming Soon</h3>
+              <h3 className="font-semibold mb-1">No tours yet</h3>
               <p className="text-sm text-muted-foreground">
-                We're curating the best walking routes for you
+                Check back here for local walking routes around Toledo.
               </p>
             </div>
           )}
