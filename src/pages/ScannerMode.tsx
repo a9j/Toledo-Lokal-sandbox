@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { QrCode, CheckCircle2, XCircle, Loader2, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -23,7 +24,7 @@ export default function ScannerMode() {
   const [scanState, setScanState] = useState<ScanState>('ready');
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [manualCode, setManualCode] = useState('');
 
   // Check if user has access to this business
   const { data: accessData, isLoading: checkingAccess } = useQuery({
@@ -82,74 +83,14 @@ export default function ScannerMode() {
     enabled: !!user && !businessId,
   });
 
-  useEffect(() => {
-    if (scanState !== 'scanning') return;
-
-    let scanner: import('html5-qrcode').Html5QrcodeScanner | null = null;
-    let cancelled = false;
-    setCameraError(null);
-
-    const start = async () => {
-      // Pre-flight: some WebViews (and denied-permission states) have no usable
-      // camera. Probe first so we can show a friendly message instead of the
-      // library's bare error — or, worse, a frozen blank box.
-      if (!navigator.mediaDevices?.getUserMedia) {
-        if (!cancelled) setCameraError('Camera isn’t available on this device.');
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        // We only needed to confirm access (and trigger the permission prompt);
-        // release the stream so html5-qrcode can claim the camera itself.
-        stream.getTracks().forEach((t) => t.stop());
-      } catch {
-        if (!cancelled) {
-          setCameraError(
-            'We couldn’t access the camera. Enable camera access for ToledoLokal in Settings, then try again.'
-          );
-        }
-        return;
-      }
-
-      if (cancelled) return;
-
-      try {
-        const { Html5QrcodeScanner } = await import('html5-qrcode');
-        if (cancelled) return;
-        scanner = new Html5QrcodeScanner(
-          'scanner-container',
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          false
-        );
-
-        scanner.render(
-          async (decodedText) => {
-            scanner?.clear();
-            await handleScan(decodedText);
-          },
-          () => {},
-        );
-      } catch {
-        if (!cancelled) setCameraError('The scanner failed to start. Please try again.');
-      }
-    };
-
-    start();
-
-    return () => {
-      cancelled = true;
-      scanner?.clear().catch(() => {});
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleScan is defined after this effect and relies on state (isProcessing, businessId) that should not restart the scanner; including it would cause the scanner to teardown/reinit on every state change
-  }, [scanState]);
-
   const handleScan = async (qrData: string) => {
-    if (isProcessing || !businessId) return;
+    const trimmed = qrData.trim();
+    if (isProcessing || !businessId || !trimmed) return;
     setIsProcessing(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('loop-scan-qr', {
-        body: { qrData, businessId },
+        body: { qrData: trimmed, businessId },
       });
 
       if (error) throw error;
@@ -175,7 +116,7 @@ export default function ScannerMode() {
   const resetScanner = () => {
     setScanState('ready');
     setScanResult(null);
-    setCameraError(null);
+    setManualCode('');
   };
 
   if (!user) {
@@ -270,32 +211,54 @@ export default function ScannerMode() {
             <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center mb-8">
               <QrCode className="h-16 w-16 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Ready to Scan</h2>
+            <h2 className="text-2xl font-bold mb-2">Ready to Redeem</h2>
             <p className="text-muted-foreground text-center mb-8">
-              Tap below to scan a customer's QR code
+              Tap below to enter a customer's loyalty code
             </p>
             <Button size="lg" className="text-lg px-12 py-6" onClick={() => setScanState('scanning')}>
-              Start Scanning
+              Enter Code
             </Button>
           </>
         )}
 
         {scanState === 'scanning' && (
-          <div className="w-full max-w-sm">
-            {cameraError ? (
-              <div className="flex flex-col items-center text-center gap-4 py-6">
-                <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center">
-                  <XCircle className="h-10 w-10 text-destructive" />
-                </div>
-                <p className="text-muted-foreground">{cameraError}</p>
-              </div>
-            ) : (
-              <div id="scanner-container" className="rounded-xl overflow-hidden" />
-            )}
-            <Button variant="outline" className="w-full mt-4" onClick={resetScanner}>
+          <form
+            className="w-full max-w-sm"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleScan(manualCode);
+            }}
+          >
+            <h2 className="text-xl font-bold mb-2 text-center">Enter Loyalty Code</h2>
+            <p className="text-muted-foreground text-center mb-6 text-sm">
+              Ask the customer to show their loyalty code, then type or paste it below.
+            </p>
+            <Input
+              autoFocus
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="Customer loyalty code"
+              className="text-center text-lg h-14"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full mt-4 text-lg py-6"
+              disabled={isProcessing || !manualCode.trim()}
+            >
+              {isProcessing ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                'Award Points'
+              )}
+            </Button>
+            <Button type="button" variant="outline" className="w-full mt-3" onClick={resetScanner}>
               Cancel
             </Button>
-          </div>
+          </form>
         )}
 
         {scanState === 'success' && (
