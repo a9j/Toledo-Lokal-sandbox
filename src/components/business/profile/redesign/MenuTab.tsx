@@ -24,7 +24,7 @@ export function MenuTab({ businessId }: { businessId: string }) {
     return (
       <EmptyState
         icon={UtensilsCrossed}
-        title="Menu coming soon"
+        title="No menu yet"
         description="This business hasn't posted their menu yet."
       />
     );

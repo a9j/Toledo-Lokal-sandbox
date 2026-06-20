@@ -44,9 +44,9 @@ export function CommunityTab({ business }: { business: ProfileBusiness }) {
       {/* Compact future-ready impact profile */}
       <ProfileCard className="space-y-3">
         <div>
-          <p className="text-sm font-semibold text-foreground">Local Impact Profile coming soon</p>
+          <p className="text-sm font-semibold text-foreground">Local Impact Profile</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            We'll track how this business supports Toledo through hiring, events, donations, partnerships, and neighborhood involvement.
+            How this business supports Toledo — through hiring, events, donations, partnerships, and neighborhood involvement.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-1.5">

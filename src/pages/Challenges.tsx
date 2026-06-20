@@ -108,9 +108,9 @@ export default function Challenges() {
           ) : (
             <div className="text-center py-12">
               <Trophy className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-              <h3 className="font-semibold mb-1">Challenges Coming Soon</h3>
+              <h3 className="font-semibold mb-1">No challenges yet</h3>
               <p className="text-sm text-muted-foreground">
-                New ways to explore Toledo and earn rewards
+                Check back here for new ways to explore Toledo and earn rewards.
               </p>
             </div>
           )}

@@ -40,8 +40,8 @@ export function PhotosTab({ business }: { business: ProfileBusiness }) {
       ) : (
         <EmptyState
           icon={ImageIcon}
-          title="Photos coming soon"
-          description={`Be one of the first locals to see ${business.name}'s photos here.`}
+          title="No photos yet"
+          description={`${business.name} hasn't added any photos yet.`}
         />
       )}
 

@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { SUBSCRIPTION_TIERS, FOUNDING_TIERS, SubscriptionTier } from '@/lib/subscription-tiers';
+import { isNativeApp } from '@/lib/platform';
 import { PricingCard } from './PricingCard';
 
 // Founding businesses receive a paid plan free through their membership. Map the
@@ -34,7 +35,13 @@ export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionM
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Apple/Google forbid taking payment for digital plans outside their in-app
+  // purchase systems (Guideline 3.1.1). In the native shell we hide the Stripe
+  // checkout + billing-portal entry points and point owners to the website.
+  const native = isNativeApp();
+
   const handleSubscribe = async (priceId: string) => {
+    if (native) return;
     if (!user || !session) {
       toast({
         title: "Sign in required",
@@ -72,7 +79,7 @@ export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionM
   };
 
   const handleManageSubscription = async () => {
-    if (!session) return;
+    if (native || !session) return;
 
     setPortalLoading(true);
     try {
@@ -139,7 +146,7 @@ export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionM
             </CardDescription>
           )}
         </CardHeader>
-        {!isFounding && tier !== 'free' && (
+        {!isFounding && tier !== 'free' && !native && (
           <CardContent>
             <Button
               variant="outline"
@@ -153,20 +160,31 @@ export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionM
         )}
       </Card>
 
-      {/* Pricing Grid - 1 column mobile, 2 columns tablet, 2 on medium desktop, 4 on large */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-4">
-        {tiers.map((tierItem) => (
-          <PricingCard
-            key={tierItem.id}
-            tierConfig={tierItem}
-            currentTier={tier}
-            onSelect={handleSubscribe}
-            isLoading={checkoutLoading}
-            includedThroughFounding={includedTier === tierItem.id}
-            foundingMembershipName={foundingMembershipName}
-          />
-        ))}
-      </div>
+      {native ? (
+        /* Native app: in-app purchase of digital plans isn't available here.
+           Owners manage billing on the website (Apple/Google Guideline 3.1.1). */
+        <Card>
+          <CardContent className="py-6 text-center text-sm text-muted-foreground space-y-1">
+            <p>Membership plans are managed on the ToledoLokal website.</p>
+            <p>Visit toledolokal.com on the web to upgrade or change your plan.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Pricing Grid - 1 column mobile, 2 columns tablet, 2 on medium desktop, 4 on large */
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-4">
+          {tiers.map((tierItem) => (
+            <PricingCard
+              key={tierItem.id}
+              tierConfig={tierItem}
+              currentTier={tier}
+              onSelect={handleSubscribe}
+              isLoading={checkoutLoading}
+              includedThroughFounding={includedTier === tierItem.id}
+              foundingMembershipName={foundingMembershipName}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

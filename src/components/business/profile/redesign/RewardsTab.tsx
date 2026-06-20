@@ -55,7 +55,7 @@ export function RewardsTab({ business, isSaved, onSave, onShare }: RewardsTabPro
             <Coins className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-foreground">Loop rewards coming soon</p>
+            <p className="text-sm font-medium text-foreground">No Loop rewards yet</p>
             <p className="text-xs text-muted-foreground">Save this spot now so you're ready when they join the Loop.</p>
           </div>
         </ProfileCard>

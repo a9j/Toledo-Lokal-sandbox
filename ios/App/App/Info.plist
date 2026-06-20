@@ -53,5 +53,7 @@
 	<string>ToledoLokal needs photo library access to choose a profile photo.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>ToledoLokal needs permission to save photos to your library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ToledoLokal uses your location to show nearby local businesses and events.</string>
 </dict>
 </plist>

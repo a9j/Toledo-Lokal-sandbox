@@ -23,6 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { isNativeApp } from "@/lib/platform";
 
 // Boost packages a business can browse today. Pricing labels are display-only —
 // no charge is made yet (see the stubbed confirm action below). Surfacing these
@@ -83,6 +84,41 @@ const BOOST_OPTIONS: BoostOption[] = [
 export default function DashboardBoost() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<BoostOption | null>(null);
+
+  // In the native app we don't surface the priced boost catalog or the
+  // (stubbed) checkout — selling/advertising digital purchases that aren't live
+  // reads as unfinished, and paid digital goods must go through IAP anyway.
+  const native = isNativeApp();
+
+  if (native) {
+    return (
+      <>
+        <Header title="Boost a Post" />
+        <PageContainer className="pb-32 space-y-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2"
+            onClick={() => navigate("/dashboard")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Dashboard
+          </Button>
+
+          <div className="card-elevated p-6 flex flex-col items-center text-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Zap className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-lg font-semibold">Boosts are coming soon</h1>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              Soon you'll be able to get more eyes on a deal, event, or update.
+              We'll let you know the moment boosts go live.
+            </p>
+          </div>
+        </PageContainer>
+      </>
+    );
+  }
 
   return (
     <>
