@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { businessQrUrl } from '@/lib/business-qr';
 import { shareLink } from '@/lib/native-share';
-import { ensureContactCard, updateContactTitle } from '@/lib/contact-cards';
+import { ensureContactCard, updateContactTitle, updateContactName } from '@/lib/contact-cards';
 
 interface BusinessQRModalProps {
   open: boolean;
@@ -27,6 +27,7 @@ export function BusinessQRModal({
   open, onOpenChange, businessId, businessName, userId, personName, personEmail,
 }: BusinessQRModalProps) {
   const [cardId, setCardId] = useState<string | null>(null);
+  const [name, setName] = useState('');
   const [title, setTitle] = useState('');
   const [qrImage, setQrImage] = useState<string | null>(null);
 
@@ -41,6 +42,7 @@ export function BusinessQRModal({
       if (!active) return;
       setCardId(card?.id ?? null);
       setTitle(card?.title ?? '');
+      setName(card?.name ?? personName ?? '');
     });
     return () => { active = false; };
   }, [open, businessId, userId, personName, personEmail]);
@@ -61,7 +63,12 @@ export function BusinessQRModal({
     if (cardId) updateContactTitle(cardId, title);
   };
 
+  const saveName = () => {
+    if (cardId) updateContactName(cardId, name);
+  };
+
   const handleShare = () => {
+    saveName();
     saveTitle();
     shareLink({
       title: businessName,
@@ -79,7 +86,7 @@ export function BusinessQRModal({
 
         <div className="flex flex-col items-center gap-4">
           <div className="text-center">
-            <p className="text-sm font-medium text-foreground">{personName}</p>
+            <p className="text-sm font-medium text-foreground">{name.trim() || personName}</p>
             {title.trim() && <p className="text-xs text-muted-foreground">{title.trim()}</p>}
           </div>
 
@@ -100,6 +107,24 @@ export function BusinessQRModal({
           <p className="text-center text-sm text-muted-foreground">
             Scan to view {businessName} and save my contact
           </p>
+
+          <div className="w-full space-y-1.5 text-left">
+            <Label htmlFor="qr-name" className="text-xs text-muted-foreground">
+              Your name
+            </Label>
+            <Input
+              id="qr-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={saveName}
+              placeholder="e.g. Anthony Anderson"
+              maxLength={80}
+              disabled={!cardId}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Shown when people save your contact.
+            </p>
+          </div>
 
           <div className="w-full space-y-1.5 text-left">
             <Label htmlFor="qr-title" className="text-xs text-muted-foreground">
