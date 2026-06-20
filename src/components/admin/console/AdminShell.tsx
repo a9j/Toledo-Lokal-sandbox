@@ -108,11 +108,14 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
               </div>
             </div>
           </header>
-          {/* Bottom padding clears BOTH the global fixed-position BottomNav and
-              the iOS home indicator. The env() inset keeps the last admin row
-              (e.g. the City Overview stat cards) from being trapped beneath the
-              home indicator on Dynamic Island devices. */}
-          <div className="p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6rem+env(safe-area-inset-bottom))]">{children}</div>
+          {/* Bottom padding clears BOTH the global fixed-position BottomNav
+              (h-16 + its own safe-area-bottom ≈ 98px) and the iOS home
+              indicator. We use the same 9rem base every other full-screen
+              page uses (Today, Home, PageContainer) plus the .admin-content
+              native floor, because env(safe-area-inset-bottom) resolves to 0
+              inside the Capacitor WebView — a raw env() inset adds nothing
+              there, which is why the City Overview stat cards stayed trapped. */}
+          <div className="admin-content p-4 pb-[calc(9rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(9rem+env(safe-area-inset-bottom))]">{children}</div>
         </main>
       </div>
     </div>

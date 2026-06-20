@@ -11,7 +11,7 @@ if (Capacitor.isNativePlatform()) {
   });
 }
 
-const CACHE_VERSION = "v3-2026-06-02";
+const CACHE_VERSION = "v4-2026-06-20";
 
 (async () => {
   if (localStorage.getItem("cache_version") === CACHE_VERSION) return;
