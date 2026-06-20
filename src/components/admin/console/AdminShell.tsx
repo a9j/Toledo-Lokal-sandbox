@@ -69,10 +69,10 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-[100dvh] bg-muted/30">
       <div className="mx-auto flex max-w-7xl">
         {/* Desktop rail */}
-        <aside className="sticky top-0 hidden h-screen w-60 flex-shrink-0 overflow-y-auto border-r border-border bg-background md:block">
+        <aside className="sticky top-0 hidden h-[100dvh] w-60 flex-shrink-0 overflow-y-auto border-r border-border bg-background md:block">
           <div className="border-b border-border px-4 py-4">
             <p className="font-display text-base font-bold tracking-tight">Toledo Lokal</p>
             <p className="text-xs text-muted-foreground">City Operating System</p>
@@ -101,16 +101,18 @@ export function AdminShell({ groups, active, onSelect, title, subtitle, children
         <main className="min-w-0 flex-1">
           <header className="safe-area-top-lg sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
             <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
-              <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="-ml-1 rounded-lg p-2 hover:bg-secondary md:hidden"><Menu className="h-5 w-5" /></button>
+              <button onClick={() => setMobileOpen(true)} aria-label="Open menu" className="relative z-10 -ml-1.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg hover:bg-secondary md:hidden"><Menu className="h-5 w-5" /></button>
               <div className="min-w-0">
                 <h1 className="truncate font-display text-lg font-bold tracking-tight">{title}</h1>
                 {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
               </div>
             </div>
           </header>
-          {/* pb-24 clears the global fixed-position BottomNav so the last
-              admin row is never trapped underneath it. */}
-          <div className="p-4 pb-24 sm:p-6 sm:pb-24">{children}</div>
+          {/* Bottom padding clears BOTH the global fixed-position BottomNav and
+              the iOS home indicator. The env() inset keeps the last admin row
+              (e.g. the City Overview stat cards) from being trapped beneath the
+              home indicator on Dynamic Island devices. */}
+          <div className="p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6rem+env(safe-area-inset-bottom))]">{children}</div>
         </main>
       </div>
     </div>
