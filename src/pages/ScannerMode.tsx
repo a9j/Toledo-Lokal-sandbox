@@ -193,8 +193,9 @@ export default function ScannerMode() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header - minimal */}
-      <div className="p-4 border-b flex items-center justify-between">
+      {/* Header - minimal. safe-area-top keeps it clear of the status bar /
+          Dynamic Island since this screen bypasses the shared <Header>. */}
+      <div className="safe-area-top p-4 border-b flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Scanning for</p>
           <p className="font-semibold">{accessData.businessName}</p>
