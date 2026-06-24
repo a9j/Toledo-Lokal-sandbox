@@ -58,24 +58,29 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
-        {/* Back / Manage overlay */}
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-          <Link
-            to="/explore"
-            className="inline-flex items-center gap-1 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Link>
-          {canManage && (
+        {/* Back / Manage overlay. The outer wrapper carries the top safe-area
+            inset (status bar / notch / Dynamic Island) so the controls never
+            sit behind the phone display; the inner row keeps the normal
+            padding on web where the inset resolves to 0. */}
+        <div className="absolute inset-x-0 top-0 safe-area-pad-top">
+          <div className="flex items-center justify-between p-3">
             <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
+              to="/explore"
+              className="inline-flex items-center gap-1 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
             >
-              <Settings className="h-4 w-4" />
-              Manage
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Link>
-          )}
+            {canManage && (
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-1.5 rounded-full bg-background/80 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-md hover:bg-background"
+              >
+                <Settings className="h-4 w-4" />
+                Manage
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
