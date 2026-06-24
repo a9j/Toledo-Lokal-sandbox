@@ -6,6 +6,16 @@ interface MapsKeyResult {
   error: string | null;
 }
 
+// Preferred source: a build-time public key. Google Maps JS keys are designed
+// to be exposed client-side and locked down with an HTTP-referrer restriction
+// in the Google Cloud console, so this is the standard, robust delivery path.
+// When present it lets every map render with no auth and no network round-trip —
+// including for logged-out visitors — and sidesteps the `get-maps-key` edge
+// function entirely (which only works for signed-in users and silently breaks
+// the whole map if its GOOGLE_MAPS_API_KEY secret is ever missing).
+const ENV_MAPS_KEY =
+  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined)?.trim() || null;
+
 // Cache the key fetch at module scope so multiple maps on a page (e.g. one per
 // business location) share a single edge-function call instead of each firing
 // their own request.
@@ -44,11 +54,14 @@ function getMapsKey(): Promise<MapsKeyResult> {
 }
 
 export function useGoogleMapsKey() {
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // If a build-time key is configured, use it immediately — no loading state,
+  // no edge-function call, works for everyone (including logged-out users).
+  const [apiKey, setApiKey] = useState<string | null>(ENV_MAPS_KEY);
+  const [isLoading, setIsLoading] = useState(!ENV_MAPS_KEY);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (ENV_MAPS_KEY) return;
     let active = true;
     getMapsKey().then((result) => {
       if (!active) return;
