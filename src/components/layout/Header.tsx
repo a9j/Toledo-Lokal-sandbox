@@ -24,8 +24,12 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
   const { user, isAdmin, isBusiness } = useAuth();
   const { activeView, setActiveView, businesses, activeBusiness } = useActiveRole();
 
+  // Header uses safe-area-top-lg (not -top): it carries tappable controls
+  // (Admin, business switcher, avatar). The smaller variant's 47px floor is too
+  // short for Dynamic Island devices (~59px) when env() resolves to 0 in the
+  // Capacitor WebView, leaving the controls partly under the status bar.
   return (
-    <header className="sticky top-0 z-40 safe-area-top">
+    <header className="sticky top-0 z-40 safe-area-top-lg">
       {/* Frosted glass background */}
       <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-b border-border/50" />
       
