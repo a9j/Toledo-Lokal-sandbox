@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { downloadVCard } from '@/lib/vcard';
 import { siteUrl } from '@/lib/site-url';
 import { getOpenStatus } from '@/lib/business-hours';
+import { useBusinessLocations } from '@/hooks/useBusinessLocations';
 import { ResolvedAction } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
 import { Chip, ProfileCard } from './ProfilePrimitives';
@@ -26,7 +27,14 @@ interface ProfileHeroProps {
 
 export function ProfileHero({ business, liveStatus, primary, isSaved, canManage, onSave, onShare, contactCard }: ProfileHeroProps) {
   const heroImage = business.cover_image_url || business.photos?.[0] || null;
-  const status = getOpenStatus(business.hours);
+  // Base the open/closed badge on the primary location's hours when locations
+  // exist — a single business-level schedule is misleading for multi-location
+  // businesses. Falls back to business-level hours for businesses that haven't
+  // split out locations.
+  const { data: locations } = useBusinessLocations(business.id);
+  const activeLocations = (locations ?? []).filter((l) => l.is_active);
+  const primaryLocation = activeLocations.find((l) => l.is_primary) ?? activeLocations[0];
+  const status = getOpenStatus(primaryLocation?.hours ?? business.hours);
   const tagline = business.description?.split('\n')[0]?.trim();
 
   // Save the business straight to the phone's contacts as a vCard. This works
