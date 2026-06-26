@@ -1,10 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Untyped accessor for the Hire Local tables and RPCs, which are not yet in the
-// generated Supabase types. Everything that touches these tables goes through
-// `hl` and maps results into the interfaces in ./types, so the rest of the app
-// keeps its full typing. Replace with the generated types after the migration
-// is applied and `supabase gen types` is re-run.
+// Convenience accessor for the Hire Local tables and RPCs. The migration has
+// been applied and types.ts regenerated, so the tables ARE now in the generated
+// Supabase types and `supabase.from('record_items')` typechecks directly. This
+// stays as a thin, deliberately loose accessor so the hooks can read/write and
+// map results into the hand-written interfaces in ./types without threading the
+// full generated row/insert generics through every call. Hooks may migrate to
+// the fully-typed client incrementally.
 
 type HlResult = { data: unknown; error: { message: string } | null };
 

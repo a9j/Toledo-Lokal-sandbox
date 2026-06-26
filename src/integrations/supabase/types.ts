@@ -184,6 +184,51 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      beta_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          platform: string
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          platform: string
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          platform?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
       billing_plans: {
         Row: {
           created_at: string
@@ -2040,6 +2085,107 @@ export type Database = {
         }
         Relationships: []
       }
+      hire_follows: {
+        Row: {
+          created_at: string
+          follower_org_id: string
+          id: string
+          subject_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_org_id: string
+          id?: string
+          subject_user_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_org_id?: string
+          id?: string
+          subject_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hire_follows_follower_org_id_fkey"
+            columns: ["follower_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hire_follows_follower_org_id_fkey"
+            columns: ["follower_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hire_follows_follower_org_id_fkey"
+            columns: ["follower_org_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hire_references: {
+        Row: {
+          author_name: string
+          author_org_id: string | null
+          author_role: string | null
+          author_user_id: string | null
+          body: string
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["reference_status"]
+          subject_user_id: string
+        }
+        Insert: {
+          author_name: string
+          author_org_id?: string | null
+          author_role?: string | null
+          author_user_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["reference_status"]
+          subject_user_id: string
+        }
+        Update: {
+          author_name?: string
+          author_org_id?: string | null
+          author_role?: string | null
+          author_user_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["reference_status"]
+          subject_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hire_references_author_org_id_fkey"
+            columns: ["author_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hire_references_author_org_id_fkey"
+            columns: ["author_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hire_references_author_org_id_fkey"
+            columns: ["author_org_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impact_metrics: {
         Row: {
           business_id: string
@@ -3633,6 +3779,64 @@ export type Database = {
           },
         ]
       }
+      open_to_work: {
+        Row: {
+          enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      org_hire_settings: {
+        Row: {
+          auto_trust_qr: boolean
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          auto_trust_qr?: boolean
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          auto_trust_qr?: boolean
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_hire_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_hire_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_hire_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       owner_messages: {
         Row: {
           body: string
@@ -4575,6 +4779,95 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_checkins: {
+        Row: {
+          computed_hours: number | null
+          created_at: string
+          event_id: string | null
+          id: string
+          org_id: string
+          record_item_id: string | null
+          scanned_in_at: string
+          scanned_out_at: string | null
+          user_id: string
+        }
+        Insert: {
+          computed_hours?: number | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          org_id: string
+          record_item_id?: string | null
+          scanned_in_at?: string
+          scanned_out_at?: string | null
+          user_id: string
+        }
+        Update: {
+          computed_hours?: number | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          org_id?: string
+          record_item_id?: string | null
+          scanned_in_at?: string
+          scanned_out_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_checkins_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_checkins_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_checkins_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_checkins_record_item_id_fkey"
+            columns: ["record_item_id"]
+            isOneToOne: false
+            referencedRelation: "record_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_tags: {
+        Row: {
+          confirmed_count: number
+          created_at: string
+          id: string
+          label: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_count?: number
+          created_at?: string
+          id?: string
+          label: string
+          user_id: string
+        }
+        Update: {
+          confirmed_count?: number
+          created_at?: string
+          id?: string
+          label?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recommendation_prompts: {
         Row: {
           business_id: string
@@ -4618,6 +4911,103 @@ export type Database = {
           {
             foreignKeyName: "recommendation_prompts_business_id_fkey"
             columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      record_items: {
+        Row: {
+          claimed_org_id: string | null
+          confirmed_at: string | null
+          confirmed_by_user_id: string | null
+          confirmed_org_id: string | null
+          created_at: string
+          detail: string | null
+          hours: number | null
+          id: string
+          kind: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on: string | null
+          refile_note: string | null
+          source: Database["public"]["Enums"]["record_item_source"]
+          status: Database["public"]["Enums"]["record_item_status"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          claimed_org_id?: string | null
+          confirmed_at?: string | null
+          confirmed_by_user_id?: string | null
+          confirmed_org_id?: string | null
+          created_at?: string
+          detail?: string | null
+          hours?: number | null
+          id?: string
+          kind: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on?: string | null
+          refile_note?: string | null
+          source?: Database["public"]["Enums"]["record_item_source"]
+          status?: Database["public"]["Enums"]["record_item_status"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          claimed_org_id?: string | null
+          confirmed_at?: string | null
+          confirmed_by_user_id?: string | null
+          confirmed_org_id?: string | null
+          created_at?: string
+          detail?: string | null
+          hours?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on?: string | null
+          refile_note?: string | null
+          source?: Database["public"]["Enums"]["record_item_source"]
+          status?: Database["public"]["Enums"]["record_item_status"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "record_items_claimed_org_id_fkey"
+            columns: ["claimed_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "record_items_claimed_org_id_fkey"
+            columns: ["claimed_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "record_items_claimed_org_id_fkey"
+            columns: ["claimed_org_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "record_items_confirmed_org_id_fkey"
+            columns: ["confirmed_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "record_items_confirmed_org_id_fkey"
+            columns: ["confirmed_org_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "record_items_confirmed_org_id_fkey"
+            columns: ["confirmed_org_id"]
             isOneToOne: false
             referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
@@ -4774,6 +5164,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      resumes: {
+        Row: {
+          file_name: string | null
+          file_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          file_name?: string | null
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          file_name?: string | null
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -5860,11 +6274,17 @@ export type Database = {
         Args: { p_approve?: boolean; p_claim_id: string }
         Returns: Json
       }
+      beta_phase: { Args: never; Returns: string }
+      beta_signup_count: { Args: never; Returns: number }
       business_follower_count: {
         Args: { _business_id: string }
         Returns: number
       }
       business_role_rank: { Args: { _role: string }; Returns: number }
+      can_confirm_for_business: {
+        Args: { p_business_id: string; p_user?: string }
+        Returns: boolean
+      }
       can_moderate: { Args: { _user_id: string }; Returns: boolean }
       can_view_lead: {
         Args: { _business_id: string; _user_id?: string }
@@ -5890,15 +6310,100 @@ export type Database = {
         Returns: Json
       }
       compute_neighborhood_activity: { Args: never; Returns: undefined }
+      confirm_record_item: {
+        Args: { p_item_id: string }
+        Returns: {
+          claimed_org_id: string | null
+          confirmed_at: string | null
+          confirmed_by_user_id: string | null
+          confirmed_org_id: string | null
+          created_at: string
+          detail: string | null
+          hours: number | null
+          id: string
+          kind: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on: string | null
+          refile_note: string | null
+          source: Database["public"]["Enums"]["record_item_source"]
+          status: Database["public"]["Enums"]["record_item_status"]
+          title: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "record_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_managed_business: {
         Args: { p_category_id?: string; p_description?: string; p_name: string }
         Returns: string
+      }
+      deny_record_item: {
+        Args: { p_item_id: string }
+        Returns: {
+          claimed_org_id: string | null
+          confirmed_at: string | null
+          confirmed_by_user_id: string | null
+          confirmed_org_id: string | null
+          created_at: string
+          detail: string | null
+          hours: number | null
+          id: string
+          kind: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on: string | null
+          refile_note: string | null
+          source: Database["public"]["Enums"]["record_item_source"]
+          status: Database["public"]["Enums"]["record_item_status"]
+          title: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "record_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       effective_business_role: {
         Args: { p_business_id: string; p_user?: string }
         Returns: string
       }
       expire_pulse_posts: { Args: never; Returns: undefined }
+      file_claim: {
+        Args: {
+          p_claimed_org_id: string
+          p_detail?: string
+          p_hours?: number
+          p_kind: Database["public"]["Enums"]["record_item_kind"]
+          p_occurred_on?: string
+          p_title: string
+        }
+        Returns: {
+          claimed_org_id: string | null
+          confirmed_at: string | null
+          confirmed_by_user_id: string | null
+          confirmed_org_id: string | null
+          created_at: string
+          detail: string | null
+          hours: number | null
+          id: string
+          kind: Database["public"]["Enums"]["record_item_kind"]
+          occurred_on: string | null
+          refile_note: string | null
+          source: Database["public"]["Enums"]["record_item_source"]
+          status: Database["public"]["Enums"]["record_item_status"]
+          title: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "record_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       find_duplicate_business: {
         Args: { p_name: string; p_street?: string }
         Returns: {
@@ -6011,6 +6516,46 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      hire_qr_checkin: {
+        Args: { p_event_id?: string; p_org_id: string }
+        Returns: {
+          computed_hours: number | null
+          created_at: string
+          event_id: string | null
+          id: string
+          org_id: string
+          record_item_id: string | null
+          scanned_in_at: string
+          scanned_out_at: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "qr_checkins"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hire_qr_checkout: {
+        Args: { p_checkin_id: string }
+        Returns: {
+          computed_hours: number | null
+          created_at: string
+          event_id: string | null
+          id: string
+          org_id: string
+          record_item_id: string | null
+          scanned_in_at: string
+          scanned_out_at: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "qr_checkins"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       is_business_admin: {
         Args: { check_business_id: string }
@@ -6153,6 +6698,15 @@ export type Database = {
         | "community_ask"
         | "good_stuff"
       pulse_post_status: "active" | "hidden" | "removed" | "expired"
+      record_item_kind:
+        | "employment"
+        | "volunteer_hours"
+        | "certification"
+        | "endorsement"
+        | "quality_tag"
+      record_item_source: "self_claim" | "qr_checkin" | "org_issued"
+      record_item_status: "pending" | "verified" | "denied"
+      reference_status: "pending" | "verified"
       visit_link_type:
         | "website"
         | "facebook"
@@ -6380,6 +6934,16 @@ export const Constants = {
         "good_stuff",
       ],
       pulse_post_status: ["active", "hidden", "removed", "expired"],
+      record_item_kind: [
+        "employment",
+        "volunteer_hours",
+        "certification",
+        "endorsement",
+        "quality_tag",
+      ],
+      record_item_source: ["self_claim", "qr_checkin", "org_issued"],
+      record_item_status: ["pending", "verified", "denied"],
+      reference_status: ["pending", "verified"],
       visit_link_type: [
         "website",
         "facebook",
