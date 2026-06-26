@@ -112,7 +112,7 @@ export default function DashboardFoodTruck() {
     setDialogOpen(true);
   };
 
-  const handleOpenEdit = (location: typeof locations[0]) => {
+  const handleOpenEdit = (location: NonNullable<typeof locations>[number]) => {
     setFormData({
       location_date: location.location_date,
       location_name: location.location_name,
@@ -125,7 +125,7 @@ export default function DashboardFoodTruck() {
     setDialogOpen(true);
   };
 
-  const handleDuplicate = (location: typeof locations[0]) => {
+  const handleDuplicate = (location: NonNullable<typeof locations>[number]) => {
     setFormData({
       location_date: format(new Date(), 'yyyy-MM-dd'),
       location_name: location.location_name,

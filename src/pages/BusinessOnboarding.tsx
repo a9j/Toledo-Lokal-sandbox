@@ -241,7 +241,8 @@ export default function BusinessOnboarding() {
         ? `${primary.street_address}, ${primary.city}, ${primary.state} ${primary.zip_code}`.trim()
         : (data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zip}`.trim() : '');
 
-      const payload: Record<string, string | boolean | null | OnboardingData['hours']> = {
+      const isComplete = nextStep > 5;
+      const payload = {
         name: data.name,
         description: data.description,
         category_id: data.category_id || null,
@@ -257,12 +258,9 @@ export default function BusinessOnboarding() {
         hours: data.hours,
         onboarding_step: nextStep,
         status: 'pending',
+        onboarding_completed: isComplete ? true : undefined,
+        onboarding_completed_at: isComplete ? new Date().toISOString() : undefined,
       };
-
-      if (nextStep > 5) {
-        payload.onboarding_completed = true;
-        payload.onboarding_completed_at = new Date().toISOString();
-      }
 
       let currentBusinessId = businessId;
 

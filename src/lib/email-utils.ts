@@ -11,7 +11,7 @@ const FREE_EMAIL_PROVIDERS = [
 
 export function isFreeEmailProvider(email: string): boolean {
   if (!email || !email.includes('@')) return false;
-  const domain = email.split('@')[1]?.toLowerCase();
+  const domain = email.split('@')[1]?.toLowerCase() ?? '';
   return FREE_EMAIL_PROVIDERS.includes(domain);
 }
 

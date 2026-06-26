@@ -71,6 +71,7 @@ export default function BusinessDetail() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', id],
     queryFn: async () => {
+      if (!id) throw new Error('Business not found');
       // Read the scalar row WITHOUT relational embeds. Embedding related tables
       // from the businesses_public *view* relies on PostgREST detecting
       // view→table relationships, which is brittle: a relation it can't resolve

@@ -80,7 +80,7 @@ export default function Dashboard() {
         .maybeSingle();
 
       if (managedError) throw managedError;
-      return (managed?.business as typeof owned) ?? null;
+      return managed?.business ?? null;
     },
     enabled: !!user,
   });

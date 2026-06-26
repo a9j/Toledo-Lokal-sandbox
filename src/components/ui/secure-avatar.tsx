@@ -24,7 +24,7 @@ function isSupabaseStorageUrl(url: string): boolean {
 // Extract file path from Supabase storage URL
 function extractPathFromUrl(url: string): string | null {
   const match = url.match(/\/storage\/v1\/object\/(?:public|sign)\/uploads\/(.+?)(?:\?|$)/);
-  return match ? match[1] : null;
+  return match ? match[1] ?? null : null;
 }
 
 export function SecureAvatar({

@@ -89,7 +89,7 @@ export async function prefetchSignedUrls(filePaths: string[]): Promise<void> {
 // Extract file path from Supabase storage URL
 export function extractPathFromUrl(url: string): string | null {
   const match = url.match(/\/storage\/v1\/object\/(?:public|sign)\/uploads\/(.+?)(?:\?|$)/);
-  return match ? match[1] : null;
+  return match?.[1] ?? null;
 }
 
 // Process batch of queued requests

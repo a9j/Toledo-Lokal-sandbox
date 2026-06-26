@@ -124,6 +124,11 @@ export function ImageCropUpload({
           const { default: heic2any } = await import('heic2any');
           const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
           const blob = Array.isArray(out) ? out[0] : out;
+          if (!blob) {
+            setPreparing(false);
+            toast.error('Could not read that HEIC photo. Try a JPG or PNG.');
+            return;
+          }
           working = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
             type: 'image/jpeg',
           });
@@ -303,7 +308,7 @@ export function ImageCropUpload({
               min={1}
               max={3}
               step={0.1}
-              onValueChange={([v]) => setZoom(v)}
+              onValueChange={([v = 1]) => setZoom(v)}
               className="flex-1"
             />
           </div>

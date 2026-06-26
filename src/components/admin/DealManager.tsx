@@ -120,8 +120,8 @@ export function DealManager({ businessId }: DealManagerProps) {
 
   const openComposer = () => {
     resetForm();
-    const today = new Date().toISOString().split('T')[0];
-    const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0] ?? '';
+    const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] ?? '';
     setForm({ ...EMPTY_FORM, startDate: today, endDate: nextWeek });
     setComposerOpen(true);
   };
@@ -130,8 +130,8 @@ export function DealManager({ businessId }: DealManagerProps) {
     setForm({
       title: deal.title,
       description: deal.description || '',
-      startDate: deal.start_date.split('T')[0],
-      endDate: deal.end_date.split('T')[0],
+      startDate: deal.start_date.split('T')[0] ?? '',
+      endDate: deal.end_date.split('T')[0] ?? '',
       redemptionMethod: deal.redemption_method || 'in_store',
       imageUrl: deal.image_url,
     });
@@ -296,7 +296,7 @@ export function DealManager({ businessId }: DealManagerProps) {
             const isExpired = endDt < now;
             const isActive = (deal.status === 'active' || deal.status === 'approved') && !isExpired;
             const statusKey = isExpired && deal.status !== 'cancelled' ? 'expired' : deal.status;
-            const statusInfo = STATUS_LABELS[statusKey] || STATUS_LABELS.active;
+            const statusInfo = STATUS_LABELS[statusKey] || STATUS_LABELS.active || { label: statusKey, className: '' };
 
             return (
               <div

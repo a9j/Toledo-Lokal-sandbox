@@ -160,10 +160,10 @@ export type LeadInput = z.infer<typeof leadSchema>;
 
 // ========== Validation Utilities ==========
 
-export function validateInput<T>(
-  schema: z.ZodSchema<T>,
+export function validateInput<TOut, TIn = TOut>(
+  schema: z.ZodType<TOut, z.ZodTypeDef, TIn>,
   data: unknown
-): { success: true; data: T } | { success: false; errors: string[] } {
+): { success: true; data: TOut } | { success: false; errors: string[] } {
   const result = schema.safeParse(data);
   
   if (result.success) {

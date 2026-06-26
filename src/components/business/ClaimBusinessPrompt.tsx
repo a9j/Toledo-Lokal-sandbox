@@ -26,9 +26,9 @@ export function ClaimBusinessPrompt({
   onDismiss,
 }: ClaimBusinessPromptProps) {
   const [selectedId, setSelectedId] = useState<string | null>(matches[0]?.id ?? null);
-  if (matches.length === 0) return null;
 
   const selected = matches.find((m) => m.id === selectedId) ?? matches[0];
+  if (!selected) return null;
 
   // Offer email-domain verification only when it could plausibly succeed.
   const emailDomain = userEmail?.split('@')[1]?.toLowerCase() ?? '';

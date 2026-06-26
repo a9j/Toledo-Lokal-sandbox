@@ -17,7 +17,7 @@ interface BusinessCardProps {
     isInLoop?: boolean;
     logo_url?: string | null;
     neighborhood?: { name: string } | null;
-    category?: { name: string; icon: string } | null;
+    category?: { name: string; icon: string | null } | null;
     tier_status?: string | null;
     tier_badge_visible?: boolean | null;
   };

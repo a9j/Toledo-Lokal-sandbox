@@ -278,7 +278,7 @@ export function PulseManager({ businessId }: PulseManagerProps) {
           {filtered.map((post) => {
             const expired = isExpired(post.expires_at);
             const status = expired && post.status === 'active' ? 'expired' : post.status;
-            const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.active;
+            const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.active || { label: status, className: '' };
 
             return (
               <div

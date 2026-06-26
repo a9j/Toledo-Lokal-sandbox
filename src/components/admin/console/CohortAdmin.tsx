@@ -32,7 +32,7 @@ export function CohortAdmin() {
   const [cohortId, setCohortId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!cohortId && cohorts && cohorts.length > 0) setCohortId(cohorts[0].id);
+    if (!cohortId && cohorts && cohorts.length > 0) setCohortId(cohorts[0]?.id ?? null);
   }, [cohorts, cohortId]);
 
   if (isLoading) {
@@ -47,6 +47,7 @@ export function CohortAdmin() {
   }
 
   const cohort = cohorts.find((c) => c.id === cohortId) ?? cohorts[0];
+  if (!cohort) return null;
 
   return (
     <div className="space-y-5">

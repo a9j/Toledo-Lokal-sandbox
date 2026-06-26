@@ -40,7 +40,7 @@ export function PulseShareButton({
 
   // Generate headline from content (first sentence or up to 60 chars)
   const headline = post.headline ||
-    post.content.split('.')[0].substring(0, 60) + (post.content.length > 60 ? '...' : '');
+    (post.content.split('.')[0] ?? '').substring(0, 60) + (post.content.length > 60 ? '...' : '');
 
   // Preview text for sharing
   const previewText = post.preview_text || post.content.substring(0, 160);
@@ -108,7 +108,7 @@ export function PulseShareButton({
   }
 
   // Use native share on mobile if available
-  if (navigator.share) {
+  if (typeof navigator.share === 'function') {
     return (
       <Button
         variant={variant}

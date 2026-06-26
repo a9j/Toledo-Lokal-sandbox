@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { useBusinessJobs, useCreateJob, useUpdateJob, useDeleteJob, JobType, PayType, ApplyMethod } from '@/hooks/useJobs';
+import { useBusinessJobs, useCreateJob, useUpdateJob, useDeleteJob, JobType, PayType, ApplyMethod, JobVisibility } from '@/hooks/useJobs';
 import { useBusinessFeatures, useUpdateBusinessFeatures } from '@/hooks/useBusinessFeatures';
 import { useJobLimits } from '@/hooks/useJobLimits';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -160,7 +160,7 @@ export default function DashboardJobs() {
     setDialogOpen(true);
   };
 
-  const handleDuplicateJob = (job: typeof jobs[0]) => {
+  const handleDuplicateJob = (job: NonNullable<typeof jobs>[number]) => {
     if (!jobLimits.canPostJob) return;
     setFormData({
       title: job.title + ' (Copy)',
@@ -179,7 +179,7 @@ export default function DashboardJobs() {
     setDialogOpen(true);
   };
 
-  const handleOpenEdit = (job: typeof jobs[0]) => {
+  const handleOpenEdit = (job: NonNullable<typeof jobs>[number]) => {
     setFormData({
       title: job.title,
       job_type: job.job_type as JobType,
@@ -201,9 +201,11 @@ export default function DashboardJobs() {
     e.preventDefault();
     if (!business) return;
 
+    const visibility: JobVisibility = 'public';
     const jobData = {
       ...formData,
       business_id: business.id,
+      visibility,
     };
 
     if (editingJob) {

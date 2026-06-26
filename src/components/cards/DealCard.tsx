@@ -13,7 +13,7 @@ interface DealCardProps {
       id: string;
       name: string;
       neighborhood?: { name: string } | null;
-      category?: { name: string; icon: string } | null;
+      category?: { name: string; icon: string | null } | null;
     } | null;
   };
 }

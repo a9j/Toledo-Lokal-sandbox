@@ -16,7 +16,7 @@ interface FeaturedListingCardProps {
     average_rating?: number | null;
     review_count?: number | null;
     neighborhood?: { name: string } | null;
-    category?: { name: string; icon: string } | null;
+    category?: { name: string; icon: string | null } | null;
   };
   showImage?: boolean;
 }
@@ -24,7 +24,7 @@ interface FeaturedListingCardProps {
 // Convert 24-hour time to 12-hour format
 const formatTime12hr = (time24: string): string => {
   if (!time24) return '';
-  const [hours, minutes] = time24.split(':').map(Number);
+  const [hours = 0, minutes] = time24.split(':').map(Number);
   const period = hours >= 12 ? 'PM' : 'AM';
   const hours12 = hours % 12 || 12;
   return `${hours12}${minutes ? `:${minutes.toString().padStart(2, '0')}` : ''} ${period}`;
@@ -36,14 +36,14 @@ const isCurrentlyOpen = (hours: Json | null): boolean => {
   
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const now = new Date();
-  const today = days[now.getDay()];
+  const today = days[now.getDay()] ?? '';
   const todayHours = (hours as Record<string, { open?: string; close?: string; closed?: boolean }>)[today];
   
   if (!todayHours || todayHours.closed || !todayHours.open || !todayHours.close) return false;
   
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const [openHours, openMins] = todayHours.open.split(':').map(Number);
-  const [closeHours, closeMins] = todayHours.close.split(':').map(Number);
+  const [openHours = 0, openMins] = todayHours.open.split(':').map(Number);
+  const [closeHours = 0, closeMins] = todayHours.close.split(':').map(Number);
   const openMinutes = openHours * 60 + (openMins || 0);
   const closeMinutes = closeHours * 60 + (closeMins || 0);
   
@@ -56,7 +56,7 @@ const getTodayHoursStatus = (hours: Json | null): { text: string; isOpen: boolea
   
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const now = new Date();
-  const today = days[now.getDay()];
+  const today = days[now.getDay()] ?? '';
   const todayHours = (hours as Record<string, { open?: string; close?: string; closed?: boolean }>)[today];
   
   if (!todayHours || todayHours.closed) return { text: 'Closed today', isOpen: false };
@@ -74,7 +74,7 @@ const getTodayHoursStatus = (hours: Json | null): { text: string; isOpen: boolea
 
 export function FeaturedListingCard({ business, showImage = true }: FeaturedListingCardProps) {
   const imageUrl = business.photos?.[0] ?? null;
-  const hoursStatus = getTodayHoursStatus(business.hours);
+  const hoursStatus = getTodayHoursStatus(business.hours ?? null);
   const rating = typeof business.average_rating === 'number' && (business.review_count ?? 0) > 0
     ? business.average_rating
     : null;

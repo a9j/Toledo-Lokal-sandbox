@@ -65,7 +65,7 @@ export function AboutTab({ business, actions }: { business: ProfileBusiness; act
         <div className="space-y-3">
           <SectionLabel>What we're known for</SectionLabel>
           {aboutModules.map((module) => (
-            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id]} />
+            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id] ?? {}} />
           ))}
         </div>
       )}

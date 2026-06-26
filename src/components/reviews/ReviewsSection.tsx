@@ -52,10 +52,24 @@ export function ReviewsSection({ businessId, businessOwnerId, averageRating = 0,
       
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       
-      return reviewsData?.map(review => ({
-        ...review,
-        user: profileMap.get(review.user_id) || undefined
-      })) || [];
+      return reviewsData?.map(review => {
+        const profile = profileMap.get(review.user_id);
+        return {
+          id: review.id,
+          rating: review.rating,
+          title: review.title ?? undefined,
+          content: review.content ?? undefined,
+          photos: review.photos ?? undefined,
+          helpful_count: review.helpful_count,
+          created_at: review.created_at,
+          user: profile
+            ? {
+                name: profile.name ?? undefined,
+                avatar_url: profile.avatar_url ?? undefined,
+              }
+            : undefined,
+        };
+      }) || [];
     },
   });
 

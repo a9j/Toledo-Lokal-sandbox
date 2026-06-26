@@ -18,8 +18,8 @@ interface PostCardProps {
     post_type: string;
     featured?: boolean | null;
     pinned?: boolean | null;
-    likes_count: number;
-    comments_count: number;
+    likes_count: number | null;
+    comments_count: number | null;
     created_at: string;
     author?: {
       user_id?: string;
@@ -231,7 +231,7 @@ export function PostCard({ post }: PostCardProps) {
             disabled={!user || likeMutation.isPending}
           >
             <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-            <span className="text-xs">{post.likes_count}</span>
+            <span className="text-xs">{post.likes_count ?? 0}</span>
           </Button>
 
           <Button
@@ -241,7 +241,7 @@ export function PostCard({ post }: PostCardProps) {
             onClick={() => setShowComments(!showComments)}
           >
             <MessageCircle className="h-4 w-4" />
-            <span className="text-xs">{post.comments_count}</span>
+            <span className="text-xs">{post.comments_count ?? 0}</span>
           </Button>
 
           <Button

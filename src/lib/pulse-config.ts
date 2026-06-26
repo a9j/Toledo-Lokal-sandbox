@@ -81,25 +81,29 @@ export interface PulseTierLimits {
   expirationMultiplier: number; // 1 = normal, higher = longer expiration
 }
 
+// Regular users
+const USER_TIER_LIMITS: PulseTierLimits = {
+  postsPerDay: 3,
+  allowedCategories: ['right_now', 'heads_up', 'energy_check', 'community_ask', 'good_stuff'],
+  canPin: false,
+  maxPinnedPerDay: 0,
+  canUsePromoLanguage: false,
+  expirationMultiplier: 1,
+};
+
+// Unpaid businesses
+const FREE_TIER_LIMITS: PulseTierLimits = {
+  postsPerDay: 1,
+  allowedCategories: ['right_now', 'community_ask'],
+  canPin: false,
+  maxPinnedPerDay: 0,
+  canUsePromoLanguage: false,
+  expirationMultiplier: 0.5, // Shorter expiration
+};
+
 export const PULSE_TIER_LIMITS: Record<string, PulseTierLimits> = {
-  // Regular users
-  user: {
-    postsPerDay: 3,
-    allowedCategories: ['right_now', 'heads_up', 'energy_check', 'community_ask', 'good_stuff'],
-    canPin: false,
-    maxPinnedPerDay: 0,
-    canUsePromoLanguage: false,
-    expirationMultiplier: 1,
-  },
-  // Unpaid businesses
-  free: {
-    postsPerDay: 1,
-    allowedCategories: ['right_now', 'community_ask'],
-    canPin: false,
-    maxPinnedPerDay: 0,
-    canUsePromoLanguage: false,
-    expirationMultiplier: 0.5, // Shorter expiration
-  },
+  user: USER_TIER_LIMITS,
+  free: FREE_TIER_LIMITS,
   // Growth tier
   growth: {
     postsPerDay: 5,
@@ -137,11 +141,11 @@ export function getPulseTierLimits(
   subscriptionTier: string | null
 ): PulseTierLimits {
   if (!isBusinessPost) {
-    return PULSE_TIER_LIMITS.user;
+    return USER_TIER_LIMITS;
   }
-  
+
   const tier = subscriptionTier || 'free';
-  return PULSE_TIER_LIMITS[tier] || PULSE_TIER_LIMITS.free;
+  return PULSE_TIER_LIMITS[tier] ?? FREE_TIER_LIMITS;
 }
 
 export function formatTimeRemaining(expiresAt: Date): string {

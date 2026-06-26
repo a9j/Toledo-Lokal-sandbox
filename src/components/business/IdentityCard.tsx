@@ -60,7 +60,7 @@ export function IdentityCard({ business, isFoodTruck }: IdentityCardProps) {
     if (business.address) {
       // Extract city/area from address
       const parts = business.address.split(',');
-      return parts.length > 1 ? parts[1].trim() : business.address;
+      return parts[1]?.trim() ?? business.address;
     }
     return 'Toledo';
   };

@@ -160,7 +160,7 @@ export default function Profile() {
             <div className="ring-4 ring-background rounded-full">
               <AvatarUpload
                 currentUrl={profile?.avatar_url}
-                userName={profile?.name}
+                userName={profile?.name ?? undefined}
                 userEmail={user.email}
                 userId={user.id}
                 onUploadComplete={handleAvatarUpdate}

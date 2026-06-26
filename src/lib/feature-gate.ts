@@ -10,17 +10,19 @@ type Feature =
   | 'analytics'
   | 'featured_placement';
 
+const BASIC_FEATURES: Record<Feature, boolean | string> = {
+  profile: true,
+  pulse: false,
+  events: false,
+  deals: false,
+  passport: false,
+  jobs: false,
+  analytics: false,
+  featured_placement: false,
+};
+
 const PLAN_FEATURES: Record<string, Record<Feature, boolean | string>> = {
-  basic: {
-    profile: true,
-    pulse: false,
-    events: false,
-    deals: false,
-    passport: false,
-    jobs: false,
-    analytics: false,
-    featured_placement: false,
-  },
+  basic: BASIC_FEATURES,
   enhanced: {
     profile: true,
     pulse: true,
@@ -50,7 +52,7 @@ const PLAN_ANNOUNCEMENT_LIMITS: Record<string, number> = {
 };
 
 export function isFeatureEnabled(plan: string, feature: Feature): boolean {
-  const features = PLAN_FEATURES[plan] ?? PLAN_FEATURES.basic;
+  const features = PLAN_FEATURES[plan] ?? BASIC_FEATURES;
   return !!features[feature];
 }
 
@@ -59,7 +61,7 @@ export function getAnnouncementLimit(plan: string): number {
 }
 
 export function getAnalyticsLevel(plan: string): false | 'basic' | 'full' {
-  const features = PLAN_FEATURES[plan] ?? PLAN_FEATURES.basic;
+  const features = PLAN_FEATURES[plan] ?? BASIC_FEATURES;
   const val = features.analytics;
   if (val === 'basic' || val === 'full') return val;
   return false;

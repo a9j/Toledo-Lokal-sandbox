@@ -51,7 +51,7 @@ export default function PublicCollection() {
         description={`A curated collection of ${items.length} favorite Toledo spots`}
         url={`/c/${slug}`}
       />
-      <Header title={settings.collection_name} showBack />
+      <Header title={settings.collection_name ?? undefined} showBack />
       
       <PageContainer className="space-y-6">
         {/* Header */}

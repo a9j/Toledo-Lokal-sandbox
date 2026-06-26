@@ -56,7 +56,7 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
             .eq('category_id', options.categoryId),
         ]);
         const ids = new Set<string>();
-        (primaryRes.data ?? []).forEach((r: { id: string }) => ids.add(r.id));
+        (primaryRes.data ?? []).forEach((r) => { if (r.id) ids.add(r.id); });
         (taggedRes.data ?? []).forEach((r: { business_id: string }) => ids.add(r.business_id));
         categoryMatchIds = [...ids];
       }
@@ -161,15 +161,26 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
         const aPriority = tierPriority[a.tier_status || 'community'] || 5;
         const bPriority = tierPriority[b.tier_status || 'community'] || 5;
         if (aPriority !== bPriority) return aPriority - bPriority;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bTime - aTime;
       });
+
+      // The businesses_public view loses the NOT NULL constraints from the
+      // underlying table, so id/name read as nullable here even though every
+      // row carries them. Narrow to non-null once so downstream consumers
+      // receive a stable { id: string; name: string } shape.
+      const visible = (sorted ?? []).filter(
+        (b): b is typeof b & { id: string; name: string } =>
+          b.id !== null && b.name !== null,
+      );
       
       // Resolve category + neighborhood from lightweight lookup maps instead of
       // PostgREST embeds (see note on the main query above). Both tables are
       // tiny and readable by anon, so a single fetch of each is cheap.
       const categoryById = new Map<string, { id: string; name: string; icon: string | null }>();
       const neighborhoodById = new Map<string, { id: string; name: string }>();
-      if (sorted && sorted.length > 0) {
+      if (visible.length > 0) {
         const [catRes, nbRes] = await Promise.all([
           supabase.from('categories').select('id, name, icon'),
           supabase.from('neighborhoods').select('id, name'),
@@ -182,15 +193,15 @@ export function useBusinesses(options?: { featured?: boolean; limit?: number; ca
       // live. Fetch it in a separate query (the businesses_public→
       // business_loop_settings embed is unreliable and 400s the whole request).
       const loopByBusiness = new Map<string, { is_active: boolean | null; loop_tier_id: string | null }>();
-      if (LP_ENABLED && sorted && sorted.length > 0) {
+      if (LP_ENABLED && visible.length > 0) {
         const { data: loopRows } = await supabase
           .from('business_loop_settings')
           .select('business_id, is_active, loop_tier_id')
-          .in('business_id', sorted.map(b => b.id));
+          .in('business_id', visible.map(b => b.id));
         (loopRows ?? []).forEach(r => loopByBusiness.set(r.business_id, r));
       }
 
-      return sorted?.map(business => {
+      return visible.map(business => {
         const loop = loopByBusiness.get(business.id);
         return {
           ...business,

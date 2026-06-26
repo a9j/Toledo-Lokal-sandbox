@@ -71,19 +71,19 @@ function useAnalytics(businessId: string) {
 
       for (const row of rows) {
         totals[row.event_type] = (totals[row.event_type] || 0) + 1;
-        const day = row.created_at.split('T')[0];
+        const day = row.created_at.split('T')[0] ?? '';
         dailyCounts[day] = (dailyCounts[day] || 0) + 1;
       }
 
       const last30 = Array.from({ length: 30 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - (29 - i));
-        return d.toISOString().split('T')[0];
+        return d.toISOString().split('T')[0] ?? '';
       });
 
       const recentByDay = last30.map((date) => ({
         date,
-        count: dailyCounts[date] || 0,
+        count: dailyCounts[date] ?? 0,
       }));
 
       const topEvents = Object.entries(totals)

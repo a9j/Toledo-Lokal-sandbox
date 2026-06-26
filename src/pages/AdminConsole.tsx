@@ -139,7 +139,7 @@ export default function AdminConsole() {
     );
   }
 
-  const meta = SECTION_META[active] ?? SECTION_META.overview;
+  const meta = SECTION_META[active] ?? { title: 'City Overview', subtitle: 'The digital heartbeat of Toledo' };
 
   return (
     <AdminShell groups={NAV_GROUPS} active={active} onSelect={setActive} title={meta.title} subtitle={meta.subtitle}>

@@ -1,11 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 interface RecordEventParams {
   eventType: string;
   businessId: string;
   entityType?: string;
   entityId?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Json;
 }
 
 export async function recordAnalyticsEvent({
@@ -18,8 +19,8 @@ export async function recordAnalyticsEvent({
   const { data, error } = await supabase.rpc('record_analytics_event', {
     p_event_type: eventType,
     p_business_id: businessId,
-    p_entity_type: entityType ?? null,
-    p_entity_id: entityId ?? null,
+    p_entity_type: entityType ?? undefined,
+    p_entity_id: entityId ?? undefined,
     p_metadata: metadata,
   });
 

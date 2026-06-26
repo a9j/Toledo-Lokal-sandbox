@@ -1,7 +1,7 @@
 import { Circle, type LucideProps } from 'lucide-react';
 import { resolveIcon } from '@/lib/icon-resolver';
 
-interface PulseIconProps extends LucideProps {
+interface PulseIconProps extends Omit<LucideProps, 'name'> {
   name: string | null | undefined;
 }
 

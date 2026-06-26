@@ -128,7 +128,7 @@ export function EventManager({ businessId }: EventManagerProps) {
     setForm({
       title: event.title,
       description: event.description || '',
-      date: start.toISOString().split('T')[0],
+      date: start.toISOString().split('T')[0] ?? '',
       startTime: start.toTimeString().slice(0, 5),
       endTime: end ? end.toTimeString().slice(0, 5) : '',
       locationText: event.location_text || '',
@@ -297,7 +297,7 @@ export function EventManager({ businessId }: EventManagerProps) {
           {filtered.map((event) => {
             const dt = new Date(event.start_date_time);
             const isPast = dt < now;
-            const statusInfo = STATUS_LABELS[event.status] || STATUS_LABELS.approved;
+            const statusInfo = STATUS_LABELS[event.status] || STATUS_LABELS.approved || { label: event.status, className: '' };
 
             return (
               <div
