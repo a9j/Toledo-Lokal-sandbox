@@ -79,6 +79,9 @@ const ScannerMode = lazy(() => import("./pages/ScannerMode"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Jobs = lazy(() => import("./pages/Jobs"));
+const HireLocalProfile = lazy(() => import("./pages/HireLocalProfile"));
+const HireLocalConfirm = lazy(() => import("./pages/HireLocalConfirm"));
+const HireLocalClaim = lazy(() => import("./pages/HireLocalClaim"));
 const FoodToday = lazy(() => import("./pages/FoodToday"));
 const DashboardJobs = lazy(() => import("./pages/DashboardJobs"));
 const DashboardFoodTruck = lazy(() => import("./pages/DashboardFoodTruck"));
@@ -214,6 +217,10 @@ const App = () => (
                   <Route path="/scanner-mode" element={<ScannerMode />} />
                   <Route path="/accept-invitation" element={<AcceptInvitation />} />
                   <Route path="/jobs" element={<Jobs />} />
+                  <Route path="/hire-local/claim" element={<HireLocalClaim />} />
+                  <Route path="/hire-local/confirm" element={<HireLocalConfirm />} />
+                  <Route path="/hire-local/confirm/:orgId" element={<HireLocalConfirm />} />
+                  <Route path="/hire-local/p/:userId" element={<HireLocalProfile />} />
                   <Route path="/food-today" element={<FoodToday />} />
                   <Route path="/dashboard/jobs" element={<DashboardJobs />} />
                   <Route path="/dashboard/food-truck" element={<DashboardFoodTruck />} />

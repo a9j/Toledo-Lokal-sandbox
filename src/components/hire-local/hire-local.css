@@ -1,0 +1,60 @@
+/*
+ * Hire Local — scoped design tokens from the approved mockup.
+ *
+ * These are deliberately scoped to the .hl-scope wrapper so the rest of
+ * Toledo Lokal keeps its own palette and fonts. The signature is the amber
+ * verified mark: amber is used ONLY for organization-verified state. Pending is
+ * gray, the brand/action color is civic green. Do not spend amber anywhere
+ * that is not org-verified.
+ */
+
+.hl-scope {
+  --hl-paper: #f7f5f0;
+  --hl-card: #ffffff;
+
+  --hl-green: #115e59;
+  --hl-green-deep: #0c4a44;
+  --hl-green-tint: #e3efed;
+
+  /* Verified, and only verified. */
+  --hl-amber: #c47b16;
+  --hl-amber-tint: #fbf0dc;
+
+  /* Pending / self-reported. */
+  --hl-gray: #9a8f7a;
+  --hl-gray-tint: #f0ece2;
+
+  --hl-ink: #16201f;
+  --hl-soft: #4a5856;
+  --hl-faint: #8a9794;
+  --hl-line: #e6e2d8;
+
+  --hl-radius: 20px;
+
+  background-color: var(--hl-paper);
+  color: var(--hl-ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100dvh;
+}
+
+.hl-display {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Visible keyboard focus on every interactive element. */
+.hl-scope :focus-visible {
+  outline: 2px solid var(--hl-green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-scope *,
+  .hl-scope *::before,
+  .hl-scope *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
