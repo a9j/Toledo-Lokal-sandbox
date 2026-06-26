@@ -28,6 +28,9 @@ export default defineConfig(({ mode }) => {
     __NEXT_PUBLIC_LP_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_LP_ENABLED ?? ""),
     __NEXT_PUBLIC_HOME_VARIANT__: JSON.stringify(env.NEXT_PUBLIC_HOME_VARIANT ?? ""),
     __NEXT_PUBLIC_TODAY_TAB_ENABLED__: JSON.stringify(env.NEXT_PUBLIC_TODAY_TAB_ENABLED ?? ""),
+    // Accept either VITE_* or NEXT_PUBLIC_* so the build picks up whichever name
+    // is set in Vercel, matching the supabase var handling above.
+    __BETA_WINDOW_ENABLED__: JSON.stringify(env.VITE_BETA_WINDOW_ENABLED ?? env.NEXT_PUBLIC_BETA_WINDOW_ENABLED ?? ""),
     __SUPABASE_URL__: JSON.stringify(supabaseUrl),
     __SUPABASE_KEY__: JSON.stringify(supabaseKey),
   },

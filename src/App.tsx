@@ -27,6 +27,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { BetaGate } from "@/components/beta/BetaGate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -136,6 +137,7 @@ const App = () => (
               <Toaster />
             <Sonner />
             <BrowserRouter>
+              <BetaGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
                   <Route path="/" element={TODAY_TAB_ENABLED ? <Today /> : <Navigate to="/founding-5" replace />} />
@@ -221,6 +223,7 @@ const App = () => (
               </Suspense>
               <BottomNav />
               <InstallPrompt />
+              </BetaGate>
             </BrowserRouter>
             <Analytics />
           </TooltipProvider>
