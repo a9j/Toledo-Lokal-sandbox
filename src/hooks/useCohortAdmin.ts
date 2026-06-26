@@ -100,3 +100,103 @@ export function useRemoveCohortMember() {
     },
   });
 }
+
+export interface CohortInviteRow {
+  id: string;
+  token: string;
+  single_use: boolean;
+  uses_remaining: number | null;
+  expires_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export type InviteState = 'unused' | 'used' | 'expired' | 'revoked';
+
+export function inviteState(inv: CohortInviteRow): InviteState {
+  if (inv.revoked_at) return 'revoked';
+  if (inv.expires_at && new Date(inv.expires_at).getTime() < Date.now()) return 'expired';
+  if (inv.uses_remaining !== null && inv.uses_remaining <= 0) return 'used';
+  return 'unused';
+}
+
+export function useCohortInvites(cohortId?: string) {
+  return useQuery({
+    queryKey: ['admin-cohort-invites', cohortId],
+    enabled: !!cohortId,
+    queryFn: async (): Promise<CohortInviteRow[]> => {
+      const { data, error } = await supabase
+        .from('cohort_invites' as never)
+        .select('id, token, single_use, uses_remaining, expires_at, revoked_at, created_at')
+        .eq('cohort_id', cohortId as string)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as unknown as CohortInviteRow[]) ?? [];
+    },
+  });
+}
+
+// 128 bits of CSPRNG entropy — the token is the only secret the QR carries; the
+// cap/eligibility/single-use are all enforced server-side.
+function generateToken(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return 'c100_' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export interface GeneratedToken {
+  token: string;
+}
+
+export function useGenerateInvites() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (opts: {
+      cohortId: string;
+      createdBy: string | null;
+      mode: 'batch' | 'rotating';
+      count: number;
+      uses: number;
+    }): Promise<GeneratedToken[]> => {
+      const rows =
+        opts.mode === 'batch'
+          ? Array.from({ length: Math.min(Math.max(opts.count, 1), 100) }, () => ({
+              cohort_id: opts.cohortId,
+              token: generateToken(),
+              single_use: true,
+              uses_remaining: 1,
+              created_by: opts.createdBy,
+            }))
+          : [
+              {
+                cohort_id: opts.cohortId,
+                token: generateToken(),
+                single_use: false,
+                uses_remaining: Math.max(opts.uses, 1),
+                created_by: opts.createdBy,
+              },
+            ];
+      const { error } = await supabase.from('cohort_invites' as never).insert(rows as never);
+      if (error) throw error;
+      return rows.map((r) => ({ token: r.token }));
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['admin-cohort-invites', v.cohortId] });
+    },
+  });
+}
+
+export function useRevokeInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ inviteId }: { inviteId: string; cohortId: string }) => {
+      const { error } = await supabase.rpc('admin_revoke_invite' as never, {
+        p_invite_id: inviteId,
+      } as never);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['admin-cohort-invites', v.cohortId] });
+    },
+  });
+}

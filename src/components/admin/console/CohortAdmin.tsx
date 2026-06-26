@@ -20,6 +20,7 @@ import {
   useAdminCohorts, useCohortMembers, useUpdateCohort, useRemoveCohortMember,
   type AdminCohort, type CohortMemberRow,
 } from '@/hooks/useCohortAdmin';
+import { CohortInvites } from './CohortInvites';
 
 // One "Cohorts" console surface. Platform-admin only (AdminConsole gates), but
 // every write is also server-gated by can_manage_community / is_platform_admin,
@@ -65,12 +66,16 @@ export function CohortAdmin() {
         <TabsList>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="invites">Invites</TabsTrigger>
         </TabsList>
         <TabsContent value="settings" className="pt-4">
           <CohortSettings cohort={cohort} />
         </TabsContent>
         <TabsContent value="members" className="pt-4">
           <CohortMembers cohort={cohort} />
+        </TabsContent>
+        <TabsContent value="invites" className="pt-4">
+          <CohortInvites cohort={cohort} />
         </TabsContent>
       </Tabs>
     </div>
