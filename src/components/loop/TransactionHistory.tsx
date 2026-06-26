@@ -62,11 +62,13 @@ export function TransactionHistory() {
     
     for (const tx of filtered) {
       const group = getDateGroup(tx.created_at);
-      if (group !== currentGroup) {
+      let last = groups[groups.length - 1];
+      if (group !== currentGroup || !last) {
         currentGroup = group;
-        groups.push({ label: group, items: [] });
+        last = { label: group, items: [] };
+        groups.push(last);
       }
-      groups[groups.length - 1].items.push(tx);
+      last.items.push(tx);
     }
     return groups;
   }, [filtered]);

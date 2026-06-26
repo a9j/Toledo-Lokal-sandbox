@@ -235,7 +235,7 @@ export function getSubcategoriesForCategory(categorySlug: string): Subcategory[]
   if (!category) return [];
   return category.subcategories
     .map((s) => SUBCATEGORY_DEFINITIONS[s])
-    .filter(Boolean);
+    .filter((s): s is Subcategory => s !== undefined);
 }
 
 export function getCategoryBySlug(slug: string): CategoryConfig | undefined {

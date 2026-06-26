@@ -63,7 +63,7 @@ export default function DashboardLocations() {
   };
 
   const removeLocation = (index: number) => {
-    if (locations[index].is_primary) return;
+    if (locations[index]?.is_primary) return;
     setLocations(locations.filter((_, i) => i !== index));
   };
 
@@ -78,8 +78,9 @@ export default function DashboardLocations() {
 
   const handleSave = async () => {
     const hasPrimary = locations.some((l) => l.is_primary);
-    if (!hasPrimary && locations.length > 0) {
-      locations[0].is_primary = true;
+    const first = locations[0];
+    if (!hasPrimary && first) {
+      first.is_primary = true;
     }
 
     for (const loc of locations) {

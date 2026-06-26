@@ -63,7 +63,7 @@ export function ShareButton({
   };
 
   // Use native share on mobile if available
-  if (navigator.share) {
+  if (typeof navigator.share === 'function') {
     return (
       <Button
         variant={variant}

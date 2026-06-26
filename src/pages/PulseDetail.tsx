@@ -37,6 +37,7 @@ export default function PulseDetail() {
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['pulse-detail', pulseId],
     queryFn: async () => {
+      if (!pulseId) throw new Error('Pulse not found');
       // Try to find by pulse_id first, then by id
       let { data, error } = await supabase
         .from('pulse_posts')

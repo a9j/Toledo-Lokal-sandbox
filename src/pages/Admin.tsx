@@ -51,11 +51,11 @@ import {
 
 interface EditDialogItem {
   id: string;
-  name?: string;
-  title?: string;
-  photos?: string[];
-  editor_pick_image?: string;
-  image_url?: string;
+  name?: string | null;
+  title?: string | null;
+  photos?: string[] | null;
+  editor_pick_image?: string | null;
+  image_url?: string | null;
 }
 
 interface EditDialogState {
@@ -87,7 +87,7 @@ export default function Admin() {
 
       // Fetch owner names for display
       if (data && data.length > 0) {
-        const ownerIds = data.map(b => b.owner_user_id).filter(Boolean);
+        const ownerIds = data.map(b => b.owner_user_id).filter((id): id is string => id !== null);
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, name')

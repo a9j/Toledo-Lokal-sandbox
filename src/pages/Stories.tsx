@@ -73,10 +73,10 @@ export default function Stories() {
                   <div className="flex items-center gap-2 mb-2">
                     <Badge 
                       variant="secondary" 
-                      className={storyTypeLabels[story.story_type]?.color || ''}
+                      className={storyTypeLabels[story.story_type ?? '']?.color || ''}
                     >
-                      {(() => { const Icon = storyTypeLabels[story.story_type]?.icon; return Icon ? <Icon className="h-3 w-3 mr-1 inline" /> : null; })()}
-                      {storyTypeLabels[story.story_type]?.label || story.story_type}
+                      {(() => { const Icon = storyTypeLabels[story.story_type ?? '']?.icon; return Icon ? <Icon className="h-3 w-3 mr-1 inline" /> : null; })()}
+                      {storyTypeLabels[story.story_type ?? '']?.label || story.story_type}
                     </Badge>
                     {story.featured && (
                       <Badge className="bg-toledo-gold/20 text-toledo-gold">

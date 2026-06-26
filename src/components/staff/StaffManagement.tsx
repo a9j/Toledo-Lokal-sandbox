@@ -84,13 +84,14 @@ export function StaffManagement({ businessId }: StaffManagementProps) {
   // Send invitation
   const inviteMutation = useMutation({
     mutationFn: async ({ email, role }: { email: string; role: string }) => {
+      if (!user) throw new Error('Must be logged in');
       const { data, error } = await supabase
         .from('business_invitations')
         .insert({
           business_id: businessId,
           email,
           role,
-          invited_by: user?.id,
+          invited_by: user.id,
         })
         .select()
         .single();

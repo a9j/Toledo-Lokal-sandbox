@@ -535,7 +535,7 @@ export default function BusinessRewards() {
                   </div>
                   <Slider
                     value={[formData.pointsCost]}
-                    onValueChange={(v) => setFormData({ ...formData, pointsCost: v[0] })}
+                    onValueChange={([v = formData.pointsCost]) => setFormData({ ...formData, pointsCost: v })}
                     min={getPointBounds().min}
                     max={getPointBounds().max}
                     step={25}
@@ -644,7 +644,7 @@ export default function BusinessRewards() {
               </div>
               <Slider
                 value={[formData.pointsCost]}
-                onValueChange={(v) => setFormData({ ...formData, pointsCost: v[0] })}
+                onValueChange={([v = formData.pointsCost]) => setFormData({ ...formData, pointsCost: v })}
                 min={getPointBounds().min}
                 max={getPointBounds().max}
                 step={25}

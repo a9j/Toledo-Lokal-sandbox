@@ -31,7 +31,7 @@ export function LiveLocalSpotlight({ spotlights }: LiveLocalSpotlightProps) {
 
       <div className="divide-y divide-border/40">
         {spotlights.slice(0, 2).map((spotlight) => {
-          const cfg = TYPE_LABEL[spotlight.spotlight_type] ?? TYPE_LABEL.business;
+          const cfg = TYPE_LABEL[spotlight.spotlight_type] ?? { label: 'FEATURED BUSINESS', icon: Store };
           const Icon = cfg.icon;
           const business = spotlight.business;
           if (!business) return null;

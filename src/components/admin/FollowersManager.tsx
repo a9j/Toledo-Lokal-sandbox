@@ -90,7 +90,7 @@ function useRecentFollowers(businessId: string) {
       const userIds = data.map((r) => r.user_id);
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, display_name, avatar_url')
+        .select('id, display_name:name, avatar_url')
         .in('id', userIds);
 
       const profileMap = new Map(

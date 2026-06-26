@@ -46,7 +46,7 @@ export default function Today() {
   });
 
   // Check if drop is from a previous day (stale)
-  const isStale = dailyDrop && !dateFnsIsToday(parseISO(dailyDrop.drop_date));
+  const isStale = dailyDrop ? !dateFnsIsToday(parseISO(dailyDrop.drop_date)) : false;
 
   useEffect(() => {
     if (authLoading) return;

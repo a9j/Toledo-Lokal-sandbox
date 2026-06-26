@@ -78,7 +78,9 @@ export default function ScannerMode() {
       
       const staffBusinesses = staffOf?.map(s => s.businesses as { id: string; name: string } | null) || [];
       
-      return [...(owned || []), ...staffBusinesses].filter(Boolean);
+      return [...(owned || []), ...staffBusinesses].filter(
+        (b): b is { id: string; name: string } => b !== null,
+      );
     },
     enabled: !!user && !businessId,
   });

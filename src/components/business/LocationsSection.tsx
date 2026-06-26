@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const formatTime = (time: string) => {
-  const [hourStr, minStr] = time.split(':');
+  const [hourStr = '0', minStr] = time.split(':');
   const hour = parseInt(hourStr, 10);
   if (hour === 24) return '12:00 AM';
   const period = hour >= 12 ? 'PM' : 'AM';
@@ -24,8 +24,8 @@ function LocationCard({
   showMap: boolean;
 }) {
   const fullAddress = `${location.street_address}, ${location.city}, ${location.state} ${location.zip_code}`;
-  const today = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
-  const todayHours = location.hours?.[today] as { open: string; close: string; closed?: boolean } | undefined;
+  const today = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] ?? 'monday';
+  const todayHours = location.hours?.[today];
   // Skip the map for virtual / address-less locations (and for signed-out
   // viewers, since the maps key requires a session in this app).
   const hasMappableAddress =

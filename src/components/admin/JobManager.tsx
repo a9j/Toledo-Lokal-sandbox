@@ -282,7 +282,7 @@ export function JobManager({ businessId }: JobManagerProps) {
       ) : (
         <div className="space-y-3">
           {filtered.map((job) => {
-            const statusInfo = STATUS_LABELS[job.status] || STATUS_LABELS.approved;
+            const statusInfo = STATUS_LABELS[job.status] || STATUS_LABELS.approved || { label: job.status, className: '' };
             const payLabel = job.pay_min
               ? `$${job.pay_min}${job.pay_max ? `–$${job.pay_max}` : '+'}/${job.pay_type === 'salary' ? 'yr' : 'hr'}`
               : null;

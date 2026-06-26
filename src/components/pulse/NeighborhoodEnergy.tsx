@@ -16,7 +16,7 @@ export function NeighborhoodEnergy({ selected, onSelect }: NeighborhoodEnergyPro
   return (
     <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-hide px-1 pb-1">
       {hoods.map((h) => {
-        const style = NEIGHBORHOOD_ENERGY_STYLES[h.energy_level] ?? NEIGHBORHOOD_ENERGY_STYLES.calm;
+        const style = NEIGHBORHOOD_ENERGY_STYLES[h.energy_level] ?? { ring: 'border-lokal-amber/40', text: 'text-lokal-amber' };
         const isSelected = selected === h.neighborhood;
         return (
           <button

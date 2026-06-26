@@ -95,7 +95,7 @@ export function useSavedItems(itemType?: SavedItemType) {
         eventIds.length > 0
           ? supabase
               .from('events')
-              .select('id, title, image_url, start_date')
+              .select('id, title, image_url, start_date:start_date_time')
               .in('id', eventIds)
           : { data: [] },
         postIds.length > 0
@@ -148,7 +148,7 @@ export function useSavedItems(itemType?: SavedItemType) {
             p_activity_type: 'save',
             p_reference_id: itemId,
             p_business_id: itemId,
-            p_content: null,
+            p_content: undefined,
           });
         } catch (pulseError) {
           // Don't fail the save if pulse generation fails

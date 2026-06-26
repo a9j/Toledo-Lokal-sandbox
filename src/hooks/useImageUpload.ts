@@ -82,6 +82,9 @@ export function useImageUpload() {
       
       // heic2any can return an array of blobs for multi-page HEIC, we take the first
       const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      if (!blob) {
+        throw new Error('HEIC conversion produced no image data.');
+      }
       
       // Create a new File object with .jpg extension
       const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');

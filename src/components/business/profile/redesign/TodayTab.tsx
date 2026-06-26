@@ -85,7 +85,7 @@ export function TodayTab({ business }: { business: ProfileBusiness }) {
         <div className="space-y-3">
           <SectionLabel>What's happening today</SectionLabel>
           {todayModules.map((module) => (
-            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id]} />
+            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id] ?? {}} />
           ))}
         </div>
       ) : (

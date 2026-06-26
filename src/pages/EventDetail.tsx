@@ -31,6 +31,7 @@ export default function EventDetail() {
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', id],
     queryFn: async () => {
+      if (!id) throw new Error('Event not found');
       const { data, error } = await supabase
         .from('events')
         .select(`
@@ -49,6 +50,7 @@ export default function EventDetail() {
   const { data: rsvpCount } = useQuery({
     queryKey: ['event-rsvp-count', id],
     queryFn: async () => {
+      if (!id) return 0;
       const { count, error } = await supabase
         .from('event_rsvps')
         .select('*', { count: 'exact', head: true })
@@ -64,7 +66,7 @@ export default function EventDetail() {
   const { data: userRsvp } = useQuery({
     queryKey: ['event-rsvp', id, user?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user || !id) return null;
       const { data, error } = await supabase
         .from('event_rsvps')
         .select('*')
@@ -81,7 +83,7 @@ export default function EventDetail() {
   const { data: isSaved } = useQuery({
     queryKey: ['saved-event', id, user?.id],
     queryFn: async () => {
-      if (!user) return false;
+      if (!user || !id) return false;
       const { data, error } = await supabase
         .from('saved_items')
         .select('id')
@@ -98,7 +100,7 @@ export default function EventDetail() {
 
   const rsvpMutation = useMutation({
     mutationFn: async (status: 'going' | 'interested') => {
-      if (!user) throw new Error('Must be logged in');
+      if (!user || !id) throw new Error('Must be logged in');
       
       if (userRsvp) {
         if (userRsvp.status === status) {
@@ -132,8 +134,8 @@ export default function EventDetail() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error('Must be logged in');
-      
+      if (!user || !id) throw new Error('Must be logged in');
+
       if (isSaved) {
         const { error } = await supabase
           .from('saved_items')

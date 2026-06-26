@@ -16,7 +16,7 @@ function isHoursObject(raw: unknown): raw is Record<string, RawDay> {
 }
 
 export function formatTime(hhmm: string): string {
-  const [h, m] = hhmm.split(':').map(Number);
+  const [h = NaN, m = 0] = hhmm.split(':').map(Number);
   if (Number.isNaN(h)) return hhmm;
   const period = h >= 12 && h < 24 ? 'PM' : 'AM';
   const dh = h % 12 === 0 ? 12 : h % 12;
@@ -28,13 +28,13 @@ export function formatTime(hhmm: string): string {
 export function getOpenStatus(raw: unknown): { isOpen: boolean; label: string } | null {
   if (!isHoursObject(raw)) return null;
   const now = new Date();
-  const today = raw[DAY_KEYS[now.getDay()]];
+  const today = raw[DAY_KEYS[now.getDay()] ?? 'sunday'];
   if (!today || typeof today !== 'object') return null;
   if (today.closed || !today.open || !today.close) return { isOpen: false, label: 'Closed today' };
 
   const cur = now.getHours() * 60 + now.getMinutes();
-  const [oh, om] = today.open.split(':').map(Number);
-  const [ch, cm] = today.close.split(':').map(Number);
+  const [oh = 0, om] = today.open.split(':').map(Number);
+  const [ch = 0, cm] = today.close.split(':').map(Number);
   const openMin = oh * 60 + (om || 0);
   let closeMin = ch * 60 + (cm || 0);
   if (closeMin <= openMin) closeMin = 24 * 60;
@@ -57,6 +57,6 @@ export function getHoursList(raw: unknown): HoursRow[] | null {
   return order.map((key) => {
     const d = raw[key];
     const label = !d || d.closed || !d.open || !d.close ? 'Closed' : `${formatTime(d.open)} – ${formatTime(d.close)}`;
-    return { day: DAY_LABELS[key], label, isToday: key === todayKey };
+    return { day: DAY_LABELS[key] ?? key, label, isToday: key === todayKey };
   });
 }

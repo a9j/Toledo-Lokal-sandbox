@@ -96,7 +96,7 @@ export function useSignedUrl(
     if (storagePath.startsWith('http')) {
       // If it contains our storage URL, extract the path
       const storageMatch = storagePath.match(/\/storage\/v1\/object\/(?:public|sign)\/uploads\/(.+?)(?:\?|$)/);
-      if (storageMatch) {
+      if (storageMatch?.[1]) {
         filePath = storageMatch[1];
       } else {
         // External URL or already processed, use as-is
@@ -127,10 +127,10 @@ export function extractStoragePath(url: string | null | undefined): string | nul
   }
   
   const storageMatch = url.match(/\/storage\/v1\/object\/(?:public|sign)\/uploads\/(.+?)(?:\?|$)/);
-  if (storageMatch) {
+  if (storageMatch?.[1]) {
     return storageMatch[1];
   }
-  
+
   return null; // External URL
 }
 

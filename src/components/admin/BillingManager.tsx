@@ -86,7 +86,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
   }
 
   const tierStatus = billing?.tier_status || 'community';
-  const info = TIER_INFO[tierStatus] || TIER_INFO.community;
+  const info = TIER_INFO[tierStatus] || TIER_INFO.community || { label: tierStatus, description: '', className: '' };
   const isFounder = tierStatus === 'founding_5' || tierStatus === 'founding_50';
   const isF5 = tierStatus === 'founding_5';
   const isF50 = tierStatus === 'founding_50';

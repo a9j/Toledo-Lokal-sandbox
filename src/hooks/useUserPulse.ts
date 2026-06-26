@@ -21,9 +21,9 @@ export function useUserPulse() {
       const { data, error } = await supabase.rpc('generate_user_pulse', {
         p_user_id: user.id,
         p_activity_type: activityType,
-        p_reference_id: referenceId || null,
-        p_business_id: businessId || null,
-        p_content: content || null,
+        p_reference_id: referenceId ?? undefined,
+        p_business_id: businessId ?? undefined,
+        p_content: content ?? undefined,
       });
 
       if (error) throw error;

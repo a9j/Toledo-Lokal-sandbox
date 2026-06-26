@@ -79,10 +79,9 @@ export function LoopAnalyticsDashboard() {
       const byBusiness: Record<string, { name: string; total: number }> = {};
       data?.forEach(t => {
         if (t.business_id && t.business?.name) {
-          if (!byBusiness[t.business_id]) {
-            byBusiness[t.business_id] = { name: t.business.name, total: 0 };
-          }
-          byBusiness[t.business_id].total += Math.abs(t.points);
+          const entry = byBusiness[t.business_id] ?? { name: t.business.name, total: 0 };
+          entry.total += Math.abs(t.points);
+          byBusiness[t.business_id] = entry;
         }
       });
       return Object.values(byBusiness).sort((a, b) => b.total - a.total).slice(0, 5);

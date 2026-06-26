@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { HoursEditor, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
+import { HoursEditor, DEFAULT_BUSINESS_HOURS, parseBusinessHours, type DayHours } from '@/components/business/HoursEditor';
 import { BusinessLocation, NEIGHBORHOOD_OPTIONS } from '@/hooks/useBusinessLocations';
 import { X, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
@@ -175,7 +175,10 @@ export function LocationForm({
           <div className="mt-2">
             <HoursEditor
               hours={location.hours ? parseBusinessHours(location.hours) : DEFAULT_BUSINESS_HOURS}
-              onChange={(h) => update('hours', h)}
+              onChange={(h) => {
+                const record: Record<string, DayHours> = { ...h };
+                update('hours', record);
+              }}
             />
           </div>
         )}

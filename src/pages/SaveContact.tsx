@@ -22,12 +22,13 @@ export default function SaveContact() {
     queryKey: ['save-contact', id],
     enabled: !!id,
     queryFn: async () => {
+      if (!id) throw new Error('Business not found');
       const base = supabase
         .from('businesses_public')
         .select(
           'id, name, slug, logo_url, cover_image_url, profile_picture_url, phone, website, address, neighborhood_id',
         );
-      const { data, error } = await (isUUID(id!) ? base.eq('id', id) : base.eq('slug', id)).single();
+      const { data, error } = await (isUUID(id) ? base.eq('id', id) : base.eq('slug', id)).single();
       if (error) throw error;
 
       let neighborhood: string | null = null;

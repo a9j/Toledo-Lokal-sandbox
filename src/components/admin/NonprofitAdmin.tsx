@@ -197,7 +197,7 @@ export function NonprofitAdmin() {
       what_this_helps: nonprofit.what_this_helps || '',
       community_support_types: nonprofit.community_support_types || [],
       human_note: nonprofit.human_note || '',
-      founding_community_partner: nonprofit.founding_community_partner,
+      founding_community_partner: nonprofit.founding_community_partner ?? false,
       website: nonprofit.website || '',
       email: nonprofit.email || '',
       phone: nonprofit.phone || '',

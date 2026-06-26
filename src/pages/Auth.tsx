@@ -124,7 +124,7 @@ export default function Auth() {
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
-      newErrors.email = emailResult.error.errors[0].message;
+      newErrors.email = emailResult.error.errors[0]?.message;
     }
 
     if (isSignUp) {

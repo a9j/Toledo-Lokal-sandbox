@@ -30,7 +30,7 @@ interface NearbyBusiness {
   slug: string | null;
   logo_url: string | null;
   address: string | null;
-  category: { name: string; icon: string } | null;
+  category: { name: string; icon: string | null } | null;
   neighborhood: { name: string } | null;
   has_active_deal: boolean;
   has_loop_rewards: boolean;
@@ -46,7 +46,7 @@ interface MapPin {
   businessId: string;
   name: string;
   slug: string | null;
-  category: { name: string; icon: string } | null;
+  category: { name: string; icon: string | null } | null;
   has_active_deal: boolean;
   has_loop_rewards: boolean;
   is_food_truck_today: boolean;
@@ -190,7 +190,14 @@ export default function NearMe() {
       
       const foodTruckBusinesses = new Set(foodTrucks?.map(ft => ft.business_id) || []);
 
-      return (bizData || []).map(biz => ({
+      // businesses_public drops NOT NULL on id/name; every row has them, so
+      // narrow to non-null rather than widen the public NearbyBusiness shape.
+      const rows = (bizData ?? []).filter(
+        (b): b is typeof b & { id: string; name: string } =>
+          b.id !== null && b.name !== null,
+      );
+
+      return rows.map(biz => ({
         id: biz.id,
         name: biz.name,
         slug: biz.slug,

@@ -31,7 +31,7 @@ export default function DashboardMenu() {
         .eq('user_id', user.id)
         .eq('role', 'manager')
         .maybeSingle();
-      return (managed?.business as typeof owned) ?? null;
+      return managed?.business ?? null;
     },
     enabled: !!user,
   });

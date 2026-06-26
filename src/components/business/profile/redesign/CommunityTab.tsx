@@ -33,7 +33,7 @@ export function CommunityTab({ business }: { business: ProfileBusiness }) {
         <div className="space-y-3">
           <SectionLabel>Impact</SectionLabel>
           {impactModules.map((module) => (
-            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id]} />
+            <ModuleCard key={module.id} module={module} values={business.moduleContent[module.id] ?? {}} />
           ))}
         </div>
       )}

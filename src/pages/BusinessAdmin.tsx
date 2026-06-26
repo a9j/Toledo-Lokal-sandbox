@@ -131,7 +131,7 @@ export default function BusinessAdmin() {
     );
   }
 
-  const current = SECTION_TITLES[section] || SECTION_TITLES.dashboard;
+  const current = SECTION_TITLES[section] ?? { title: 'Dashboard', subtitle: 'Your business at a glance' };
 
   const renderContent = () => {
     switch (section) {
