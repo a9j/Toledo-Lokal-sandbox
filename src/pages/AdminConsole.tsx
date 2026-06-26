@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
   Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode, Contact,
-  Ticket,
+  Ticket, Users2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -22,6 +22,7 @@ import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 import { JoinQRCode } from '@/components/join/JoinQRCode';
 import { FoundingContactCards } from '@/components/admin/console/FoundingContactCards';
 import { Charter100Invites } from '@/components/admin/console/Charter100Invites';
+import { CohortAdmin } from '@/components/admin/console/CohortAdmin';
 import { siteUrl } from '@/lib/site-url';
 
 const NAV_GROUPS: AdminNavGroup[] = [
@@ -47,6 +48,9 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'founding-cards', label: 'Founding 25 Cards', icon: Contact },
     { id: 'charter100-invites', label: 'Charter 100 Invites', icon: Ticket },
   ] },
+  { label: 'Cohorts', items: [
+    { id: 'cohorts', label: 'Cohort Management', icon: Users2 },
+  ] },
 ];
 
 const SECTION_META: Record<string, { title: string; subtitle: string }> = {
@@ -62,6 +66,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   'founding-qr': { title: 'Join QR', subtitle: 'Show or print this to recruit local businesses' },
   'founding-cards': { title: 'Founding 25 Contact Cards', subtitle: 'Printable QR codes that save the business and open its profile' },
   'charter100-invites': { title: 'Charter 100 Invites', subtitle: 'Generate single-use or rotating join codes for the founding cohort' },
+  cohorts: { title: 'Cohort Management', subtitle: 'Settings, members, invites, eligibility, badges & pinned content' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -158,6 +163,7 @@ export default function AdminConsole() {
       {active === 'founding-qr' && <FoundingQRPanel />}
       {active === 'founding-cards' && <FoundingContactCards />}
       {active === 'charter100-invites' && <Charter100Invites />}
+      {active === 'cohorts' && <CohortAdmin />}
     </AdminShell>
   );
 }
