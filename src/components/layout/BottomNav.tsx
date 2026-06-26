@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, MapPin, Truck, Compass, Radio, Repeat, Sparkles, Lock } from 'lucide-react';
+import { Newspaper, MapPin, Circle, Compass, Radio, Repeat, Sparkles, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { LP_ENABLED, SOFT_LAUNCH, TODAY_TAB_ENABLED } from '@/lib/flags';
@@ -14,7 +14,10 @@ const navItems = [
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   // Loop stays visible but locked (Coming Soon) until Loop Points launch.
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
-  { path: '/food-today', icon: Truck, label: 'Trucks' },
+  // Circles lands on the founding cohort today (see CirclesLanding). The cohort
+  // page lives at its own canonical URL, so `match` keeps this tab highlighted
+  // once the resolver redirects there. Trucks moved into the Discover screen.
+  { path: '/circles', icon: Circle, label: 'Circles', match: ['/charter-100'] },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
@@ -59,8 +62,10 @@ export function BottomNav() {
               );
             }
 
-            const isActive = location.pathname === item.path ||
-              (item.path !== '/' && location.pathname.startsWith(item.path));
+            const matchPaths = [item.path, ...(item.match ?? [])];
+            const isActive = matchPaths.some((path) =>
+              location.pathname === path ||
+              (path !== '/' && location.pathname.startsWith(path)));
             const to = item.path === '/profile' && !user ? '/auth' : item.path;
 
             return (
