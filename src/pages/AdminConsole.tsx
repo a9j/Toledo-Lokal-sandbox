@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
   Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode, Contact,
-  Users2,
+  Users2, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -22,6 +22,7 @@ import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 import { JoinQRCode } from '@/components/join/JoinQRCode';
 import { FoundingContactCards } from '@/components/admin/console/FoundingContactCards';
 import { CohortAdmin } from '@/components/admin/console/CohortAdmin';
+import { BetaAdmin } from '@/components/admin/console/BetaAdmin';
 import { siteUrl } from '@/lib/site-url';
 
 const NAV_GROUPS: AdminNavGroup[] = [
@@ -48,6 +49,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   ] },
   { label: 'Cohorts', items: [
     { id: 'cohorts', label: 'Cohort Management', icon: Users2 },
+    { id: 'beta', label: 'Closed Beta', icon: Sparkles },
   ] },
 ];
 
@@ -64,6 +66,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   'founding-qr': { title: 'Join QR', subtitle: 'Show or print this to recruit local businesses' },
   'founding-cards': { title: 'Founding 25 Contact Cards', subtitle: 'Printable QR codes that save the business and open its profile' },
   cohorts: { title: 'Cohort Management', subtitle: 'Settings, members, invites, eligibility, badges & pinned content' },
+  beta: { title: 'Closed Beta', subtitle: 'Signups, invites, phase flag, beta jobs, and Ideas' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -160,6 +163,7 @@ export default function AdminConsole() {
       {active === 'founding-qr' && <FoundingQRPanel />}
       {active === 'founding-cards' && <FoundingContactCards />}
       {active === 'cohorts' && <CohortAdmin />}
+      {active === 'beta' && <BetaAdmin />}
     </AdminShell>
   );
 }

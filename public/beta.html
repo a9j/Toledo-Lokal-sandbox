@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Join the Toledo Lokal Beta</title>
+<style>
+  :root {
+    --ink: #0B0F1A;
+    --ink-soft: #5A6478;
+    --paper: #FFFFFF;
+    --wash: #F5F6F8;
+    --line: #E7E9EE;
+    --blue: #2F6BFF;
+    --blue-deep: #1B47C2;
+    --gold: #F4A52A;
+    --good: #1E9E6A;
+    --radius: 18px;
+    --shadow: 0 1px 2px rgba(11,15,26,.04), 0 12px 30px rgba(11,15,26,.08);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--wash);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+  }
+  .brand {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 4px 0 28px;
+  }
+  .brand span { color: var(--blue); }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px 22px;
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    background: rgba(47,107,255,.08);
+    padding: 6px 11px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  .lede {
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    margin: 0 0 22px;
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  input[type="email"] {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  input[type="email"]:focus { border-color: var(--blue); }
+  .field { margin-bottom: 20px; }
+  .platforms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .pf {
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 12px;
+    background: var(--paper);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .15s ease, background .15s ease;
+    user-select: none;
+  }
+  .pf:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .pf[aria-pressed="true"] {
+    border-color: var(--blue);
+    background: rgba(47,107,255,.06);
+    color: var(--blue-deep);
+  }
+  .pf small { display: block; font-weight: 500; color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
+  .submit {
+    width: 100%;
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--blue);
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background .15s ease, opacity .15s ease;
+  }
+  .submit:hover { background: var(--blue-deep); }
+  .submit:disabled { opacity: .55; cursor: default; }
+  .fine {
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .err {
+    margin-top: 14px;
+    font-size: 13.5px;
+    color: #B42318;
+    background: #FEF3F2;
+    border: 1px solid #FDA29B;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: none;
+  }
+  /* success state */
+  .done { display: none; text-align: center; }
+  .check {
+    width: 56px; height: 56px;
+    margin: 4px auto 18px;
+    border-radius: 50%;
+    background: rgba(30,158,106,.12);
+    display: grid; place-items: center;
+  }
+  .check svg { width: 28px; height: 28px; }
+  .done h2 { font-size: 22px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .done p { color: var(--ink-soft); font-size: 15px; margin: 0 0 6px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 18px; padding: 9px 14px;
+    background: rgba(244,165,42,.12);
+    color: #8A5A00;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+  .steps {
+    margin: 22px 0 0; padding: 0; list-style: none; text-align: left;
+    border-top: 1px solid var(--line); padding-top: 18px;
+  }
+  .steps li { display: flex; gap: 12px; padding: 8px 0; font-size: 14px; color: var(--ink-soft); }
+  .steps b { color: var(--ink); font-weight: 600; }
+  .num {
+    flex: 0 0 22px; height: 22px; border-radius: 50%;
+    background: var(--wash); color: var(--ink); font-size: 12px; font-weight: 700;
+    display: grid; place-items: center; margin-top: 1px;
+  }
+  /* closed state */
+  .closed { display: none; text-align: center; }
+  .closed h2 { font-size: 22px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .closed p { color: var(--ink-soft); font-size: 15px; margin: 0; }
+  /* admin / QR */
+  .qrpanel { display: none; margin-top: 22px; }
+  .qrbox { background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 22px; text-align:center; box-shadow: var(--shadow); }
+  #qr { display:inline-block; margin: 4px 0 14px; }
+  .qrurl { font-size: 12.5px; color: var(--ink-soft); word-break: break-all; }
+  .ghost { margin-top: 28px; text-align:center; }
+  .ghost button { background:none; border:none; color:var(--ink-soft); font-size:12.5px; cursor:pointer; text-decoration:underline; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="brand">Toledo<span>Lokal</span></div>
+
+    <!-- SIGNUP -->
+    <section class="card" id="form-card">
+      <span class="eyebrow">Beta cohort · 100 spots</span>
+      <h1>Help build Toledo Lokal before anyone else.</h1>
+      <p class="lede">
+        This isn't a discount app. It's civic infrastructure, built by Toledo, for Toledo.
+        Join the founding beta and you'll get <strong>first access</strong> the day the app clears review,
+        a private cohort to shape what gets built, and your name in early as a founding member.
+      </p>
+
+      <div class="field">
+        <label for="email">Your email</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" />
+      </div>
+
+      <div class="field">
+        <label>Which phone do you use?</label>
+        <div class="platforms" role="group" aria-label="Choose your phone">
+          <button type="button" class="pf" data-pf="apple" aria-pressed="false">
+            iPhone <small>Apple / iOS</small>
+          </button>
+          <button type="button" class="pf" data-pf="android" aria-pressed="false">
+            Android <small>Samsung, Pixel, etc.</small>
+          </button>
+        </div>
+      </div>
+
+      <button class="submit" id="submit">Save my spot</button>
+      <div class="err" id="err"></div>
+      <p class="fine">We'll only email you about the beta. No spam, ever.</p>
+    </section>
+
+    <!-- SUCCESS -->
+    <section class="card done" id="done-card">
+      <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1E9E6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h2>You're on the list.</h2>
+      <p>Your spot in the Toledo Lokal beta is saved.</p>
+      <div class="badge"><span class="dot"></span> Founding beta member</div>
+      <ul class="steps">
+        <li><span class="num">1</span><span><b>We review the app with Apple.</b> You'll get an email the moment it's cleared.</span></li>
+        <li><span class="num">2</span><span><b>Beta opens, public closes.</b> You get in first, before it's open to the city.</span></li>
+        <li><span class="num">3</span><span><b>Your cohort goes live.</b> A private space to chat, share ideas, and tell us what to build next.</span></li>
+      </ul>
+    </section>
+
+    <!-- CLOSED (shown when the beta phase is cohort_live) -->
+    <section class="card closed" id="closed-card">
+      <h2>Beta is now closed to the public.</h2>
+      <p>Thanks for your interest. The founding beta is full and open only to our early members. Toledo Lokal opens to everyone soon.</p>
+    </section>
+
+    <!-- QR PANEL (for you to grab the code to share) -->
+    <section class="qrpanel" id="qrpanel">
+      <div class="qrbox">
+        <span class="eyebrow">Share this</span>
+        <div id="qr"></div>
+        <div class="qrurl" id="qrurl"></div>
+      </div>
+    </section>
+
+    <div class="ghost">
+      <button id="toggl--qr">Show QR code to share</button>
+    </div>
+  </main>
+
+<script>
+/* ---------------------------------------------------------------
+   CONFIG — set these two before deploying
+   --------------------------------------------------------------- */
+const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
+const SHARE_URL = window.location.origin + window.location.pathname; // QR points back to this page
+/* --------------------------------------------------------------- */
+
+let platform = null;
+
+document.querySelectorAll(".pf").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".pf").forEach(b => b.setAttribute("aria-pressed", "false"));
+    btn.setAttribute("aria-pressed", "true");
+    platform = btn.dataset.pf;
+    hideError();
+  });
+});
+
+const emailEl = document.getElementById("email");
+const submitEl = document.getElementById("submit");
+const errEl = document.getElementById("err");
+
+function showError(msg){ errEl.textContent = msg; errEl.style.display = "block"; }
+function hideError(){ errEl.style.display = "none"; }
+function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function showClosed(){
+  document.getElementById("form-card").style.display = "none";
+  document.getElementById("done-card").style.display = "none";
+  document.getElementById("closed-card").style.display = "block";
+}
+
+/* Server is the source of truth: while the phase is cohort_live, the database
+   rejects new public signups (RLS). We also check the phase on load so the page
+   shows the closed message instead of a broken form. */
+async function checkPhase(){
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/beta_phase`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: "{}"
+    });
+    if (res.ok) {
+      const phase = await res.json();
+      if (phase === "cohort_live") showClosed();
+    }
+  } catch (e) {
+    /* If the check fails we leave the form up; the server still enforces the gate. */
+  }
+}
+checkPhase();
+
+submitEl.addEventListener("click", async () => {
+  hideError();
+  const email = emailEl.value.trim().toLowerCase();
+  if (!validEmail(email)) { showError("Enter a valid email so we can reach you."); return; }
+  if (!platform) { showError("Let us know if you're on iPhone or Android."); return; }
+
+  submitEl.disabled = true;
+  submitEl.textContent = "Saving...";
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/beta_signups`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal,resolution=ignore-duplicates"
+      },
+      body: JSON.stringify({ email, platform, source: "qr" })
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      /* RLS rejected the insert — the beta phase has closed public signups. */
+      showClosed();
+      return;
+    }
+
+    if (!res.ok && res.status !== 201 && res.status !== 200) {
+      const t = await res.text();
+      throw new Error(t || "Could not save");
+    }
+
+    document.getElementById("form-card").style.display = "none";
+    document.getElementById("done-card").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    submitEl.disabled = false;
+    submitEl.textContent = "Save my spot";
+    showError("Something went wrong saving your spot. Please try again.");
+  }
+});
+
+/* QR code — loads library at runtime */
+const toggle = document.getElementById("toggl--qr");
+const qrpanel = document.getElementById("qrpanel");
+let qrDrawn = false;
+toggle.addEventListener("click", () => {
+  const open = qrpanel.style.display === "block";
+  qrpanel.style.display = open ? "none" : "block";
+  toggle.textContent = open ? "Show QR code to share" : "Hide QR code";
+  if (!open && !qrDrawn) drawQR();
+});
+function drawQR(){
+  document.getElementById("qrurl").textContent = SHARE_URL;
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js";
+  s.onload = () => {
+    window.QRCode.toCanvas(SHARE_URL, { width: 220, margin: 1, color: { dark: "#0B0F1A", light: "#FFFFFF" } }, (err, canvas) => {
+      if (!err) { document.getElementById("qr").innerHTML = ""; document.getElementById("qr").appendChild(canvas); qrDrawn = true; }
+    });
+  };
+  document.body.appendChild(s);
+}
+</script>
+</body>
+</html>
