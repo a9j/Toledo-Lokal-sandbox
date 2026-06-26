@@ -18,6 +18,8 @@ export interface BetaSignupStats {
 export function useBetaSignupStats() {
   return useQuery({
     queryKey: ['admin-beta-signup-stats'],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<BetaSignupStats> => {
       const { data, error } = await supabase.rpc('admin_beta_signup_stats' as never);
       if (error) throw error;

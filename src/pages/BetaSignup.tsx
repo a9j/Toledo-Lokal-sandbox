@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useBetaPhase, useBetaSignupCount } from '@/hooks/useBeta';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ type Platform = 'apple' | 'android';
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function BetaSignup() {
+  const queryClient = useQueryClient();
   const { data: phase, isLoading: phaseLoading } = useBetaPhase();
   const { data: count = 0, refetch: refetchCount } = useBetaSignupCount();
 
@@ -53,8 +55,9 @@ export default function BetaSignup() {
       }
     }
 
+    await queryClient.invalidateQueries({ queryKey: ['beta-signup-count'] });
     const { data: fresh } = await refetchCount();
-    setMemberNumber(typeof fresh === 'number' ? fresh : count + 1);
+    setMemberNumber(typeof fresh === 'number' && fresh > 0 ? fresh : count + 1);
   };
 
   if (phaseLoading) {
