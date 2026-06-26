@@ -50,6 +50,21 @@ export default function Auth() {
   const { toast } = useToast();
   const isHandlingNavRef = useRef(false);
 
+  // A flow may stash where to return after auth (e.g. the Charter 100 join
+  // resume). Honor it ahead of the default post-auth routing. Only same-origin
+  // paths are allowed. sessionStorage covers same-tab; localStorage survives the
+  // email-confirmation round trip in the same browser.
+  const consumePostAuthRedirect = (): string | null => {
+    const stored =
+      sessionStorage.getItem('post_auth_redirect') ||
+      localStorage.getItem('post_auth_redirect');
+    if (stored) {
+      sessionStorage.removeItem('post_auth_redirect');
+      localStorage.removeItem('post_auth_redirect');
+    }
+    return stored && stored.startsWith('/') ? stored : null;
+  };
+
   const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
     const effectiveType = storedSignupType || signupType || localStorage.getItem('signup_type') || 'explorer';
     localStorage.removeItem('signup_type');
@@ -86,6 +101,11 @@ export default function Auth() {
   useEffect(() => {
     if (!user || isHandlingNavRef.current) return;
     isHandlingNavRef.current = true;
+    const resume = consumePostAuthRedirect();
+    if (resume) {
+      navigate(resume, { replace: true });
+      return;
+    }
     const pendingSignupType = localStorage.getItem('signup_type');
     if (pendingSignupType) {
       navigateAfterAuth(user.id, pendingSignupType);
@@ -252,7 +272,7 @@ export default function Auth() {
           }
         } else {
           setFailedAttempts(0);
-          navigate('/');
+          navigate(consumePostAuthRedirect() ?? '/');
         }
       }
     } catch (error) {

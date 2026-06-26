@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
   Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode, Contact,
+  Users2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -20,6 +21,7 @@ import { RewardsAdmin } from '@/components/admin/console/RewardsAdmin';
 import { CitiesAdmin } from '@/components/admin/console/CitiesAdmin';
 import { JoinQRCode } from '@/components/join/JoinQRCode';
 import { FoundingContactCards } from '@/components/admin/console/FoundingContactCards';
+import { CohortAdmin } from '@/components/admin/console/CohortAdmin';
 import { siteUrl } from '@/lib/site-url';
 
 const NAV_GROUPS: AdminNavGroup[] = [
@@ -44,6 +46,9 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'founding-qr', label: 'Join QR', icon: QrCode },
     { id: 'founding-cards', label: 'Founding 25 Cards', icon: Contact },
   ] },
+  { label: 'Cohorts', items: [
+    { id: 'cohorts', label: 'Cohort Management', icon: Users2 },
+  ] },
 ];
 
 const SECTION_META: Record<string, { title: string; subtitle: string }> = {
@@ -58,6 +63,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   whitelabel: { title: 'White-label Cities', subtitle: 'Tenant cities and per-city branding' },
   'founding-qr': { title: 'Join QR', subtitle: 'Show or print this to recruit local businesses' },
   'founding-cards': { title: 'Founding 25 Contact Cards', subtitle: 'Printable QR codes that save the business and open its profile' },
+  cohorts: { title: 'Cohort Management', subtitle: 'Settings, members, invites, eligibility, badges & pinned content' },
 };
 
 const MANAGEMENT_LINKS = [
@@ -153,6 +159,7 @@ export default function AdminConsole() {
       {active === 'whitelabel' && <CitiesAdmin />}
       {active === 'founding-qr' && <FoundingQRPanel />}
       {active === 'founding-cards' && <FoundingContactCards />}
+      {active === 'cohorts' && <CohortAdmin />}
     </AdminShell>
   );
 }

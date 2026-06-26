@@ -27,6 +27,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { BetaGate } from "@/components/beta/BetaGate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -100,6 +101,8 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Join = lazy(() => import("./pages/Join"));
 const JoinQR = lazy(() => import("./pages/JoinQR"));
+const JoinCharter100 = lazy(() => import("./pages/JoinCharter100"));
+const Charter100 = lazy(() => import("./pages/Charter100"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -135,6 +138,7 @@ const App = () => (
               <Toaster />
             <Sonner />
             <BrowserRouter>
+              <BetaGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
                   <Route path="/" element={TODAY_TAB_ENABLED ? <Today /> : <Navigate to="/founding-5" replace />} />
@@ -149,6 +153,10 @@ const App = () => (
                   <Route path="/join" element={<Join />} />
                   {/* Unlisted helper that renders a scannable QR for the /join URL */}
                   <Route path="/join/qr" element={<JoinQR />} />
+                  {/* Charter 100 cohort join — token-gated, server-validated */}
+                  <Route path="/join/charter-100" element={<JoinCharter100 />} />
+                  {/* Charter 100 cohort home — cover, live seat counter, feedback */}
+                  <Route path="/charter-100" element={<Charter100 />} />
                   {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
                   <Route path="/signup" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />
@@ -218,6 +226,7 @@ const App = () => (
               </Suspense>
               <BottomNav />
               <InstallPrompt />
+              </BetaGate>
             </BrowserRouter>
             <Analytics />
           </TooltipProvider>
