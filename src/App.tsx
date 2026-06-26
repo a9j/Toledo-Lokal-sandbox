@@ -149,7 +149,7 @@ const App = () => (
               <BetaGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/discover" replace />} />
+                  <Route path="/" element={<Navigate to="/founding-5" replace />} />
                   <Route path="/near-me" element={<NearMe />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/loop" element={LP_ENABLED ? <Loop /> : <Navigate to="/" replace />} />
