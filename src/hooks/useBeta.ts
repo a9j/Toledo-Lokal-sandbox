@@ -25,6 +25,19 @@ export function useBetaPhase() {
   });
 }
 
+// Public running total of closed-beta signups (safe to show; the list itself
+// stays private). Ticks up as people sign up.
+export function useBetaSignupCount() {
+  return useQuery({
+    queryKey: ['beta-signup-count'],
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase.rpc('beta_signup_count' as never);
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+  });
+}
+
 export interface BetaCohort {
   id: string;
   slug: string;

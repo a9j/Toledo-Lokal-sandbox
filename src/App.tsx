@@ -104,6 +104,7 @@ const JoinQR = lazy(() => import("./pages/JoinQR"));
 const JoinCharter100 = lazy(() => import("./pages/JoinCharter100"));
 const Charter100 = lazy(() => import("./pages/Charter100"));
 const FoundingBeta = lazy(() => import("./pages/FoundingBeta"));
+const BetaSignup = lazy(() => import("./pages/BetaSignup"));
 const CirclesLanding = lazy(() => import("./pages/CirclesLanding"));
 const NonprofitSignup = lazy(() => import("./pages/NonprofitSignup"));
 const CommunityPartnerSignup = lazy(() => import("./pages/CommunityPartnerSignup"));
@@ -163,6 +164,8 @@ const App = () => (
                   <Route path="/charter-100" element={<Charter100 />} />
                   {/* Hidden, invite-only Founding Beta Circle (gated to active beta members by RLS) */}
                   <Route path="/founding-beta" element={<FoundingBeta />} />
+                  {/* Public closed-beta signup page (target of the shared link / QR) */}
+                  <Route path="/beta" element={<BetaSignup />} />
                   {/* Circles tab landing — cohort-first resolver (→ Charter 100 today) */}
                   <Route path="/circles" element={<CirclesLanding />} />
                   {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
