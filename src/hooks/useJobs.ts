@@ -7,6 +7,7 @@ export type JobType = 'full-time' | 'part-time' | 'seasonal' | 'entry-level' | '
 export type PayType = 'hourly' | 'salary' | 'flat-rate' | 'tips';
 export type ApplyMethod = 'email' | 'phone' | 'link';
 export type JobStatus = 'pending' | 'approved' | 'rejected' | 'filled' | 'expired';
+export type JobVisibility = 'public' | 'beta';
 
 export interface Job {
   id: string;
@@ -23,6 +24,9 @@ export interface Job {
   apply_method: ApplyMethod;
   apply_contact: string;
   status: JobStatus;
+  // 'public' (everyone) or 'beta' (active Founding Beta members only, enforced
+  // server-side via RLS). Defaults to 'public'.
+  visibility: JobVisibility;
   featured: boolean;
   view_count: number;
   created_at: string;
@@ -81,7 +85,7 @@ export function useJobs(filters?: JobFilters) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Job[];
+      return data as unknown as Job[];
     },
   });
 }
@@ -98,7 +102,7 @@ export function useBusinessJobs(businessId: string | undefined) {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Job[];
+      return data as unknown as Job[];
     },
     enabled: !!businessId,
   });

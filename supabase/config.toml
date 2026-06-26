@@ -85,3 +85,6 @@ verify_jwt = false
 
 [functions.join-cohort]
 verify_jwt = false
+
+[functions.send-beta-invite]
+verify_jwt = false

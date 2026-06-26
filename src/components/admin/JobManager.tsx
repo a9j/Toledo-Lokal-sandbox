@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useBusinessJobs, useCreateJob, useDeleteJob, type JobType, type PayType, type ApplyMethod } from '@/hooks/useJobs';
+import { useBusinessJobs, useCreateJob, useDeleteJob, type JobType, type PayType, type ApplyMethod, type JobVisibility } from '@/hooks/useJobs';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,6 +73,7 @@ interface JobFormState {
   hiringNow: boolean;
   applyMethod: ApplyMethod;
   applyContact: string;
+  visibility: JobVisibility;
 }
 
 const EMPTY_FORM: JobFormState = {
@@ -87,6 +88,7 @@ const EMPTY_FORM: JobFormState = {
   hiringNow: true,
   applyMethod: 'email',
   applyContact: '',
+  visibility: 'public',
 };
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
@@ -135,6 +137,7 @@ export function JobManager({ businessId }: JobManagerProps) {
       hiringNow: job.hiring_now,
       applyMethod: job.apply_method as ApplyMethod,
       applyContact: job.apply_contact,
+      visibility: (job.visibility as JobVisibility) || 'public',
     });
     setEditingId(job.id);
     setComposerOpen(true);
@@ -169,6 +172,7 @@ export function JobManager({ businessId }: JobManagerProps) {
       hiring_now: form.hiringNow,
       apply_method: form.applyMethod,
       apply_contact: form.applyContact.trim(),
+      visibility: form.visibility,
     };
 
     if (editingId) {
@@ -295,6 +299,11 @@ export function JobManager({ businessId }: JobManagerProps) {
                       {job.hiring_now && (
                         <Badge variant="outline" className="text-[10px] gap-0.5">
                           <Zap className="h-2.5 w-2.5" /> Hiring Now
+                        </Badge>
+                      )}
+                      {job.visibility === 'beta' && (
+                        <Badge variant="outline" className="text-[10px] gap-0.5 border-lokal-gold/40 text-lokal-gold">
+                          Beta only
                         </Badge>
                       )}
                     </div>
@@ -436,6 +445,19 @@ export function JobManager({ businessId }: JobManagerProps) {
                 checked={form.hiringNow}
                 onCheckedChange={(v) => updateField('hiringNow', v)}
               />
+            </div>
+            <div>
+              <Label>Who can see this</Label>
+              <Select value={form.visibility} onValueChange={(v) => updateField('visibility', v as JobVisibility)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">Everyone (public)</SelectItem>
+                  <SelectItem value="beta">Founding Beta members only</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Beta posts are visible only to active Founding Beta members.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
