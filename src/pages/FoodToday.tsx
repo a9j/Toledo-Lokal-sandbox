@@ -149,27 +149,12 @@ export default function FoodToday() {
           </Button>
         </div>
 
-        {/* Content */}
-        {!isLoading && (!locations || locations.length === 0) ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Utensils className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-medium text-foreground">No trucks scheduled today</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              No truck has posted a stop for this day yet — browse all Toledo trucks below.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              onClick={handleNextDay}
-            >
-              Check Tomorrow
-            </Button>
-          </div>
-        ) : viewMode === 'map' ? (
-          <div className="h-[60vh] rounded-xl overflow-hidden border border-border">
+        {/* Content. In map mode the map ALWAYS renders (centered on Toledo) so
+            the page never collapses to a blank empty state — even before any
+            truck has posted a stop. The "no stops" message becomes an overlay
+            on top of the map instead of replacing it. */}
+        {viewMode === 'map' ? (
+          <div className="relative h-[60vh] rounded-xl overflow-hidden border border-border">
             {mapsKeyLoading ? (
               <div className="h-full flex items-center justify-center bg-secondary">
                 <p className="text-muted-foreground text-sm">Loading map…</p>
@@ -191,79 +176,114 @@ export default function FoodToday() {
                 <p className="text-muted-foreground text-sm">Loading map…</p>
               </div>
             ) : (
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                center={center}
-                zoom={13}
-                options={{
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                {locationsWithCoords.map(location => (
-                  <MarkerF
-                    key={location.id}
-                    position={{ lat: location.latitude!, lng: location.longitude! }}
-                    title={location.business?.name}
-                    onClick={() => onMarkerClick(location.id)}
-                    icon={{
-                      path: google.maps.SymbolPath.CIRCLE,
-                      scale: 10,
-                      fillColor: '#F59E0B',
-                      fillOpacity: 1,
-                      strokeColor: '#ffffff',
-                      strokeWeight: 2,
-                    }}
-                  />
-                ))}
-
-                {selectedMarker && (() => {
-                  const location = locationsWithCoords.find(l => l.id === selectedMarker);
-                  if (!location) return null;
-                  return (
-                    <InfoWindowF
+              <>
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={center}
+                  zoom={13}
+                  options={{
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                  }}
+                >
+                  {locationsWithCoords.map(location => (
+                    <MarkerF
+                      key={location.id}
                       position={{ lat: location.latitude!, lng: location.longitude! }}
-                      onCloseClick={() => setSelectedMarker(null)}
-                    >
-                      <div className="p-1 min-w-[160px]">
-                        <Link
-                          to={location.business ? `/business/${location.business.id}` : '#'}
-                          className="font-medium text-foreground hover:text-primary text-sm"
-                        >
-                          {location.business?.name || 'Food Vendor'}
-                        </Link>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {location.location_name}
-                        </p>
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                          <Clock className="h-3 w-3" />
-                          {formatTime12hr(location.start_time)} – {formatTime12hr(location.end_time)}
-                        </p>
-                      </div>
-                    </InfoWindowF>
-                  );
-                })()}
-              </GoogleMap>
+                      title={location.business?.name}
+                      onClick={() => onMarkerClick(location.id)}
+                      icon={{
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#F59E0B',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2,
+                      }}
+                    />
+                  ))}
+
+                  {selectedMarker && (() => {
+                    const location = locationsWithCoords.find(l => l.id === selectedMarker);
+                    if (!location) return null;
+                    return (
+                      <InfoWindowF
+                        position={{ lat: location.latitude!, lng: location.longitude! }}
+                        onCloseClick={() => setSelectedMarker(null)}
+                      >
+                        <div className="p-1 min-w-[160px]">
+                          <Link
+                            to={location.business ? `/business/${location.business.id}` : '#'}
+                            className="font-medium text-foreground hover:text-primary text-sm"
+                          >
+                            {location.business?.name || 'Food Vendor'}
+                          </Link>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {location.location_name}
+                          </p>
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                            <Clock className="h-3 w-3" />
+                            {formatTime12hr(location.start_time)} – {formatTime12hr(location.end_time)}
+                          </p>
+                        </div>
+                      </InfoWindowF>
+                    );
+                  })()}
+                </GoogleMap>
+
+                {/* No-stops overlay — keeps the Toledo map visible while telling
+                    the user nothing is posted for the selected day. */}
+                {!isLoading && locationsWithCoords.length === 0 && (
+                  <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-3">
+                    <div className="pointer-events-auto max-w-xs rounded-xl bg-background/95 backdrop-blur border border-border shadow-sm px-4 py-3 text-center">
+                      <p className="text-sm font-medium text-foreground">
+                        No truck stops posted for {getDateLabel(selectedDate).toLowerCase()}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Pins appear here when a truck shares where it's parked. Browse all Toledo trucks below.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
+          </div>
+        ) : isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="card-elevated overflow-hidden">
+                <Skeleton className="aspect-[16/9]" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : !locations || locations.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+              <Utensils className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-medium text-foreground">No trucks scheduled today</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              No truck has posted a stop for this day yet — browse all Toledo trucks below.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={handleNextDay}
+            >
+              Check Tomorrow
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="card-elevated overflow-hidden">
-                  <Skeleton className="aspect-[16/9]" />
-                  <div className="p-4 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </div>
-                </div>
-              ))
-            ) : (
-              locations?.map(location => (
-                <FoodTruckCard key={location.id} location={location} />
-              ))
-            )}
+            {locations.map(location => (
+              <FoodTruckCard key={location.id} location={location} />
+            ))}
           </div>
         )}
 
