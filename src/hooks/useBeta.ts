@@ -30,6 +30,8 @@ export function useBetaPhase() {
 export function useBetaSignupCount() {
   return useQuery({
     queryKey: ['beta-signup-count'],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<number> => {
       const { data, error } = await supabase.rpc('beta_signup_count' as never);
       if (error) throw error;
