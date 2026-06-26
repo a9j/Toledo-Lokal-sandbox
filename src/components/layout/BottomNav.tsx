@@ -7,8 +7,8 @@ import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
 import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
 
 const navItems = [
-  { path: '/discover', icon: Compass, label: 'Discover' },
   { path: '/founding-5', icon: Sparkles, label: 'Featured' },
+  { path: '/discover', icon: Compass, label: 'Discover' },
   { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
