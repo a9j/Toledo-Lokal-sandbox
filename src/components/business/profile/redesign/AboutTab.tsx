@@ -1,7 +1,8 @@
 import { Phone, Globe, Instagram, Facebook, Clock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LocationsSection } from '@/components/business/LocationsSection';
-import { getHoursList } from '@/lib/business-hours';
+import { useBusinessLocations } from '@/hooks/useBusinessLocations';
+import { getHoursList, HoursRow } from '@/lib/business-hours';
 import { getFilledModulesForSection } from '@/lib/profile-modules';
 import { ResolvedAction } from '@/lib/business-profile-config';
 import { ReportDialog } from '@/components/moderation/ReportDialog';
@@ -22,8 +23,32 @@ function socialHref(kind: 'instagram' | 'facebook' | 'tiktok', value: string): s
 export function AboutTab({ business, actions }: { business: ProfileBusiness; actions: ResolvedAction[] }) {
   const story = business.story?.trim() || business.description?.trim();
   const aboutModules = getFilledModulesForSection(business.profileCategory, business.moduleContent, 'about');
-  const hours = getHoursList(business.hours);
   const tiktokUrl = business.tiktok ? socialHref('tiktok', business.tiktok) : null;
+
+  // Resolve hours per location. A multi-location business often keeps different
+  // hours at each address, so rendering a single business-level schedule is
+  // misleading. Every active location that defines its own hours becomes its own
+  // labeled block; if no location defines hours we fall back to the single
+  // business-level schedule.
+  const { data: locations } = useBusinessLocations(business.id);
+  const activeLocations = (locations ?? []).filter((l) => l.is_active);
+  const locationHoursBlocks = activeLocations
+    .map((loc, i) => ({
+      key: loc.id ?? `loc-${i}`,
+      label: loc.label || loc.neighborhood || loc.street_address || 'Location',
+      rows: getHoursList(loc.hours),
+    }))
+    .filter((b): b is { key: string; label: string; rows: HoursRow[] } => b.rows !== null);
+
+  const businessHours = getHoursList(business.hours);
+  const hoursBlocks =
+    locationHoursBlocks.length > 0
+      ? locationHoursBlocks
+      : businessHours
+        ? [{ key: 'business', label: '', rows: businessHours }]
+        : [];
+  // Only label each block when there is more than one to disambiguate.
+  const showHoursLabels = hoursBlocks.length > 1;
 
   return (
     <div className="space-y-3">
@@ -60,18 +85,26 @@ export function AboutTab({ business, actions }: { business: ProfileBusiness; act
         </div>
       )}
 
-      {/* Hours */}
-      {hours && (
-        <ProfileCard className="space-y-2">
+      {/* Hours — rendered per location when a multi-location business keeps
+          different hours at each address */}
+      {hoursBlocks.length > 0 && (
+        <ProfileCard className="space-y-3">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
             <p className="text-sm font-semibold text-foreground">Hours</p>
           </div>
-          <div className="space-y-1">
-            {hours.map((row) => (
-              <div key={row.day} className={cn('flex items-center justify-between text-sm', row.isToday ? 'font-semibold text-foreground' : 'text-muted-foreground')}>
-                <span>{row.day}</span>
-                <span>{row.label}</span>
+          <div className="space-y-3">
+            {hoursBlocks.map((block) => (
+              <div key={block.key} className="space-y-1">
+                {showHoursLabels && (
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{block.label}</p>
+                )}
+                {block.rows.map((row) => (
+                  <div key={row.day} className={cn('flex items-center justify-between text-sm', row.isToday ? 'font-semibold text-foreground' : 'text-muted-foreground')}>
+                    <span>{row.day}</span>
+                    <span>{row.label}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
