@@ -48,13 +48,14 @@ export function Charter100Invites() {
   useEffect(() => {
     let active = true;
     (async () => {
+      // Cast: the cohort tables are not in the generated Supabase types yet.
       const { data } = await supabase
-        .from('cohorts')
+        .from('cohorts' as never)
         .select('id')
         .eq('slug', SLUG)
         .single();
       if (active) {
-        setCohortId(data?.id ?? null);
+        setCohortId((data as { id: string } | null)?.id ?? null);
         setLoadingCohort(false);
       }
     })();
@@ -90,7 +91,9 @@ export function Charter100Invites() {
               },
             ];
 
-      const { error } = await supabase.from('cohort_invites').insert(rows);
+      const { error } = await supabase
+        .from('cohort_invites' as never)
+        .insert(rows as never);
       if (error) throw error;
 
       setTokens(rows.map((r) => ({ token: r.token, url: joinUrl(r.token) })));

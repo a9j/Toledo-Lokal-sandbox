@@ -38,10 +38,11 @@ export function useCohort(slug = 'charter-100') {
         p_slug: slug,
       } as never);
       if (error) throw error;
-      const row = Array.isArray(data) ? data[0] : data;
+      const rows = data as unknown as { joined?: number; cap?: number }[] | null;
+      const row = Array.isArray(rows) ? rows[0] : rows;
       return {
-        joined: Number((row as { joined?: number })?.joined ?? 0),
-        cap: Number((row as { cap?: number })?.cap ?? 100),
+        joined: Number(row?.joined ?? 0),
+        cap: Number(row?.cap ?? 100),
       };
     },
   });
