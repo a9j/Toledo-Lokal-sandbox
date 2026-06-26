@@ -186,6 +186,26 @@ export function useGenerateInvites() {
   });
 }
 
+export interface EligibilityReport {
+  found: boolean;
+  eligible?: boolean;
+  cohort_member?: boolean;
+  founding_business?: boolean;
+  user_id?: string;
+}
+
+export function useEligibilityReport() {
+  return useMutation({
+    mutationFn: async (email: string): Promise<EligibilityReport> => {
+      const { data, error } = await supabase.rpc('admin_eligibility_report' as never, {
+        p_email: email.trim(),
+      } as never);
+      if (error) throw error;
+      return (data as unknown as EligibilityReport) ?? { found: false };
+    },
+  });
+}
+
 export function useRevokeInvite() {
   const qc = useQueryClient();
   return useMutation({
