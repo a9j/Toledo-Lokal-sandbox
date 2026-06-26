@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Users, Apple, Smartphone, Send, RefreshCw, Trash2, Plus, Lightbulb,
-  Briefcase, ArrowRightLeft, ShieldAlert,
+  Briefcase, ArrowRightLeft, ShieldAlert, QrCode,
 } from 'lucide-react';
 import {
   useBetaSignupStats, useBetaMembersAdmin, useBetaPhaseAdmin, useBulkInvite,
@@ -11,6 +11,8 @@ import {
   useRemoveBetaIdea, type BackfillMatch,
 } from '@/hooks/useBetaAdmin';
 import { useBetaPhase, useBetaIdeas } from '@/hooks/useBeta';
+import { JoinQRCode } from '@/components/join/JoinQRCode';
+import { siteUrl } from '@/lib/site-url';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -460,9 +462,27 @@ function BackfillControl() {
   );
 }
 
+// ── Share the closed-beta signup (QR + link) ───────────────────────────────
+function ShareSignupControl() {
+  const { data: phase } = useBetaPhase();
+  const signupUrl = siteUrl('/beta.html');
+  return (
+    <Section title="Share the signup" icon={QrCode}>
+      <p className="mb-4 max-w-xl text-sm text-muted-foreground">
+        Send this QR code or link to invite people to the closed beta signup page.
+        They pick their phone and leave their email. {phase === 'cohort_live'
+          ? 'Heads up: the phase is cohort_live, so the public page is closed to new signups right now.'
+          : 'New signups are open while the phase is open_signup.'}
+      </p>
+      <JoinQRCode url={signupUrl} />
+    </Section>
+  );
+}
+
 export function BetaAdmin() {
   return (
     <div className="space-y-5">
+      <ShareSignupControl />
       <PhaseControl />
       <SignupsControl />
       <MembersControl />
