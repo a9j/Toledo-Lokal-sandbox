@@ -9,7 +9,7 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useBusinessesSavedCounts } from '@/hooks/useDiscoverySignals';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Building2, X, Briefcase, ChevronRight, Search } from 'lucide-react';
+import { Building2, X, Briefcase, ChevronRight, Search, Truck } from 'lucide-react';
 import { resolveIcon } from '@/lib/icon-resolver';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -161,6 +161,21 @@ export default function Discover() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">Local Jobs</p>
             <p className="text-xs text-muted-foreground">Browse open positions at Toledo businesses</p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        </Link>
+
+        {/* Food Trucks Banner — entry point into the existing trucks screen */}
+        <Link
+          to="/food-today"
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Truck className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground">Food Trucks</p>
+            <p className="text-xs text-muted-foreground">Find where Toledo's trucks are serving today</p>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </Link>

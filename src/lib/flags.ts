@@ -17,6 +17,13 @@ export const SOFT_LAUNCH = __NEXT_PUBLIC_HOME_VARIANT__ === "soft_launch";
 // The Today tab stays locked (Coming Soon) until this flips to true.
 export const TODAY_TAB_ENABLED = __NEXT_PUBLIC_TODAY_TAB_ENABLED__ === "true";
 
+// Circles tab landing mode. Cohort-first (false, today): the only community is
+// the Charter 100 cohort, so the Circles tab lands directly on the cohort page
+// — never a one-item directory. Directory-later (true): once multiple Circles
+// exist, the tab lands on a directory with the user's cohort shown as "your
+// cohort." Moving between the two is this one-line config change, not a rebuild.
+export const CIRCLES_DIRECTORY_ENABLED = false;
+
 // One-month beta window: when true, only beta-eligible users (Charter 100
 // members or Founding 5/25 business owners) reach the app; everyone else sees
 // the waitlist. Off by default. Flip via the VITE_BETA_WINDOW_ENABLED env var

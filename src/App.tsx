@@ -103,6 +103,7 @@ const Join = lazy(() => import("./pages/Join"));
 const JoinQR = lazy(() => import("./pages/JoinQR"));
 const JoinCharter100 = lazy(() => import("./pages/JoinCharter100"));
 const Charter100 = lazy(() => import("./pages/Charter100"));
+const CirclesLanding = lazy(() => import("./pages/CirclesLanding"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -157,6 +158,8 @@ const App = () => (
                   <Route path="/join/charter-100" element={<JoinCharter100 />} />
                   {/* Charter 100 cohort home — cover, live seat counter, feedback */}
                   <Route path="/charter-100" element={<Charter100 />} />
+                  {/* Circles tab landing — cohort-first resolver (→ Charter 100 today) */}
+                  <Route path="/circles" element={<CirclesLanding />} />
                   {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
                   <Route path="/signup" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />
