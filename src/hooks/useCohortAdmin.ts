@@ -220,3 +220,79 @@ export function useRevokeInvite() {
     },
   });
 }
+
+export function useAwardBadge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, badgeKey }: { userId: string; badgeKey: string }) => {
+      const { error } = await supabase.rpc('admin_award_badge' as never, {
+        p_user_id: userId, p_badge_key: badgeKey,
+      } as never);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['charter100-badge-userids'] }),
+  });
+}
+
+export function useRevokeBadge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ userId, badgeKey }: { userId: string; badgeKey: string }) => {
+      const { error } = await supabase.rpc('admin_revoke_badge' as never, {
+        p_user_id: userId, p_badge_key: badgeKey,
+      } as never);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['charter100-badge-userids'] }),
+  });
+}
+
+export interface PinnedPost {
+  id: string;
+  cohort_id: string;
+  title: string;
+  body: string;
+  updated_at: string;
+}
+
+export function useAdminPinnedPost(cohortId?: string) {
+  return useQuery({
+    queryKey: ['admin-pinned', cohortId],
+    enabled: !!cohortId,
+    queryFn: async (): Promise<PinnedPost | null> => {
+      const { data, error } = await supabase
+        .from('cohort_pinned_posts' as never)
+        .select('id, cohort_id, title, body, updated_at')
+        .eq('cohort_id', cohortId as string)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as unknown as PinnedPost) ?? null;
+    },
+  });
+}
+
+export function useUpsertPinnedPost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (p: { id?: string; cohortId: string; title: string; body: string; updatedBy: string | null }) => {
+      if (p.id) {
+        const { error } = await supabase
+          .from('cohort_pinned_posts' as never)
+          .update({ title: p.title, body: p.body, updated_by: p.updatedBy, updated_at: new Date().toISOString() } as never)
+          .eq('id', p.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('cohort_pinned_posts' as never)
+          .insert({ cohort_id: p.cohortId, title: p.title, body: p.body, updated_by: p.updatedBy } as never);
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ['admin-pinned', v.cohortId] });
+      qc.invalidateQueries({ queryKey: ['cohort-pinned'] });
+    },
+  });
+}

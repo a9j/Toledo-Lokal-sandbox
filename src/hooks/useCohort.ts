@@ -72,6 +72,27 @@ export function useCohort(slug = 'charter-100') {
   };
 }
 
+// Admin-authored "What's coming" pinned post for a cohort (world-readable).
+// Returns null when none is set — the page falls back to static copy.
+export function useCohortPinned(slug = 'charter-100') {
+  return useQuery({
+    queryKey: ['cohort-pinned', slug],
+    queryFn: async (): Promise<{ title: string; body: string } | null> => {
+      const { data, error } = await supabase
+        .from('cohort_pinned_posts' as never)
+        .select('title, body, updated_at, cohorts!inner(slug)')
+        .eq('cohorts.slug', slug)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      const row = data as unknown as { title: string; body: string };
+      return { title: row.title, body: row.body };
+    },
+  });
+}
+
 // Set of user_ids holding the Charter 100 badge — one small query (cap 100),
 // world-readable. Lets author rows show the badge without an N+1.
 export function useCharter100Members() {

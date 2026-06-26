@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useCohortAdmin';
 import { CohortInvites } from './CohortInvites';
 import { EligibilityInspector } from './EligibilityInspector';
+import { CohortContentAdmin } from './CohortContentAdmin';
 
 // One "Cohorts" console surface. Platform-admin only (AdminConsole gates), but
 // every write is also server-gated by can_manage_community / is_platform_admin,
@@ -69,6 +70,7 @@ export function CohortAdmin() {
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="invites">Invites</TabsTrigger>
           <TabsTrigger value="eligibility">Eligibility</TabsTrigger>
+          <TabsTrigger value="content">Badges & Content</TabsTrigger>
         </TabsList>
         <TabsContent value="settings" className="pt-4">
           <CohortSettings cohort={cohort} />
@@ -81,6 +83,9 @@ export function CohortAdmin() {
         </TabsContent>
         <TabsContent value="eligibility" className="pt-4">
           <EligibilityInspector />
+        </TabsContent>
+        <TabsContent value="content" className="pt-4">
+          <CohortContentAdmin cohort={cohort} />
         </TabsContent>
       </Tabs>
     </div>

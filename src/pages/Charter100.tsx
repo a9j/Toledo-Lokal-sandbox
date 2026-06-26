@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sparkles, MessageSquarePlus, Lightbulb, Megaphone, QrCode } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCohort } from '@/hooks/useCohort';
+import { useCohort, useCohortPinned } from '@/hooks/useCohort';
 import { SeatCounter } from '@/components/charter100/SeatCounter';
 import { Charter100Badge } from '@/components/charter100/Charter100Badge';
 import { Button } from '@/components/ui/button';
@@ -78,6 +78,8 @@ function FeedbackComposer({ onSubmitted }: { onSubmitted: () => void }) {
 export default function Charter100() {
   const { user } = useAuth();
   const { cohort, seats, membership, isLoading, refetchSeats } = useCohort(SLUG);
+  const { data: pinned } = useCohortPinned(SLUG);
+  const whatsComing = pinned ?? WHATS_COMING;
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
@@ -130,9 +132,9 @@ export default function Charter100() {
         <section className="mt-10 rounded-2xl border border-lokal-gold/30 bg-lokal-gold/5 p-5">
           <div className="mb-2 flex items-center gap-2">
             <Megaphone className="h-5 w-5 text-lokal-gold" />
-            <h2 className="font-display text-lg font-semibold">{WHATS_COMING.title}</h2>
+            <h2 className="font-display text-lg font-semibold">{whatsComing.title}</h2>
           </div>
-          <p className="text-sm font-light leading-relaxed text-muted-foreground">{WHATS_COMING.body}</p>
+          <p className="whitespace-pre-line text-sm font-light leading-relaxed text-muted-foreground">{whatsComing.body}</p>
         </section>
 
         {/* ── Feedback (members only) ─────────────────────────────────── */}
