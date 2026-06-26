@@ -100,6 +100,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Join = lazy(() => import("./pages/Join"));
 const JoinQR = lazy(() => import("./pages/JoinQR"));
+const JoinCharter100 = lazy(() => import("./pages/JoinCharter100"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -149,6 +150,8 @@ const App = () => (
                   <Route path="/join" element={<Join />} />
                   {/* Unlisted helper that renders a scannable QR for the /join URL */}
                   <Route path="/join/qr" element={<JoinQR />} />
+                  {/* Charter 100 cohort join — token-gated, server-validated */}
+                  <Route path="/join/charter-100" element={<JoinCharter100 />} />
                   {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
                   <Route path="/signup" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />
