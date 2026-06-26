@@ -13,6 +13,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { Charter100Badge } from '@/components/charter100/Charter100Badge';
+import { useCharter100Members } from '@/hooks/useCohort';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
@@ -34,6 +36,7 @@ import { LP_ENABLED } from '@/lib/flags';
 
 export default function Profile() {
   const { user, signOut, isAdmin, isConnector } = useAuth();
+  const { data: charterMembers } = useCharter100Members();
   const { activeBusiness, businesses } = useActiveRole();
   const [showQR, setShowQR] = useState(false);
   const { isInstalled } = usePWAInstall();
@@ -175,6 +178,11 @@ export default function Profile() {
               )}
               {memberSince && (
                 <p className="text-xs text-muted-foreground/80 mt-0.5">Member since {memberSince}</p>
+              )}
+              {user?.id && charterMembers?.has(user.id) && (
+                <div className="mt-1.5">
+                  <Charter100Badge variant="full" />
+                </div>
               )}
             </div>
           </div>
