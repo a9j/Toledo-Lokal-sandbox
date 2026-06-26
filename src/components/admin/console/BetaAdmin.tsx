@@ -465,7 +465,7 @@ function BackfillControl() {
 // ── Share the closed-beta signup (QR + link) ───────────────────────────────
 function ShareSignupControl() {
   const { data: phase } = useBetaPhase();
-  const signupUrl = siteUrl('/beta.html');
+  const signupUrl = siteUrl('/beta');
   return (
     <Section title="Share the signup" icon={QrCode}>
       <p className="mb-4 max-w-xl text-sm text-muted-foreground">
