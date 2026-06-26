@@ -1,23 +1,17 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, MapPin, Circle, Compass, Radio, Repeat, Sparkles, Lock } from 'lucide-react';
+import { MapPin, Compass, Radio, Repeat, HeartHandshake, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { LP_ENABLED, SOFT_LAUNCH, TODAY_TAB_ENABLED } from '@/lib/flags';
+import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
 import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
 
 const navItems = [
-  { path: '/', icon: Newspaper, label: 'Today', locked: !TODAY_TAB_ENABLED },
-  { path: '/founding-5', icon: Sparkles, label: 'Featured' },
-  { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/discover', icon: Compass, label: 'Discover' },
+  { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
-  // Loop stays visible but locked (Coming Soon) until Loop Points launch.
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
-  // Circles lands on the founding cohort today (see CirclesLanding). The cohort
-  // page lives at its own canonical URL, so `match` keeps this tab highlighted
-  // once the resolver redirects there. Trucks moved into the Discover screen.
-  { path: '/circles', icon: Circle, label: 'Circles', match: ['/charter-100'] },
+  { path: '/community', icon: HeartHandshake, label: 'Community' },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
