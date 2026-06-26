@@ -9,11 +9,12 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useBusinessesSavedCounts } from '@/hooks/useDiscoverySignals';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Building2, X, Briefcase, ChevronRight, Search, Truck } from 'lucide-react';
+import { Building2, X, Briefcase, ChevronRight, Search, Truck, Newspaper, Sparkles } from 'lucide-react';
 import { resolveIcon } from '@/lib/icon-resolver';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { cn } from '@/lib/utils';
+import { TODAY_TAB_ENABLED } from '@/lib/flags';
 
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,6 +148,38 @@ export default function Discover() {
                 {n.name}
               </Button>
             ))}
+          </div>
+        )}
+
+        {/* Quick-access: Today + Featured */}
+        {!selectedCategory && (
+          <div className="grid grid-cols-2 gap-3">
+            {TODAY_TAB_ENABLED && (
+              <Link
+                to="/"
+                className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                  <Newspaper className="h-5 w-5 text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">Today</p>
+                  <p className="text-xs text-muted-foreground">Daily picks</p>
+                </div>
+              </Link>
+            )}
+            <Link
+              to="/founding-5"
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">Featured</p>
+                <p className="text-xs text-muted-foreground">Founding partners</p>
+              </div>
+            </Link>
           </div>
         )}
 

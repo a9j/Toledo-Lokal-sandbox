@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, Filter, Award, MapPin } from 'lucide-react';
+import { Heart, Filter, Award, MapPin, HeartHandshake, Building2 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -14,10 +14,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { NonprofitCard } from '@/components/community/NonprofitCard';
-import { CommunityBusinessCard } from '@/components/community/CommunityBusinessCard';
-import { useNonprofits, useCommunityBusinesses, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
+import { CommunityOrgCard } from '@/components/community/CommunityOrgCard';
+import { useNonprofits, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
+import { useCommunityDirectory } from '@/hooks/useCommunityDirectory';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { Database } from '@/integrations/supabase/types';
+import { Link } from 'react-router-dom';
 
 type CauseCategory = Database['public']['Enums']['cause_category'];
 
@@ -26,6 +28,7 @@ const CAUSE_CATEGORIES = Object.keys(CAUSE_CATEGORY_LABELS) as CauseCategory[];
 export default function Community() {
   const [selectedCause, setSelectedCause] = useState<CauseCategory | 'all'>('all');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
+  const [viewFilter, setViewFilter] = useState<'all' | 'nonprofit' | 'community_partner'>('all');
 
   const { data: neighborhoods } = useNeighborhoods();
   const { data: nonprofits, isLoading } = useNonprofits({
@@ -33,16 +36,14 @@ export default function Community() {
     neighborhoodId: selectedNeighborhood === 'all' ? undefined : selectedNeighborhood,
   });
 
-  // Businesses that present as a nonprofit / community org. They have no
-  // cause_category, so they only show when the cause filter is "All Causes".
-  const { data: communityBusinesses, isLoading: businessesLoading } = useCommunityBusinesses({
+  const { data: verifiedOrgs, isLoading: orgsLoading } = useCommunityDirectory({
     neighborhoodId: selectedNeighborhood === 'all' ? undefined : selectedNeighborhood,
+    accountType: viewFilter === 'all' ? undefined : viewFilter,
   });
-  const visibleCommunityBusinesses = selectedCause === 'all' ? (communityBusinesses || []) : [];
 
   const foundingPartners = nonprofits?.filter(n => n.founding_community_partner) || [];
   const otherNonprofits = nonprofits?.filter(n => !n.founding_community_partner) || [];
-  const hasAnything = foundingPartners.length > 0 || otherNonprofits.length > 0 || visibleCommunityBusinesses.length > 0;
+  const hasAnything = foundingPartners.length > 0 || otherNonprofits.length > 0 || (verifiedOrgs?.length ?? 0) > 0;
 
   return (
     <>
@@ -51,21 +52,36 @@ export default function Community() {
         description="Discover local nonprofits and community organizations in Toledo. Find causes you care about and learn how to get involved."
         url="/community"
       />
-      <Header title="Community" showBack />
-      
+      <Header title="Community" />
+
       <PageContainer className="pb-24">
         {/* Header Section */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <Heart className="h-5 w-5 text-rose-500" />
+            <HeartHandshake className="h-5 w-5 text-rose-500" />
             <span className="text-sm font-medium text-rose-500">Give Back</span>
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-1">
-            Local Causes & Organizations
+            Local Causes and Organizations
           </h1>
           <p className="text-muted-foreground">
-            Explore nonprofits making a difference in Toledo
+            Verified nonprofits and community partners making a difference in Toledo
           </p>
+        </div>
+
+        {/* Type Filter Chips */}
+        <div className="flex gap-2 mb-4">
+          {(['all', 'nonprofit', 'community_partner'] as const).map((type) => (
+            <Button
+              key={type}
+              variant={viewFilter === type ? 'default' : 'outline'}
+              size="sm"
+              className="rounded-full h-9"
+              onClick={() => setViewFilter(type)}
+            >
+              {type === 'all' ? 'All' : type === 'nonprofit' ? 'Nonprofits' : 'Community Partners'}
+            </Button>
+          ))}
         </div>
 
         {/* Filters */}
@@ -107,8 +123,36 @@ export default function Community() {
           </Select>
         </div>
 
+        {/* Signup CTAs */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Link
+            to="/signup/nonprofit"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+              <Heart className="h-5 w-5 text-rose-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">Register Nonprofit</p>
+              <p className="text-xs text-muted-foreground">501(c)(3) orgs</p>
+            </div>
+          </Link>
+          <Link
+            to="/signup/community-partner"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">Apply as Partner</p>
+              <p className="text-xs text-muted-foreground">Mission-driven orgs</p>
+            </div>
+          </Link>
+        </div>
+
         {/* Content */}
-        {(isLoading || businessesLoading) ? (
+        {(isLoading || orgsLoading) ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-48 rounded-2xl" />
@@ -135,7 +179,7 @@ export default function Community() {
               </section>
             )}
 
-            {/* Other Nonprofits */}
+            {/* Other Nonprofits from curated table */}
             {otherNonprofits.length > 0 && (
               <section>
                 {foundingPartners.length > 0 && (
@@ -151,15 +195,15 @@ export default function Community() {
               </section>
             )}
 
-            {/* Local businesses that present as a nonprofit / community org */}
-            {visibleCommunityBusinesses.length > 0 && (
+            {/* Verified orgs from the businesses table (account_type + verification) */}
+            {(verifiedOrgs?.length ?? 0) > 0 && (
               <section>
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                  Community Businesses
+                  Verified Organizations
                 </h2>
                 <div className="grid gap-4">
-                  {visibleCommunityBusinesses.map((business) => (
-                    <CommunityBusinessCard key={business.id} business={business} />
+                  {verifiedOrgs?.map((org) => (
+                    <CommunityOrgCard key={org.id} org={org} />
                   ))}
                 </div>
               </section>

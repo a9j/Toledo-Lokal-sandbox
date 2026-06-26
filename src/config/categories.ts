@@ -179,13 +179,9 @@ export const CATEGORIES: readonly CategoryConfig[] = [
     sortOrder: 8,
     subcategories: ['festivals', 'concerts', 'pop-ups', 'markets', 'classes', 'workshops', 'fundraisers', 'community-events'],
   },
-  {
-    slug: 'community-nonprofits',
-    name: 'Community & Nonprofits',
-    icon: 'heart-handshake',
-    sortOrder: 9,
-    subcategories: ['nonprofits', 'volunteer-opportunities', 'churches', 'support-organizations', 'youth-programs', 'civic-groups', 'community-centers'],
-  },
+  // Community & Nonprofits removed from browse categories.
+  // Nonprofits and community partners now live in the dedicated Community tab,
+  // gated by account_type and verification_status.
   {
     slug: 'professional-services',
     name: 'Professional Services',

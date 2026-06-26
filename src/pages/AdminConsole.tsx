@@ -11,6 +11,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { LoopAnalyticsDashboard } from '@/components/admin/LoopAnalyticsDashboard';
 import { UsersAdmin } from '@/components/admin/UsersAdmin';
 import { NonprofitAdmin } from '@/components/admin/NonprofitAdmin';
+import { VerificationQueue } from '@/components/admin/VerificationQueue';
 import { AdminShell, AdminNavGroup } from '@/components/admin/console/AdminShell';
 import { CityOverview } from '@/components/admin/console/CityOverview';
 import { RolesAdmin } from '@/components/admin/console/RolesAdmin';
@@ -32,6 +33,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
   { label: 'Manage', items: [
     { id: 'management', label: 'Businesses & Content', icon: Store },
     { id: 'nonprofits', label: 'Nonprofits', icon: HeartHandshake },
+    { id: 'verification', label: 'Verification Queue', icon: ShieldAlert },
     { id: 'users', label: 'Users', icon: Users },
   ] },
   { label: 'City Ops', items: [
@@ -56,6 +58,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
   analytics: { title: 'City Intelligence', subtitle: 'Engagement, growth, and Loop activity' },
   management: { title: 'Businesses & Content', subtitle: 'Approvals, listings, deals, events & more' },
   nonprofits: { title: 'Nonprofits', subtitle: 'Causes, partners, and impact' },
+  verification: { title: 'Verification Queue', subtitle: 'Review nonprofit and community partner applications' },
   users: { title: 'Users', subtitle: 'Members, roles, and reports' },
   trust: { title: 'Trust & Roles', subtitle: 'Assign roles and review permissions' },
   moderation: { title: 'Moderation', subtitle: 'Reports, content, and community trust' },
@@ -146,6 +149,7 @@ export default function AdminConsole() {
       )}
       {active === 'management' && <ManagementLauncher />}
       {active === 'nonprofits' && <NonprofitAdmin />}
+      {active === 'verification' && <VerificationQueue />}
       {active === 'users' && <UsersAdmin />}
       {active === 'trust' && <RolesAdmin />}
       {active === 'moderation' && (

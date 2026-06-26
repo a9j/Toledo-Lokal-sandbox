@@ -19,12 +19,14 @@ import { SecureImage } from '@/components/ui/secure-image';
 import { FoundingPartnerBadge } from '@/components/community/FoundingPartnerBadge';
 import { CommunitySupportDisplay } from '@/components/community/CommunitySupportDisplay';
 import { useNonprofit, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
+import { useProjectSponsors } from '@/hooks/useCommunitySponsors';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function NonprofitDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const { data: nonprofit, isLoading, error } = useNonprofit(slug);
+  const { data: sponsors } = useProjectSponsors(nonprofit?.id);
 
   if (isLoading) {
     return (
@@ -167,6 +169,54 @@ export default function NonprofitDetail() {
               <p className="text-sm text-amber-900 italic pl-6">
                 "{nonprofit.human_note}"
               </p>
+            </div>
+          </section>
+        )}
+
+        {/* Business Sponsors / Participants */}
+        {sponsors && sponsors.length > 0 && (
+          <section className="mb-6">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              Community Supporters
+            </h2>
+            <div className="space-y-2">
+              {sponsors.map((s) => {
+                const roleLabels: Record<string, string> = {
+                  sponsor: 'Sponsor',
+                  donor: 'Donor',
+                  wishlist_fulfiller: 'Wish List',
+                  event_host: 'Event Host',
+                };
+                return (
+                  <Link
+                    key={s.id}
+                    to={`/business/${s.business?.slug || s.business?.id}`}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    {s.business?.profile_picture_url ? (
+                      <div className="w-8 h-8 rounded-lg overflow-hidden bg-card flex-shrink-0">
+                        <SecureImage
+                          storagePath={s.business.profile_picture_url}
+                          alt={s.business.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Heart className="h-4 w-4 text-primary" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {s.business?.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {roleLabels[s.role] || s.role} - {s.project_name}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}

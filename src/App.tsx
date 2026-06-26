@@ -104,6 +104,8 @@ const JoinQR = lazy(() => import("./pages/JoinQR"));
 const JoinCharter100 = lazy(() => import("./pages/JoinCharter100"));
 const Charter100 = lazy(() => import("./pages/Charter100"));
 const CirclesLanding = lazy(() => import("./pages/CirclesLanding"));
+const NonprofitSignup = lazy(() => import("./pages/NonprofitSignup"));
+const CommunityPartnerSignup = lazy(() => import("./pages/CommunityPartnerSignup"));
 
 
 // Optimized QueryClient with aggressive caching
@@ -142,7 +144,7 @@ const App = () => (
               <BetaGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
-                  <Route path="/" element={TODAY_TAB_ENABLED ? <Today /> : <Navigate to="/founding-5" replace />} />
+                  <Route path="/" element={<Navigate to="/discover" replace />} />
                   <Route path="/near-me" element={<NearMe />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/loop" element={LP_ENABLED ? <Loop /> : <Navigate to="/" replace />} />
@@ -167,6 +169,8 @@ const App = () => (
                   <Route path="/events/:id" element={<EventDetail />} />
                   <Route path="/community" element={<Community />} />
                   <Route path="/community/:slug" element={<NonprofitDetail />} />
+                  <Route path="/signup/nonprofit" element={<NonprofitSignup />} />
+                  <Route path="/signup/community-partner" element={<CommunityPartnerSignup />} />
                   <Route path="/deals" element={<Deals />} />
                   <Route path="/requests" element={<Requests />} />
                   <Route path="/profile" element={<Profile />} />
