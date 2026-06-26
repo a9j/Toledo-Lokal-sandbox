@@ -82,3 +82,6 @@ verify_jwt = false
 
 [functions.notify-founding-application]
 verify_jwt = false
+
+[functions.join-cohort]
+verify_jwt = false
