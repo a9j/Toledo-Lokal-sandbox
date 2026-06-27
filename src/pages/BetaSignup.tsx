@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useBetaPhase, useBetaSignupCount } from '@/hooks/useBeta';
@@ -91,13 +92,28 @@ export default function BetaSignup() {
                 <Check className="h-7 w-7 text-emerald-500" strokeWidth={2.5} />
               </div>
               <h1 className="font-display text-2xl font-semibold tracking-tight">You're on the list.</h1>
-              <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
-                Your spot in the Toledo Lokal beta is saved. We'll email you the moment
-                the app clears review.
-              </p>
               <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-lokal-gold/10 px-4 py-2 text-sm font-semibold text-lokal-gold">
                 Founding beta member #{memberNumber}
               </div>
+
+              <div className="mt-8 w-full rounded-2xl border border-lokal-gold/30 bg-lokal-gold/5 p-5">
+                <h2 className="font-display text-lg font-semibold">One more step</h2>
+                <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
+                  Create your account to lock in your spot as one of the first 100 founding
+                  members. Your Charter 100 badge and position are reserved the moment you
+                  sign up.
+                </p>
+                <Button asChild className="mt-4 h-12 w-full rounded-full text-base">
+                  <Link to="/auth">
+                    Create your account
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+
+              <p className="mt-4 text-xs font-light text-muted-foreground">
+                Use the same email you just entered so we can connect your spot.
+              </p>
             </div>
           ) : (
             // Signup form.
