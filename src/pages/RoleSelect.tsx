@@ -66,7 +66,7 @@ export default function RoleSelect() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
+    <div className="min-h-screen safe-area-pad-top flex flex-col items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm space-y-8">
         {/* Logo & heading */}
         <div className="text-center space-y-3">
