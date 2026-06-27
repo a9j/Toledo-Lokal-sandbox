@@ -63,12 +63,7 @@ export function CommunityOrgCard({ org }: CommunityOrgCardProps) {
             </div>
           </div>
 
-          {org.community_partner_mission && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {org.community_partner_mission}
-            </p>
-          )}
-          {!org.community_partner_mission && org.description && (
+          {org.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">
               {org.description}
             </p>

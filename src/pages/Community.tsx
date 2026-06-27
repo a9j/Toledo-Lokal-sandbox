@@ -3,9 +3,7 @@ import { Heart, Filter, Award, MapPin, HeartHandshake, Building2 } from 'lucide-
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -28,8 +26,6 @@ const CAUSE_CATEGORIES = Object.keys(CAUSE_CATEGORY_LABELS) as CauseCategory[];
 export default function Community() {
   const [selectedCause, setSelectedCause] = useState<CauseCategory | 'all'>('all');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('all');
-  const [viewFilter, setViewFilter] = useState<'all' | 'nonprofit' | 'community_partner'>('all');
-
   const { data: neighborhoods } = useNeighborhoods();
   const { data: nonprofits, isLoading } = useNonprofits({
     causeCategory: selectedCause === 'all' ? undefined : selectedCause,
@@ -38,7 +34,6 @@ export default function Community() {
 
   const { data: verifiedOrgs, isLoading: orgsLoading } = useCommunityDirectory({
     neighborhoodId: selectedNeighborhood === 'all' ? undefined : selectedNeighborhood,
-    accountType: viewFilter === 'all' ? undefined : viewFilter,
   });
 
   const foundingPartners = nonprofits?.filter(n => n.founding_community_partner) || [];
@@ -67,21 +62,6 @@ export default function Community() {
           <p className="text-muted-foreground">
             Verified nonprofits and community partners making a difference in Toledo
           </p>
-        </div>
-
-        {/* Type Filter Chips */}
-        <div className="flex gap-2 mb-4">
-          {(['all', 'nonprofit', 'community_partner'] as const).map((type) => (
-            <Button
-              key={type}
-              variant={viewFilter === type ? 'default' : 'outline'}
-              size="sm"
-              className="rounded-full h-9"
-              onClick={() => setViewFilter(type)}
-            >
-              {type === 'all' ? 'All' : type === 'nonprofit' ? 'Nonprofits' : 'Community Partners'}
-            </Button>
-          ))}
         </div>
 
         {/* Filters */}

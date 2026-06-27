@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { usePendingVerifications } from '@/hooks/useCommunityDirectory';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -16,10 +15,7 @@ import { Label } from '@/components/ui/label';
 import {
   ShieldCheck,
   ShieldX,
-  FileText,
-  Building2,
   Heart,
-  ExternalLink,
   Clock,
 } from 'lucide-react';
 
@@ -41,11 +37,8 @@ export function VerificationQueue() {
       notes?: string;
     }) => {
       const updates: Record<string, unknown> = {
-        verification_status: status,
+        status: status,
       };
-      if (status === 'approved') {
-        updates.status = 'approved';
-      }
       if (notes) {
         updates.ownership_review_notes = notes;
       }
@@ -114,16 +107,9 @@ export function VerificationQueue() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold">{org.name}</h3>
-                  <Badge
-                    variant="outline"
-                    className="text-[10px]"
-                  >
-                    {org.account_type === 'nonprofit' ? (
-                      <><Heart className="h-3 w-3 mr-1" /> Nonprofit</>
-                    ) : (
-                      <><Building2 className="h-3 w-3 mr-1" /> Community Partner</>
-                    )}
-                  </Badge>
+                  <span className="inline-flex items-center text-[10px] border rounded px-1.5 py-0.5">
+                    <Heart className="h-3 w-3 mr-1" /> Nonprofit
+                  </span>
                 </div>
                 {org.neighborhood && (
                   <p className="text-xs text-muted-foreground mb-1">
@@ -134,42 +120,6 @@ export function VerificationQueue() {
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                     {org.description}
                   </p>
-                )}
-
-                {/* Nonprofit-specific fields */}
-                {org.account_type === 'nonprofit' && (
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    {org.ein && <p>EIN: {org.ein}</p>}
-                    {org.determination_letter_url && (
-                      <a
-                        href="#"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          const { data } = await supabase.storage
-                            .from('nonprofit-docs')
-                            .createSignedUrl(org.determination_letter_url!, 300);
-                          if (data?.signedUrl) window.open(data.signedUrl, '_blank');
-                        }}
-                        className="flex items-center gap-1 text-primary hover:underline"
-                      >
-                        <FileText className="h-3 w-3" />
-                        View determination letter
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
-                  </div>
-                )}
-
-                {/* Community partner-specific fields */}
-                {org.account_type === 'community_partner' && (
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    {org.community_partner_mission && (
-                      <p><span className="font-medium">Mission:</span> {org.community_partner_mission}</p>
-                    )}
-                    {org.community_partner_reason && (
-                      <p><span className="font-medium">Why they belong:</span> {org.community_partner_reason}</p>
-                    )}
-                  </div>
                 )}
               </div>
             </div>
