@@ -82,7 +82,7 @@ export default function Charter100() {
   const whatsComing = pinned ?? WHATS_COMING;
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased">
+    <div className="min-h-screen bg-background text-foreground antialiased safe-area-top">
       <SEOHead title="Charter 100" url="/charter-100" />
       <div className="mx-auto max-w-2xl px-6 py-10">
         {/* ── Cover / framing ─────────────────────────────────────────── */}
