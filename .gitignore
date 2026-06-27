@@ -16,6 +16,9 @@ dist-ssr
 .env
 .env.local
 
+# Backups (mirror clones, database dumps)
+backups/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
