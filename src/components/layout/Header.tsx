@@ -34,12 +34,12 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
       <div className="absolute inset-0 bg-background/85 backdrop-blur-xl border-b border-border/50" />
       
       <div className="relative flex items-center justify-between h-14 px-4 lg:px-8 xl:px-12 max-w-lg lg:max-w-none mx-auto">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {showBack && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-9 w-9 rounded-xl hover:bg-muted" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-muted"
               onClick={() => navigate(-1)}
             >
               <ArrowLeft className="h-5 w-5" />
@@ -64,8 +64,10 @@ export function Header({ title = 'Toledo Connect', showSearch = false, showNotif
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex">
+            <ThemeToggle />
+          </span>
           {showSearch && (
             <Button
               variant="ghost"
