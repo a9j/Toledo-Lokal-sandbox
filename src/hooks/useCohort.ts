@@ -33,6 +33,8 @@ export function useCohort(slug = 'charter-100') {
 
   const seats = useQuery({
     queryKey: ['cohort-seats', slug],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<{ joined: number; cap: number }> => {
       const { data, error } = await supabase.rpc('cohort_seat_count' as never, {
         p_slug: slug,
