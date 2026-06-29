@@ -3,14 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, Coins, CalendarClock, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { getFilledModulesForSection } from '@/lib/profile-modules';
-import { BUSINESS_TYPE_CONFIG } from '@/lib/business-profile-config';
+import { resolveLiveStatus } from '@/lib/business-profile-config';
 import { ProfileBusiness } from './profile-types';
 import { ModuleCard } from './ModuleCard';
 import { ProfileCard, EmptyState, ActivityPill, SectionLabel } from './ProfilePrimitives';
 
 export function TodayTab({ business }: { business: ProfileBusiness }) {
   const todayModules = getFilledModulesForSection(business.profileCategory, business.moduleContent, 'today');
-  const config = BUSINESS_TYPE_CONFIG[business.profileCategory];
 
   const { data: upcomingEvents } = useQuery({
     queryKey: ['business-upcoming-events', business.id],
@@ -96,7 +95,7 @@ export function TodayTab({ business }: { business: ProfileBusiness }) {
             description="Today's specials, updates, and happenings from this business will show up here."
           />
           <div className="space-y-2">
-            {config.liveStatus.map((line) => (
+            {resolveLiveStatus(business).map((line) => (
               <ActivityPill key={line} icon={Sparkles}>{line}</ActivityPill>
             ))}
           </div>
