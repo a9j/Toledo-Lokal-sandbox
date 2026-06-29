@@ -288,7 +288,7 @@ export default function Auth() {
 
   if (showCheckEmail) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
+      <div className="min-h-screen safe-area-pad-top flex flex-col items-center justify-center px-4 bg-background">
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center space-y-3">
             <img src={tlLogo} alt="ToledoLokal" className="h-20 w-auto mx-auto mb-2" />
@@ -329,7 +329,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
+    <div className="min-h-screen safe-area-pad-top flex flex-col items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-2">
