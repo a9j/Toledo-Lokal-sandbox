@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Toledo Lokal',
   webDir: 'dist',
   ios: {},
+  android: {},
 };
 
 export default config;
