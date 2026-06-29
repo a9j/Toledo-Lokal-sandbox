@@ -150,7 +150,7 @@ export function BusinessProfileEditor({ businessId }: BusinessProfileEditorProps
             <Label className="text-xs text-muted-foreground mb-1.5 block">Logo</Label>
             {logoUrl ? (
               <div className="relative">
-                <SecureImage src={logoUrl} alt="Logo" className="w-20 h-20 rounded-xl object-cover border" />
+                <SecureImage src={logoUrl} alt="Logo" className="w-20 h-20 rounded-xl border" imgClassName="object-contain" />
                 <button onClick={() => setLogoUrl(null)} className="absolute -top-1 -right-1 rounded-full bg-destructive text-white w-5 h-5 text-xs flex items-center justify-center">x</button>
               </div>
             ) : (

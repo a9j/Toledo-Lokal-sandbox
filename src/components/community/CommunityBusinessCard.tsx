@@ -49,7 +49,8 @@ export function CommunityBusinessCard({ business }: CommunityBusinessCardProps) 
                 <SecureImage
                   storagePath={business.logo_url}
                   alt={business.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  imgClassName="object-contain"
                 />
               </div>
             )}

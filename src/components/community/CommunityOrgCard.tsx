@@ -49,7 +49,8 @@ export function CommunityOrgCard({ org }: CommunityOrgCardProps) {
                 <SecureImage
                   storagePath={org.logo_url}
                   alt={org.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  imgClassName="object-contain"
                 />
               </div>
             )}

@@ -98,7 +98,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
           {/* Logo card */}
           <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-background bg-card shadow-lg">
             {business.logo_url ? (
-              <SecureImage storagePath={business.logo_url} alt={`${business.name} logo`} className="h-full w-full object-contain p-1.5" />
+              <SecureImage storagePath={business.logo_url} alt={`${business.name} logo`} className="h-full w-full p-1.5" imgClassName="object-contain" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-primary/10">
                 <Store className="h-7 w-7 text-primary" />

@@ -94,7 +94,7 @@ export function SavedPlacesList({ compact = false, maxItems }: SavedPlacesListPr
                         storagePath={item.business.logo_url}
                         alt={item.business.name}
                         className="w-full h-full"
-                        imgClassName="object-cover"
+                        imgClassName="object-contain"
                         fallback={<MapPin className="h-5 w-5 text-muted-foreground" />}
                       />
                     ) : (

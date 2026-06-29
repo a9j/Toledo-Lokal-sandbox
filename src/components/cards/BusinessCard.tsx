@@ -37,7 +37,8 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
               <SecureImage
                 storagePath={business.logo_url}
                 alt={`${business.name} logo`}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                imgClassName="object-contain"
                 fallback={<IconComponent className="h-7 w-7 text-muted-foreground" />}
               />
             ) : (

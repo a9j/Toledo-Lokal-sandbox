@@ -82,7 +82,8 @@ export function SortableItem({ id, item, onRemove, onUpdateNote }: SortableItemP
             <SecureImage
               storagePath={business.logo_url}
               alt={business.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
+              imgClassName="object-contain"
               fallback={
                 <div className="w-full h-full flex items-center justify-center">
                   <Building2 className="h-6 w-6 text-muted-foreground" />

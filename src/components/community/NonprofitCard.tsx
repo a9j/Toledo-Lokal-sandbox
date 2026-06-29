@@ -62,7 +62,8 @@ export function NonprofitCard({ nonprofit }: NonprofitCardProps) {
                 <SecureImage
                   storagePath={nonprofit.logo_url}
                   alt={nonprofit.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  imgClassName="object-contain"
                 />
               </div>
             )}

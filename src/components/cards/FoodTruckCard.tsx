@@ -59,7 +59,7 @@ export function FoodTruckCard({ location }: FoodTruckCardProps) {
                     storagePath={location.business.logo_url}
                     alt={location.business.name}
                     className="w-full h-full"
-                    imgClassName="object-cover"
+                    imgClassName="object-contain"
                     fallback={<Utensils className="h-4 w-4 text-accent" />}
                   />
                 ) : (
