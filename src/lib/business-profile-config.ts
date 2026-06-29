@@ -75,6 +75,33 @@ export const BUSINESS_TYPE_CONFIG: Record<BusinessCategory, BusinessTypeConfig> 
   community_org: { primaryAction: 'volunteer', secondaryAction: 'event', mediaLabel: 'Community Moments', liveStatus: ['Get involved this week', 'Upcoming meeting', 'New initiative'] },
 };
 
+const NONPROFIT_PROFILE_CATEGORIES: BusinessCategory[] = ['nonprofit', 'community_org'];
+
+const ACCOUNT_TYPE_SUGGESTIONS: Record<string, string[]> = {
+  nonprofit: [
+    'Adoptable pet of the day',
+    'Volunteer shifts open',
+    'Donation match active',
+    'Upcoming community event',
+    'Spay/neuter clinic openings',
+  ],
+  for_profit: [
+    'Fresh special today',
+    'Lunch rush starts soon',
+    'Double points tonight',
+  ],
+};
+
+export function resolveLiveStatus(business: {
+  profileCategory: BusinessCategory;
+  isNonprofit: boolean;
+}): string[] {
+  if (NONPROFIT_PROFILE_CATEGORIES.includes(business.profileCategory) || business.isNonprofit) {
+    return ACCOUNT_TYPE_SUGGESTIONS.nonprofit;
+  }
+  return BUSINESS_TYPE_CONFIG[business.profileCategory]?.liveStatus ?? ACCOUNT_TYPE_SUGGESTIONS.for_profit;
+}
+
 export interface ProfileActionContext {
   onSave: () => void;
   onShare: () => void;
