@@ -45,7 +45,8 @@ function getCroppedImg(
   imageSrc: string,
   pixelCrop: Area,
   outputWidth: number,
-  outputHeight: number
+  outputHeight: number,
+  bgColor?: string
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -59,17 +60,27 @@ function getCroppedImg(
         reject(new Error('Failed to get canvas context'));
         return;
       }
-      ctx.drawImage(
-        image,
-        pixelCrop.x,
-        pixelCrop.y,
-        pixelCrop.width,
-        pixelCrop.height,
-        0,
-        0,
-        outputWidth,
-        outputHeight
-      );
+
+      if (bgColor) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, outputWidth, outputHeight);
+      }
+
+      // Clamp source region to image bounds (matters in fit mode where
+      // the crop area can extend beyond the image).
+      const sx = Math.max(0, pixelCrop.x);
+      const sy = Math.max(0, pixelCrop.y);
+      const sw = Math.min(image.naturalWidth, pixelCrop.x + pixelCrop.width) - sx;
+      const sh = Math.min(image.naturalHeight, pixelCrop.y + pixelCrop.height) - sy;
+
+      if (sw > 0 && sh > 0) {
+        const scaleX = outputWidth / pixelCrop.width;
+        const scaleY = outputHeight / pixelCrop.height;
+        const dx = (sx - pixelCrop.x) * scaleX;
+        const dy = (sy - pixelCrop.y) * scaleY;
+        ctx.drawImage(image, sx, sy, sw, sh, dx, dy, sw * scaleX, sh * scaleY);
+      }
+
       canvas.toBlob(
         (blob) => {
           if (blob) resolve(blob);
@@ -106,6 +117,7 @@ export function ImageCropUpload({
   const [preparing, setPreparing] = useState(false);
   const [lowResWarning, setLowResWarning] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
+  const [fitMode, setFitMode] = useState<'fill' | 'fit'>('fill');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onFileSelected = useCallback(
@@ -173,6 +185,7 @@ export function ImageCropUpload({
         setShowCropper(true);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setFitMode('fill');
       };
       reader.readAsDataURL(working);
     },
@@ -187,7 +200,7 @@ export function ImageCropUpload({
     if (!imageSrc || !croppedAreaPixels) return;
     setIsUploading(true);
     try {
-      const blob = await getCroppedImg(imageSrc, croppedAreaPixels, outputWidth, outputHeight);
+      const blob = await getCroppedImg(imageSrc, croppedAreaPixels, outputWidth, outputHeight, fitMode === 'fit' ? '#ffffff' : undefined);
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
       const fileName = `${timestamp}-${randomStr}.webp`;
@@ -213,7 +226,7 @@ export function ImageCropUpload({
     } finally {
       setIsUploading(false);
     }
-  }, [imageSrc, croppedAreaPixels, outputWidth, outputHeight, onUploadComplete]);
+  }, [imageSrc, croppedAreaPixels, outputWidth, outputHeight, onUploadComplete, fitMode]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -295,6 +308,7 @@ export function ImageCropUpload({
                 zoom={zoom}
                 aspect={aspectRatio}
                 cropShape={shape === 'circle' ? 'round' : 'rect'}
+                objectFit={fitMode === 'fit' ? 'contain' : 'auto-cover'}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
@@ -311,6 +325,34 @@ export function ImageCropUpload({
               onValueChange={([v = 1]) => setZoom(v)}
               className="flex-1"
             />
+          </div>
+          <div className="px-6 pb-2 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Mode</span>
+            <div className="inline-flex rounded-lg border border-border p-0.5 bg-muted/50">
+              <button
+                type="button"
+                onClick={() => { setFitMode('fill'); setZoom(1); setCrop({ x: 0, y: 0 }); }}
+                className={cn(
+                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+                  fitMode === 'fill' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Fill
+              </button>
+              <button
+                type="button"
+                onClick={() => { setFitMode('fit'); setZoom(1); setCrop({ x: 0, y: 0 }); }}
+                className={cn(
+                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+                  fitMode === 'fit' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Fit
+              </button>
+            </div>
+            <span className="text-[10px] text-muted-foreground">
+              {fitMode === 'fill' ? 'Crop to fill frame' : 'Show entire image'}
+            </span>
           </div>
           {lowResWarning && (
             <p className="mx-6 mb-1 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
