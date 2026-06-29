@@ -69,7 +69,7 @@ export default function QRResolver() {
 
   if (state.status === 'missing') {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+      <div className="flex min-h-screen safe-area-pad-top flex-col items-center justify-center gap-4 bg-background px-6 text-center">
         <img src={tlLogo} alt="Toledo Lokal" className="h-16 w-auto" />
         <h1 className="text-xl font-bold text-foreground">This business is no longer listed</h1>
         <p className="text-sm text-muted-foreground">

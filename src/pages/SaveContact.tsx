@@ -58,7 +58,7 @@ export default function SaveContact() {
 
   if (isError || !business) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+      <div className="flex min-h-screen safe-area-pad-top flex-col items-center justify-center gap-4 bg-background px-6 text-center">
         <img src={tlLogo} alt="ToledoLokal" className="h-16 w-auto" />
         <h1 className="text-xl font-bold">Business not found</h1>
         <p className="text-sm text-muted-foreground">

@@ -114,7 +114,7 @@ export default function ProfileSetup() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
+    <div className="min-h-screen safe-area-pad-top flex flex-col items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm space-y-8">
         {/* Header */}
         {step < 3 && (
