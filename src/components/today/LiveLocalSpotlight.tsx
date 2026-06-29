@@ -51,7 +51,8 @@ export function LiveLocalSpotlight({ spotlights }: LiveLocalSpotlightProps) {
                   <SecureImage
                     storagePath={business.logo_url}
                     alt={business.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    imgClassName="object-contain"
                     fallback={
                       <div className="w-full h-full flex items-center justify-center bg-primary/10">
                         <Icon className="h-6 w-6 text-primary" />

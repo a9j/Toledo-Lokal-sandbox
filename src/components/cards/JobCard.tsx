@@ -55,7 +55,7 @@ export function JobCard({ job, showLocalEmployerBadge = false }: JobCardProps) {
                 storagePath={job.business.logo_url}
                 alt={job.business.name}
                 className="w-full h-full"
-                imgClassName="object-cover"
+                imgClassName="object-contain"
                 fallback={<Briefcase className="h-5 w-5 text-primary" />}
               />
             ) : (

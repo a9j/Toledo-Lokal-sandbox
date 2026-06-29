@@ -74,7 +74,8 @@ export function IdentityCard({ business, isFoodTruck }: IdentityCardProps) {
             <SecureImage
               storagePath={business.logo_url}
               alt={business.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full"
+              imgClassName="object-contain"
               loading="eager"
             />
           ) : isFoodTruck ? (
