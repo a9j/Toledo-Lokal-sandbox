@@ -23,6 +23,7 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, Infinity as InfinityIcon, Crown, Instagram } from 'lucide-react';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { ImageCropUpload } from '@/components/business/ImageCropUpload';
 import { SecondaryCategorySelector } from '@/components/business/SecondaryCategorySelector';
 import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager';
 import { TruckStopsManager } from '@/components/business/TruckStopsManager';
@@ -456,31 +457,18 @@ export default function EditBusiness() {
             {/* Logo */}
             <div className="card-elevated p-3 space-y-2">
               <Label className="text-sm font-medium">Logo</Label>
-              {logoUrl ? (
-                <div className="relative">
-                  <SecureImage
-                    storagePath={logoUrl}
-                    alt="Business logo"
-                    className="w-full aspect-square object-contain rounded-lg border border-border bg-muted/30"
-                  />
-                  <Button 
-                    type="button" 
-                    variant="destructive" 
-                    size="icon"
-                    className="absolute top-1 right-1 h-6 w-6"
-                    onClick={() => setLogoUrl(null)}
-                  >
-                    <span className="sr-only">Remove</span>×
-                  </Button>
-                </div>
-              ) : (
-                <ImageUpload
-                  onUpload={(url) => setLogoUrl(url)}
-                  folder="businesses/logos"
-                  bucket="public-assets"
-                  label="Upload"
-                />
-              )}
+              <ImageCropUpload
+                aspectRatio={1}
+                shape="rectangle"
+                maxFileSize={5}
+                outputWidth={800}
+                outputHeight={800}
+                minWidth={400}
+                recommendedWidth={800}
+                onUploadComplete={(url) => setLogoUrl(url || null)}
+                placeholder="Upload logo"
+                currentImageUrl={logoUrl}
+              />
             </div>
 
             {/* Feed Photo */}
@@ -519,32 +507,16 @@ export default function EditBusiness() {
           <div className="card-elevated p-3 space-y-2">
             <Label className="text-sm font-medium">Cover Photo</Label>
             <p className="text-xs text-muted-foreground">Banner image shown at the top of your public profile.</p>
-            {coverUrl ? (
-              <div className="relative">
-                <SecureImage
-                  storagePath={coverUrl}
-                  alt="Cover photo"
-                  className="w-full aspect-[3/1] rounded-lg"
-                  imgClassName="object-cover"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-1 right-1 h-6 w-6"
-                  onClick={() => setCoverUrl(null)}
-                >
-                  <span className="sr-only">Remove</span>×
-                </Button>
-              </div>
-            ) : (
-              <ImageUpload
-                onUpload={(url) => setCoverUrl(url)}
-                folder="businesses/covers"
-                bucket="public-assets"
-                label="Upload cover"
-              />
-            )}
+            <ImageCropUpload
+              aspectRatio={3}
+              shape="rectangle"
+              maxFileSize={10}
+              outputWidth={2400}
+              outputHeight={800}
+              onUploadComplete={(url) => setCoverUrl(url || null)}
+              placeholder="Upload cover image"
+              currentImageUrl={coverUrl}
+            />
           </div>
 
           {/* Gallery Photos */}
