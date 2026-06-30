@@ -17,7 +17,7 @@ import { BetaWaitlist } from './BetaWaitlist';
 //
 // A few paths stay reachable while gated so invited/eligible users can get in:
 // the tokenized join, auth, and legal pages.
-const ALLOWLIST = ['/join/charter-100', '/auth', '/signup', '/privacy', '/terms', '/beta'];
+const ALLOWLIST = ['/join/charter-100', '/join', '/auth', '/signup', '/privacy', '/terms', '/beta', '/founding-5', '/business-onboarding', '/signup/nonprofit', '/signup/community-partner'];
 
 function isAllowed(path: string): boolean {
   return ALLOWLIST.some((p) => path === p || path.startsWith(p + '/'));
