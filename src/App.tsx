@@ -28,6 +28,7 @@ import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { BetaGate } from "@/components/beta/BetaGate";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -146,6 +147,7 @@ const App = () => (
               <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ErrorBoundary>
               <BetaGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
@@ -247,6 +249,7 @@ const App = () => (
               <BottomNav />
               <InstallPrompt />
               </BetaGate>
+              </ErrorBoundary>
             </BrowserRouter>
             <Analytics />
           </TooltipProvider>
