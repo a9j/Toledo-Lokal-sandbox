@@ -40,6 +40,20 @@ export function useBetaSignupCount() {
   });
 }
 
+// Charter 100 cohort counter — live count of beta signups, safe for public display.
+export function useCharter100Count() {
+  return useQuery({
+    queryKey: ['charter-100-count'],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase.rpc('charter_100_count' as never);
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+  });
+}
+
 export interface BetaCohort {
   id: string;
   slug: string;
