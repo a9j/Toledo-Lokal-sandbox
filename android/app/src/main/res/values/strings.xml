@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Toledo Lokal</string>
     <string name="title_activity_main">Toledo Lokal</string>
-    <string name="package_name">com.toledolokal.app</string>
-    <string name="custom_url_scheme">com.toledolokal.app</string>
+    <string name="package_name">com.looplokal.toledo</string>
+    <string name="custom_url_scheme">com.looplokal.toledo</string>
 </resources>
