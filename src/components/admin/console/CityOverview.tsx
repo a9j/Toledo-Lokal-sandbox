@@ -98,7 +98,7 @@ const QUICK_ACTIONS: { label: string; icon: LucideIcon; to: string }[] = [
   { label: 'Add nonprofit', icon: HeartHandshake, to: '/admin/classic?tab=nonprofits' },
   { label: 'Create reward', icon: Gift, to: '/dashboard/rewards' },
   { label: 'Assign Founding 5', icon: Crown, to: '/admin/businesses?tier=founding_5' },
-  { label: 'Assign Founding 25', icon: Shield, to: '/admin/businesses?tier=founding_50' },
+  { label: 'Assign Founding 25', icon: Shield, to: '/admin/businesses?tier=founding_25' },
   { label: 'Assign Civic Partner', icon: Landmark, to: '/admin/businesses?tier=civic_partner' },
 ];
 

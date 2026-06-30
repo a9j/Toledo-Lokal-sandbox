@@ -120,7 +120,7 @@ export default function Admin() {
   });
 
   const foundingMemberCount = approvedBusinesses?.filter(b => b.business_loop_settings?.is_founding_member).length || 0;
-  const founding50Count = approvedBusinesses?.filter(b => b.tier_status === 'founding_50').length || 0;
+  const founding25Count = approvedBusinesses?.filter(b => b.tier_status === 'founding_25').length || 0;
 
   // Pending deals
   const { data: pendingDeals } = useQuery({
@@ -430,8 +430,8 @@ export default function Admin() {
   });
 
   // Toggle Founding 25 status
-  const toggleFounding50 = useMutation({
-    mutationFn: async ({ businessId, isFounding50 }: { businessId: string; isFounding50: boolean }) => {
+  const toggleFounding25 = useMutation({
+    mutationFn: async ({ businessId, isFounding25 }: { businessId: string; isFounding25: boolean }) => {
       const { data: existing } = await supabase
         .from('business_loop_settings')
         .select('id')
@@ -441,37 +441,37 @@ export default function Admin() {
       if (existing) {
         const { error } = await supabase
           .from('business_loop_settings')
-          .update({ 
-            is_founding_50: isFounding50,
-            ...(isFounding50 ? { is_active: true } : {})
+          .update({
+            is_founding_50: isFounding25,
+            ...(isFounding25 ? { is_active: true } : {})
           })
           .eq('business_id', businessId);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('business_loop_settings')
-          .insert({ 
+          .insert({
             business_id: businessId,
-            is_founding_50: isFounding50,
+            is_founding_50: isFounding25,
             loop_tier_id: 'community',
-            is_active: isFounding50
+            is_active: isFounding25
           });
         if (error) throw error;
       }
 
       await supabase.from('businesses').update({
-        tier_status: isFounding50 ? 'founding_50' : 'community',
+        tier_status: isFounding25 ? 'founding_25' : 'community',
         tier_badge_visible: true,
         tier_assigned_at: new Date().toISOString(),
         tier_assigned_by: user!.id,
       }).eq('id', businessId);
     },
-    onSuccess: (_, { isFounding50 }) => {
+    onSuccess: (_, { isFounding25 }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
-      toast({ 
-        title: isFounding50 ? 'Founding 25 member added!' : 'Founding 25 status removed',
-        description: isFounding50 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
+      toast({
+        title: isFounding25 ? 'Founding 25 member added!' : 'Founding 25 status removed',
+        description: isFounding25 ? 'They now get a permanent 50% discount on paid tiers.' : undefined
       });
     },
   });
@@ -639,7 +639,7 @@ export default function Admin() {
                 <p className="text-xs text-muted-foreground">Founding 5</p>
               </div>
               <div className="card-elevated p-3 text-center">
-                <p className="text-2xl font-bold text-slate-400">{founding50Count}/25</p>
+                <p className="text-2xl font-bold text-slate-400">{founding25Count}/25</p>
                 <p className="text-xs text-muted-foreground">Founding 25</p>
               </div>
             </div>
@@ -984,18 +984,18 @@ export default function Admin() {
                 </Badge>
                 <Badge variant="outline" className="gap-1 bg-gradient-to-r from-slate-50 to-gray-50 border-slate-300 dark:from-slate-950/30 dark:to-gray-950/30 dark:border-slate-700">
                   <Shield className="h-3 w-3 text-slate-500" />
-                  <span className="text-slate-600 dark:text-slate-400">{founding50Count}/25</span>
+                  <span className="text-slate-600 dark:text-slate-400">{founding25Count}/25</span>
                 </Badge>
               </div>
             </div>
             {approvedBusinesses?.length ? (
               approvedBusinesses.map(biz => {
                 const isFoundingMember = biz.business_loop_settings?.is_founding_member || false;
-                const isFounding50 = biz.tier_status === 'founding_50';
+                const isFounding25 = biz.tier_status === 'founding_25';
                 const isCivicPartner = biz.tier_status === 'civic_partner';
                 const highlightClass = isFoundingMember
                   ? 'ring-2 ring-amber-400/50 bg-gradient-to-r from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/20'
-                  : isFounding50
+                  : isFounding25
                   ? 'ring-2 ring-slate-300/50 bg-gradient-to-r from-slate-50/50 to-gray-50/50 dark:from-slate-950/20 dark:to-gray-950/20'
                   : isCivicPartner
                   ? 'ring-2 ring-teal-400/50 bg-gradient-to-r from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20'
@@ -1020,7 +1020,7 @@ export default function Admin() {
                               Founding 5
                             </Badge>
                           )}
-                          {isFounding50 && (
+                          {isFounding25 && (
                             <Badge className="gap-1 bg-gradient-to-r from-slate-400 to-gray-400 text-white border-0 text-[10px]">
                               <Shield className="h-3 w-3" />
                               Founding 25
@@ -1062,7 +1062,7 @@ export default function Admin() {
                         }}
                         className={`h-7 text-xs gap-1 ${isFoundingMember ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600' : ''}`}
                         title={isFoundingMember ? 'Remove from Founding 5' : 'Add to Founding 5'}
-                        disabled={toggleFoundingMember.isPending || isFounding50}
+                        disabled={toggleFoundingMember.isPending || isFounding25}
                       >
                         <Crown className="h-3 w-3" />
                         F5
@@ -1071,9 +1071,9 @@ export default function Admin() {
                       {/* Founding 25 Toggle */}
                       <Button
                         size="sm"
-                        variant={isFounding50 ? "secondary" : "ghost"}
+                        variant={isFounding25 ? "secondary" : "ghost"}
                         onClick={() => {
-                          if (!isFounding50 && founding50Count >= 25) {
+                          if (!isFounding25 && founding25Count >= 25) {
                             toast({ 
                               title: 'Founding 25 is full',
                               description: 'Remove a member first.',
@@ -1081,11 +1081,11 @@ export default function Admin() {
                             });
                             return;
                           }
-                          toggleFounding50.mutate({ businessId: biz.id, isFounding50: !isFounding50 });
+                          toggleFounding25.mutate({ businessId: biz.id, isFounding25: !isFounding25 });
                         }}
-                        className={`h-7 text-xs gap-1 ${isFounding50 ? 'bg-gradient-to-r from-slate-400 to-gray-400 text-white hover:from-slate-500 hover:to-gray-500' : ''}`}
-                        title={isFounding50 ? 'Remove from Founding 25' : 'Add to Founding 25'}
-                        disabled={toggleFounding50.isPending || isFoundingMember}
+                        className={`h-7 text-xs gap-1 ${isFounding25 ? 'bg-gradient-to-r from-slate-400 to-gray-400 text-white hover:from-slate-500 hover:to-gray-500' : ''}`}
+                        title={isFounding25 ? 'Remove from Founding 25' : 'Add to Founding 25'}
+                        disabled={toggleFounding25.isPending || isFoundingMember}
                       >
                         <Shield className="h-3 w-3" />
                         F25
@@ -1100,7 +1100,7 @@ export default function Admin() {
                         }}
                         className={`h-7 text-xs gap-1 ${isCivicPartner ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white hover:from-teal-700 hover:to-emerald-600' : ''}`}
                         title={isCivicPartner ? 'Remove Civic Partner' : 'Assign Civic Partner'}
-                        disabled={toggleCivicPartner.isPending || isFoundingMember || isFounding50}
+                        disabled={toggleCivicPartner.isPending || isFoundingMember || isFounding25}
                       >
                         <Landmark className="h-3 w-3" />
                         Civic

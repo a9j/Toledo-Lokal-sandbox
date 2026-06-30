@@ -21,7 +21,7 @@ export function FoundingContactCards() {
       const { data, error } = await supabase
         .from('businesses_public')
         .select('id, name, slug, tier_assigned_at')
-        .eq('tier_status', 'founding_50')
+        .eq('tier_status', 'founding_25')
         .order('tier_assigned_at', { ascending: true });
       if (error) throw error;
       return (data ?? []) as F25Row[];

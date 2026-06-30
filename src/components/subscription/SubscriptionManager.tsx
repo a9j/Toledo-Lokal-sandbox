@@ -14,9 +14,9 @@ import { PricingCard } from './PricingCard';
 // Founding businesses receive a paid plan free through their membership. Map the
 // founding tier_status to the subscription tier it includes so the view reflects
 // the effective plan instead of defaulting to the Stripe-derived Community tier.
-const FOUNDING_INCLUDED_TIER: Record<'founding_5' | 'founding_50', SubscriptionTier> = {
+const FOUNDING_INCLUDED_TIER: Record<'founding_5' | 'founding_25', SubscriptionTier> = {
   founding_5: 'pro',
-  founding_50: 'growth',
+  founding_25: 'growth',
 };
 
 interface SubscriptionManagerProps {
@@ -108,8 +108,8 @@ export function SubscriptionManager({ foundingTierStatus = null }: SubscriptionM
 
   const tiers = Object.values(SUBSCRIPTION_TIERS) as typeof SUBSCRIPTION_TIERS[SubscriptionTier][];
 
-  const isFounding = foundingTierStatus === 'founding_5' || foundingTierStatus === 'founding_50';
-  const foundingKey = isFounding ? (foundingTierStatus as 'founding_5' | 'founding_50') : null;
+  const isFounding = foundingTierStatus === 'founding_5' || foundingTierStatus === 'founding_25';
+  const foundingKey = isFounding ? (foundingTierStatus as 'founding_5' | 'founding_25') : null;
   const includedTier = foundingKey ? FOUNDING_INCLUDED_TIER[foundingKey] : null;
   const foundingMembershipName = foundingKey ? FOUNDING_TIERS[foundingKey].name : null;
   const includedConfig = includedTier ? SUBSCRIPTION_TIERS[includedTier] : null;

@@ -192,7 +192,7 @@ export const FOUNDING_TIERS = {
       prioritySupport: true,
     },
   },
-  founding_50: {
+  founding_25: {
     name: 'Founding 25',
     lpMonthlyLaunch: 15000,
     lpLaunchMonths: 6,
