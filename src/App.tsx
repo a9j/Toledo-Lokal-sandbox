@@ -110,6 +110,7 @@ const Charter100 = lazy(() => import("./pages/Charter100"));
 const FoundingBeta = lazy(() => import("./pages/FoundingBeta"));
 const BetaSignup = lazy(() => import("./pages/BetaSignup"));
 const CirclesLanding = lazy(() => import("./pages/CirclesLanding"));
+const Charter100BetaCircle = lazy(() => import("./pages/Charter100BetaCircle"));
 const NonprofitSignup = lazy(() => import("./pages/NonprofitSignup"));
 const CommunityPartnerSignup = lazy(() => import("./pages/CommunityPartnerSignup"));
 
@@ -173,6 +174,8 @@ const App = () => (
                   <Route path="/beta" element={<BetaSignup />} />
                   {/* Circles tab landing — cohort-first resolver (→ Charter 100 today) */}
                   <Route path="/circles" element={<CirclesLanding />} />
+                  {/* Charter 100 members-only Circle (chat + ideas) */}
+                  <Route path="/circles/charter100-beta" element={<Charter100BetaCircle />} />
                   {/* Alias so the /join CTA's /signup link resolves to the real signup page */}
                   <Route path="/signup" element={<Auth />} />
                   <Route path="/explore" element={<Explore />} />

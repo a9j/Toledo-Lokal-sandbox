@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, Users, Package, Calendar, Megaphone, HandHeart, Award } from 'lucide-react';
+import { Heart, Users, Package, Calendar, Megaphone, HandHeart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Nonprofit, CAUSE_CATEGORY_LABELS, COMMUNITY_SUPPORT_LABELS } from '@/hooks/useNonprofits';
 import { SecureImage } from '@/components/ui/secure-image';
@@ -45,8 +45,8 @@ export function NonprofitCard({ nonprofit }: NonprofitCardProps) {
           {/* Founding Partner Badge */}
           {nonprofit.founding_community_partner && (
             <div className="absolute top-2 right-2">
-              <Badge className="bg-amber-500/90 text-white border-0 gap-1 text-[10px] backdrop-blur-sm">
-                <Award className="h-3 w-3" />
+              <Badge className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0 gap-1 text-[10px] backdrop-blur-sm">
+                <Heart className="h-3 w-3 fill-current" />
                 Founding Partner
               </Badge>
             </div>
