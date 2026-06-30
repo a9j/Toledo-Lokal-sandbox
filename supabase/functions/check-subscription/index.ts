@@ -85,7 +85,7 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId, email });
 
-    // 1. Check business tier_status directly (handles founding_5, founding_50, admin-assigned tiers)
+    // 1. Check business tier_status directly (handles founding_5, founding_25, admin-assigned tiers)
     const { data: business } = await supabaseAdmin
       .from("businesses")
       .select("tier_status, tier_badge_visible")
@@ -95,7 +95,7 @@ serve(async (req) => {
     if (business) {
       const dbTier = business.tier_status;
       // Founding tiers and admin-assigned pro/growth are authoritative from the DB
-      if (dbTier === 'founding_5' || dbTier === 'founding_50') {
+      if (dbTier === 'founding_5' || dbTier === 'founding_25') {
         logStep("Founding tier from DB", { tier: dbTier });
         return jsonResponse({
           subscribed: true,

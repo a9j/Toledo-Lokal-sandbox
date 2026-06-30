@@ -2,7 +2,7 @@ import { Shield, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TierBadgeProps {
-  tier: 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro' | 'civic_partner';
+  tier: 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner';
   size?: 'sm' | 'md' | 'lg';
   visible?: boolean;
   className?: string;
@@ -18,7 +18,7 @@ const tierConfig = {
     shieldColor: 'text-amber-950',
     icon: Shield,
   },
-  founding_50: {
+  founding_25: {
     label: 'Founding 25',
     gradient: 'from-slate-400 to-slate-300',
     textColor: 'text-slate-900',
@@ -117,7 +117,7 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
     );
   }
 
-  if (tier === 'founding_50') {
+  if (tier === 'founding_25') {
     return (
       <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
         Founding Member, Est. {year}

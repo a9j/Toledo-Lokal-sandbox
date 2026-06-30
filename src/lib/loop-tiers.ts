@@ -66,7 +66,7 @@ export const LOOP_TIERS: Record<LoopTierId, LoopTierConfig> = {
 
 // Special allocations for Founding programs
 export const FOUNDING_5_LP_MONTHLY = 30000;
-export const FOUNDING_50_LP_MONTHLY = 15000;
+export const FOUNDING_25_LP_MONTHLY = 15000;
 export const FOUNDING_5_SUPPLY_CAP_PERCENT = 20; // Max 20% of total supply
 
 export const getLoopTierById = (id: LoopTierId | string | null): LoopTierConfig => {
@@ -86,10 +86,10 @@ export const isLoopParticipant = (tierId: LoopTierId | string | null): boolean =
 export const getEffectivePointsCap = (
   tierId: LoopTierId | string | null,
   isFoundingMember: boolean,
-  isFounding50: boolean
+  isFounding25: boolean
 ): number => {
   if (isFoundingMember) return FOUNDING_5_LP_MONTHLY;
-  if (isFounding50) return FOUNDING_50_LP_MONTHLY;
+  if (isFounding25) return FOUNDING_25_LP_MONTHLY;
   return getLoopTierById(tierId).pointsCap;
 };
 

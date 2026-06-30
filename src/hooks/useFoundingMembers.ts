@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { FoundingMember } from '@/components/founding5/types';
 
 // Reads the founding brands you already have: businesses whose tier_status is
-// 'founding_5' / 'founding_50', straight from the live businesses_public view.
+// 'founding_5' / 'founding_25', straight from the live businesses_public view.
 // No migration required. The curated extras (owner photo, owner quote, an
 // explicit founding number) are filled in later once those columns exist; for
 // now positions are derived from when each brand was made founding.
@@ -34,7 +34,7 @@ const orderKey = (r: BrandRow): string => r.tier_assigned_at ?? r.created_at ?? 
 
 export interface FoundingData {
   founding5: FoundingMember[];
-  founding50: FoundingMember[];
+  founding25: FoundingMember[];
 }
 
 export function useFoundingMembers() {
@@ -46,7 +46,7 @@ export function useFoundingMembers() {
         .select(
           'id, slug, name, tier_status, cover_image_url, logo_url, photos, tier_assigned_at, created_at, neighborhood:neighborhoods(name)',
         )
-        .in('tier_status', ['founding_5', 'founding_50'])
+        .in('tier_status', ['founding_5', 'founding_25'])
         .neq('tier_badge_visible', false);
 
       if (error) throw error;
@@ -69,7 +69,7 @@ export function useFoundingMembers() {
             quote: null,
           }));
 
-      return { founding5: membersFor('founding_5'), founding50: membersFor('founding_50') };
+      return { founding5: membersFor('founding_5'), founding25: membersFor('founding_25') };
     },
   });
 }

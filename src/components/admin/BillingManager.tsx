@@ -30,7 +30,7 @@ const TIER_INFO: Record<string, { label: string; description: string; className:
     description: 'Free forever — thank you for being one of the first five.',
     className: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-amber-950',
   },
-  founding_50: {
+  founding_25: {
     label: 'Founding 25',
     description: 'Free forever on core. Ranked above every business that signs up later. 50% off everything optional for life.',
     className: 'bg-gradient-to-r from-slate-400 to-slate-300 text-slate-900',
@@ -70,7 +70,7 @@ function useBusinessBilling(businessId: string) {
 
 function tierStatusToSubscriptionTier(tierStatus: string): SubscriptionTier {
   if (tierStatus === 'founding_5' || tierStatus === 'pro') return 'pro';
-  if (tierStatus === 'founding_50' || tierStatus === 'growth') return 'growth';
+  if (tierStatus === 'founding_25' || tierStatus === 'growth') return 'growth';
   return 'free';
 }
 
@@ -87,13 +87,13 @@ export function BillingManager({ businessId }: BillingManagerProps) {
 
   const tierStatus = billing?.tier_status || 'community';
   const info = TIER_INFO[tierStatus] || TIER_INFO.community || { label: tierStatus, description: '', className: '' };
-  const isFounder = tierStatus === 'founding_5' || tierStatus === 'founding_50';
+  const isFounder = tierStatus === 'founding_5' || tierStatus === 'founding_25';
   const isF5 = tierStatus === 'founding_5';
-  const isF50 = tierStatus === 'founding_50';
+  const isF25 = tierStatus === 'founding_25';
   const tier = tierStatusToSubscriptionTier(tierStatus);
   const tierConfig: TierConfig = SUBSCRIPTION_TIERS[tier];
 
-  const foundingConfig = isF5 ? FOUNDING_TIERS.founding_5 : isF50 ? FOUNDING_TIERS.founding_50 : null;
+  const foundingConfig = isF5 ? FOUNDING_TIERS.founding_5 : isF25 ? FOUNDING_TIERS.founding_25 : null;
   const features = foundingConfig ? foundingConfig.features : tierConfig.features;
   const estYear = billing?.tier_assigned_at
     ? new Date(billing.tier_assigned_at).getFullYear()
@@ -115,7 +115,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
             <div className={cn(
               'w-12 h-12 rounded-xl flex items-center justify-center',
               isF5 ? 'bg-gradient-to-br from-amber-500 to-yellow-400' :
-              isF50 ? 'bg-gradient-to-br from-slate-400 to-slate-300' :
+              isF25 ? 'bg-gradient-to-br from-slate-400 to-slate-300' :
               'bg-primary/10'
             )}>
               {isFounder ? (
@@ -181,7 +181,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
             <div key={i} className="flex items-start gap-2">
               <CheckCircle className={cn(
                 'h-4 w-4 shrink-0 mt-0.5',
-                isF5 ? 'text-amber-600' : isF50 ? 'text-slate-500' : 'text-emerald-600'
+                isF5 ? 'text-amber-600' : isF25 ? 'text-slate-500' : 'text-emerald-600'
               )} />
               <p className="text-sm text-foreground/80">{feature}</p>
             </div>
@@ -191,7 +191,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
 
       {/* Plan limits */}
       <div className="card-elevated p-5 space-y-3">
-        <h3 className="font-semibold text-sm">{isF5 ? 'Plan limits' : isF50 ? 'Core plan limits' : 'Plan limits'}</h3>
+        <h3 className="font-semibold text-sm">{isF5 ? 'Plan limits' : isF25 ? 'Core plan limits' : 'Plan limits'}</h3>
         <div className="grid gap-2 sm:grid-cols-2">
           {isF5 ? (
             <>
@@ -206,7 +206,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
               <PlanLimitRow label="Priority support" value="Yes" />
               <PlanLimitRow label="Cost" value="Free forever" />
             </>
-          ) : isF50 ? (
+          ) : isF25 ? (
             <>
               <PlanLimitRow label="Deals" value={String(tierConfig.limits.deals)} />
               <PlanLimitRow label="Events" value={String(tierConfig.limits.events)} />
@@ -234,7 +234,7 @@ export function BillingManager({ businessId }: BillingManagerProps) {
       </div>
 
       {/* F25 upgrade nudge — core is free, but extras are half price */}
-      {isF50 && (
+      {isF25 && (
         <Link to="/dashboard/subscription">
           <div className="card-elevated p-5 flex items-center gap-3 border-dashed border-2 border-slate-300 hover-lift cursor-pointer">
             <div className="flex-1">

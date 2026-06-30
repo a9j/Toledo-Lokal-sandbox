@@ -91,7 +91,7 @@ export default function Founding5() {
   const knownFoundingIds = useRef<Set<string> | null>(null);
   useEffect(() => {
     if (!data) return;
-    const all = [...data.founding5, ...data.founding50];
+    const all = [...data.founding5, ...data.founding25];
 
     if (knownFoundingIds.current === null) {
       knownFoundingIds.current = new Set(all.map((m) => m.id));
@@ -111,10 +111,10 @@ export default function Founding5() {
 
   const members = useMemo(() => data?.founding5 ?? [], [data]);
   const claimedCount = members.length;
-  const founding50Count = data?.founding50.length ?? 0;
+  const founding25Count = data?.founding25.length ?? 0;
 
   const claimedDisplay = useCountUp(claimedCount);
-  const founding50Display = useCountUp(founding50Count);
+  const founding25Display = useCountUp(founding25Count);
 
   const claimedNumbers = useMemo(
     () => new Set(members.map((m) => m.foundingNumber)),
@@ -241,10 +241,10 @@ export default function Founding5() {
             The Founding 25
           </p>
           <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
-            {founding50Display} of {FOUNDING_50_TOTAL} claimed
+            {founding25Display} of {FOUNDING_50_TOTAL} claimed
           </p>
           <Progress
-            value={(founding50Count / FOUNDING_50_TOTAL) * 100}
+            value={(founding25Count / FOUNDING_50_TOTAL) * 100}
             className="mt-5 h-2"
           />
           <p className="mt-3 text-sm text-muted-foreground">

@@ -129,7 +129,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
               <Shield className="h-3 w-3 fill-current" /> Founding 5
             </span>
           )}
-          {!business.isFoundingMember && business.tierStatus === 'founding_50' && (
+          {!business.isFoundingMember && business.tierStatus === 'founding_25' && (
             <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-slate-400 to-slate-300 border border-slate-300/50 px-2 py-0.5 text-[10px] font-bold text-slate-900">
               <Shield className="h-3 w-3 fill-current" /> Founding 25
             </span>
@@ -138,7 +138,7 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
 
         {tagline && <p className="mt-1 text-sm text-muted-foreground">{tagline}</p>}
 
-        {business.tierStatus && (business.tierStatus === 'founding_5' || business.tierStatus === 'founding_50') && (
+        {business.tierStatus && (business.tierStatus === 'founding_5' || business.tierStatus === 'founding_25') && (
           <div className="mt-1">
             <TierLabel tier={business.tierStatus} assignedAt={business.tierAssignedAt} />
           </div>

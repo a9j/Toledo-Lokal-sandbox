@@ -34,7 +34,7 @@ export const isFoodTruckCategory = (category?: BusinessCategory | string | null)
 /**
  * Loop gate. The free ("Community") plan is "Visible Only" per the partner
  * guide: 0 Loop Points and no Loop participation. Every paid plan
- * (growth, pro, founding_5, founding_50) gets Loop. A missing/unknown
+ * (growth, pro, founding_5, founding_25) gets Loop. A missing/unknown
  * tier_status is treated as free.
  */
 export const FREE_TIER_STATUS = 'community';

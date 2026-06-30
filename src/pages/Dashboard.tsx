@@ -238,7 +238,7 @@ export default function Dashboard() {
       label: 'Subscription & Billing', 
       href: '/dashboard/subscription',
       subtitle: business.tier_status === 'founding_5' ? 'Founding 5 — Free forever' 
-        : business.tier_status === 'founding_50' ? 'Founding 25 — Launch pricing'
+        : business.tier_status === 'founding_25' ? 'Founding 25 — Launch pricing'
         : business.tier_status === 'pro' ? 'Pro / Anchor plan'
         : business.tier_status === 'growth' ? 'Growth plan'
         : 'Community — Free plan'

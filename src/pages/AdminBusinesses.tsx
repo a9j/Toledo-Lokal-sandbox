@@ -50,7 +50,7 @@ import {
 import { usePermissions } from '@/hooks/usePermissions';
 import { AdminBusinessStaffDialog } from '@/components/admin/AdminBusinessStaffDialog';
 
-type TierStatus = 'founding_5' | 'founding_50' | 'community' | 'growth' | 'pro' | 'civic_partner';
+type TierStatus = 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner';
 
 interface TierChangeLog {
   id: string;
@@ -396,7 +396,7 @@ export default function AdminBusinesses() {
 
   // Stats
   const founding5Count = businesses?.filter(b => b.tier_status === 'founding_5').length || 0;
-  const founding50Count = businesses?.filter(b => b.tier_status === 'founding_50').length || 0;
+  const founding25Count = businesses?.filter(b => b.tier_status === 'founding_25').length || 0;
   const proCount = businesses?.filter(b => b.tier_status === 'pro').length || 0;
   const growthCount = businesses?.filter(b => b.tier_status === 'growth').length || 0;
   const communityCount = businesses?.filter(b => b.tier_status === 'community').length || 0;
@@ -458,7 +458,7 @@ export default function AdminBusinesses() {
             <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 5</p>
           </div>
           <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
-            <p className="text-2xl font-bold text-slate-400">{founding50Count}<span className="text-sm text-muted-foreground">/25</span></p>
+            <p className="text-2xl font-bold text-slate-400">{founding25Count}<span className="text-sm text-muted-foreground">/25</span></p>
             <p className="text-[11px] text-muted-foreground whitespace-nowrap">Founding 25</p>
           </div>
           <div className="card-elevated p-3 text-center min-w-[5.5rem] flex-shrink-0">
@@ -491,7 +491,7 @@ export default function AdminBusinesses() {
               <SelectContent>
                 <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="founding_5">Founding 5</SelectItem>
-                <SelectItem value="founding_50">Founding 25</SelectItem>
+                <SelectItem value="founding_25">Founding 25</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="growth">Growth</SelectItem>
                 <SelectItem value="civic_partner">Civic Partner</SelectItem>
@@ -584,7 +584,7 @@ export default function AdminBusinesses() {
                 </Button>
 
                 {/* Founding details (number, quote, owner) */}
-                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_50') && (
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25') && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -608,7 +608,7 @@ export default function AdminBusinesses() {
                 )}
 
                 {/* Revoke */}
-                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_50' || biz.tier_status === 'pro') && (
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25' || biz.tier_status === 'pro') && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -633,7 +633,7 @@ export default function AdminBusinesses() {
                         .eq('business_id', biz.id)
                         .order('created_at', { ascending: false })
                         .limit(1);
-                      const prevTier = logs?.[0]?.previous_tier || 'founding_50';
+                      const prevTier = logs?.[0]?.previous_tier || 'founding_25';
                       restoreTier.mutate({ businessId: biz.id, previousTier: prevTier });
                     }}
                   >
@@ -744,7 +744,7 @@ export default function AdminBusinesses() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
-                  <SelectItem value="founding_50">Founding 25</SelectItem>
+                  <SelectItem value="founding_25">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro / Anchor</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="civic_partner">Civic Partner</SelectItem>
@@ -942,7 +942,7 @@ export default function AdminBusinesses() {
                 <SelectContent>
                   <SelectItem value="all">All owners</SelectItem>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
-                  <SelectItem value="founding_50">Founding 25</SelectItem>
+                  <SelectItem value="founding_25">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
                   <SelectItem value="civic_partner">Civic Partner</SelectItem>
