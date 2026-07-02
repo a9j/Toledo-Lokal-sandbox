@@ -29,7 +29,7 @@ function useCityMetrics() {
         countOf(supabase.from('profiles').select('id', { count: 'exact', head: true })),
         countOf(supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', today)),
         countOf(supabase.from('pulse_posts').select('id', { count: 'exact', head: true }).gte('created_at', today)),
-        countOf(supabase.from('nonprofits').select('id', { count: 'exact', head: true })),
+        countOf(supabase.from('businesses').select('id', { count: 'exact', head: true }).eq('is_nonprofit', true)),
         countOf(supabase.from('deals').select('id', { count: 'exact', head: true }).eq('status', 'pending')),
         countOf(supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'pending')),
       ]);
