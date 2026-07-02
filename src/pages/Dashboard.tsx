@@ -25,12 +25,12 @@ import {
   Briefcase,
   Truck,
   MapPin,
-  UtensilsCrossed,
-  Camera
+  UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
+import { ProfileCompletion } from '@/components/business/ProfileCompletion';
 import { StaffManagement } from '@/components/staff/StaffManagement';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import {
@@ -53,6 +53,7 @@ export default function Dashboard() {
       if (!user) return null;
       const businessSelect = `
           *,
+          business_missing_fields,
           category:categories!category_id(name, icon),
           neighborhood:neighborhoods(name),
           deals(id),
@@ -304,16 +305,10 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Quick tip about photo */}
-          {!business.photos?.length && (
-            <div className="flex items-center gap-2 mt-4 p-3 rounded-xl bg-primary/10 text-sm">
-              <Camera className="h-4 w-4 text-primary shrink-0" />
-              <p className="text-muted-foreground">
-                Add a feed photo in <Link to={`/business/${business.id}/edit`} className="text-primary font-medium underline">My Business Profile</Link> to stand out!
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* Profile completion checklist */}
+        <ProfileCompletion missingFields={(business as any).business_missing_fields} />
 
         {/* Loop Lokal Stats — paid plans only. Free (Community) is "Visible Only". */}
         {showLoop ? (
