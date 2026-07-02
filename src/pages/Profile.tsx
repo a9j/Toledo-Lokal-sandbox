@@ -15,11 +15,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { Charter100Badge } from '@/components/charter100/Charter100Badge';
 import { useCharter100Members } from '@/hooks/useCohort';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import {
   Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
   Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale, Trash2, QrCode,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useActiveRole } from '@/contexts/ActiveRoleContext';
 import { BusinessQRModal } from '@/components/business/BusinessQRModal';
 import { InstallAppGuide } from '@/components/pwa/InstallAppGuide';
@@ -95,21 +96,26 @@ export default function Profile() {
     enabled: !!user,
   });
 
-  const handleSignOut = async () => { await signOut(); navigate('/'); };
+  const handleSignOut = async () => {
+    navigate('/founding-5');
+    await signOut();
+  };
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
       const { error } = await supabase.functions.invoke('delete-own-account');
       if (error) throw error;
-      await signOut();
-      navigate('/');
+      toast.success('Your account has been deleted.');
+      navigate('/founding-5');
+      await supabase.auth.signOut({ scope: 'local' });
     } catch {
       setIsDeleting(false);
+      toast.error('Could not delete your account. Please try again.');
     }
   };
   const handleAvatarUpdate = () => queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
 
-  if (!user) { navigate('/auth'); return null; }
+  if (!user) return <Navigate to="/founding-5" replace />;
 
   // `vibe` is a newly added column not yet in the generated Supabase types.
   const profileVibe = (profile as { vibe?: string[] } | null | undefined)?.vibe ?? [];
