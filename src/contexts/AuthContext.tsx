@@ -3,7 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { siteUrl } from '@/lib/site-url';
 
-type AppRole = 'resident' | 'business' | 'admin' | 'organizer' | 'nonprofit' | 'partner' | 'connector';
+type AppRole = 'resident' | 'business' | 'admin' | 'super_admin' | 'organizer' | 'nonprofit' | 'partner' | 'connector';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +20,7 @@ interface AuthContextType {
   isPartner: boolean;
   isOrganizer: boolean;
   isConnector: boolean;
+  hasQualifyingRole: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         console.error('Error fetching roles:', err);
+      } finally {
+        setIsLoading(false);
       }
     }, 0);
   };
@@ -63,14 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           fetchUserRoles(newSession.user.id);
         } else {
           setRoles([]);
+          setIsLoading(false);
         }
 
-        // Handle specific auth events
         if (event === 'SIGNED_OUT') {
           setRoles([]);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -118,12 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const hasRole = (role: AppRole) => roles.includes(role);
-  const isAdmin = hasRole('admin');
+  const isAdmin = hasRole('admin') || hasRole('super_admin');
   const isBusiness = hasRole('business');
   const isNonprofit = hasRole('nonprofit');
   const isPartner = hasRole('partner');
   const isOrganizer = hasRole('organizer');
   const isConnector = hasRole('connector');
+  const hasQualifyingRole = isAdmin || isBusiness || hasRole('resident');
 
   return (
     <AuthContext.Provider value={{
@@ -140,7 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isNonprofit,
       isPartner,
       isOrganizer,
-      isConnector
+      isConnector,
+      hasQualifyingRole
     }}>
       {children}
     </AuthContext.Provider>
