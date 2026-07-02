@@ -258,8 +258,6 @@ export default function BusinessOnboarding() {
         hours: data.hours,
         onboarding_step: nextStep,
         status: 'pending',
-        onboarding_completed: isComplete ? true : undefined,
-        onboarding_completed_at: isComplete ? new Date().toISOString() : undefined,
       };
 
       let currentBusinessId = businessId;
