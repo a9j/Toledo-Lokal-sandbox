@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import type { BusinessCategory } from '@/lib/profile-modules';
+import { type BusinessCategory, resolveBusinessCategory } from '@/lib/profile-modules';
 
-// Lightweight fetch of just the fields the dashboard needs to decide which
-// features to show: the `business_category` enum (for Menu / food-truck gating)
-// and `tier_status` (for the Loop gate). Mirrors the owned-then-managed lookup
-// the full dashboard query uses, so managers see the same gating as owners.
 export interface BusinessGate {
   id: string;
   name: string;
-  category: BusinessCategory | null;
+  businessCategory: BusinessCategory;
   tier_status: string | null;
 }
 
@@ -22,9 +18,8 @@ export function useBusinessGate() {
     queryFn: async (): Promise<BusinessGate | null> => {
       if (!user) return null;
 
-      const columns = 'id, name, category, tier_status';
+      const columns = 'id, name, tier_status, category:categories!category_id(name, icon)';
 
-      // Business the user owns takes precedence.
       const { data: owned, error } = await supabase
         .from('businesses')
         .select(columns)
@@ -32,9 +27,20 @@ export function useBusinessGate() {
         .maybeSingle();
 
       if (error) throw error;
-      if (owned) return owned as BusinessGate;
 
-      // Otherwise, a business the user manages (business_staff role='manager').
+      const toGate = (row: typeof owned): BusinessGate | null => {
+        if (!row) return null;
+        const cat = row.category as { name: string; icon: string | null } | null;
+        return {
+          id: row.id,
+          name: row.name,
+          businessCategory: resolveBusinessCategory(cat?.name, cat?.icon),
+          tier_status: row.tier_status,
+        };
+      };
+
+      if (owned) return toGate(owned);
+
       const { data: managed, error: managedError } = await supabase
         .from('business_staff')
         .select(`business:businesses(${columns})`)
@@ -43,7 +49,8 @@ export function useBusinessGate() {
         .maybeSingle();
 
       if (managedError) throw managedError;
-      return (managed?.business as BusinessGate) ?? null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return toGate((managed as any)?.business ?? null);
     },
     enabled: !!user,
   });

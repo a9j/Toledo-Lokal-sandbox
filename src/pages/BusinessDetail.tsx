@@ -10,7 +10,7 @@ import { useBusinessSavedCount } from '@/hooks/useDiscoverySignals';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LP_ENABLED } from '@/lib/flags';
-import { isBusinessCategory, parseModuleContent } from '@/lib/profile-modules';
+import { resolveBusinessCategory, parseModuleContent } from '@/lib/profile-modules';
 import {
   BUSINESS_TYPE_CONFIG,
   resolveAction,
@@ -44,9 +44,9 @@ const PUBLIC_BUSINESS_COLUMNS = `
   profile_picture_url, cover_image_url, owner_user_id, created_at, updated_at
 `;
 
-// visit_link_*, category enum and profile_modules ship via recent migrations.
+// visit_link_* and profile_modules ship via recent migrations.
 // Selected separately so the page still loads if a migration hasn't reached the view.
-const NEW_COLUMNS = 'visit_link_type, visit_link_url, business_category:category, profile_modules';
+const NEW_COLUMNS = 'visit_link_type, visit_link_url, profile_modules';
 
 export default function BusinessDetail() {
   const { id } = useParams<{ id: string }>();
@@ -78,8 +78,7 @@ export default function BusinessDetail() {
       // (notably the reverse business_loop_settings embed) 400s the whole
       // request and surfaces to the user as a spurious "business not found".
       // We load the related rows separately below, so a readable business always
-      // renders. `business_category` is the scalar enum column (aliased to avoid
-      // clashing with the category relation we attach afterwards).
+      // renders.
       const fetchRow = (select: string) => {
         const q = supabase.from('businesses_public').select(select);
         return (isUUID ? q.eq('id', id) : q.eq('slug', id)).single();
@@ -88,7 +87,7 @@ export default function BusinessDetail() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let { data, error } = await fetchRow(`${PUBLIC_BUSINESS_COLUMNS}, ${NEW_COLUMNS}`) as { data: any; error: unknown };
       // Retry with only the stable columns in case a newer column (visit_link_*,
-      // category enum, profile_modules) hasn't reached the view yet.
+      // profile_modules) hasn't reached the view yet.
       if (error) {
         const res = await fetchRow(PUBLIC_BUSINESS_COLUMNS);
         data = res.data;
@@ -117,9 +116,9 @@ export default function BusinessDetail() {
       const category = (catRes.data ?? null) as { name?: string; icon?: string } | null;
       const business_loop_settings = loopRes.data ?? null;
 
-      const isFoodTruck = category?.name?.toLowerCase().includes('food truck') || category?.icon === 'truck';
-      const isNonprofit = category?.name?.toLowerCase().includes('nonprofit') ||
-        category?.name?.toLowerCase().includes('non-profit');
+      const resolvedCategory = resolveBusinessCategory(category?.name, category?.icon);
+      const isFoodTruck = resolvedCategory === 'food_truck';
+      const isNonprofit = resolvedCategory === 'nonprofit' || resolvedCategory === 'community_org';
 
       return {
         ...data,
@@ -135,7 +134,7 @@ export default function BusinessDetail() {
         tierStatus: data.tier_status,
         tierBadgeVisible: data.tier_badge_visible,
         tierAssignedAt: data.tier_assigned_at,
-        profileCategory: isBusinessCategory(data.business_category) ? data.business_category : 'restaurant',
+        profileCategory: resolvedCategory,
         moduleContent: parseModuleContent(data.profile_modules),
       };
     },

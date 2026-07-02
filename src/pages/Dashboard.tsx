@@ -39,7 +39,7 @@ import {
   loopEnabled,
   LOOP_UPGRADE_NUDGE,
 } from '@/lib/business-access';
-import type { BusinessCategory } from '@/lib/profile-modules';
+import { resolveBusinessCategory } from '@/lib/profile-modules';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -53,8 +53,7 @@ export default function Dashboard() {
       if (!user) return null;
       const businessSelect = `
           *,
-          business_category:category,
-          category:categories!category_id(name),
+          category:categories!category_id(name, icon),
           neighborhood:neighborhoods(name),
           deals(id),
           events(id),
@@ -136,9 +135,8 @@ export default function Dashboard() {
   // owner check while the role query is still resolving.
   const isOwner = isOwnerOrAdmin(effectiveRole) || business.owner_user_id === user.id;
 
-  // Feature gating by business category + plan. `category` here is the join
-  // alias (categories.name); the raw enum ships under `business_category`.
-  const businessCategory = (business as { business_category?: BusinessCategory | null }).business_category;
+  const cat = business.category as { name?: string; icon?: string | null } | null;
+  const businessCategory = resolveBusinessCategory(cat?.name, cat?.icon);
   const showMenu = canHaveMenu(businessCategory);
   const showFoodTruck = isFoodTruckCategory(businessCategory);
   const showLoop = loopEnabled(business.tier_status);

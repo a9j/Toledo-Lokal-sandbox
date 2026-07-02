@@ -189,6 +189,33 @@ export function isBusinessCategory(value: unknown): value is BusinessCategory {
   return typeof value === 'string' && BUSINESS_CATEGORY_OPTIONS.some((o) => o.value === value);
 }
 
+const CATEGORY_NAME_PATTERNS: [RegExp, BusinessCategory][] = [
+  [/food\s*truck/i, 'food_truck'],
+  [/restaurant|bar|grill|cafe|bakery|coffee|diner/i, 'restaurant'],
+  [/retail|shop|store|boutique/i, 'retail'],
+  [/salon|barber|beauty|spa/i, 'salon_barber'],
+  [/gym|fitness|yoga|pilates/i, 'gym_fitness'],
+  [/contractor|plumb|electric|hvac|roofing|landscap|handyman/i, 'contractor_service'],
+  [/nonprofit|non-profit|volunteer|charity|foundation/i, 'nonprofit'],
+  [/childcare|daycare|preschool/i, 'childcare'],
+  [/artist|maker|craft|gallery/i, 'artist_maker'],
+  [/venue|event\s*space|banquet|hall/i, 'event_venue'],
+  [/professional|legal|accounting|consulting|financial|insurance/i, 'professional_service'],
+  [/community.*org|association/i, 'community_org'],
+];
+
+export function resolveBusinessCategory(
+  categoryName: string | null | undefined,
+  categoryIcon?: string | null,
+): BusinessCategory {
+  if (categoryIcon === 'truck') return 'food_truck';
+  if (!categoryName) return 'restaurant';
+  for (const [pattern, cat] of CATEGORY_NAME_PATTERNS) {
+    if (pattern.test(categoryName)) return cat;
+  }
+  return 'restaurant';
+}
+
 export function getModulesForCategory(category: BusinessCategory): ProfileModule[] {
   return PROFILE_MODULES.filter((m) => m.categories.includes(category));
 }

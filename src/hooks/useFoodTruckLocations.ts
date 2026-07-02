@@ -88,18 +88,21 @@ export function useFoodTrucks() {
   return useQuery({
     queryKey: ['food-trucks-directory'],
     queryFn: async () => {
-      // Do NOT embed neighborhoods/categories on the businesses_public view —
-      // PostgREST embeds on this view→table relationship are unreliable and 400
-      // the whole request, which made the food truck directory render empty.
-      // Resolve them from lightweight lookup maps instead (same pattern as
-      // useBusinesses).
+      // Resolve food truck category ID from the categories table, then filter
+      // by category_id (the legacy enum column is being dropped).
+      const { data: cats } = await supabase.from('categories').select('id, name, icon');
+      const foodTruckCatId = cats?.find(
+        c => c.name?.toLowerCase().includes('food truck') || c.icon === 'truck',
+      )?.id;
+      if (!foodTruckCatId) return [];
+
       const { data, error } = await supabase
         .from('businesses_public')
         .select(
           'id, name, description, verified, featured, logo_url, tier_status, tier_badge_visible, category_id, neighborhood_id',
         )
         .eq('status', 'approved')
-        .eq('category', 'food_truck')
+        .eq('category_id', foodTruckCatId)
         .order('name', { ascending: true });
 
       if (error) throw error;
