@@ -8,13 +8,12 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { siteUrl } from '@/lib/site-url';
 import { z } from 'zod';
-import { Check, Circle, Compass, Building2, Truck, Mail } from 'lucide-react';
+import { Check, Circle, User, Building2, Mail } from 'lucide-react';
 import tlLogo from '@/assets/tl-logo.png';
 
 const SIGNUP_TYPES = [
-  { value: 'explorer', label: 'Toledo Explorer', icon: Compass, desc: 'Find local spots & earn rewards' },
-  { value: 'business', label: 'Business', icon: Building2, desc: 'List your business on ToledoLokal' },
-  { value: 'food_truck', label: 'Food Truck', icon: Truck, desc: 'Get your food truck discovered' },
+  { value: 'resident', label: "I'm a Resident", icon: User, desc: 'Explore Toledo and earn rewards' },
+  { value: 'business', label: "I'm a Business", icon: Building2, desc: 'List your business on Toledo Lokal' },
 ] as const;
 
 type SignupType = (typeof SIGNUP_TYPES)[number]['value'];
@@ -66,32 +65,28 @@ export default function Auth() {
   };
 
   const navigateAfterAuth = async (userId: string, storedSignupType?: string | null) => {
-    const effectiveType = storedSignupType || signupType || localStorage.getItem('signup_type') || 'explorer';
+    const effectiveType = storedSignupType || signupType || localStorage.getItem('signup_type');
     localStorage.removeItem('signup_type');
-    if (effectiveType === 'business' || effectiveType === 'food_truck') {
-      await supabase.from('profiles').upsert(
-        {
-          user_id: userId,
-          name: (await supabase.auth.getUser()).data.user?.user_metadata?.name || email,
-          role_selected: true,
-          profile_completed: true,
-        },
-        { onConflict: 'user_id' },
-      );
-      navigate('/create-business', { replace: true });
-      return;
+
+    if (effectiveType === 'resident' || effectiveType === 'business') {
+      const { data: existing } = await supabase
+        .from('pending_claims')
+        .select('id')
+        .eq('claimant_user_id', userId)
+        .eq('status', 'pending')
+        .limit(1);
+
+      if (!existing || existing.length === 0) {
+        await supabase.from('pending_claims').insert({
+          claimant_user_id: userId,
+          claimed_role: effectiveType,
+          verification_method: 'self_signup',
+          status: 'pending',
+        } as never);
+      }
     }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role_selected')
-      .eq('user_id', userId)
-      .single();
-    if (profile && !profile.role_selected) {
-      navigate('/role-select', { replace: true });
-    } else {
-      navigate('/', { replace: true });
-    }
+    navigate('/', { replace: true });
   };
 
   // The email confirmation link redirects back here already signed in. If a
@@ -340,7 +335,7 @@ export default function Auth() {
           />
           <h1 className="text-2xl font-bold tracking-tight">ToledoLokal</h1>
           <p className="text-muted-foreground text-sm">
-            {isSignUp ? 'Sign up with your business email for faster approval' : 'Welcome back'}
+            {isSignUp ? 'Create your account to get started' : 'Welcome back'}
           </p>
         </div>
 
@@ -362,7 +357,7 @@ export default function Auth() {
 
               <div className="space-y-2">
                 <Label>I am a...</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {SIGNUP_TYPES.map((t) => {
                     const Icon = t.icon;
                     const active = signupType === t.value;

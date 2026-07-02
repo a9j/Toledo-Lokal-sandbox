@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BarChart3, Store, Users, HeartHandshake, ShieldAlert, Gift,
   Sprout, BadgeCheck, Megaphone, Building2, Shield, ChevronRight, QrCode, Contact,
-  Users2, Sparkles,
+  Users2, Sparkles, UserCheck,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -32,6 +32,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
     { id: 'analytics', label: 'City Intelligence', icon: BarChart3 },
   ] },
   { label: 'Manage', items: [
+    { id: 'approvals', label: 'Approvals', icon: UserCheck },
     { id: 'management', label: 'Businesses & Content', icon: Store },
     { id: 'nonprofits', label: 'Nonprofits', icon: HeartHandshake },
     { id: 'verification', label: 'Verification Queue', icon: ShieldAlert },
@@ -122,6 +123,14 @@ export default function AdminConsole() {
   const navigate = useNavigate();
   const [active, setActive] = useState('overview');
 
+  const handleNavSelect = (id: string) => {
+    if (id === 'approvals') {
+      navigate('/admin/approvals');
+      return;
+    }
+    setActive(id);
+  };
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center"><LogoLoader size="lg" text="Loading console..." /></div>;
   }
@@ -142,7 +151,7 @@ export default function AdminConsole() {
   const meta = SECTION_META[active] ?? { title: 'City Overview', subtitle: 'The digital heartbeat of Toledo' };
 
   return (
-    <AdminShell groups={NAV_GROUPS} active={active} onSelect={setActive} title={meta.title} subtitle={meta.subtitle}>
+    <AdminShell groups={NAV_GROUPS} active={active} onSelect={handleNavSelect} title={meta.title} subtitle={meta.subtitle}>
       {active === 'overview' && <CityOverview />}
       {active === 'analytics' && (
         <div className="space-y-6">
