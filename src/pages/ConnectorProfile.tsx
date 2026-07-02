@@ -61,7 +61,7 @@ export default function ConnectorProfile() {
   if (isLoading) {
     return (
       <>
-        <Header title="Connector" />
+        <Header title="Connector" showBack />
         <PageContainer>
           <div className="animate-pulse space-y-4 py-8">
             <div className="h-20 w-20 rounded-full bg-muted mx-auto" />
@@ -75,7 +75,7 @@ export default function ConnectorProfile() {
   if (!connector) {
     return (
       <>
-        <Header title="Not Found" />
+        <Header title="Not Found" showBack />
         <PageContainer>
           <p className="text-center text-muted-foreground py-16">Connector not found.</p>
         </PageContainer>
@@ -85,7 +85,7 @@ export default function ConnectorProfile() {
 
   return (
     <>
-      <Header title={profile?.name || 'Connector'} />
+      <Header title={profile?.name || 'Connector'} showBack />
       <PageContainer className="space-y-6 pb-24">
         {/* Header Section */}
         <div className="text-center space-y-3 pt-4">

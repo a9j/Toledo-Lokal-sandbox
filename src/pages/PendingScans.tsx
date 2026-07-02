@@ -115,7 +115,7 @@ export default function PendingScans() {
 
   return (
     <>
-      <Header title="Pending Scans" />
+      <Header title="Pending Scans" showBack />
       <PageContainer className="space-y-4">
         <div className="flex items-center justify-between">
           <div>

@@ -23,7 +23,7 @@ export default function Messages() {
   return (
     <>
       <SEOHead title="Messages | ToledoLokal" description="Messages from the ToledoLokal team" url="/messages" />
-      <Header title="Messages" />
+      <Header title="Messages" showBack />
       <PageContainer className="space-y-3">
         {!user ? (
           <p className="text-center text-muted-foreground py-12">Please sign in to view your messages.</p>

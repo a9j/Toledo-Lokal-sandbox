@@ -562,7 +562,7 @@ export default function Admin() {
         </Button>
 
         <Tabs defaultValue={new URLSearchParams(window.location.search).get('tab') || 'analytics'} className="w-full">
-          <TabsList className="w-full mb-4">
+          <TabsList className="w-full mb-4 overflow-x-auto">
             <TabsTrigger value="analytics" className="flex-1 gap-1.5">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>

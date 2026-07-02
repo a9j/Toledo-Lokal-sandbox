@@ -53,7 +53,7 @@ export default function FoodToday() {
   const { data: allTrucks } = useFoodTrucks();
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: mapsKey || '',
+    googleMapsApiKey: mapsKey || 'MISSING',
   });
 
   const getDateLabel = (date: Date) => {
@@ -90,7 +90,7 @@ export default function FoodToday() {
         title="Food Trucks | ToledoLokal"
         description="Find food trucks and pop-ups in Toledo on a live map. See where your favorite mobile vendors are serving today."
       />
-      <Header title="Food Trucks" />
+      <Header title="Food Trucks" showBack />
 
       <PageContainer className="space-y-4">
         {/* Header */}
