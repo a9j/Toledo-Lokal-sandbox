@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, MessageSquarePlus, Lightbulb, Megaphone, QrCode } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCohort, useCohortPinned } from '@/hooks/useCohort';
-import { useBetaSignupCounts } from '@/hooks/useBeta';
 import { SeatCounter } from '@/components/charter100/SeatCounter';
 import { Charter100Badge } from '@/components/charter100/Charter100Badge';
 import { Button } from '@/components/ui/button';
@@ -78,10 +78,35 @@ function FeedbackComposer({ onSubmitted }: { onSubmitted: () => void }) {
 
 export default function Charter100() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { cohort, seats, membership, isLoading, refetchSeats } = useCohort(SLUG);
-  const { data: signupCounts } = useBetaSignupCounts();
-  const signupCount = signupCounts?.total ?? 0;
-  const spotsLeft = signupCounts?.spots_left ?? seats.cap;
+
+  const { data: filled } = useQuery({
+    queryKey: ['charter-100-count'],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('charter_100_count' as never);
+      if (error) throw error;
+      return (data as unknown as number) ?? 0;
+    },
+  });
+  const signupCount = filled ?? 0;
+  const spotsLeft = Math.max(0, 100 - signupCount);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('charter-100-live')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'beta_signups' },
+        () => queryClient.invalidateQueries({ queryKey: ['charter-100-count'] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   const { data: pinned } = useCohortPinned(SLUG);
   const whatsComing = pinned ?? WHATS_COMING;
 
