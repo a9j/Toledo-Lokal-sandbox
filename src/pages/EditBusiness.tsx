@@ -97,21 +97,24 @@ export default function EditBusiness() {
     setModuleContent((prev) => ({ ...prev, [moduleId]: { ...prev[moduleId], [key]: value } }));
   };
 
-  const { data: business, isLoading } = useQuery({
+  const { data: businessRow, isLoading } = useQuery({
     queryKey: ['edit-business', id],
     queryFn: async () => {
       if (!id) return null;
       const { data, error } = await supabase
         .from('businesses')
-        .select('*')
+        .select('*, business_missing_fields')
         .eq('id', id)
         .single();
-      
+
       if (error) throw error;
-      return data;
+      return data as typeof data & { business_missing_fields: string[] | null };
     },
     enabled: !!id,
   });
+
+  const business = businessRow;
+  const missingFields = businessRow?.business_missing_fields;
 
   // Fetch loop settings for this business
   const { data: loopSettings } = useQuery({
@@ -391,13 +394,7 @@ export default function EditBusiness() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Profile completion progress */}
-          <ProfileCompletion
-            hasCover={!!business?.cover_image_url}
-            hasLogo={!!logoUrl}
-            photoCount={business?.photos?.length ?? 0}
-            hasStory={!!(business?.story || formData.description)}
-            hasHours={Object.values(hours).some((h) => !h.closed)}
-          />
+          <ProfileCompletion missingFields={missingFields} />
 
           {/* Founding Member Badge - Compact */}
           {isFoundingMember && (
