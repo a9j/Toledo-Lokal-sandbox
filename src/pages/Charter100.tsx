@@ -4,7 +4,7 @@ import { Sparkles, MessageSquarePlus, Lightbulb, Megaphone, QrCode } from 'lucid
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCohort, useCohortPinned } from '@/hooks/useCohort';
-import { useCharter100Count } from '@/hooks/useBeta';
+import { useBetaSignupCounts } from '@/hooks/useBeta';
 import { SeatCounter } from '@/components/charter100/SeatCounter';
 import { Charter100Badge } from '@/components/charter100/Charter100Badge';
 import { Button } from '@/components/ui/button';
@@ -79,7 +79,9 @@ function FeedbackComposer({ onSubmitted }: { onSubmitted: () => void }) {
 export default function Charter100() {
   const { user } = useAuth();
   const { cohort, seats, membership, isLoading, refetchSeats } = useCohort(SLUG);
-  const { data: signupCount = 0 } = useCharter100Count();
+  const { data: signupCounts } = useBetaSignupCounts();
+  const signupCount = signupCounts?.total ?? 0;
+  const spotsLeft = signupCounts?.spots_left ?? seats.cap;
   const { data: pinned } = useCohortPinned(SLUG);
   const whatsComing = pinned ?? WHATS_COMING;
 
