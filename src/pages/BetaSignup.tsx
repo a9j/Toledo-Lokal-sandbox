@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useBetaPhase } from '@/hooks/useBeta';
+import { useBetaPhase, useBetaSignupCounts } from '@/hooks/useBeta';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -12,20 +13,17 @@ import { cn } from '@/lib/utils';
 type Platform = 'apple' | 'android';
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-interface SignupCounts {
-  total: number;
-  spots_left: number;
-}
-
 export default function BetaSignup() {
   const [searchParams] = useSearchParams();
   const { data: phase, isLoading: phaseLoading } = useBetaPhase();
+  const queryClient = useQueryClient();
+  const { data: counts } = useBetaSignupCounts();
 
   const [email, setEmail] = useState('');
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [counts, setCounts] = useState<SignupCounts | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const submit = async () => {
     setError('');
@@ -54,14 +52,9 @@ export default function BetaSignup() {
       }
     }
 
-    const { data, error: rpcError } = await supabase.rpc('beta_signup_counts' as never);
     setSubmitting(false);
-    if (rpcError || !data) {
-      setCounts({ total: 1, spots_left: 99 });
-    } else {
-      const row = data as unknown as SignupCounts;
-      setCounts({ total: row.total ?? 1, spots_left: row.spots_left ?? 0 });
-    }
+    setSubmitted(true);
+    queryClient.invalidateQueries({ queryKey: ['beta-signup-counts'] });
   };
 
   if (phaseLoading) {
@@ -77,7 +70,7 @@ export default function BetaSignup() {
             Toledo Lokal
           </p>
 
-          {phase === 'cohort_live' ? (
+          {phase === 'cohort_live' && counts && counts.spots_left <= 0 ? (
             <div className="mt-8 text-center">
               <h1 className="font-display text-2xl font-semibold tracking-tight">
                 Beta is full
@@ -87,18 +80,20 @@ export default function BetaSignup() {
                 Toledo Lokal opens to everyone soon.
               </p>
             </div>
-          ) : counts !== null ? (
+          ) : submitted ? (
             <div className="mt-8 flex flex-col items-center text-center">
               <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10">
                 <Check className="h-7 w-7 text-emerald-500" strokeWidth={2.5} />
               </div>
               <h1 className="font-display text-2xl font-semibold tracking-tight">You're on the list.</h1>
-              <p className="mt-4 text-sm font-light leading-relaxed text-muted-foreground">
-                You're #{counts.total} of 100.
-                {counts.spots_left > 0
-                  ? ` ${counts.spots_left} ${counts.spots_left === 1 ? 'spot' : 'spots'} left.`
-                  : ' All spots are claimed!'}
-              </p>
+              {counts && (
+                <p className="mt-4 text-sm font-light leading-relaxed text-muted-foreground">
+                  You're #{counts.total} of 100.
+                  {counts.spots_left > 0
+                    ? ` ${counts.spots_left} ${counts.spots_left === 1 ? 'spot' : 'spots'} left.`
+                    : ' All spots are claimed!'}
+                </p>
+              )}
 
               <div className="mt-8 w-full rounded-2xl border border-lokal-gold/30 bg-lokal-gold/5 p-5">
                 <h2 className="font-display text-lg font-semibold">What happens next</h2>
