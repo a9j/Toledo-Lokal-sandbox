@@ -109,12 +109,7 @@ export default function Charter100() {
               <LogoLoader size="md" />
             </div>
           ) : (
-            <SeatCounter joined={seats.joined} cap={seats.cap} />
-          )}
-          {signupCount > 0 && (
-            <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
-              {signupCount} {signupCount === 1 ? 'person' : 'people'} signed up for the beta
-            </p>
+            <SeatCounter joined={signupCount} cap={seats.cap} />
           )}
         </section>
 
@@ -151,7 +146,7 @@ export default function Charter100() {
           </section>
         )}
 
-        {seats.joined >= seats.cap && !membership && (
+        {signupCount >= seats.cap && !membership && (
           <section className="mt-10 text-center">
             <Sparkles className="mx-auto mb-2 h-6 w-6 text-lokal-gold" />
             <Button asChild variant="secondary">
