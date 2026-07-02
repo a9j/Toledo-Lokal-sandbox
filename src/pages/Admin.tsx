@@ -119,7 +119,7 @@ export default function Admin() {
     enabled: isAdmin,
   });
 
-  const foundingMemberCount = approvedBusinesses?.filter(b => b.business_loop_settings?.is_founding_member).length || 0;
+  const foundingMemberCount = approvedBusinesses?.filter(b => b.tier_status === 'founding_5').length || 0;
   const founding25Count = approvedBusinesses?.filter(b => b.tier_status === 'founding_25').length || 0;
 
   // Pending deals
@@ -569,7 +569,7 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="businesses" className="flex-1 gap-1.5">
               <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Businesses</span>
+              <span className="hidden sm:inline">Pending</span>
               {pendingBusinesses && pendingBusinesses.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{pendingBusinesses.length}</Badge>
               )}
