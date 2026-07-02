@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBusinessFoodLocations, useCreateFoodLocation, useUpdateFoodLocation, useDeleteFoodLocation } from '@/hooks/useFoodTruckLocations';
 import { useBusinessFeatures, useUpdateBusinessFeatures } from '@/hooks/useBusinessFeatures';
 import { isFoodTruckCategory } from '@/lib/business-access';
+import { resolveBusinessCategory } from '@/lib/profile-modules';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,7 +78,7 @@ export default function DashboardFoodTruck() {
       if (!user) return null;
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name, category')
+        .select('id, name, category:categories!category_id(name, icon)')
         .eq('owner_user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -163,9 +164,8 @@ export default function DashboardFoodTruck() {
 
   const isLoading = featuresLoading || locationsLoading;
 
-  // Food-truck tools (current location, schedule editor) are food-truck only.
-  // `business` may still be loading; only treat as "not a truck" once loaded.
-  const isTruck = isFoodTruckCategory(business?.category);
+  const cat = business?.category as { name?: string; icon?: string | null } | null;
+  const isTruck = isFoodTruckCategory(resolveBusinessCategory(cat?.name, cat?.icon));
 
   if (business && !isTruck) {
     return (
