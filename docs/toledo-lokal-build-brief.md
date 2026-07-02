@@ -161,9 +161,9 @@ otherwise works.
 
 - Closed beta lockdown being wired: `VITE_BETA_WINDOW_ENABLED` + `is_beta_eligible(user)`
   gate the app for ~1 month while native apps are finished.
-- Founding 5 business seats: 2 of 5 filled (Balance Pan-Asian Grille, The Plant
-  House). 3 remaining; non-food/beverage categories preferred for diversity.
-- Founding 5 Nonprofit: separate anchor tier, distinct badge.
+- Founding 5 business seats: 4 of 5 filled (Balance Grille, Jamii Cafe, Plant
+  House, Toledo Hair Company). 1 remaining.
+- Founding 5 Nonprofit: separate anchor tier (`founding_5_nonprofit`), teal badge.
 - Founding 25 recruitment ongoing (in-person closes).
 - Circles feature: platform-curated topic/neighborhood groups. End-state nav:
   Discover · Pulse · Jobs · Deals · Events · Circles.
