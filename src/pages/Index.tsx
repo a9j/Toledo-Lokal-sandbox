@@ -18,7 +18,7 @@ import { SEOHead, createWebsiteJsonLd, createOrganizationJsonLd } from '@/compon
 
 export default function Index() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isNonprofit } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem('onboarding-completed');
   });
@@ -158,7 +158,7 @@ export default function Index() {
       />
       <DealsSection deals={deals} isLoading={dealsLoading} />
       <HappeningNow />
-      <NonprofitsSection />
+      {isNonprofit && <NonprofitsSection />}
 
       {/* CTA */}
       <section className="px-4 py-8">

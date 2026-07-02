@@ -9,6 +9,7 @@ import { useBusinesses } from '@/hooks/useBusinesses';
 import { useCategories } from '@/hooks/useCategories';
 import { useCategoryCounts } from '@/hooks/useCategoryCounts';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
+import { useAuth } from '@/contexts/AuthContext';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,6 +86,11 @@ export default function Explore() {
   const { data: categories } = useCategories();
   const { data: counts } = useCategoryCounts();
   const { data: neighborhoods } = useNeighborhoods();
+  const { isNonprofit } = useAuth();
+
+  const visibleCategories = categories?.filter(
+    c => isNonprofit || c.name !== 'Volunteer & Nonprofit'
+  );
 
   const filteredBusinesses = businesses?.filter(biz => {
     if (!searchQuery) return true;
@@ -113,10 +119,10 @@ export default function Explore() {
         {!selectedCategory && (
           <section>
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
-              Categories{categories?.length ? ` · ${categories.length}` : ''}
+              Categories{visibleCategories?.length ? ` · ${visibleCategories.length}` : ''}
             </h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-              {categories?.map(category => {
+              {visibleCategories?.map(category => {
                 const Icon = iconMap[category.icon || ''] || Building2;
                 return (
                   <CategoryCard
