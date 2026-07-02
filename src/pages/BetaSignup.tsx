@@ -1,33 +1,31 @@
 import { useState } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { Check } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useBetaPhase, useBetaSignupCount } from '@/hooks/useBeta';
+import { useBetaPhase } from '@/hooks/useBeta';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { cn } from '@/lib/utils';
 
-// Public closed-beta signup page. This is the canonical target for the shared
-// link / QR code (admin -> Closed Beta -> Share the signup). It uses the
-// configured Supabase client, so there is nothing to wire up by hand. Anyone
-// can sign up while the beta phase is open_signup; the anon insert is gated on
-// that phase server-side. The running total ticks up with every signup.
 type Platform = 'apple' | 'android';
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
+interface SignupCounts {
+  total: number;
+  spots_left: number;
+}
+
 export default function BetaSignup() {
-  const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
   const { data: phase, isLoading: phaseLoading } = useBetaPhase();
-  const { data: count = 0, refetch: refetchCount } = useBetaSignupCount();
 
   const [email, setEmail] = useState('');
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [memberNumber, setMemberNumber] = useState<number | null>(null);
+  const [counts, setCounts] = useState<SignupCounts | null>(null);
 
   const submit = async () => {
     setError('');
@@ -36,29 +34,34 @@ export default function BetaSignup() {
     if (!platform) { setError('Let us know if you are on iPhone or Android.'); return; }
 
     setSubmitting(true);
-    // beta_signups is not in the generated types; cast like the other beta hooks.
+    const source = searchParams.get('source') || 'facebook_local';
     const { error: insertError } = await supabase
       .from('beta_signups' as never)
-      .insert({ email: clean, platform, source: 'qr' } as never);
-    setSubmitting(false);
+      .insert({ email: clean, platform, source } as never);
 
     if (insertError) {
-      // RLS rejects the insert once the phase flips to cohort_live.
       const code = (insertError as { code?: string }).code;
       if (code === '23505') {
-        // Already signed up with this email — treat as success.
+        // Already signed up -- still show confirmation.
       } else if (code === '42501') {
-        setError('The beta is now closed to the public. Thanks for your interest.');
+        setSubmitting(false);
+        setError('The beta is full. Thanks for your interest!');
         return;
       } else {
+        setSubmitting(false);
         setError('Something went wrong saving your spot. Please try again.');
         return;
       }
     }
 
-    await queryClient.invalidateQueries({ queryKey: ['beta-signup-count'] });
-    const { data: fresh } = await refetchCount();
-    setMemberNumber(typeof fresh === 'number' && fresh > 0 ? fresh : count + 1);
+    const { data, error: rpcError } = await supabase.rpc('beta_signup_counts' as never);
+    setSubmitting(false);
+    if (rpcError || !data) {
+      setCounts({ total: 1, spots_left: 99 });
+    } else {
+      const row = data as unknown as SignupCounts;
+      setCounts({ total: row.total ?? 1, spots_left: row.spots_left ?? 0 });
+    }
   };
 
   if (phaseLoading) {
@@ -75,61 +78,49 @@ export default function BetaSignup() {
           </p>
 
           {phase === 'cohort_live' ? (
-            // Public signups are closed.
             <div className="mt-8 text-center">
               <h1 className="font-display text-2xl font-semibold tracking-tight">
-                Beta is now closed to the public
+                Beta is full
               </h1>
               <p className="mt-3 text-sm font-light leading-relaxed text-muted-foreground">
-                Thanks for your interest. The founding beta is open only to our early
-                members right now. Toledo Lokal opens to everyone soon.
+                Thanks for your interest. All 100 spots have been claimed.
+                Toledo Lokal opens to everyone soon.
               </p>
             </div>
-          ) : memberNumber !== null ? (
-            // Success.
+          ) : counts !== null ? (
             <div className="mt-8 flex flex-col items-center text-center">
               <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10">
                 <Check className="h-7 w-7 text-emerald-500" strokeWidth={2.5} />
               </div>
               <h1 className="font-display text-2xl font-semibold tracking-tight">You're on the list.</h1>
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-lokal-gold/10 px-4 py-2 text-sm font-semibold text-lokal-gold">
-                Founding beta member #{memberNumber}
-              </div>
+              <p className="mt-4 text-sm font-light leading-relaxed text-muted-foreground">
+                You're #{counts.total} of 100.
+                {counts.spots_left > 0
+                  ? ` ${counts.spots_left} ${counts.spots_left === 1 ? 'spot' : 'spots'} left.`
+                  : ' All spots are claimed!'}
+              </p>
 
               <div className="mt-8 w-full rounded-2xl border border-lokal-gold/30 bg-lokal-gold/5 p-5">
-                <h2 className="font-display text-lg font-semibold">One more step</h2>
+                <h2 className="font-display text-lg font-semibold">What happens next</h2>
                 <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
-                  Create your account to lock in your spot as one of the first 100 founding
-                  members. Your Charter 100 badge and position are reserved the moment you
-                  sign up.
+                  We'll email you a download link as soon as your spot opens.
+                  Keep an eye on your inbox.
                 </p>
-                <Button asChild className="mt-4 h-12 w-full rounded-full text-base">
-                  <Link to="/auth">
-                    Create your account
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
               </div>
 
               <p className="mt-4 text-xs font-light text-muted-foreground">
-                Use the same email you just entered so we can connect your spot.
+                No spam, ever. We'll only email you about the beta.
               </p>
             </div>
           ) : (
-            // Signup form.
             <>
               <h1 className="mt-6 text-center font-display text-3xl font-semibold tracking-tight">
                 Help build Toledo Lokal first.
               </h1>
               <p className="mt-3 text-center text-sm font-light leading-relaxed text-muted-foreground">
                 Join the founding beta and get first access the day the app clears
-                review, plus a private cohort to shape what gets built.
+                review, plus a private group to shape what gets built.
               </p>
-              {count > 0 && (
-                <p className="mt-2 text-center text-xs font-medium text-lokal-gold">
-                  {count} {count === 1 ? 'person has' : 'people have'} joined so far
-                </p>
-              )}
 
               <div className="mt-6 space-y-4">
                 <Input
@@ -169,7 +160,7 @@ export default function BetaSignup() {
                   disabled={submitting}
                   className="h-12 w-full rounded-full text-base"
                 >
-                  {submitting ? 'Saving…' : 'Save my spot'}
+                  {submitting ? 'Saving...' : 'Save my spot'}
                 </Button>
 
                 {error && (
