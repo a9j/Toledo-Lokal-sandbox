@@ -29,18 +29,16 @@ import { ProfileLayoutManager } from '@/components/business/ProfileLayoutManager
 import { TruckStopsManager } from '@/components/business/TruckStopsManager';
 import { ProfileCompletion } from '@/components/business/ProfileCompletion';
 import { useProfileBlocks } from '@/hooks/useProfileBlocks';
-import { isFoodTruckCategory } from '@/lib/business-access';
 import { SecureImage } from '@/components/ui/secure-image';
 import { HoursEditor, BusinessHours, DEFAULT_BUSINESS_HOURS, parseBusinessHours } from '@/components/business/HoursEditor';
 import { VISIT_LINK_OPTIONS } from '@/lib/visit-link';
 import {
-  BUSINESS_CATEGORY_OPTIONS,
-  BusinessCategory,
   ProfileModuleContent,
   ModuleFieldValue,
   PROFILE_SECTION_LABELS,
   getModulesForCategory,
   parseModuleContent,
+  resolveBusinessCategory,
 } from '@/lib/profile-modules';
 
 export default function EditBusiness() {
@@ -69,7 +67,6 @@ export default function EditBusiness() {
     address: '',
     visit_link_type: '',
     visit_link_url: '',
-    category: 'restaurant',
   });
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
@@ -77,6 +74,7 @@ export default function EditBusiness() {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [hours, setHours] = useState<BusinessHours>(DEFAULT_BUSINESS_HOURS);
   const [isInLoop, setIsInLoop] = useState(false);
+
   const [moduleContent, setModuleContent] = useState<ProfileModuleContent>({});
 
   const setModuleField = (moduleId: string, key: string, value: string) => {
@@ -115,6 +113,8 @@ export default function EditBusiness() {
 
   const business = businessRow;
   const missingFields = businessRow?.business_missing_fields;
+  const selectedCat = categories?.find(c => c.id === (formData.category_id || business?.category_id));
+  const resolvedCategory = resolveBusinessCategory(selectedCat?.name, selectedCat?.icon);
 
   // Fetch loop settings for this business
   const { data: loopSettings } = useQuery({
@@ -182,7 +182,6 @@ export default function EditBusiness() {
         address: business.address || '',
         visit_link_type: business.visit_link_type || '',
         visit_link_url: business.visit_link_url || '',
-        category: business.category || 'restaurant',
       });
       setModuleContent(parseModuleContent(business.profile_modules));
       setMainPhoto(business.photos?.[0] || null);
@@ -207,7 +206,7 @@ export default function EditBusiness() {
       business &&
       profileBlocks !== undefined &&
       profileBlocks.length === 0 &&
-      isFoodTruckCategory(business.category)
+      resolvedCategory === 'food_truck'
     ) {
       seedFromPreset.mutate('food_truck');
     }
@@ -235,9 +234,6 @@ export default function EditBusiness() {
       updateData.visit_link_type = data.visit_link_type || null;
       updateData.visit_link_url = data.visit_link_url?.trim() || null;
 
-      // Flexible profile system: category enum + module content. Prune empty
-      // fields/modules so we don't store blanks.
-      updateData.category = data.category || 'restaurant';
       const prunedModules: ProfileModuleContent = {};
       for (const [moduleId, fields] of Object.entries(moduleContent)) {
         const kept: Record<string, ModuleFieldValue> = {};
@@ -257,10 +253,10 @@ export default function EditBusiness() {
         .update(updateData)
         .eq('id', id);
 
-      // visit_link_*, category and profile_modules ship in migrations that may
-      // not be applied yet. If so, retry without them so other edits still save.
-      if (error && /(visit_link|profile_modules|column .*category)/i.test(error.message ?? '')) {
-        const { visit_link_type, visit_link_url, category, profile_modules, ...rest } = updateData;
+      // visit_link_* and profile_modules ship in migrations that may not be
+      // applied yet. If so, retry without them so other edits still save.
+      if (error && /(visit_link|profile_modules)/i.test(error.message ?? '')) {
+        const { visit_link_type, visit_link_url, profile_modules, ...rest } = updateData;
         ({ error } = await supabase.from('businesses').update(rest).eq('id', id));
       }
 
@@ -758,27 +754,6 @@ export default function EditBusiness() {
             </div>
           </div>
 
-          {/* Business Category */}
-          <div className="card-elevated p-4 space-y-3">
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Business Category</Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Controls which content sections appear on your public profile.
-              </p>
-            </div>
-            <Select
-              value={formData.category || 'restaurant'}
-              onValueChange={(v) => handleInputChange('category', v)}
-            >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {BUSINESS_CATEGORY_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Profile Content (category-specific modules) */}
           <div className="card-elevated p-4 space-y-4">
             <div>
@@ -787,7 +762,7 @@ export default function EditBusiness() {
                 Fill in what's relevant. Anything left blank is hidden on your profile.
               </p>
             </div>
-            {getModulesForCategory((formData.category || 'restaurant') as BusinessCategory).map((module) => (
+            {getModulesForCategory(resolvedCategory).map((module) => (
               <div key={module.id} className="space-y-2 border-t border-border/50 pt-4 first:border-t-0 first:pt-0">
                 <p className="text-sm font-medium">
                   {module.title}

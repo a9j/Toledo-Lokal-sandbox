@@ -8,10 +8,12 @@ interface CommunityBusinessCardProps {
   business: CommunityBusiness;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  nonprofit: 'Nonprofit',
-  community_org: 'Community Organization',
-};
+function resolveCategoryLabel(name: string | null): string {
+  if (!name) return 'Community';
+  if (/community.*org|association/i.test(name)) return 'Community Organization';
+  if (/nonprofit|non-profit|volunteer/i.test(name)) return 'Nonprofit';
+  return 'Community';
+}
 
 export function CommunityBusinessCard({ business }: CommunityBusinessCardProps) {
   return (
@@ -36,7 +38,7 @@ export function CommunityBusinessCard({ business }: CommunityBusinessCardProps) 
           <div className="absolute top-2 right-2">
             <Badge className="bg-rose-500/90 text-white border-0 gap-1 text-[10px] backdrop-blur-sm">
               <Building2 className="h-3 w-3" />
-              {CATEGORY_LABELS[business.category] || 'Community'}
+              {resolveCategoryLabel(business.categoryName)}
             </Badge>
           </div>
         </div>

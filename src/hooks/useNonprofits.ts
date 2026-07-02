@@ -182,7 +182,7 @@ export interface CommunityBusiness {
   description: string | null;
   logo_url: string | null;
   cover_image_url: string | null;
-  category: string;
+  categoryName: string | null;
   neighborhood?: { id: string; name: string } | null;
 }
 
@@ -191,11 +191,20 @@ export function useCommunityBusinesses(options: { neighborhoodId?: string } = {}
   return useQuery({
     queryKey: ['community-businesses', neighborhoodId],
     queryFn: async () => {
+      const { data: cats } = await supabase.from('categories').select('id, name');
+      const nonprofitCatIds = (cats ?? [])
+        .filter(c =>
+          /nonprofit|non-profit|volunteer|community.*org/i.test(c.name),
+        )
+        .map(c => c.id);
+
+      if (nonprofitCatIds.length === 0) return [];
+
       let query = supabase
         .from('businesses_public')
-        .select('id, name, slug, description, logo_url, cover_image_url, category, neighborhood:neighborhoods(id, name)')
+        .select('id, name, slug, description, logo_url, cover_image_url, category_id, neighborhood:neighborhoods(id, name)')
         .eq('status', 'approved')
-        .in('category', ['nonprofit', 'community_org'])
+        .in('category_id', nonprofitCatIds)
         .order('name');
 
       if (neighborhoodId) {
@@ -204,7 +213,12 @@ export function useCommunityBusinesses(options: { neighborhoodId?: string } = {}
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data ?? []) as unknown as CommunityBusiness[];
+
+      const catById = new Map((cats ?? []).map(c => [c.id, c.name]));
+      return (data ?? []).map(row => ({
+        ...row,
+        categoryName: row.category_id ? catById.get(row.category_id) ?? null : null,
+      })) as unknown as CommunityBusiness[];
     },
   });
 }
