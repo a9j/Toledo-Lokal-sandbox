@@ -25,31 +25,28 @@ export function useBetaPhase() {
   });
 }
 
-// Public running total of closed-beta signups (safe to show; the list itself
-// stays private). Ticks up as people sign up.
-export function useBetaSignupCount() {
-  return useQuery({
-    queryKey: ['beta-signup-count'],
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    queryFn: async (): Promise<number> => {
-      const { data, error } = await supabase.rpc('beta_signup_count' as never);
-      if (error) throw error;
-      return Number(data ?? 0);
-    },
-  });
+export interface BetaSignupCounts {
+  total: number;
+  apple: number;
+  android: number;
+  spots_left: number;
 }
 
-// Charter 100 cohort counter — live count of beta signups, safe for public display.
-export function useCharter100Count() {
+export function useBetaSignupCounts() {
   return useQuery({
-    queryKey: ['charter-100-count'],
+    queryKey: ['beta-signup-counts'],
     staleTime: 0,
     refetchOnWindowFocus: true,
-    queryFn: async (): Promise<number> => {
-      const { data, error } = await supabase.rpc('charter_100_count' as never);
+    queryFn: async (): Promise<BetaSignupCounts> => {
+      const { data, error } = await supabase.rpc('beta_signup_counts' as never);
       if (error) throw error;
-      return Number(data ?? 0);
+      const row = data as unknown as BetaSignupCounts | null;
+      return {
+        total: Number(row?.total ?? 0),
+        apple: Number(row?.apple ?? 0),
+        android: Number(row?.android ?? 0),
+        spots_left: Number(row?.spots_left ?? 100),
+      };
     },
   });
 }
