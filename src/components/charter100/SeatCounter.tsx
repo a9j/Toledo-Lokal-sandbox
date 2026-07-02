@@ -64,7 +64,7 @@ export function SeatCounter({ joined, cap }: SeatCounterProps) {
           aria-live="polite"
         >
           <span aria-hidden="true">★</span>
-          Full — the first 100 are in
+          All {cap} seats claimed
         </span>
       </div>
     );
@@ -74,7 +74,7 @@ export function SeatCounter({ joined, cap }: SeatCounterProps) {
     <div className="text-center">
       {/* Low-count framing leads with opportunity, never "only N so far". */}
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-        {joined === 0 ? 'Join the first 100' : `${joined} of ${cap} seats claimed`}
+        {joined === 0 ? `Join the first ${cap}` : `${joined} of ${cap} seats claimed`}
       </p>
 
       <div className="mt-2 flex items-baseline justify-center gap-2">

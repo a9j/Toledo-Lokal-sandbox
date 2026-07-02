@@ -40,7 +40,8 @@ export function useBetaSignupCounts() {
     queryFn: async (): Promise<BetaSignupCounts> => {
       const { data, error } = await supabase.rpc('beta_signup_counts' as never);
       if (error) throw error;
-      const row = data as unknown as BetaSignupCounts | null;
+      const raw = data as unknown;
+      const row = (Array.isArray(raw) ? (raw as BetaSignupCounts[])[0] : raw) as BetaSignupCounts | null;
       return {
         total: Number(row?.total ?? 0),
         apple: Number(row?.apple ?? 0),
