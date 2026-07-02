@@ -28,6 +28,7 @@ import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { BetaGate } from "@/components/beta/BetaGate";
+import { AccessGate } from "@/components/access/AccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analytics } from "@vercel/analytics/react";
@@ -96,6 +97,7 @@ const ConnectorProfile = lazy(() => import("./pages/ConnectorProfile"));
 const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
 const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
+const AdminApprovals = lazy(() => import("./pages/AdminApprovals"));
 const BusinessAdmin = lazy(() => import("./pages/BusinessAdmin"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
@@ -150,6 +152,7 @@ const App = () => (
             <BrowserRouter>
               <ErrorBoundary>
               <BetaGate>
+              <AccessGate>
               <Suspense fallback={<PageFallback />}>
                 <Routes>
                   <Route path="/" element={<Today />} />
@@ -242,6 +245,7 @@ const App = () => (
                   <Route path="/connector-dashboard" element={<ConnectorDashboard />} />
                   <Route path="/business-onboarding" element={<BusinessOnboarding />} />
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
+                  <Route path="/admin/approvals" element={<AdminApprovals />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -251,6 +255,7 @@ const App = () => (
               </Suspense>
               <BottomNav />
               <InstallPrompt />
+              </AccessGate>
               </BetaGate>
               </ErrorBoundary>
             </BrowserRouter>
