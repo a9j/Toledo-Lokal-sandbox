@@ -91,7 +91,7 @@ export default function Founding5() {
   const knownFoundingIds = useRef<Set<string> | null>(null);
   useEffect(() => {
     if (!data) return;
-    const all = [...data.founding5, ...data.founding5Nonprofit, ...data.founding25];
+    const all = [...data.founding5, ...data.founding25];
 
     if (knownFoundingIds.current === null) {
       knownFoundingIds.current = new Set(all.map((m) => m.id));
@@ -102,7 +102,6 @@ export default function Founding5() {
     if (newcomers.length > 0) {
       newcomers.forEach((m) => {
         const tier = data.founding5.some((f) => f.id === m.id) ? 'Founding 5'
-            : data.founding5Nonprofit.some((f) => f.id === m.id) ? 'Founding 5 Nonprofit'
             : 'Founding 25';
         toast.success(`Welcome ${m.name} to the ${tier}`);
       });
@@ -112,7 +111,6 @@ export default function Founding5() {
   }, [data]);
 
   const members = useMemo(() => data?.founding5 ?? [], [data]);
-  const nonprofitMembers = useMemo(() => data?.founding5Nonprofit ?? [], [data]);
   const claimedCount = members.length;
   const founding25Count = data?.founding25.length ?? 0;
 
@@ -231,22 +229,6 @@ export default function Founding5() {
             <div className="space-y-8">
               {emptySlots.map((n) => (
                 <EmptySlotCard key={n} slotNumber={n} onApply={openApply} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ===== Nonprofit Anchor ===== */}
-      {nonprofitMembers.length > 0 && (
-        <section className="px-6 pb-24 sm:pb-32">
-          <div className="mx-auto max-w-2xl">
-            <p className="mb-12 text-center text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Nonprofit Anchor
-            </p>
-            <div className="space-y-10">
-              {nonprofitMembers.map((member) => (
-                <FoundingMemberCard key={member.id} member={member} />
               ))}
             </div>
           </div>
