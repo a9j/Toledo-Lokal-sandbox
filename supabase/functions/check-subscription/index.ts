@@ -95,11 +95,11 @@ serve(async (req) => {
     if (business) {
       const dbTier = business.tier_status;
       // Founding tiers and admin-assigned pro/growth are authoritative from the DB
-      if (dbTier === 'founding_5' || dbTier === 'founding_25') {
+      if (dbTier === 'founding_5' || dbTier === 'founding_25' || dbTier === 'founding_5_nonprofit') {
         logStep("Founding tier from DB", { tier: dbTier });
         return jsonResponse({
           subscribed: true,
-          tier: dbTier === 'founding_5' ? 'pro' : 'growth', // Map to subscription tier for feature access
+          tier: dbTier === 'founding_5' ? 'pro' : dbTier === 'founding_25' ? 'growth' : 'free',
           product_id: dbTier,
           subscription_end: null,
           founding_tier: dbTier,

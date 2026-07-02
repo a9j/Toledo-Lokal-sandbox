@@ -246,6 +246,29 @@ export const FOUNDING_TIERS = {
       prioritySupport: false,
     },
   },
+  founding_5_nonprofit: {
+    name: 'Founding 5 Nonprofit',
+    lpMonthly: 0,
+    maxMultiplier: 1,
+    maxActiveOffers: 0,
+    subscriptionPrice: 0,
+    features: [
+      'Teal Founding 5 Nonprofit badge on profile and search',
+      'Featured on the Founding 5 page as the nonprofit anchor',
+      'Events-calendar posting rights',
+      'Priority nonprofit visibility in search',
+    ],
+    limits: {
+      deals: 0,
+      events: -1,
+      jobs: 0,
+      pulsePostsPerDay: 1,
+      maxActiveOffers: 0,
+      featuredPlacement: true,
+      analytics: false,
+      prioritySupport: false,
+    },
+  },
 } as const;
 
 export const getTierByProductId = (productId: string | null): SubscriptionTier => {

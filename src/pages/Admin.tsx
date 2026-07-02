@@ -121,6 +121,7 @@ export default function Admin() {
 
   const foundingMemberCount = approvedBusinesses?.filter(b => b.tier_status === 'founding_5').length || 0;
   const founding25Count = approvedBusinesses?.filter(b => b.tier_status === 'founding_25').length || 0;
+  const founding5NonprofitCount = approvedBusinesses?.filter(b => b.tier_status === 'founding_5_nonprofit').length || 0;
 
   // Pending deals
   const { data: pendingDeals } = useQuery({
@@ -491,6 +492,25 @@ export default function Admin() {
       toast({
         title: isCivic ? 'Civic Partner assigned!' : 'Civic Partner status removed',
         description: isCivic ? 'They can now post events and appear as a civic org.' : undefined
+      });
+    },
+  });
+
+  const toggleFounding5Nonprofit = useMutation({
+    mutationFn: async ({ businessId, isF5Nonprofit }: { businessId: string; isF5Nonprofit: boolean }) => {
+      await supabase.from('businesses').update({
+        tier_status: isF5Nonprofit ? 'founding_5_nonprofit' : 'community',
+        tier_badge_visible: true,
+        tier_assigned_at: new Date().toISOString(),
+        tier_assigned_by: user!.id,
+      }).eq('id', businessId);
+    },
+    onSuccess: (_, { isF5Nonprofit }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-approved-businesses'] });
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      toast({
+        title: isF5Nonprofit ? 'Founding 5 Nonprofit assigned!' : 'Founding 5 Nonprofit status removed',
+        description: isF5Nonprofit ? 'They now appear with a teal badge on the Founding 5 page.' : undefined
       });
     },
   });
@@ -993,8 +1013,11 @@ export default function Admin() {
                 const isFoundingMember = biz.business_loop_settings?.is_founding_member || false;
                 const isFounding25 = biz.tier_status === 'founding_25';
                 const isCivicPartner = biz.tier_status === 'civic_partner';
+                const isF5Nonprofit = biz.tier_status === 'founding_5_nonprofit';
                 const highlightClass = isFoundingMember
                   ? 'ring-2 ring-amber-400/50 bg-gradient-to-r from-amber-50/50 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/20'
+                  : isF5Nonprofit
+                  ? 'ring-2 ring-emerald-400/50 bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20'
                   : isFounding25
                   ? 'ring-2 ring-slate-300/50 bg-gradient-to-r from-slate-50/50 to-gray-50/50 dark:from-slate-950/20 dark:to-gray-950/20'
                   : isCivicPartner
@@ -1030,6 +1053,12 @@ export default function Admin() {
                             <Badge className="gap-1 bg-gradient-to-r from-teal-600 to-emerald-500 text-white border-0 text-[10px]">
                               <Landmark className="h-3 w-3" />
                               Civic Partner
+                            </Badge>
+                          )}
+                          {isF5Nonprofit && (
+                            <Badge className="gap-1 bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0 text-[10px]">
+                              <Heart className="h-3 w-3" />
+                              F5 Nonprofit
                             </Badge>
                           )}
                           {biz.featured && (
@@ -1100,10 +1129,25 @@ export default function Admin() {
                         }}
                         className={`h-7 text-xs gap-1 ${isCivicPartner ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white hover:from-teal-700 hover:to-emerald-600' : ''}`}
                         title={isCivicPartner ? 'Remove Civic Partner' : 'Assign Civic Partner'}
-                        disabled={toggleCivicPartner.isPending || isFoundingMember || isFounding25}
+                        disabled={toggleCivicPartner.isPending || isFoundingMember || isFounding25 || isF5Nonprofit}
                       >
                         <Landmark className="h-3 w-3" />
                         Civic
+                      </Button>
+
+                      {/* Founding 5 Nonprofit Toggle */}
+                      <Button
+                        size="sm"
+                        variant={isF5Nonprofit ? "secondary" : "ghost"}
+                        onClick={() => {
+                          toggleFounding5Nonprofit.mutate({ businessId: biz.id, isF5Nonprofit: !isF5Nonprofit });
+                        }}
+                        className={`h-7 text-xs gap-1 ${isF5Nonprofit ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white hover:from-emerald-700 hover:to-teal-600' : ''}`}
+                        title={isF5Nonprofit ? 'Remove Founding 5 Nonprofit' : 'Assign Founding 5 Nonprofit'}
+                        disabled={toggleFounding5Nonprofit.isPending || isFoundingMember || isFounding25 || isCivicPartner}
+                      >
+                        <Heart className="h-3 w-3" />
+                        F5NP
                       </Button>
 
                       <Button

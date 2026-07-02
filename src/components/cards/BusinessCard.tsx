@@ -59,7 +59,7 @@ export function BusinessCard({ business, savedCount = 0 }: BusinessCardProps) {
                 {business.name}
               </h3>
               {business.tier_status && business.tier_status !== 'community' && business.tier_status !== 'growth' && business.tier_badge_visible && (
-                <TierBadge tier={business.tier_status as 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro'} size="sm" />
+                <TierBadge tier={business.tier_status as 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner' | 'founding_5_nonprofit'} size="sm" />
               )}
             </div>
             

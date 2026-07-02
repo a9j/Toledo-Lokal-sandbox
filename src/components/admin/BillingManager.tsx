@@ -50,6 +50,11 @@ const TIER_INFO: Record<string, { label: string; description: string; className:
     description: 'Free plan with essential profile, category listing, and basic visibility.',
     className: 'bg-slate-100 text-slate-700',
   },
+  founding_5_nonprofit: {
+    label: 'Founding 5 Nonprofit',
+    description: 'Nonprofit anchor seat on the Founding 5 page. Events posting and priority visibility.',
+    className: 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white',
+  },
 };
 
 function useBusinessBilling(businessId: string) {
@@ -71,6 +76,7 @@ function useBusinessBilling(businessId: string) {
 function tierStatusToSubscriptionTier(tierStatus: string): SubscriptionTier {
   if (tierStatus === 'founding_5' || tierStatus === 'pro') return 'pro';
   if (tierStatus === 'founding_25' || tierStatus === 'growth') return 'growth';
+  if (tierStatus === 'founding_5_nonprofit' || tierStatus === 'civic_partner') return 'free';
   return 'free';
 }
 

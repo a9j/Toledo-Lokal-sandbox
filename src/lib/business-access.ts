@@ -42,7 +42,7 @@ export const FREE_TIER_STATUS = 'community';
 export const isFreeTier = (tierStatus?: string | null): boolean =>
   !tierStatus || tierStatus === FREE_TIER_STATUS;
 
-const LOOP_EXCLUDED_TIERS: readonly string[] = ['community', 'civic_partner'];
+const LOOP_EXCLUDED_TIERS: readonly string[] = ['community', 'civic_partner', 'founding_5_nonprofit'];
 
 export const loopEnabled = (tierStatus?: string | null): boolean =>
   !!tierStatus && !LOOP_EXCLUDED_TIERS.includes(tierStatus);

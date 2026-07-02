@@ -34,6 +34,7 @@ const orderKey = (r: BrandRow): string => r.tier_assigned_at ?? r.created_at ?? 
 
 export interface FoundingData {
   founding5: FoundingMember[];
+  founding5Nonprofit: FoundingMember[];
   founding25: FoundingMember[];
 }
 
@@ -46,7 +47,7 @@ export function useFoundingMembers() {
         .select(
           'id, slug, name, tier_status, cover_image_url, logo_url, photos, tier_assigned_at, created_at, neighborhood:neighborhoods(name)',
         )
-        .in('tier_status', ['founding_5', 'founding_25'])
+        .in('tier_status', ['founding_5', 'founding_25', 'founding_5_nonprofit'])
         .neq('tier_badge_visible', false);
 
       if (error) throw error;
@@ -69,7 +70,7 @@ export function useFoundingMembers() {
             quote: null,
           }));
 
-      return { founding5: membersFor('founding_5'), founding25: membersFor('founding_25') };
+      return { founding5: membersFor('founding_5'), founding5Nonprofit: membersFor('founding_5_nonprofit'), founding25: membersFor('founding_25') };
     },
   });
 }
