@@ -1,4 +1,4 @@
-import { Bookmark, Share2, MapPin, Shield, Sparkles, Radio, Store, ArrowLeft, Settings, Contact } from 'lucide-react';
+import { Bookmark, Share2, MapPin, Shield, Heart, Sparkles, Radio, Store, ArrowLeft, Settings, Contact } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SecureImage } from '@/components/ui/secure-image';
@@ -134,11 +134,16 @@ export function ProfileHero({ business, liveStatus, primary, isSaved, canManage,
               <Shield className="h-3 w-3 fill-current" /> Founding 25
             </span>
           )}
+          {business.tierStatus === 'founding_5_nonprofit' && (
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 border border-emerald-400/50 px-2 py-0.5 text-[10px] font-bold text-white">
+              <Heart className="h-3 w-3 fill-current" /> Founding 5 Nonprofit
+            </span>
+          )}
         </div>
 
         {tagline && <p className="mt-1 text-sm text-muted-foreground">{tagline}</p>}
 
-        {business.tierStatus && (business.tierStatus === 'founding_5' || business.tierStatus === 'founding_25') && (
+        {business.tierStatus && (business.tierStatus === 'founding_5' || business.tierStatus === 'founding_25' || business.tierStatus === 'founding_5_nonprofit') && (
           <div className="mt-1">
             <TierLabel tier={business.tierStatus} assignedAt={business.tierAssignedAt} />
           </div>

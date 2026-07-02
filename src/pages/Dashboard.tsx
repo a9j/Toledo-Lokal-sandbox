@@ -236,11 +236,12 @@ export default function Dashboard() {
       icon: CreditCard, 
       label: 'Subscription & Billing', 
       href: '/dashboard/subscription',
-      subtitle: business.tier_status === 'founding_5' ? 'Founding 5 — Free forever' 
-        : business.tier_status === 'founding_25' ? 'Founding 25 — Launch pricing'
+      subtitle: business.tier_status === 'founding_5' ? 'Founding 5 -- Free forever'
+        : business.tier_status === 'founding_5_nonprofit' ? 'Founding 5 Nonprofit -- Free forever'
+        : business.tier_status === 'founding_25' ? 'Founding 25 -- Launch pricing'
         : business.tier_status === 'pro' ? 'Pro / Anchor plan'
         : business.tier_status === 'growth' ? 'Growth plan'
-        : 'Community — Free plan'
+        : 'Community -- Free plan'
     },
     { 
       icon: Zap, 

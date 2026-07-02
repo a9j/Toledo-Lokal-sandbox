@@ -919,9 +919,9 @@ export default function BusinessOnboarding() {
 
             {tierStatus !== 'community' && tierStatus !== 'growth' && (
               <div className="flex flex-col items-center gap-3 py-6">
-                <TierBadge tier={tierStatus as 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro'} size="lg" />
+                <TierBadge tier={tierStatus as 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner' | 'founding_5_nonprofit'} size="lg" />
                 <p className="text-sm text-muted-foreground">
-                  You're one of our {tierStatus === 'founding_5' ? 'Founding 5' : 'Founding 25'} partners!
+                  You're one of our {tierStatus === 'founding_5' ? 'Founding 5' : tierStatus === 'founding_5_nonprofit' ? 'Founding 5 Nonprofit' : 'Founding 25'} partners!
                 </p>
               </div>
             )}

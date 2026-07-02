@@ -50,7 +50,7 @@ import {
 import { usePermissions } from '@/hooks/usePermissions';
 import { AdminBusinessStaffDialog } from '@/components/admin/AdminBusinessStaffDialog';
 
-type TierStatus = 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner';
+type TierStatus = 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner' | 'founding_5_nonprofit';
 
 interface TierChangeLog {
   id: string;
@@ -399,6 +399,7 @@ export default function AdminBusinesses() {
   const founding25Count = businesses?.filter(b => b.tier_status === 'founding_25').length || 0;
   const proCount = businesses?.filter(b => b.tier_status === 'pro').length || 0;
   const growthCount = businesses?.filter(b => b.tier_status === 'growth').length || 0;
+  const founding5NonprofitCount = businesses?.filter(b => b.tier_status === 'founding_5_nonprofit').length || 0;
   const communityCount = businesses?.filter(b => b.tier_status === 'community').length || 0;
   const pendingOnboarding = businesses?.filter(b => !b.onboarding_completed).length || 0;
   const pendingApproval = businesses?.filter(b => b.status === 'pending').length || 0;
@@ -491,6 +492,7 @@ export default function AdminBusinesses() {
               <SelectContent>
                 <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="founding_5">Founding 5</SelectItem>
+                <SelectItem value="founding_5_nonprofit">F5 Nonprofit</SelectItem>
                 <SelectItem value="founding_25">Founding 25</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="growth">Growth</SelectItem>
@@ -584,7 +586,7 @@ export default function AdminBusinesses() {
                 </Button>
 
                 {/* Founding details (number, quote, owner) */}
-                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25') && (
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25' || biz.tier_status === 'founding_5_nonprofit') && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -608,7 +610,7 @@ export default function AdminBusinesses() {
                 )}
 
                 {/* Revoke */}
-                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25' || biz.tier_status === 'pro') && (
+                {(biz.tier_status === 'founding_5' || biz.tier_status === 'founding_25' || biz.tier_status === 'pro' || biz.tier_status === 'founding_5_nonprofit') && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -744,6 +746,7 @@ export default function AdminBusinesses() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
+                  <SelectItem value="founding_5_nonprofit">Founding 5 Nonprofit</SelectItem>
                   <SelectItem value="founding_25">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro / Anchor</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>
@@ -942,6 +945,7 @@ export default function AdminBusinesses() {
                 <SelectContent>
                   <SelectItem value="all">All owners</SelectItem>
                   <SelectItem value="founding_5">Founding 5</SelectItem>
+                  <SelectItem value="founding_5_nonprofit">F5 Nonprofit</SelectItem>
                   <SelectItem value="founding_25">Founding 25</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="growth">Growth</SelectItem>

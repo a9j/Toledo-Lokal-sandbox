@@ -1,8 +1,8 @@
-import { Shield, Landmark } from 'lucide-react';
+import { Shield, Landmark, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TierBadgeProps {
-  tier: 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner';
+  tier: 'founding_5' | 'founding_25' | 'community' | 'growth' | 'pro' | 'civic_partner' | 'founding_5_nonprofit';
   size?: 'sm' | 'md' | 'lg';
   visible?: boolean;
   className?: string;
@@ -44,6 +44,15 @@ const tierConfig = {
     bg: 'bg-gradient-to-r from-teal-600 to-emerald-500',
     shieldColor: 'text-white',
     icon: Landmark,
+  },
+  founding_5_nonprofit: {
+    label: 'Founding 5 Nonprofit',
+    gradient: 'from-emerald-600 to-teal-500',
+    textColor: 'text-white',
+    border: 'border-emerald-400/50',
+    bg: 'bg-gradient-to-r from-emerald-600 to-teal-500',
+    shieldColor: 'text-white',
+    icon: Heart,
   },
   growth: {
     label: '',
@@ -137,6 +146,14 @@ export function TierLabel({ tier, assignedAt }: { tier: string; assignedAt?: str
     return (
       <p className="text-sm font-medium text-teal-600 dark:text-teal-400">
         Civic Partner
+      </p>
+    );
+  }
+
+  if (tier === 'founding_5_nonprofit') {
+    return (
+      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+        Founding 5 Nonprofit, Est. {year}
       </p>
     );
   }

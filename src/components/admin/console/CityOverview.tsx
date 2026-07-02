@@ -100,6 +100,7 @@ const QUICK_ACTIONS: { label: string; icon: LucideIcon; to: string }[] = [
   { label: 'Assign Founding 5', icon: Crown, to: '/admin/businesses?tier=founding_5' },
   { label: 'Assign Founding 25', icon: Shield, to: '/admin/businesses?tier=founding_25' },
   { label: 'Assign Civic Partner', icon: Landmark, to: '/admin/businesses?tier=civic_partner' },
+  { label: 'Assign F5 Nonprofit', icon: HeartHandshake, to: '/admin/businesses?tier=founding_5_nonprofit' },
 ];
 
 export function CityOverview() {
