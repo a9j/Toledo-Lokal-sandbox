@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Header } from '@/components/layout/Header';
 import {
   MessageSquare,
   Lightbulb,
@@ -290,6 +291,7 @@ export default function Charter100BetaCircle() {
   if (!user || !isMember) {
     return (
       <div className="min-h-screen bg-background text-foreground antialiased">
+        <Header showBack />
         <SEOHead title="Charter 100 Circle" url="/circles/charter100-beta" noindex />
         <div className="mx-auto flex min-h-[80svh] max-w-md flex-col items-center justify-center px-6 text-center">
           <Lock className="mb-4 h-10 w-10 text-muted-foreground" />
@@ -313,6 +315,7 @@ export default function Charter100BetaCircle() {
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <Header showBack />
       <SEOHead title="Charter 100 Circle" url="/circles/charter100-beta" noindex />
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         <header className="text-center">

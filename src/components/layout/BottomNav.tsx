@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { MapPin, Compass, Radio, Repeat, HeartHandshake, Sparkles, Circle, Lock } from 'lucide-react';
+import { Newspaper, Compass, Radio, Repeat, HeartHandshake, Sparkles, Circle, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
 import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
 
 const navItems = [
+  { path: '/', icon: Newspaper, label: 'Today' },
   { path: '/founding-5', icon: Sparkles, label: 'Featured' },
   { path: '/discover', icon: Compass, label: 'Discover' },
-  { path: '/near-me', icon: MapPin, label: 'Near Me' },
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
   { path: '/community', icon: HeartHandshake, label: 'Community' },

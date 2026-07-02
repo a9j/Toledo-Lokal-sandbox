@@ -35,7 +35,7 @@ export default function Subscription() {
 
   return (
     <>
-      <Header />
+      <Header showBack />
       <main className="min-h-[100dvh] w-full max-w-6xl mx-auto px-4 py-4 pb-[calc(9rem+env(safe-area-inset-bottom))]">
         <div className="py-6 space-y-6">
           <div className="text-center max-w-2xl mx-auto">

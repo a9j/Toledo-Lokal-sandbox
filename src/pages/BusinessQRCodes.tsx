@@ -109,7 +109,7 @@ export default function BusinessQRCodes() {
   if (gate && !loopEnabled(gate.tier_status)) {
     return (
       <>
-        <Header title="QR Codes" />
+        <Header title="QR Codes" showBack />
         <PageContainer className="space-y-6">
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
@@ -130,7 +130,7 @@ export default function BusinessQRCodes() {
 
   return (
     <>
-      <Header title="QR Codes" />
+      <Header title="QR Codes" showBack />
       <PageContainer className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

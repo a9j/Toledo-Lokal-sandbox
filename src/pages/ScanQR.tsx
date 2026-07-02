@@ -95,7 +95,7 @@ export default function ScanQR() {
 
   return (
     <>
-      <Header title="Loop Points" />
+      <Header title="Loop Points" showBack />
       <PageContainer className="flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-sm relative overflow-hidden">
           {/* Celebration particles */}

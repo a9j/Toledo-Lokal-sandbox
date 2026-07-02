@@ -29,7 +29,7 @@ export default function LoopWallet() {
           title="Loop Wallet | ToledoLokal"
           description="Earn and redeem Loop Points at local Toledo businesses"
         />
-        <Header title="Loop Wallet" />
+        <Header title="Loop Wallet" showBack />
         <PageContainer className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
             <LogIn className="h-10 w-10 text-primary" />
@@ -52,7 +52,7 @@ export default function LoopWallet() {
         title="Loop Wallet | ToledoLokal"
         description="Earn and redeem Loop Points at local Toledo businesses"
       />
-      <Header title="Loop Wallet" />
+      <Header title="Loop Wallet" showBack />
       <PageContainer className="space-y-4 pb-24">
         <WalletBalance />
         <UserWalletQR />

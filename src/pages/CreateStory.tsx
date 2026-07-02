@@ -51,7 +51,7 @@ export default function CreateStory() {
 
   return (
     <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
-      <Header title="Share Your Story" />
+      <Header title="Share Your Story" showBack />
 
       <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
         <div>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Sparkles, MessageSquare, Lightbulb, Briefcase, Lock } from 'lucide-react';
+import { Header } from '@/components/layout/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFoundingBeta, useBetaPhase } from '@/hooks/useBeta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -31,6 +32,7 @@ export default function FoundingBeta() {
   if (!user || !isMember) {
     return (
       <div className="min-h-screen bg-background text-foreground antialiased">
+        <Header showBack />
         <SEOHead title="Founding Beta" url="/founding-beta" noindex />
         <div className="mx-auto flex min-h-[80svh] max-w-md flex-col items-center justify-center px-6 text-center">
           <Lock className="mb-4 h-10 w-10 text-muted-foreground" />
@@ -53,6 +55,7 @@ export default function FoundingBeta() {
   if (phase !== 'cohort_live') {
     return (
       <div className="min-h-screen bg-background text-foreground antialiased">
+        <Header showBack />
         <SEOHead title="Founding Beta" url="/founding-beta" noindex />
         <div className="mx-auto flex min-h-[80svh] max-w-md flex-col items-center justify-center px-6 text-center">
           <Sparkles className="mb-4 h-10 w-10 text-lokal-gold" />
@@ -69,6 +72,7 @@ export default function FoundingBeta() {
   // Member + cohort_live → the full Circle.
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <Header showBack />
       <SEOHead title="Founding Beta" url="/founding-beta" noindex />
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         <header className="text-center">
