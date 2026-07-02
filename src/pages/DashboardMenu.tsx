@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react';
 import { canHaveMenu } from '@/lib/business-access';
+import { resolveBusinessCategory } from '@/lib/profile-modules';
 
 export default function DashboardMenu() {
   const { user } = useAuth();
@@ -20,14 +21,14 @@ export default function DashboardMenu() {
       if (!user) return null;
       const { data: owned } = await supabase
         .from('businesses')
-        .select('id, name, category')
+        .select('id, name, category:categories!category_id(name, icon)')
         .eq('owner_user_id', user.id)
         .maybeSingle();
       if (owned) return owned;
 
       const { data: managed } = await supabase
         .from('business_staff')
-        .select('business:businesses(id, name, category)')
+        .select('business:businesses(id, name, category:categories!category_id(name, icon))')
         .eq('user_id', user.id)
         .eq('role', 'manager')
         .maybeSingle();
@@ -52,9 +53,8 @@ export default function DashboardMenu() {
     );
   }
 
-  // Menu is only for food/drink businesses. Non-food businesses that reach this
-  // route directly get a clear message instead of the menu editor.
-  const menuAllowed = canHaveMenu(business.category);
+  const cat = business.category as { name?: string; icon?: string | null } | null;
+  const menuAllowed = canHaveMenu(resolveBusinessCategory(cat?.name, cat?.icon));
 
   return (
     <>
