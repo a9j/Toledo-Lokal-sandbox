@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCategories } from '@/hooks/useCategories';
 import { useCategoryCounts } from '@/hooks/useCategoryCounts';
+import { useAuth } from '@/contexts/AuthContext';
 import { CategoryCard } from './CategoryCard';
 import {
   Utensils,
@@ -40,11 +41,18 @@ const iconMap: Record<string, LucideIcon> = {
   'wrench': Wrench,
 };
 
+const NONPROFIT_CATEGORY_NAME = 'Volunteer & Nonprofit';
+
 export function CategoryGrid() {
   const { data: categories } = useCategories();
   const { data: counts } = useCategoryCounts();
+  const { isNonprofit } = useAuth();
 
-  if (!categories?.length) return null;
+  const visibleCategories = categories?.filter(
+    c => isNonprofit || c.name !== NONPROFIT_CATEGORY_NAME
+  );
+
+  if (!visibleCategories?.length) return null;
 
   return (
     <section className="px-4 py-6">
@@ -60,7 +68,7 @@ export function CategoryGrid() {
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
-        {categories.map((category) => {
+        {visibleCategories.map((category) => {
           const IconComponent = iconMap[category.icon || ''] || Building2;
           return (
             <CategoryCard
