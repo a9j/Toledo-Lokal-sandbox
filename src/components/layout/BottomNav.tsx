@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, Compass, Radio, Repeat, HeartHandshake, Sparkles, Circle, Lock } from 'lucide-react';
+import { Newspaper, Compass, Radio, Repeat, HeartHandshake, Sparkles, Circle, Lock, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
 import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
+import { useInboxUnreadCount } from '@/hooks/useCivicInbox';
 
 const navItems = [
   { path: '/', icon: Newspaper, label: 'Today' },
@@ -16,12 +17,15 @@ const navItems = [
   // Circles lands on the founding cohort today (see CirclesLanding); `match`
   // keeps the tab highlighted once the resolver redirects to /charter-100.
   { path: '/circles', icon: Circle, label: 'Circles', match: ['/charter-100'] },
+  // Civic Inbox. Carries the unread badge; see `unreadCount` below.
+  { path: '/inbox', icon: Inbox, label: 'Inbox', badge: 'inbox' as const },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const { data: unreadCount = 0 } = useInboxUnreadCount();
 
   // Hide on auth page, scanner mode, accept invitation, and the unlisted
   // /join marketing pages (which should read as a standalone landing page).
@@ -83,7 +87,7 @@ export function BottomNav() {
                 )}
 
                 <div className={cn(
-                  "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+                  "relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
                   isActive
                     ? "bg-primary/10"
                     : "group-hover:bg-muted"
@@ -92,6 +96,14 @@ export function BottomNav() {
                     "h-5 w-5 transition-all duration-200",
                     isActive && "stroke-[2.25px] text-primary"
                   )} />
+                  {item.badge === 'inbox' && unreadCount > 0 && (
+                    <span
+                      aria-label={`${unreadCount} unread`}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-primary-foreground"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </div>
 
                 <span className={cn(
