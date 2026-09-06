@@ -1,24 +1,17 @@
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
 /**
- * Phase 1 CityGraph types.
+ * Phase 1 CityGraph types and helpers.
  *
- * `types.ts` is regenerated from the database and does not know about the
- * Phase 1 tables yet. Rather than hand-edit a generated file, the Phase 1
- * shapes live here and every query goes through `cityOs`, which is the one
- * place the client is loosened. Delete this module and switch back to the
- * generated types once `supabase gen types` has been re-run against a
- * database carrying the Phase 1 migrations.
+ * The row shapes come straight from the generated `Database` type now that
+ * types.ts has been regenerated against the migrated database, so these are
+ * aliases rather than hand written duplicates. Only the joined `InboxEntry`
+ * shape is spelled out, because PostgREST embeds are not expressed in the
+ * generated types.
  */
 
-export type EntityKind =
-  | 'person'
-  | 'place'
-  | 'organization'
-  | 'event'
-  | 'resource'
-  | 'transaction'
-  | 'issue';
+export type EntityKind = Database['public']['Enums']['entity_kind'];
 
 /** The source tables Phase 1 registers. Used to look an entity up by its owner row. */
 export type EntitySourceTable =
@@ -28,48 +21,26 @@ export type EntitySourceTable =
   | 'nonprofits'
   | 'jobs';
 
-export interface CityEntity {
-  id: string;
-  kind: EntityKind;
-  source_table: string;
-  source_id: string;
-  city_id: string | null;
-  neighborhood_id: string | null;
-  name: string;
-  created_at: string;
-  updated_at: string;
-}
+export type CityEntity = Database['public']['Tables']['city_entities']['Row'];
+export type CityEventLog = Database['public']['Tables']['city_events_log']['Row'];
+export type InboxItem = Database['public']['Tables']['inbox_items']['Row'];
 
-export interface CityEventLog {
-  id: string;
-  entity_id: string;
-  event_type: string;
-  title: string;
-  body: string | null;
-  occurs_at: string | null;
-  created_at: string;
-}
-
-export interface InboxItem {
-  id: string;
-  user_id: string;
-  log_id: string;
-  read_at: string | null;
-  created_at: string;
-}
-
-/** An inbox row joined to the change it points at and the entity that changed. */
+/**
+ * An inbox row joined to the change it points at and the entity that changed.
+ * PostgREST embeds have no generated type, so this one is written out.
+ */
 export interface InboxEntry extends InboxItem {
-  log: CityEventLog & { entity: Pick<CityEntity, 'id' | 'name' | 'kind' | 'source_table' | 'source_id'> };
+  log: CityEventLog & {
+    entity: Pick<CityEntity, 'id' | 'name' | 'kind' | 'source_table' | 'source_id'> | null;
+  };
 }
 
 /**
- * The Phase 1 tables are not in the generated `Database` type, so the query
- * builder cannot type them. This is the single escape hatch; everything that
- * comes back out is re-typed by hand above.
+ * The Phase 1 tables are in the generated types now, so this is the ordinary
+ * typed client. Kept as a named export so callers do not all have to change
+ * when the underlying client does.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const cityOs = supabase as any;
+export const cityOs = supabase;
 
 /** Human label for a change log event_type. Unknown types fall back to the raw value. */
 const EVENT_TYPE_LABELS: Record<string, string> = {

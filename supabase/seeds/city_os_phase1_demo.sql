@@ -175,21 +175,21 @@ insert into public.jobs
   (id, business_id, title, job_type, description, apply_method, apply_contact,
    status, hiring_now)
 values
-  ('0c105001-f001-4000-8000-000000000000', '0c105001-b001-4000-8000-000000000000', 'Barista, morning shift', 'part_time',
+  ('0c105001-f001-4000-8000-000000000000', '0c105001-b001-4000-8000-000000000000', 'Barista, morning shift', 'part-time',
    'Pull shots, run the bar and open two mornings a week.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000001', '0c105001-b001-4000-8000-000000000001', 'Baker assistant', 'full_time',
+  ('0c105001-f001-4000-8000-000000000001', '0c105001-b001-4000-8000-000000000001', 'Baker assistant', 'full-time',
    'Overnight shift shaping and loading. We train.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000002', '0c105001-b001-4000-8000-000000000002', 'Bike mechanic', 'full_time',
+  ('0c105001-f001-4000-8000-000000000002', '0c105001-b001-4000-8000-000000000002', 'Bike mechanic', 'full-time',
    'Full builds and repairs. Own tools helpful but not required.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000003', '0c105001-b001-4000-8000-000000000003', 'Licensed barber', 'contract',
+  ('0c105001-f001-4000-8000-000000000003', '0c105001-b001-4000-8000-000000000003', 'Licensed barber', 'gig',
    'Chair rental available, bring your own book or build one here.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000004', '0c105001-b001-4000-8000-000000000004', 'Front desk and cleaning', 'part_time',
+  ('0c105001-f001-4000-8000-000000000004', '0c105001-b001-4000-8000-000000000004', 'Front desk and cleaning', 'part-time',
    'Evenings and weekend mornings. Free membership included.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000005', '0c105001-b001-4000-8000-000000000005', 'Finish carpenter', 'full_time',
+  ('0c105001-f001-4000-8000-000000000005', '0c105001-b001-4000-8000-000000000005', 'Finish carpenter', 'full-time',
    'Trim and cabinetry work on residential jobs across the county.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000006', '0c105001-b001-4000-8000-000000000006', 'Infant room teacher', 'full_time',
+  ('0c105001-f001-4000-8000-000000000006', '0c105001-b001-4000-8000-000000000006', 'Infant room teacher', 'full-time',
    'CDA or equivalent preferred. Paid training toward certification.', 'email', 'hiring@example.com', 'approved', true),
-  ('0c105001-f001-4000-8000-000000000007', '0c105001-b001-4000-8000-000000000008', 'Event setup crew', 'part_time',
+  ('0c105001-f001-4000-8000-000000000007', '0c105001-b001-4000-8000-000000000008', 'Event setup crew', 'part-time',
    'Load in, floor setup and tear down. Nights and weekends.', 'email', 'hiring@example.com', 'approved', true)
 on conflict (id) do nothing;
 

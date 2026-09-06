@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -862,6 +862,7 @@ export type Database = {
           hours: Json | null
           id: string
           instagram: string | null
+          is_nonprofit: boolean
           logo_url: string | null
           name: string
           neighborhood_id: string | null
@@ -914,6 +915,7 @@ export type Database = {
           hours?: Json | null
           id?: string
           instagram?: string | null
+          is_nonprofit?: boolean
           logo_url?: string | null
           name: string
           neighborhood_id?: string | null
@@ -968,6 +970,7 @@ export type Database = {
           hours?: Json | null
           id?: string
           instagram?: string | null
+          is_nonprofit?: boolean
           logo_url?: string | null
           name?: string
           neighborhood_id?: string | null
@@ -1248,6 +1251,149 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      city_edges: {
+        Row: {
+          created_at: string
+          from_entity: string
+          id: string
+          metadata: Json
+          relation: string
+          to_entity: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          from_entity: string
+          id?: string
+          metadata?: Json
+          relation: string
+          to_entity: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          from_entity?: string
+          id?: string
+          metadata?: Json
+          relation?: string
+          to_entity?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "city_edges_from_entity_fkey"
+            columns: ["from_entity"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "city_edges_to_entity_fkey"
+            columns: ["to_entity"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      city_entities: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["entity_kind"]
+          location: unknown
+          name: string
+          neighborhood_id: string | null
+          search_text: unknown
+          source_id: string
+          source_table: string
+          updated_at: string
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["entity_kind"]
+          location?: unknown
+          name: string
+          neighborhood_id?: string | null
+          search_text?: unknown
+          source_id: string
+          source_table: string
+          updated_at?: string
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["entity_kind"]
+          location?: unknown
+          name?: string
+          neighborhood_id?: string | null
+          search_text?: unknown
+          source_id?: string
+          source_table?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "city_entities_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "city_entities_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      city_events_log: {
+        Row: {
+          body: string | null
+          created_at: string
+          entity_id: string
+          event_type: string
+          id: string
+          occurs_at: string | null
+          payload: Json
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          entity_id: string
+          event_type: string
+          id?: string
+          occurs_at?: string | null
+          payload?: Json
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          entity_id?: string
+          event_type?: string
+          id?: string
+          occurs_at?: string | null
+          payload?: Json
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "city_events_log_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       city_signals: {
         Row: {
@@ -1798,6 +1944,32 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_follows: {
+        Row: {
+          created_at: string
+          entity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_follows_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_rsvps: {
         Row: {
           created_at: string
@@ -2246,6 +2418,38 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbox_items: {
+        Row: {
+          created_at: string
+          id: string
+          log_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          log_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          log_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_items_log_id_fkey"
+            columns: ["log_id"]
+            isOneToOne: false
+            referencedRelation: "city_events_log"
             referencedColumns: ["id"]
           },
         ]
@@ -4014,7 +4218,7 @@ export type Database = {
       }
       pending_claims: {
         Row: {
-          business_id: string
+          business_id: string | null
           claimant_user_id: string
           claimed_role: string
           created_at: string
@@ -4025,7 +4229,7 @@ export type Database = {
           verification_method: string
         }
         Insert: {
-          business_id: string
+          business_id?: string | null
           claimant_user_id: string
           claimed_role?: string
           created_at?: string
@@ -4036,7 +4240,7 @@ export type Database = {
           verification_method: string
         }
         Update: {
-          business_id?: string
+          business_id?: string | null
           claimant_user_id?: string
           claimed_role?: string
           created_at?: string
@@ -5800,36 +6004,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_context: {
-        Row: {
-          company: string | null
-          created_at: string
-          full_name: string | null
-          goals: string | null
-          role_title: string | null
-          user_id: string
-          working_style: string | null
-        }
-        Insert: {
-          company?: string | null
-          created_at?: string
-          full_name?: string | null
-          goals?: string | null
-          role_title?: string | null
-          user_id: string
-          working_style?: string | null
-        }
-        Update: {
-          company?: string | null
-          created_at?: string
-          full_name?: string | null
-          goals?: string | null
-          role_title?: string | null
-          user_id?: string
-          working_style?: string | null
-        }
-        Relationships: []
-      }
       user_preferences: {
         Row: {
           created_at: string
@@ -5892,6 +6066,30 @@ export type Database = {
       }
     }
     Views: {
+      beta_signups_admin: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          platform: string | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          platform?: string | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          platform?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       businesses_public: {
         Row: {
           address: string | null
@@ -6270,15 +6468,31 @@ export type Database = {
         Args: { p_note?: string; p_staff_id: string }
         Returns: Json
       }
-      approve_claim: {
-        Args: { p_approve?: boolean; p_claim_id: string }
-        Returns: Json
+      approve_business_claim: {
+        Args: { p_claim_id: string }
+        Returns: undefined
       }
+      approve_claim:
+        | { Args: { p_approve?: boolean; p_claim_id: string }; Returns: Json }
+        | { Args: { p_claim_id: string; p_role?: string }; Returns: undefined }
       beta_phase: { Args: never; Returns: string }
       beta_signup_count: { Args: never; Returns: number }
+      beta_signup_counts: {
+        Args: never
+        Returns: {
+          android: number
+          apple: number
+          spots_left: number
+          total: number
+        }[]
+      }
       business_follower_count: {
         Args: { _business_id: string }
         Returns: number
+      }
+      business_missing_fields: {
+        Args: { b: Database["public"]["Tables"]["businesses"]["Row"] }
+        Returns: string[]
       }
       business_role_rank: { Args: { _role: string }; Returns: number }
       can_confirm_for_business: {
@@ -6290,6 +6504,7 @@ export type Database = {
         Args: { _business_id: string; _user_id?: string }
         Returns: boolean
       }
+      charter_100_seat_count: { Args: never; Returns: number }
       check_ai_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_first_review_cooldown: {
         Args: { _user_id: string }
@@ -6305,6 +6520,25 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      citygraph_business_point: {
+        Args: { p_business_id: string }
+        Returns: unknown
+      }
+      citygraph_entity_id: {
+        Args: { p_source_id: string; p_source_table: string }
+        Returns: string
+      }
+      citygraph_upsert_entity: {
+        Args: {
+          p_kind: Database["public"]["Enums"]["entity_kind"]
+          p_location: unknown
+          p_name: string
+          p_neighborhood_id: string
+          p_source_id: string
+          p_source_table: string
+        }
+        Returns: string
+      }
       claim_ownership: {
         Args: { p_business_id: string; p_verification_method?: string }
         Returns: Json
@@ -6340,6 +6574,10 @@ export type Database = {
         Args: { p_category_id?: string; p_description?: string; p_name: string }
         Returns: string
       }
+      decline_business_claim: {
+        Args: { p_claim_id: string }
+        Returns: undefined
+      }
       deny_record_item: {
         Args: { p_item_id: string }
         Returns: {
@@ -6370,6 +6608,7 @@ export type Database = {
         Args: { p_business_id: string; p_user?: string }
         Returns: string
       }
+      entity_follower_count: { Args: { _entity_id: string }; Returns: number }
       expire_pulse_posts: { Args: never; Returns: undefined }
       file_claim: {
         Args: {
@@ -6557,6 +6796,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      inbox_unread_count: { Args: never; Returns: number }
+      is_beta_eligible: { Args: { p_user?: string }; Returns: boolean }
       is_business_admin: {
         Args: { check_business_id: string }
         Returns: boolean
@@ -6629,6 +6870,7 @@ export type Database = {
         | "moderator"
         | "ambassador"
         | "support_staff"
+        | "charter_100"
       business_admin_role:
         | "owner"
         | "manager"
@@ -6668,6 +6910,14 @@ export type Database = {
         | "supplies"
         | "events"
         | "awareness"
+      entity_kind:
+        | "person"
+        | "place"
+        | "organization"
+        | "event"
+        | "resource"
+        | "transaction"
+        | "issue"
       founding_5_category:
         | "morning"
         | "evening"
@@ -6731,12 +6981,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6760,11 +7010,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6785,11 +7035,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6810,11 +7060,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6827,11 +7077,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6856,6 +7106,7 @@ export const Constants = {
         "moderator",
         "ambassador",
         "support_staff",
+        "charter_100",
       ],
       business_admin_role: [
         "owner",
@@ -6899,6 +7150,15 @@ export const Constants = {
         "supplies",
         "events",
         "awareness",
+      ],
+      entity_kind: [
+        "person",
+        "place",
+        "organization",
+        "event",
+        "resource",
+        "transaction",
+        "issue",
       ],
       founding_5_category: [
         "morning",

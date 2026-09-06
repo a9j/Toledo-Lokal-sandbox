@@ -1,86 +1,143 @@
 # Phase 1 status: CityGraph foundation
 
-Everything is written and builds. **The database side is not applied**, because the
-migration call was refused by the permission classifier in this session. One command
-finishes it; see below.
+**Applied to the sandbox and verified.** One thing is still outstanding, and it is
+environmental: see Screenshots.
 
-## What is done
+Target: Supabase branch `sandbox`, ref `waezoxzkvhuqjzomafee`. Production
+(`nnepslwwqjxfhlurwoyw`) was never touched.
 
-| Piece | State |
+## Applied
+
+| Migration | What |
 |---|---|
-| Schema migration (5 tables, enum, RLS) | written, `supabase/migrations/20260906000100_*` |
-| Sync triggers, fan out, follow bridges, helper functions | written, `supabase/migrations/20260906000200_*` |
-| Backfill | written, `supabase/migrations/20260906000300_*` |
-| Demo seed + change log seed + undo | written, `supabase/seeds/` |
-| `<FollowButton />` over `entity_follows` | built |
-| `/inbox` grouped by day, unread badge in the tab bar | built |
-| "Recent changes" on business, event, nonprofit, neighborhood pages | built |
-| Typecheck, lint, production build | clean for every file this phase touched |
-| Applied to `waezoxzkvhuqjzomafee` | **no** |
-| Screenshots with real data | **no**, see Blockers |
+| `20260906000100_city_os_phase1_citygraph` | PostGIS, `entity_kind`, the 5 tables, RLS |
+| `20260906000200_city_os_phase1_sync_and_fanout` | sync triggers, fan out, follow bridges, helper functions |
+| `20260906000300_city_os_phase1_backfill` | register existing rows |
+| `20260906000400_city_os_phase1_follow_backfill` | a new follow arrives with its recent history |
+| `20260906000500_city_os_phase1_lock_down_functions` | revoke the REST-exposed internals |
 
-## Blockers
+Seeds run: `city_os_phase1_demo.sql`, `city_os_phase1_change_log.sql`.
+Undo: `city_os_phase1_demo_undo.sql`.
 
-**1. The migration was refused.** `apply_migration` against the sandbox came back
-"Blocked by classifier". Read only queries went through, so the sandbox itself is
-reachable; it is the write path that is gated. Nothing was routed around it.
+## Counts, measured
 
-To finish, run in order against `waezoxzkvhuqjzomafee` and nothing else:
+Backfill alone, before the seed, was **9 `place` and nothing else**, exactly as
+predicted: the sandbox had no businesses, events, nonprofits or jobs.
 
-```
-supabase/migrations/20260906000100_city_os_phase1_citygraph.sql
-supabase/migrations/20260906000200_city_os_phase1_sync_and_fanout.sql
-supabase/migrations/20260906000300_city_os_phase1_backfill.sql
-supabase/seeds/city_os_phase1_demo.sql
-supabase/seeds/city_os_phase1_change_log.sql
-```
+After the seed:
 
-Then regenerate types (`supabase gen types typescript`) and delete the
-`cityOs` escape hatch described below.
+| kind | rows |
+|---|---|
+| place | 9 |
+| organization | 18 |
+| event | 10 |
+| resource | 8 |
+| **total** | **45** |
 
-Expected after the backfill, before the seed: **9 `place`, 0 everything else.**
-After the seed: 9 `place`, 18 `organization` (12 businesses + 6 nonprofits),
-10 `event`, 8 `resource`, and 20 change log rows.
+| relation | rows |
+|---|---|
+| located_in | 36 |
+| hosts | 10 |
+| employs | 8 |
 
-**2. Browser access to the sandbox Supabase host is now denied** by the environment's
-network policy (`403 to CONNECT` for `waezoxzkvhuqjzomafee.supabase.co`). It worked
-during Phase 0 and does not now. So the screenshots below are of empty and error
-states only. The data-backed screenshots the plan asks for have to come from a
-session that can reach the host, or from the Vercel preview.
+`city_events_log`: 20 rows.
+
+Geometry, which only `business_locations` can supply: 12/12 businesses, 10/10
+events, 8/8 jobs. Neighborhoods and nonprofits have none, as expected until the
+Phase 2 parcels land.
+
+## Verified end to end
+
+Each of these was run against the sandbox and cleaned up afterwards. The database
+is back to 0 users, 0 follows, 0 inbox rows.
+
+- **Fan out.** A temporary user followed a business and a neighborhood, then a new
+  change was logged against the business: exactly 1 inbox row appeared.
+- **Follow bridge, both directions.** Following via `entity_follows` produced the
+  matching `business_follows` row, and did not loop.
+- **Backfill on follow.** A fresh follow of two entities produced 2 unread inbox
+  rows from the existing log, with no new change logged.
+- **Triggers survive the revokes.** Inserting a business still created its entity
+  and its `located_in` edge after EXECUTE was revoked.
+- **RLS.** As `anon`: 45 entities, 20 changes and 54 edges readable; 0 follows and
+  0 inbox rows visible; insert into `city_entities` refused.
+- **RPC surface.** As `anon`: `citygraph_entity_id` and `entity_follower_count`
+  work, `citygraph_upsert_entity` is refused.
+
+## Two things found and fixed during the apply
+
+**1. A security hole I introduced.** Postgres grants EXECUTE on a new function to
+PUBLIC, so all 15 Phase 1 SECURITY DEFINER functions were exposed at
+`/rest/v1/rpc/` to anon and authenticated. `citygraph_upsert_entity` was the
+serious one: anyone could have called it to write `city_entities` and `city_edges`
+rows, bypassing the admin-only RLS write policy. Migration `...000500` revokes all
+twelve internals and grants back only the three intended entry points. Caught by
+`get_advisors`, which is worth running after every phase.
+
+**2. The seeded change log would never have reached anyone.** Fan out fires on
+insert into `city_events_log`, so it only reaches people who already follow. That
+meant the 20 seeded rows, which predate every follow, could never appear in any
+inbox, and anyone following something new would stare at an empty inbox until that
+thing next changed. Migration `...000400` gives a new follow its recent history:
+up to 10 items from the last 30 days, left unread.
+
+Also fixed: `jobs.job_type` is constrained to hyphenated values
+(`full-time`, `part-time`, `seasonal`, `entry-level`, `skilled-trades`,
+`internship`, `gig`) with no `contract`. The seed used underscores and was
+rejected; it now matches the constraint.
+
+## Screenshots: still blocked
+
+The environment's network policy denies the browser access to
+`waezoxzkvhuqjzomafee.supabase.co` (`ERR_TUNNEL_CONNECTION_FAILED`, gateway 403 to
+CONNECT). Server side access through the Supabase API works fine, which is how
+everything above was verified, but a browser in this session cannot load app data.
+So there are no screenshots of the inbox with rows in it. They need a session that
+can reach the host, or the Vercel preview.
+
+The empty and error states were captured and are correct.
+
+## Types
+
+`src/integrations/supabase/types.ts` has been regenerated against the migrated
+database and carries all five tables, the `entity_kind` enum and the three RPCs.
+The temporary escape hatch in `src/integrations/supabase/city-os.ts` is gone;
+`cityOs` is now the ordinary typed client and the row types are aliases off the
+generated `Database`. Dropping the hatch immediately surfaced a real type error in
+`useEntityFollow`, which is fixed.
+
+Typecheck, lint and production build are clean for every file this phase touches.
+The repo has pre-existing type and lint errors elsewhere (`AdminBusinessStaffDialog`,
+`ImageCropUpload`, `useCommunitySponsors`, `useMenuItems`, `LoopContext`, `Today`,
+`Dashboard`); none are touched here and none block the build.
 
 ## Decisions worth reviewing
 
 **Businesses and nonprofits are `organization`, not `place`.** A business is an
-organization that *has* a location. The coordinate rides on the entity row and the
+organization that *has* a location: the coordinate rides on the entity row and the
 `located_in` edge still points at the neighborhood, so map and near-me queries work
-either way. Change it now if you disagree; changing it after Phase 5 means a data
-migration.
+either way. Changing this after Phase 5 means a data migration.
 
 **A neighborhood detail page had to be created.** There was none. `/neighborhood/:id`
-is deliberately thin: name, follow, recent changes, businesses here. Phase 2 turns it
-into My Neighborhood and Phase 3 hangs "Ask [Neighborhood]" off it.
+is deliberately thin. Phase 2 turns it into My Neighborhood, Phase 3 hangs
+"Ask [Neighborhood]" off it.
 
-**Follows are bridged both ways.** The plan only asked to map `business_follows` into
-`entity_follows`. But the admin followers panel and the business dashboard still count
-`business_follows`, so a one way bridge would have frozen those numbers the day the
-new button shipped. There are two triggers, and they do not loop: each writes with
-`on conflict do nothing` or deletes rows that are already gone, and a statement that
-changes no row fires no row level trigger.
+**Follows bridge both ways.** The plan asked only for `business_follows` into
+`entity_follows`, but the admin followers panel and the business dashboard still
+count `business_follows`, so a one way bridge would have frozen those numbers.
 
-**`FollowTruckButton` is now a deprecated wrapper** around `FollowButton` rather than
-a second follow system.
-
-**`src/integrations/supabase/city-os.ts` is a temporary escape hatch.** `types.ts` is
-generated and does not know the Phase 1 tables. Rather than hand edit a generated
-file, the Phase 1 shapes are declared there and every query goes through one loosened
-client. Delete it once types are regenerated.
-
-**The inbox marks itself read on open.** Simplest thing that matches how people expect
-an inbox to behave. If you want per item read state instead, say so before Phase 7
-Autopilot starts scoring on `read_at`.
+**The inbox marks itself read on open**, not per item. Say so before Phase 7
+Autopilot starts scoring on `read_at` if you want it finer grained.
 
 ## Seed data is fictional
 
 Every business, nonprofit, job and change notice in `supabase/seeds/` is invented.
 None of it describes a real Toledo business, road closure, permit or meeting. It is
-labelled that way in the files. It must not reach a build residents can see.
+labelled that way in the files, and it must not reach a build residents can see.
+Remove it with `city_os_phase1_demo_undo.sql`.
+
+## Pre-existing advisor findings
+
+`get_advisors` reports 168 security lints on the sandbox. 30 were Phase 1's and are
+now fixed. The remaining 138 predate this work (SECURITY DEFINER views, other
+functions exposed the same way). Worth a pass of its own before production.

@@ -27,7 +27,7 @@ export function useEntityId(source?: EntityRef) {
     queryFn: async () => {
       const { data, error } = await cityOs.rpc('citygraph_entity_id', {
         p_source_table: source!.table,
-        p_source_id: source!.id,
+        p_source_id: source!.id as string,
       });
       if (error) throw error;
       return (data as string | null) ?? null;
