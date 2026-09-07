@@ -53,6 +53,10 @@ const MyCity = lazy(() => import("./pages/MyCity"));
 const CityReceipt = lazy(() => import("./pages/CityReceipt"));
 const VerifyAddress = lazy(() => import("./pages/VerifyAddress"));
 const AskToledo = lazy(() => import("./pages/AskToledo"));
+const FixToledo = lazy(() => import("./pages/FixToledo"));
+const IssueDetail = lazy(() => import("./pages/IssueDetail"));
+const NeedsYou = lazy(() => import("./pages/NeedsYou"));
+const Opportunities = lazy(() => import("./pages/Opportunities"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -204,6 +208,10 @@ const App = () => (
                   <Route path="/my-city/receipt" element={<CityReceipt />} />
                   <Route path="/my-city/verify" element={<VerifyAddress />} />
                   <Route path="/ask" element={<AskToledo />} />
+                  <Route path="/fix" element={<FixToledo />} />
+                  <Route path="/fix/:id" element={<IssueDetail />} />
+                  <Route path="/needs-you" element={<NeedsYou />} />
+                  <Route path="/opportunities" element={<Opportunities />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   {/* Permanent business QR target. Encodes the immutable business id
                       and forwards to the current public page, keeping ?via=qr. */}

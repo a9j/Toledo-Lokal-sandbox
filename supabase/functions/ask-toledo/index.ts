@@ -100,15 +100,22 @@ For a "plan" intent, lay the day out in order with times taken from the event da
 
 // Structured output means the text block is already schema valid JSON. Read it
 // without assuming a particular SDK convenience field is present.
-// deno-lint-ignore no-explicit-any
-function readJson<T>(response: any): T | null {
-  const parsed = response?.parsed_output;
-  if (parsed) return parsed as T;
-  // deno-lint-ignore no-explicit-any
-  const text = response?.content?.find((b: any) => b.type === "text")?.text;
-  if (typeof text !== "string") return null;
+function readJson<T>(response: unknown): T | null {
+  const record = response as { parsed_output?: unknown; content?: unknown } | null;
+
+  if (record?.parsed_output) return record.parsed_output as T;
+
+  const blocks = Array.isArray(record?.content) ? record.content : [];
+  const textBlock = blocks.find(
+    (b): b is { type: string; text: string } =>
+      typeof b === "object" && b !== null &&
+      (b as { type?: unknown }).type === "text" &&
+      typeof (b as { text?: unknown }).text === "string",
+  );
+  if (!textBlock) return null;
+
   try {
-    return JSON.parse(text) as T;
+    return JSON.parse(textBlock.text) as T;
   } catch {
     return null;
   }

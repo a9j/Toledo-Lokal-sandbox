@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
-import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } from 'lucide-react';
+import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn, Wrench, HandHeart } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
@@ -203,6 +203,35 @@ export default function Today() {
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
           </Link>
+
+          {/* Fix Toledo and Opportunities. Phase 4 surfaces. */}
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              to="/fix"
+              className="group flex flex-col gap-2 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+                <Wrench className="h-4 w-4 text-primary" strokeWidth={1.8} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Fix Toledo</p>
+                <p className="text-[12px] text-muted-foreground">Report something broken</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/opportunities"
+              className="group flex flex-col gap-2 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+                <HandHeart className="h-4 w-4 text-primary" strokeWidth={1.8} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Opportunities</p>
+                <p className="text-[12px] text-muted-foreground">Help you may qualify for</p>
+              </div>
+            </Link>
+          </div>
 
           {/* Discover Toledo quick card */}
           <Link

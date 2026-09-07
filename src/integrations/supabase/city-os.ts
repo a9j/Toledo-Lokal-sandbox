@@ -19,7 +19,10 @@ export type EntitySourceTable =
   | 'events'
   | 'neighborhoods'
   | 'nonprofits'
-  | 'jobs';
+  | 'jobs'
+  | 'parcels'
+  | 'issues'
+  | 'opportunities';
 
 export type CityEntity = Database['public']['Tables']['city_entities']['Row'];
 export type CityEventLog = Database['public']['Tables']['city_events_log']['Row'];
@@ -65,6 +68,8 @@ export function entityPath(
       return `/business/${entity.source_id}`;
     case 'events':
       return `/events/${entity.source_id}`;
+    case 'issues':
+      return `/fix/${entity.source_id}`;
     default:
       return null;
   }

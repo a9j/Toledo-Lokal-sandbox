@@ -1341,6 +1341,7 @@ export type Database = {
           location: unknown
           name: string
           neighborhood_id: string | null
+          search_blurb: string | null
           search_text: unknown
           source_id: string
           source_table: string
@@ -1354,6 +1355,7 @@ export type Database = {
           location?: unknown
           name: string
           neighborhood_id?: string | null
+          search_blurb?: string | null
           search_text?: unknown
           source_id: string
           source_table: string
@@ -1367,6 +1369,7 @@ export type Database = {
           location?: unknown
           name?: string
           neighborhood_id?: string | null
+          search_blurb?: string | null
           search_text?: unknown
           source_id?: string
           source_table?: string
@@ -2485,6 +2488,126 @@ export type Database = {
             columns: ["log_id"]
             isOneToOne: false
             referencedRelation: "city_events_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_pledges: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          issue_id: string
+          kind: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          issue_id: string
+          kind: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          issue_id?: string
+          kind?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_pledges_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_reporters: {
+        Row: {
+          created_at: string
+          issue_id: string
+          reporter_id: string
+        }
+        Insert: {
+          created_at?: string
+          issue_id: string
+          reporter_id: string
+        }
+        Update: {
+          created_at?: string
+          issue_id?: string
+          reporter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_reporters_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: true
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issues: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_government: boolean
+          kind: string
+          location: unknown
+          needs: Json
+          neighborhood_id: string | null
+          photo_url: string | null
+          progress: Json
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_government?: boolean
+          kind: string
+          location?: unknown
+          needs?: Json
+          neighborhood_id?: string | null
+          photo_url?: string | null
+          progress?: Json
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_government?: boolean
+          kind?: string
+          location?: unknown
+          needs?: Json
+          neighborhood_id?: string | null
+          photo_url?: string | null
+          progress?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issues_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
             referencedColumns: ["id"]
           },
         ]
@@ -4036,6 +4159,57 @@ export type Database = {
         }
         Relationships: []
       }
+      opportunities: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          eligibility: Json
+          id: string
+          life_events: string[]
+          phone: string | null
+          provenance: Json
+          provider: string | null
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          eligibility?: Json
+          id?: string
+          life_events?: string[]
+          phone?: string | null
+          provenance?: Json
+          provider?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          eligibility?: Json
+          id?: string
+          life_events?: string[]
+          phone?: string | null
+          provenance?: Json
+          provider?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       org_hire_settings: {
         Row: {
           auto_trust_qr: boolean
@@ -5501,6 +5675,48 @@ export type Database = {
           },
         ]
       }
+      resident_profiles: {
+        Row: {
+          business_owner: boolean | null
+          has_children: boolean | null
+          homeowner: boolean | null
+          household_size: number | null
+          income_band: string | null
+          life_events: string[]
+          renter: boolean | null
+          senior: boolean | null
+          updated_at: string
+          user_id: string
+          veteran: boolean | null
+        }
+        Insert: {
+          business_owner?: boolean | null
+          has_children?: boolean | null
+          homeowner?: boolean | null
+          household_size?: number | null
+          income_band?: string | null
+          life_events?: string[]
+          renter?: boolean | null
+          senior?: boolean | null
+          updated_at?: string
+          user_id: string
+          veteran?: boolean | null
+        }
+        Update: {
+          business_owner?: boolean | null
+          has_children?: boolean | null
+          homeowner?: boolean | null
+          household_size?: number | null
+          income_band?: string | null
+          life_events?: string[]
+          renter?: boolean | null
+          senior?: boolean | null
+          updated_at?: string
+          user_id?: string
+          veteran?: boolean | null
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           file_name: string | null
@@ -6638,6 +6854,10 @@ export type Database = {
       }
       charter_100_seat_count: { Args: never; Returns: number }
       check_ai_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      check_ask_toledo_rate_limit: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       check_first_review_cooldown: {
         Args: { _user_id: string }
         Returns: boolean
@@ -6660,17 +6880,31 @@ export type Database = {
         Args: { p_source_id: string; p_source_table: string }
         Returns: string
       }
-      citygraph_upsert_entity: {
-        Args: {
-          p_kind: Database["public"]["Enums"]["entity_kind"]
-          p_location: unknown
-          p_name: string
-          p_neighborhood_id: string
-          p_source_id: string
-          p_source_table: string
-        }
-        Returns: string
-      }
+      citygraph_search: { Args: { p_spec: Json }; Returns: Json }
+      citygraph_upsert_entity:
+        | {
+            Args: {
+              p_kind: Database["public"]["Enums"]["entity_kind"]
+              p_location: unknown
+              p_name: string
+              p_neighborhood_id: string
+              p_source_id: string
+              p_source_table: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_blurb?: string
+              p_kind: Database["public"]["Enums"]["entity_kind"]
+              p_location: unknown
+              p_name: string
+              p_neighborhood_id: string
+              p_source_id: string
+              p_source_table: string
+            }
+            Returns: string
+          }
       claim_ownership: {
         Args: { p_business_id: string; p_verification_method?: string }
         Returns: Json
@@ -6955,6 +7189,24 @@ export type Database = {
         Returns: string
       }
       mask_phone: { Args: { phone_number: string }; Returns: string }
+      match_opportunities: {
+        Args: { p_limit?: number }
+        Returns: {
+          category: string
+          deadline: string
+          description: string
+          eligibility: Json
+          id: string
+          life_events: string[]
+          matched_on: string[]
+          missing_info: boolean
+          phone: string
+          provenance: Json
+          provider: string
+          title: string
+          url: string
+        }[]
+      }
       my_city_near_me: {
         Args: { p_limit?: number; p_radius_miles?: number }
         Returns: {
@@ -7001,6 +7253,16 @@ export type Database = {
           verified_at: string
         }[]
       }
+      my_reported_issues: { Args: never; Returns: string[] }
+      pledge_to_issue: {
+        Args: {
+          p_amount: number
+          p_issue_id: string
+          p_kind: string
+          p_note?: string
+        }
+        Returns: undefined
+      }
       pulse_recount_reactions: {
         Args: { p_post_id: string }
         Returns: undefined
@@ -7020,7 +7282,22 @@ export type Database = {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: Json
       }
+      report_issue: {
+        Args: {
+          p_description?: string
+          p_is_government?: boolean
+          p_kind: string
+          p_lat?: number
+          p_lng?: number
+          p_needs?: Json
+          p_neighborhood_id?: string
+          p_photo_url?: string
+          p_title: string
+        }
+        Returns: string
+      }
       reset_monthly_loop_caps: { Args: never; Returns: undefined }
+      save_resident_profile: { Args: { p_patch: Json }; Returns: undefined }
       search_parcels: {
         Args: { p_limit?: number; p_query: string }
         Returns: {
