@@ -30,6 +30,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BusinessLoopStats } from '@/components/loop/BusinessLoopStats';
+import { CommandCenter } from '@/components/business/CommandCenter';
 import { ProfileCompletion } from '@/components/business/ProfileCompletion';
 import { StaffManagement } from '@/components/staff/StaffManagement';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -307,6 +308,13 @@ export default function Dashboard() {
           )}
 
         </div>
+
+        {/* Phase 6 Business Command Center: counts the business already
+            generates, plus advice derived from them. */}
+        {/* business is typed as a SelectQueryError here because an
+            unrelated select in this file names a column that no longer
+            exists. Narrow rather than widen: the id is a string. */}
+        <CommandCenter businessId={(business as unknown as { id: string }).id} />
 
         {/* Profile completion checklist */}
         <ProfileCompletion missingFields={(business as any).business_missing_fields} />

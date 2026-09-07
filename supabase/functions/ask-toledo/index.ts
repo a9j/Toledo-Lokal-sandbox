@@ -87,6 +87,7 @@ Rules:
 - Prefer a category filter over keywords when the question maps cleanly onto one.
 - Set kinds to only what is being asked for. A question about jobs is ["resource"]. A question about what is on is ["event"].
 - A question about what is being built, planned, proposed or under construction is kinds ["place"], with keywords naming the thing ("apartments", "grocery", "park"). Set development_statuses when they ask for one part of it: "what is being built" is ["under_construction"], "what is planned" is ["proposed","under_review","approved"]. Leave it empty otherwise.
+- A question about renting or finding commercial space is also kinds ["place"], with keywords like "storefront office kitchen warehouse studio". Both building projects and empty spaces come back under that kind.
 - Use a time window only when the question implies one. "This weekend" means the coming Saturday and Sunday.
 - radius_miles: 1 for "walking distance", 3 for "near me", 30 for anything not obviously local.
 - intent "plan" only when they are asking to be given an itinerary or a day laid out.`;
@@ -104,6 +105,7 @@ How to write:
 - When you name something from the results, put its entity_id in the cites array so the app can show a card for it. Only ever cite ids that appear in the search results.
 - Mention distance when the results carry it and the person asked about nearness.
 - For a development, give its status_label and, when the results carry them, the developer and the expected completion. Never say a project is finished or started unless its status says so.
+- For a space, give the rent, the size and who to contact when the results carry them. Say "rent not listed" rather than guessing a figure.
 - If a result is marked as placeholder or seed data, do not present it as a confirmed fact.
 
 For a "plan" intent, lay the day out in order with times taken from the event data, and give a cost estimate only if the results carry prices. If they do not, say the cost is not listed rather than estimating one.`;
@@ -238,7 +240,8 @@ ${JSON.stringify(results, null, 1)}`,
     const known = new Map<string, Record<string, unknown>>();
     for (
       const bucket of [
-        "businesses", "nonprofits", "events", "jobs", "deals", "developments", "changes",
+        "businesses", "nonprofits", "events", "jobs", "deals", "developments", "spaces",
+        "changes",
       ]
     ) {
       for (const row of ((results as Record<string, unknown[]>)?.[bucket] ?? [])) {

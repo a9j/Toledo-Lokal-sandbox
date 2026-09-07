@@ -23,7 +23,8 @@ export type EntitySourceTable =
   | 'parcels'
   | 'issues'
   | 'opportunities'
-  | 'developments';
+  | 'developments'
+  | 'spaces';
 
 export type CityEntity = Database['public']['Tables']['city_entities']['Row'];
 export type CityEventLog = Database['public']['Tables']['city_events_log']['Row'];
@@ -55,6 +56,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   meeting: 'Meeting',
   status_change: 'Update',
   development_filed: 'New project',
+  space_listed: 'Space available',
   memory_added: 'City memory',
 };
 
@@ -75,6 +77,8 @@ export function entityPath(
       return `/fix/${entity.source_id}`;
     case 'developments':
       return `/built/${entity.source_id}`;
+    case 'spaces':
+      return '/spaces';
     case 'neighborhoods':
       return `/neighborhood/${entity.source_id}`;
     default:

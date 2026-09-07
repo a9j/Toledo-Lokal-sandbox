@@ -10,6 +10,7 @@ import { RewardsList } from '@/components/loop/RewardsList';
 import { MissionsList } from '@/components/loop/MissionsList';
 import { BadgesDisplay } from '@/components/loop/BadgesDisplay';
 import { CausesList } from '@/components/loop/CausesList';
+import { WalletItemsSection } from '@/components/loop/WalletItemsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,10 @@ export default function LoopWallet() {
         <WalletBalance />
         <UserWalletQR />
         <BadgesDisplay />
+
+        {/* Phase 6: gift cards, tickets, bus passes and memberships. Points
+            stay above; these are not points and are not stored as points. */}
+        <WalletItemsSection />
         
         <Tabs defaultValue="rewards" className="w-full">
           <TabsList className="w-full grid grid-cols-4">

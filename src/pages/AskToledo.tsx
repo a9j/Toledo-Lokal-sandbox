@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Sparkles, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
@@ -17,6 +17,9 @@ import { AskToledoPanel } from '@/components/city-os/AskToledoPanel';
 export default function AskToledo() {
   const { user } = useAuth();
   const { data: home } = useMyHome();
+  // Links from elsewhere in the app can arrive with a question ready to go.
+  const [searchParams] = useSearchParams();
+  const initialQuestion = searchParams.get('q') ?? undefined;
 
   if (!user) {
     return (
@@ -54,7 +57,7 @@ export default function AskToledo() {
           </p>
         </div>
 
-        <AskToledoPanel />
+        <AskToledoPanel initialQuestion={initialQuestion} />
 
         {!home && (
           <div className="mt-6 rounded-xl border border-border/60 bg-card p-4">

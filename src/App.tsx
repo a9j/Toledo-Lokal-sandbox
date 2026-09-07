@@ -60,6 +60,9 @@ const Opportunities = lazy(() => import("./pages/Opportunities"));
 const Developments = lazy(() => import("./pages/Developments"));
 const DevelopmentDetail = lazy(() => import("./pages/DevelopmentDetail"));
 const AroundMe = lazy(() => import("./pages/AroundMe"));
+const Spaces = lazy(() => import("./pages/Spaces"));
+const Economy = lazy(() => import("./pages/Economy"));
+const StartABusiness = lazy(() => import("./pages/StartABusiness"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -218,6 +221,9 @@ const App = () => (
                   <Route path="/built" element={<Developments />} />
                   <Route path="/built/:id" element={<DevelopmentDetail />} />
                   <Route path="/around" element={<AroundMe />} />
+                  <Route path="/spaces" element={<Spaces />} />
+                  <Route path="/economy" element={<Economy />} />
+                  <Route path="/start-a-business" element={<StartABusiness />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   {/* Permanent business QR target. Encodes the immutable business id
                       and forwards to the current public page, keeping ?via=qr. */}

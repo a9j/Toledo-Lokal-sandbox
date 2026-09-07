@@ -543,6 +543,61 @@ export type Database = {
           },
         ]
       }
+      business_insights: {
+        Row: {
+          business_id: string
+          detail: string | null
+          generated_at: string
+          headline: string
+          id: string
+          kind: string
+          metrics: Json
+          priority: number
+        }
+        Insert: {
+          business_id: string
+          detail?: string | null
+          generated_at?: string
+          headline: string
+          id?: string
+          kind: string
+          metrics?: Json
+          priority?: number
+        }
+        Update: {
+          business_id?: string
+          detail?: string | null
+          generated_at?: string
+          headline?: string
+          id?: string
+          kind?: string
+          metrics?: Json
+          priority?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_insights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_insights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_insights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_invitations: {
         Row: {
           accepted_at: string | null
@@ -873,6 +928,108 @@ export type Database = {
           {
             foreignKeyName: "business_staff_admin_log_business_id_fkey"
             columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_supplier_spend: {
+        Row: {
+          monthly_spend: number | null
+          supplier_link_id: string
+          updated_at: string
+        }
+        Insert: {
+          monthly_spend?: number | null
+          supplier_link_id: string
+          updated_at?: string
+        }
+        Update: {
+          monthly_spend?: number | null
+          supplier_link_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_supplier_spend_supplier_link_id_fkey"
+            columns: ["supplier_link_id"]
+            isOneToOne: true
+            referencedRelation: "business_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_suppliers: {
+        Row: {
+          business_id: string
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_local: boolean
+          supplier_id: string | null
+          supplier_name: string | null
+        }
+        Insert: {
+          business_id: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_local?: boolean
+          supplier_id?: string | null
+          supplier_name?: string | null
+        }
+        Update: {
+          business_id?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_local?: boolean
+          supplier_id?: string | null
+          supplier_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_suppliers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_suppliers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_suppliers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_suppliers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_suppliers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_suppliers_supplier_id_fkey"
+            columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "founding_members_public"
             referencedColumns: ["id"]
@@ -2688,71 +2845,101 @@ export type Database = {
         Row: {
           apply_contact: string
           apply_method: string
+          benefits_offered: boolean
           business_id: string
           created_at: string
           deadline: string | null
           description: string | null
+          evenings_nights: boolean
           featured: boolean | null
           hiring_now: boolean | null
           id: string
           job_type: string
           location_text: string | null
+          no_experience_needed: boolean
           pay_max: number | null
           pay_min: number | null
           pay_type: string | null
+          remote_ok: boolean
           requirements: string | null
           schedule: string | null
+          second_chance: boolean
           start_date: string | null
           status: string
+          teen_friendly: boolean
           title: string
+          training_provided: boolean
+          transit_accessible: boolean
           updated_at: string
           view_count: number | null
+          weekends_only: boolean
+          weekly_pay: boolean
         }
         Insert: {
           apply_contact: string
           apply_method: string
+          benefits_offered?: boolean
           business_id: string
           created_at?: string
           deadline?: string | null
           description?: string | null
+          evenings_nights?: boolean
           featured?: boolean | null
           hiring_now?: boolean | null
           id?: string
           job_type: string
           location_text?: string | null
+          no_experience_needed?: boolean
           pay_max?: number | null
           pay_min?: number | null
           pay_type?: string | null
+          remote_ok?: boolean
           requirements?: string | null
           schedule?: string | null
+          second_chance?: boolean
           start_date?: string | null
           status?: string
+          teen_friendly?: boolean
           title: string
+          training_provided?: boolean
+          transit_accessible?: boolean
           updated_at?: string
           view_count?: number | null
+          weekends_only?: boolean
+          weekly_pay?: boolean
         }
         Update: {
           apply_contact?: string
           apply_method?: string
+          benefits_offered?: boolean
           business_id?: string
           created_at?: string
           deadline?: string | null
           description?: string | null
+          evenings_nights?: boolean
           featured?: boolean | null
           hiring_now?: boolean | null
           id?: string
           job_type?: string
           location_text?: string | null
+          no_experience_needed?: boolean
           pay_max?: number | null
           pay_min?: number | null
           pay_type?: string | null
+          remote_ok?: boolean
           requirements?: string | null
           schedule?: string | null
+          second_chance?: boolean
           start_date?: string | null
           status?: string
+          teen_friendly?: boolean
           title?: string
+          training_provided?: boolean
+          transit_accessible?: boolean
           updated_at?: string
           view_count?: number | null
+          weekends_only?: boolean
+          weekly_pay?: boolean
         }
         Relationships: [
           {
@@ -5712,8 +5899,12 @@ export type Database = {
           created_by_user_id: string
           description: string | null
           id: string
+          is_b2b: boolean
+          is_barter: boolean
+          need_category: string | null
           needed_by_date_time: string | null
           neighborhood_id: string | null
+          poster_entity_id: string | null
           status: string
           title: string
         }
@@ -5726,8 +5917,12 @@ export type Database = {
           created_by_user_id: string
           description?: string | null
           id?: string
+          is_b2b?: boolean
+          is_barter?: boolean
+          need_category?: string | null
           needed_by_date_time?: string | null
           neighborhood_id?: string | null
+          poster_entity_id?: string | null
           status?: string
           title: string
         }
@@ -5740,8 +5935,12 @@ export type Database = {
           created_by_user_id?: string
           description?: string | null
           id?: string
+          is_b2b?: boolean
+          is_barter?: boolean
+          need_category?: string | null
           needed_by_date_time?: string | null
           neighborhood_id?: string | null
+          poster_entity_id?: string | null
           status?: string
           title?: string
         }
@@ -5758,6 +5957,13 @@ export type Database = {
             columns: ["neighborhood_id"]
             isOneToOne: false
             referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_poster_entity_id_fkey"
+            columns: ["poster_entity_id"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
             referencedColumns: ["id"]
           },
         ]
@@ -5950,6 +6156,84 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      spaces: {
+        Row: {
+          address: string | null
+          available_from: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          listed_by: string | null
+          location: unknown
+          name: string
+          neighborhood_id: string | null
+          parcel_id: string | null
+          rent_monthly: number | null
+          sqft: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          available_from?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: string
+          listed_by?: string | null
+          location?: unknown
+          name: string
+          neighborhood_id?: string | null
+          parcel_id?: string | null
+          rent_monthly?: number | null
+          sqft?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          available_from?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          listed_by?: string | null
+          location?: unknown
+          name?: string
+          neighborhood_id?: string | null
+          parcel_id?: string | null
+          rent_monthly?: number | null
+          sqft?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spaces_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spaces_parcel_id_fkey"
+            columns: ["parcel_id"]
+            isOneToOne: false
+            referencedRelation: "parcels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stories: {
         Row: {
@@ -6531,6 +6815,86 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_items: {
+        Row: {
+          barcode_url: string | null
+          business_id: string | null
+          code: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          issuer: string | null
+          kind: string
+          notes: string | null
+          quantity: number
+          title: string
+          used_at: string | null
+          value_cents: number | null
+          wallet_id: string
+        }
+        Insert: {
+          barcode_url?: string | null
+          business_id?: string | null
+          code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          issuer?: string | null
+          kind: string
+          notes?: string | null
+          quantity?: number
+          title: string
+          used_at?: string | null
+          value_cents?: number | null
+          wallet_id: string
+        }
+        Update: {
+          barcode_url?: string | null
+          business_id?: string | null
+          code?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          issuer?: string | null
+          kind?: string
+          notes?: string | null
+          quantity?: number
+          title?: string
+          used_at?: string | null
+          value_cents?: number | null
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_items_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "loop_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       beta_signups_admin: {
@@ -6960,6 +7324,24 @@ export type Database = {
       approve_claim:
         | { Args: { p_approve?: boolean; p_claim_id: string }; Returns: Json }
         | { Args: { p_claim_id: string; p_role?: string }; Returns: undefined }
+      b2b_requests: {
+        Args: { p_barter_only?: boolean; p_limit?: number }
+        Returns: {
+          budget_max: number
+          budget_min: number
+          created_at: string
+          description: string
+          id: string
+          is_barter: boolean
+          need_category: string
+          needed_by: string
+          neighborhood_name: string
+          poster_business_id: string
+          poster_entity_id: string
+          poster_name: string
+          title: string
+        }[]
+      }
       beta_phase: { Args: never; Returns: string }
       beta_signup_count: { Args: never; Returns: number }
       beta_signup_counts: {
@@ -6970,6 +7352,10 @@ export type Database = {
           spots_left: number
           total: number
         }[]
+      }
+      business_command_center: {
+        Args: { p_business_id: string; p_days?: number }
+        Returns: Json
       }
       business_follower_count: {
         Args: { _business_id: string }
@@ -7399,6 +7785,33 @@ export type Database = {
         }
         Returns: string
       }
+      jobs_near_home: {
+        Args: {
+          p_filters?: string[]
+          p_limit?: number
+          p_radius_miles?: number
+        }
+        Returns: {
+          bus_minutes: number
+          business_id: string
+          business_name: string
+          created_at: string
+          distance_miles: number
+          drive_minutes: number
+          flags: string[]
+          hiring_now: boolean
+          id: string
+          job_type: string
+          neighborhood_name: string
+          pay_max: number
+          pay_min: number
+          pay_type: string
+          schedule: string
+          title: string
+          walk_minutes: number
+        }[]
+      }
+      local_economic_loop: { Args: { p_months?: number }; Returns: Json }
       mask_phone: { Args: { phone_number: string }; Returns: string }
       match_opportunities: {
         Args: { p_limit?: number }
@@ -7464,7 +7877,37 @@ export type Database = {
           verified_at: string
         }[]
       }
+      my_local_spend_share: { Args: { p_business_id: string }; Returns: Json }
       my_reported_issues: { Args: never; Returns: string[] }
+      my_suppliers: {
+        Args: { p_business_id: string }
+        Returns: {
+          category: string
+          id: string
+          is_local: boolean
+          monthly_spend: number
+          supplier_id: string
+          supplier_name: string
+        }[]
+      }
+      my_wallet_items: {
+        Args: { p_include_used?: boolean }
+        Returns: {
+          business_id: string
+          business_name: string
+          code: string
+          expired: boolean
+          expires_at: string
+          id: string
+          issuer: string
+          kind: string
+          notes: string
+          quantity: number
+          title: string
+          used_at: string
+          value_cents: number
+        }[]
+      }
       pledge_to_issue: {
         Args: {
           p_amount: number
@@ -7473,6 +7916,19 @@ export type Database = {
           p_note?: string
         }
         Returns: undefined
+      }
+      post_b2b_request: {
+        Args: {
+          p_budget_max?: number
+          p_budget_min?: number
+          p_business_id: string
+          p_description?: string
+          p_is_barter?: boolean
+          p_need_category?: string
+          p_needed_by?: string
+          p_title: string
+        }
+        Returns: string
       }
       pulse_recount_reactions: {
         Args: { p_post_id: string }
@@ -7492,6 +7948,10 @@ export type Database = {
       redeem_loop_points: {
         Args: { p_reward_id: string; p_user_id: string }
         Returns: Json
+      }
+      refresh_business_insights: {
+        Args: { p_business_id: string }
+        Returns: number
       }
       report_issue: {
         Args: {
@@ -7519,6 +7979,10 @@ export type Database = {
         }[]
       }
       set_home_parcel: { Args: { p_parcel_id: string }; Returns: undefined }
+      set_supplier_spend: {
+        Args: { p_link_id: string; p_monthly_spend: number }
+        Returns: undefined
+      }
       transfer_ownership: {
         Args: { p_business_id: string; p_new_owner_user_id: string }
         Returns: Json

@@ -19,6 +19,12 @@ interface AskToledoPanelProps {
   suggestions?: string[];
   placeholder?: string;
   compact?: boolean;
+  /**
+   * Prefills the box, for links that arrive with a question in the URL.
+   * It is not submitted automatically: a question costs the asker one of
+   * thirty a day, so pressing ask stays their decision.
+   */
+  initialQuestion?: string;
 }
 
 const CITY_SUGGESTIONS = [
@@ -27,6 +33,8 @@ const CITY_SUGGESTIONS = [
   'What is on this week',
   'Who is hiring right now',
   'Where can I get help with food',
+  'What is being built near me',
+  'Where can I rent a small shop',
 ];
 
 function CardRow({ card }: { card: AskCard }) {
@@ -86,8 +94,9 @@ export function AskToledoPanel({
   suggestions,
   placeholder,
   compact,
+  initialQuestion,
 }: AskToledoPanelProps) {
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState(initialQuestion ?? '');
   const [asked, setAsked] = useState<string | null>(null);
   const ask = useAskToledo();
 
