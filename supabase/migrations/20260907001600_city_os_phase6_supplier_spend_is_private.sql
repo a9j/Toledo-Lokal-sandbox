@@ -134,3 +134,28 @@ grant   execute on function public.my_local_spend_share(uuid) to authenticated;
 -- been that no trigger body is callable. Consistency is the whole defence.
 revoke execute on function public.business_suppliers_sync_edge()
   from public, anon, authenticated;
+
+-- Clearing a figure is a real thing an owner does, so p_monthly_spend defaults
+-- to null and omitting it means "no longer recording this". Without the default
+-- the generated client types map the parameter to a non-nullable number, and
+-- the only way to clear one was to cast past the type.
+create or replace function public.set_supplier_spend(
+  p_link_id uuid,
+  p_monthly_spend numeric default null
+)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.business_suppliers bs
+                  where bs.id = p_link_id and public.user_owns_business(bs.business_id)) then
+    raise exception 'Not your supplier link.' using errcode = '42501';
+  end if;
+
+  insert into public.business_supplier_spend (supplier_link_id, monthly_spend, updated_at)
+  values (p_link_id, p_monthly_spend, now())
+  on conflict (supplier_link_id) do update
+    set monthly_spend = excluded.monthly_spend, updated_at = now();
+end $$;
+
+revoke execute on function public.set_supplier_spend(uuid, numeric) from public, anon;
+grant   execute on function public.set_supplier_spend(uuid, numeric) to authenticated;

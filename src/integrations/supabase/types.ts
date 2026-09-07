@@ -9325,7 +9325,7 @@ export type Database = {
       }
       set_home_parcel: { Args: { p_parcel_id: string }; Returns: undefined }
       set_supplier_spend: {
-        Args: { p_link_id: string; p_monthly_spend: number }
+        Args: { p_link_id: string; p_monthly_spend?: number }
         Returns: undefined
       }
       transfer_ownership: {

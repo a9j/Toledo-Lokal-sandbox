@@ -67,6 +67,7 @@ const Autopilot = lazy(() => import("./pages/Autopilot"));
 const Developers = lazy(() => import("./pages/Developers"));
 const Plugins = lazy(() => import("./pages/Plugins"));
 const MyYear = lazy(() => import("./pages/MyYear"));
+const AdminCityOs = lazy(() => import("./pages/AdminCityOs"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -286,6 +287,7 @@ const App = () => (
                   <Route path="/business-onboarding" element={<BusinessOnboarding />} />
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/admin/approvals" element={<AdminApprovals />} />
+                  <Route path="/admin/city-os" element={<AdminCityOs />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />

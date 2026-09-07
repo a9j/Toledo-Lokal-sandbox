@@ -173,3 +173,41 @@ shipping against seeds.
   yet: nothing sets or reads them.
 - `neighborhood_stats` is computed live on every call. That is correct at this
   size and will want caching well before it is slow.
+
+---
+
+## Follow up: the missing screens
+
+There is no Phase 8. The plan has seven phases and they are all applied. What
+follows is not a new phase, it is the largest hole left by the previous ones:
+Phases 4, 6 and 7 each shipped a write path that was tested at the database
+level with no screen behind it, so nobody could actually use it.
+
+Built and verified:
+
+- **`/admin/city-os`** — one console with three queues. Reports (move an issue
+  through reported, assigned, scheduled, completed or declined), Memories
+  (publish or reject what is waiting), Plugins (read a manifest and move it
+  between draft, review, published and suspended).
+- **Supplier tagging on the business dashboard** — search Toledo businesses or
+  name a supplier outside the city, record what you spend, and remove a link.
+  The screen says which half is public and which is not, because both are on
+  it: the link appears on the local loop, the amount is readable by nobody but
+  the business.
+- **Posting a business to business request** — from the same panel, straight
+  onto the board at `/economy`.
+
+One thing changed in the database to support this: `set_supplier_spend` now
+defaults `p_monthly_spend` to null, so clearing a figure is a first class
+operation. Without the default the generated client types map the parameter to
+a non-nullable number and the only way to clear one was to cast past the type.
+
+**Verified with two probe users, an admin and a plain resident.** The admin
+moved an issue, published a memory (which fired the Phase 5 announce trigger)
+and moved a plugin. The resident is not an admin, saw zero unapproved memories,
+and their updates to the same issue and plugin **hit zero rows** — the refusal
+comes from RLS, not from the page hiding a button. Both probes and everything
+they touched were removed; the database is back to 0 users and 0 roles.
+
+Still with no screen: the entity targets on missions, stamps and challenges, and
+photo upload on Fix Toledo and City Memory.
