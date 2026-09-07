@@ -51,8 +51,16 @@ const SpecSchema = z.object({
   keywords: z.string(),
   // Use when the question maps onto a category even if no listing text matches.
   categories: z.array(z.enum(CATEGORIES)),
-  // organization = businesses and nonprofits. resource = jobs. place = areas.
+  // organization = businesses and nonprofits. resource = jobs. place = areas,
+  // parcels and building projects.
   kinds: z.array(z.enum(["organization", "event", "resource", "place"])),
+  // Narrows the developments bucket. Empty means every status.
+  development_statuses: z.array(
+    z.enum([
+      "proposed", "under_review", "approved", "under_construction",
+      "completed", "stalled", "cancelled",
+    ]),
+  ),
   radius_miles: z.number(),
   free_only: z.boolean(),
   time_from: z.string().nullable(),
@@ -78,6 +86,7 @@ Rules:
 - Pick keywords a business or event listing would actually contain, not the asker's phrasing. "Somewhere to get my hair cut" becomes keywords "barber salon" and categories ["salon_barber"].
 - Prefer a category filter over keywords when the question maps cleanly onto one.
 - Set kinds to only what is being asked for. A question about jobs is ["resource"]. A question about what is on is ["event"].
+- A question about what is being built, planned, proposed or under construction is kinds ["place"], with keywords naming the thing ("apartments", "grocery", "park"). Set development_statuses when they ask for one part of it: "what is being built" is ["under_construction"], "what is planned" is ["proposed","under_review","approved"]. Leave it empty otherwise.
 - Use a time window only when the question implies one. "This weekend" means the coming Saturday and Sunday.
 - radius_miles: 1 for "walking distance", 3 for "near me", 30 for anything not obviously local.
 - intent "plan" only when they are asking to be given an itinerary or a day laid out.`;
@@ -94,6 +103,7 @@ How to write:
 - Do not list every result. Lead with the best two or three and say why.
 - When you name something from the results, put its entity_id in the cites array so the app can show a card for it. Only ever cite ids that appear in the search results.
 - Mention distance when the results carry it and the person asked about nearness.
+- For a development, give its status_label and, when the results carry them, the developer and the expected completion. Never say a project is finished or started unless its status says so.
 - If a result is marked as placeholder or seed data, do not present it as a confirmed fact.
 
 For a "plan" intent, lay the day out in order with times taken from the event data, and give a cost estimate only if the results carry prices. If they do not, say the cost is not listed rather than estimating one.`;
@@ -226,7 +236,11 @@ ${JSON.stringify(results, null, 1)}`,
     // Only hand back cards for ids the database actually returned. This is the
     // backstop against a cited id the model made up.
     const known = new Map<string, Record<string, unknown>>();
-    for (const bucket of ["businesses", "nonprofits", "events", "jobs", "deals", "changes"]) {
+    for (
+      const bucket of [
+        "businesses", "nonprofits", "events", "jobs", "deals", "developments", "changes",
+      ]
+    ) {
       for (const row of ((results as Record<string, unknown[]>)?.[bucket] ?? [])) {
         const r = row as Record<string, unknown>;
         if (typeof r.entity_id === "string") known.set(r.entity_id, { ...r, bucket });

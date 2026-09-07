@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { AskToledoPanel } from '@/components/city-os/AskToledoPanel';
+import { CityMemory } from '@/components/city-os/CityMemory';
 
 /**
  * Neighborhood page.
@@ -133,6 +134,11 @@ export default function NeighborhoodDetail() {
           </section>
 
           <RecentChanges source={{ table: 'neighborhoods', id: neighborhood.id }} />
+
+          <CityMemory
+            source={{ table: 'neighborhoods', id: neighborhood.id }}
+            title="What used to be here"
+          />
 
           <section>
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">

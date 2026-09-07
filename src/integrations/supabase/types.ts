@@ -1961,6 +1961,78 @@ export type Database = {
           },
         ]
       }
+      developments: {
+        Row: {
+          address: string | null
+          created_at: string
+          developer: string | null
+          documents: Json
+          est_completion: string | null
+          id: string
+          investment_amount: number | null
+          kind: string | null
+          location: unknown
+          name: string
+          neighborhood_id: string | null
+          parcel_id: string | null
+          planning_case: string | null
+          status: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          developer?: string | null
+          documents?: Json
+          est_completion?: string | null
+          id?: string
+          investment_amount?: number | null
+          kind?: string | null
+          location?: unknown
+          name: string
+          neighborhood_id?: string | null
+          parcel_id?: string | null
+          planning_case?: string | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          developer?: string | null
+          documents?: Json
+          est_completion?: string | null
+          id?: string
+          investment_amount?: number | null
+          kind?: string | null
+          location?: unknown
+          name?: string
+          neighborhood_id?: string | null
+          parcel_id?: string | null
+          planning_case?: string | null
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developments_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "developments_parcel_id_fkey"
+            columns: ["parcel_id"]
+            isOneToOne: false
+            referencedRelation: "parcels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       early_adopters: {
         Row: {
           granted_at: string
@@ -3968,6 +4040,53 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "founding_members_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memory_items: {
+        Row: {
+          approved: boolean
+          body: string | null
+          contributor_id: string | null
+          created_at: string
+          entity_id: string
+          id: string
+          kind: string
+          media_url: string | null
+          title: string
+          year: number | null
+        }
+        Insert: {
+          approved?: boolean
+          body?: string | null
+          contributor_id?: string | null
+          created_at?: string
+          entity_id: string
+          id?: string
+          kind: string
+          media_url?: string | null
+          title: string
+          year?: number | null
+        }
+        Update: {
+          approved?: boolean
+          body?: string | null
+          contributor_id?: string | null
+          created_at?: string
+          entity_id?: string
+          id?: string
+          kind?: string
+          media_url?: string | null
+          title?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_items_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
             referencedColumns: ["id"]
           },
         ]
@@ -6577,6 +6696,24 @@ export type Database = {
           },
         ]
       }
+      city_change_log: {
+        Row: {
+          change_count: number | null
+          day: string | null
+          event_type: string | null
+          latest_at: string | null
+          neighborhood_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "city_entities_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       founding_members_public: {
         Row: {
           cover_image_url: string | null
@@ -6872,6 +7009,38 @@ export type Database = {
       }
       check_post_rate_limit: { Args: { _user_id: string }; Returns: boolean }
       check_review_rate_limit: { Args: { _user_id: string }; Returns: boolean }
+      city_changed_recently: {
+        Args: { p_days?: number }
+        Returns: {
+          change_count: number
+          event_type: string
+          latest_at: string
+          latest_title: string
+        }[]
+      }
+      city_feed: {
+        Args: {
+          p_limit?: number
+          p_neighborhood_id?: string
+          p_radius_miles?: number
+          p_scope?: string
+        }
+        Returns: {
+          body: string
+          distance_miles: number
+          entity_id: string
+          image_url: string
+          item_id: string
+          kind: string
+          neighborhood_id: string
+          neighborhood_name: string
+          occurred_at: string
+          source: string
+          source_id: string
+          source_table: string
+          title: string
+        }[]
+      }
       citygraph_business_point: {
         Args: { p_business_id: string }
         Returns: unknown
@@ -6971,11 +7140,53 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      development_radar: {
+        Args: {
+          p_kinds?: string[]
+          p_limit?: number
+          p_radius_miles?: number
+          p_statuses?: string[]
+        }
+        Returns: {
+          address: string
+          developer: string
+          distance_miles: number
+          documents: Json
+          entity_id: string
+          est_completion: string
+          id: string
+          investment_amount: number
+          kind: string
+          latitude: number
+          longitude: number
+          name: string
+          neighborhood_id: string
+          neighborhood_name: string
+          planning_case: string
+          status: string
+          summary: string
+          updated_at: string
+        }[]
+      }
+      development_status_label: { Args: { p_status: string }; Returns: string }
       effective_business_role: {
         Args: { p_business_id: string; p_user?: string }
         Returns: string
       }
       entity_follower_count: { Args: { _entity_id: string }; Returns: number }
+      entity_memory: {
+        Args: { p_entity_id: string; p_limit?: number }
+        Returns: {
+          body: string
+          contributor: string
+          created_at: string
+          id: string
+          kind: string
+          media_url: string
+          title: string
+          year: number
+        }[]
+      }
       expire_pulse_posts: { Args: never; Returns: undefined }
       file_claim: {
         Args: {

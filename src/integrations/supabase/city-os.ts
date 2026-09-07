@@ -22,7 +22,8 @@ export type EntitySourceTable =
   | 'jobs'
   | 'parcels'
   | 'issues'
-  | 'opportunities';
+  | 'opportunities'
+  | 'developments';
 
 export type CityEntity = Database['public']['Tables']['city_entities']['Row'];
 export type CityEventLog = Database['public']['Tables']['city_events_log']['Row'];
@@ -53,6 +54,8 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   deal_added: 'New deal',
   meeting: 'Meeting',
   status_change: 'Update',
+  development_filed: 'New project',
+  memory_added: 'City memory',
 };
 
 export function eventTypeLabel(eventType: string): string {
@@ -70,6 +73,10 @@ export function entityPath(
       return `/events/${entity.source_id}`;
     case 'issues':
       return `/fix/${entity.source_id}`;
+    case 'developments':
+      return `/built/${entity.source_id}`;
+    case 'neighborhoods':
+      return `/neighborhood/${entity.source_id}`;
     default:
       return null;
   }
