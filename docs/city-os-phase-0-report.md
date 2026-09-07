@@ -71,7 +71,77 @@ search returns the same 12 businesses whether asked for "organization" or
 function is executable by anon. All probes ran inside a rolled back
 transaction.
 
-## Steps 2 to 10
+## Step 2: address intelligence and the neighborhood engine
+
+Applied as `city_os_p0_step2_addresses`, then three corrective migrations to
+`resolve_address` described below. Files `20260908000300` through
+`20260908000600`, rollbacks beside them.
+
+**New column on `parcels`:** `zip`, filled from the address for all 200 rows.
+Eight zips across the nine neighborhoods.
+
+**New columns on `neighborhoods`:** `geometry` (MultiPolygon, 4326) and
+`boundary_source`. Eight polygons, each the bounding box of that
+neighborhood's seeded parcels padded by about 500 m, all flagged `seed`.
+Virtual has none. Every one of the 200 parcels falls inside its own
+neighborhood's polygon. Three pairs overlap (Maumee with Perrysburg, Downtown
+with Old West End, Downtown with East Toledo); a point in an overlap goes to
+the nearer centroid.
+
+**These polygons are not real boundaries.** They are boxes drawn around
+invented parcels. They must be replaced with a real GIS source before anyone
+is told which district they live in.
+
+**New functions:** `neighborhood_for_point(geography)`, `resolve_address(text)`,
+`nearby(entity_id, radius_miles, kinds[], limit)`.
+
+**New triggers on `city_entities`:** one fills a missing `neighborhood_id`
+from the polygons before insert or update, the other adds the `located_in`
+edge after. Zero entities were left with a location and no neighborhood.
+
+**The home address stays in `resident_homes`.** The roadmap asks for
+`home_parcel_id` and `home_verified_at` on `profiles`. `profiles` carries a
+policy that lets any signed in user read every row, so a home parcel there is
+joinable to public `parcels` and leaks every user's address. `resident_homes`
+is keyed to `auth.uid()`, readable only by its owner, and already has
+`verified_at`. Moving the home onto `profiles` would reintroduce a leak that
+was found and fixed once already. Flagged for a ruling rather than done
+quietly.
+
+### resolve_address took three passes, and all three were the same mistake
+
+Each was found by testing the function against the sandbox, not by reading it.
+
+1. **A street or a zip was answered with somebody's house.**
+   `resolve_address('43605')` returned "100 Front St, Toledo, OH 43605". The
+   parcel branch matched on a substring anywhere in the address, so it always
+   answered first and the street and zip branches were dead code. A caller
+   saving the result as a home address would have saved a house nobody named.
+2. **A street with a city on it still did.** `'Broadway St, Toledo'` returned
+   "100 Broadway St" at confidence 0.59, through the trigram arm the first fix
+   left open. Similarity between a street and a full address on that street is
+   high, so a threshold was never the right control.
+3. **A house number not on file was answered with a different house.**
+   `'742 Broadway St'` returned "100 Broadway St" at 0.78. A misspelt street is
+   a typo worth forgiving. A different number is a different building.
+
+The rule now: a query naming a house number matches loosely on the street but
+must match the number exactly; a query naming no house number matches only an
+exact address or a prefix of one, and otherwise gets a neighborhood with no
+address. Confidence is graded 0.95 exact, 0.85 prefix, 0.90 a point on a
+parcel, 0.60 inside a polygon, 0.50 a street, 0.40 nearest centroid, 0.30 a
+zip.
+
+**Verified, 21 cases:** exact, lowercase and padded exact all 0.95; prefix
+0.85; a typo in the street still finds the right house; a wrong house number,
+a bare street, a street with a city, a bare zip and a zip plus four all return
+a neighborhood and no address; an unknown street in a known zip returns that
+zip's neighborhood; a point on a parcel returns the parcel, a point 195 m away
+returns the polygon, a point 100 miles away returns nothing; garbage, `%%`,
+`__`, a lone backslash, one character, an empty string and a SQL injection
+attempt all return nothing.
+
+## Steps 3 to 10
 
 Not started.
 
@@ -83,4 +153,12 @@ opportunities are real organisations whose links have not been opened.
 
 ## Real data sources still needed
 
-Filled in as Step 3 registers connectors.
+Filled in as Step 3 registers connectors. Already known:
+
+| What | Why it is needed | Where to look |
+|---|---|---|
+| Neighborhood boundaries (GIS) | Step 2 drew boxes around invented parcels and flagged them `seed`. Nobody should be told their council district from these. | Toledo and Lucas County open GIS portals |
+| Parcels, owners, assessed values | All 200 parcels are invented. | Lucas County Auditor |
+| Refuse, recycling and snow routes | Invented per parcel. | City of Toledo public services |
+| City events calendar (ical) | Step 3 handler. | City and library public calendars |
+| City announcements (rss) | Step 3 handler. | City of Toledo newsroom |
