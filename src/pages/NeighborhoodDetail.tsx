@@ -10,6 +10,7 @@ import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { AskToledoPanel } from '@/components/city-os/AskToledoPanel';
 import { CityMemory } from '@/components/city-os/CityMemory';
+import { NeighborhoodHealth } from '@/components/city-os/NeighborhoodHealth';
 
 /**
  * Neighborhood page.
@@ -132,6 +133,8 @@ export default function NeighborhoodDetail() {
               ]}
             />
           </section>
+
+          <NeighborhoodHealth neighborhoodId={neighborhood.id} />
 
           <RecentChanges source={{ table: 'neighborhoods', id: neighborhood.id }} />
 

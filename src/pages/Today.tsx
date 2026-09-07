@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
-import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn, Wrench, HandHeart, HardHat } from 'lucide-react';
+import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn, Wrench, HandHeart, HardHat, Radar } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
@@ -249,6 +249,21 @@ export default function Today() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-foreground">What is being built</p>
               <p className="text-[12px] text-muted-foreground">Every project on the map, and what changed</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          {/* Autopilot. Watches the city against what you asked for. */}
+          <Link
+            to="/autopilot"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <Radar className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">Autopilot</p>
+              <p className="text-[12px] text-muted-foreground">Tell it what matters and it watches for you</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
           </Link>
