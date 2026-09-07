@@ -11,7 +11,15 @@ import { supabase } from '@/integrations/supabase/client';
  */
 
 export interface AskCard {
-  bucket: 'businesses' | 'nonprofits' | 'events' | 'jobs' | 'deals' | 'changes';
+  bucket:
+    | 'businesses'
+    | 'nonprofits'
+    | 'events'
+    | 'jobs'
+    | 'deals'
+    | 'developments'
+    | 'spaces'
+    | 'changes';
   entity_id: string;
   /** Present on business, nonprofit and job cards. */
   name?: string;
@@ -21,6 +29,10 @@ export interface AskCard {
   nonprofit_id?: string;
   event_id?: string;
   job_id?: string;
+  development_id?: string;
+  space_id?: string;
+  status_label?: string;
+  rent_monthly?: number;
   job_type?: string;
   slug?: string;
   category?: string;
@@ -83,6 +95,8 @@ export function useAskToledo() {
 
 /** Where a card links to, or null when it has no page of its own. */
 export function askCardPath(card: AskCard): string | null {
+  if (card.development_id) return `/built/${card.development_id}`;
+  if (card.space_id) return '/spaces';
   if (card.business_id) return `/business/${card.business_id}`;
   if (card.event_id) return `/events/${card.event_id}`;
   if (card.slug) return `/community/${card.slug}`;
@@ -93,6 +107,8 @@ export function askCardPath(card: AskCard): string | null {
 export function askCardSubtitle(card: AskCard): string {
   const bits: string[] = [];
 
+  if (card.status_label) bits.push(card.status_label);
+  if (card.rent_monthly != null) bits.push(`$${Math.round(card.rent_monthly)} a month`);
   if (card.category) bits.push(card.category.replace(/_/g, ' '));
   if (card.cause) bits.push(card.cause);
   if (card.job_type) bits.push(String(card.job_type).replace(/-/g, ' '));

@@ -206,7 +206,7 @@ export default function DevelopmentDetail() {
                     </a>
                   ) : (
                     <span className="text-muted-foreground">
-                      {file.label} — not published online yet
+                      {file.label}, not published online yet
                     </span>
                   )}
                 </li>

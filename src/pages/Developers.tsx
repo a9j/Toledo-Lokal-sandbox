@@ -11,6 +11,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from '@/hooks/usePlatform';
+import { SUPABASE_URL } from '@/integrations/supabase/client';
 
 const RESOURCES = [
   { name: 'businesses', what: 'Approved businesses with category, address and neighborhood' },
@@ -205,7 +206,7 @@ export default function Developers() {
           <h2 className="mb-2 text-sm font-semibold">How to call it</h2>
           <pre className="overflow-x-auto rounded-xl border border-border/60 bg-card p-4 text-xs leading-relaxed">
 {`curl -H "Authorization: Bearer YOUR_KEY" \\
-  "https://waezoxzkvhuqjzomafee.supabase.co/functions/v1/toledo-api/businesses?limit=50"`}
+  "${SUPABASE_URL}/functions/v1/toledo-api/businesses?limit=50"`}
           </pre>
 
           <div className="mt-3 space-y-2">
@@ -218,10 +219,7 @@ export default function Developers() {
           </div>
 
           <p className="mt-4 text-xs leading-snug text-muted-foreground">
-            Sandbox note: the function is deployed but still requires a platform token as well as
-            your key, because JWT verification has not been switched off for it. Until someone
-            does that in the Supabase dashboard, a plain curl with only the API key will be
-            refused.
+            The key is the only thing you need to send. No sign in, no other token.
           </p>
         </section>
       </PageContainer>

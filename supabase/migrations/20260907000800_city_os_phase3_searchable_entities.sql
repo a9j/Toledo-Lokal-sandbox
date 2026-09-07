@@ -177,3 +177,25 @@ where e.source_table = 'parcels' and e.source_id = p.id;
 update public.city_entities e set search_blurb = concat_ws(' ', 'neighborhood', n.name)
 from public.neighborhoods n
 where e.source_table = 'neighborhoods' and e.source_id = n.id;
+
+-- ------------------------------------------------- the overload, closed
+--
+-- Adding a seven argument citygraph_upsert_entity beside the six argument one
+-- made every six argument call ambiguous, and the neighborhood sync above was
+-- the one caller not redefined. Every insert or update on neighborhoods then
+-- raised "function is not unique" and rolled back, which went unnoticed for
+-- four phases because nothing touched a neighborhood row. The sync gets a blurb
+-- and the old overload goes, so a fresh apply of this file leaves one function.
+
+create or replace function public.citygraph_sync_neighborhood() returns trigger
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  perform public.citygraph_upsert_entity(
+    'place'::public.entity_kind, 'neighborhoods', new.id, new.name, new.id,
+    null::extensions.geography,
+    concat_ws(' ', 'neighborhood area district', new.name));
+  return new;
+end $$;
+
+drop function if exists public.citygraph_upsert_entity(
+  public.entity_kind, text, uuid, text, uuid, extensions.geography);

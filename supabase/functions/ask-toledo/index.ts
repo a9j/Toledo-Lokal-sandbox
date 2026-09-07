@@ -63,8 +63,15 @@ const SpecSchema = z.object({
   ),
   radius_miles: z.number(),
   free_only: z.boolean(),
-  time_from: z.string().nullable(),
-  time_to: z.string().nullable(),
+  // ISO 8601 with a timezone, or null. The description reaches the model
+  // through the JSON schema; the comment does not, which is why this is not a
+  // comment.
+  time_from: z.string().nullable().describe(
+    "Start of the time window as an ISO 8601 timestamp with timezone, e.g. 2026-09-12T00:00:00-04:00, or null for no window.",
+  ),
+  time_to: z.string().nullable().describe(
+    "End of the time window as an ISO 8601 timestamp with timezone, or null for no window.",
+  ),
   limit: z.number().int().min(1).max(40),
 });
 
@@ -194,6 +201,15 @@ serve(async (req) => {
 
     // The scope is ours to set, not the model's.
     if (neighborhoodId) spec.neighborhood_id = neighborhoodId;
+
+    // The database casts these with ::timestamptz and a bad value turns the
+    // whole search into a 500 after the question has already been counted
+    // against the daily limit. Anything that is not a real date becomes null,
+    // which the search treats as "no window".
+    for (const key of ["time_from", "time_to"] as const) {
+      const value = spec[key];
+      if (typeof value !== "string" || Number.isNaN(Date.parse(value))) spec[key] = null;
+    }
 
     // Step 2: run it against the CityGraph, as the asking user.
     const { data: results, error: searchError } = await userClient.rpc("citygraph_search", {

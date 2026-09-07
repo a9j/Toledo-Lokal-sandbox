@@ -107,6 +107,11 @@ language sql stable security definer set search_path = public as $$
   where rh.user_id = auth.uid();
 $$;
 
+-- The return shape changes here, and Postgres refuses CREATE OR REPLACE
+-- when it does, so the old definition goes first. Without this line a
+-- fresh apply of the whole chain stopped at this file.
+drop function if exists public.my_city_near_me(numeric, int);
+
 create or replace function public.my_city_near_me(
   p_radius_miles numeric default 0.5, p_limit int default 20
 )

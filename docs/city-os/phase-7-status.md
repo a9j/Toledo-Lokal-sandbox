@@ -140,13 +140,10 @@ anything. Verified directly rather than by counting:
 
 ## Not tested, and one thing that will not work as deployed
 
-**The `toledo-api` function is deployed with `verify_jwt: true`.** That means a
-caller needs a platform token as well as their API key, which defeats the point
-of an API key. The deploy tool available here has no flag for it and it is a
-dashboard or CLI setting (`--no-verify-jwt`), so **someone has to switch it off
-before a plain curl with only a key will work**. The `/developers` page says so
-on screen rather than handing out keys that appear not to work. Everything the
-function depends on is tested at the database level.
+**The `toledo-api` function was first deployed with `verify_jwt: true`**, which
+meant a caller needed a platform token as well as their API key. The review pass
+after Phase 7 redeployed it (v2) with JWT verification off, which is correct for
+a function that does its own key check. See `review-status.md`.
 
 **The two Ask Toledo model calls still have never run**, now across five phases.
 
@@ -167,7 +164,9 @@ shipping against seeds.
 
 - Autopilot needs a scheduler and a push channel before it is what the plan
   describes. The scoring is done; the sending is not.
-- `verify_jwt` on `toledo-api`, above.
+- `toledo-api` has not been called over HTTP from this environment. The proxy
+  here blocks the host. The key check underneath it is tested at the database
+  level.
 - No admin screen for reviewing submitted plugins; `status` moves by SQL.
 - The entity targets on missions, stamps and challenges are columns with no UI
   yet: nothing sets or reads them.

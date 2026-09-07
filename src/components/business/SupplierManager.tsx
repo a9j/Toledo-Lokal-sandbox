@@ -170,7 +170,7 @@ export function SupplierManager({ businessId }: { businessId: string }) {
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-3">
             <p className="text-lg font-semibold leading-none tabular-nums">
-              {share.local_share === null ? '—' : `${Math.round(share.local_share * 100)}%`}
+              {share.local_share === null ? 'n/a' : `${Math.round(share.local_share * 100)}%`}
             </p>
             <p className="mt-1 text-[11px] text-muted-foreground">Local share</p>
           </div>

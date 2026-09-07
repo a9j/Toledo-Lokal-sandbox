@@ -139,7 +139,7 @@ export default function Economy() {
               </div>
               <div className="rounded-xl border border-border/60 bg-card p-4">
                 <p className="text-xl font-semibold leading-none">
-                  {localShare === null ? '—' : `${localShare}%`}
+                  {localShare === null ? 'n/a' : `${localShare}%`}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">Local share</p>
               </div>

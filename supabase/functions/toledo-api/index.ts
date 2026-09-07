@@ -81,8 +81,15 @@ serve(async (req) => {
       return json({ error: v?.error ?? "Not authorised." }, v?.status ?? 401);
     }
 
-    const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 50), 1), 200);
-    const offset = Math.max(Number(url.searchParams.get("offset") ?? 0), 0);
+    // Number("abc") is NaN, and NaN survives Math.min and Math.max, so a bad
+    // query string used to reach PostgREST as .range(0, NaN) and 500 after the
+    // call had already been counted. Non numbers fall back to the defaults.
+    const parsed = (raw: string | null, fallback: number) => {
+      const n = Number(raw);
+      return raw !== null && raw !== "" && Number.isFinite(n) ? n : fallback;
+    };
+    const limit = Math.min(Math.max(Math.floor(parsed(url.searchParams.get("limit"), 50)), 1), 200);
+    const offset = Math.max(Math.floor(parsed(url.searchParams.get("offset"), 0)), 0);
 
     const { data, error } = await admin
       .from(view)

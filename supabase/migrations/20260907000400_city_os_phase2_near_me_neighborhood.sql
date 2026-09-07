@@ -56,6 +56,11 @@ create trigger trg_citygraph_hood_centroid
 revoke execute on function public.citygraph_refresh_neighborhood_centroid() from public, anon, authenticated;
 
 -- Near Me: within the radius, OR anywhere in my own neighborhood.
+-- The return shape changes here, and Postgres refuses CREATE OR REPLACE
+-- when it does, so the old definition goes first. Without this line a
+-- fresh apply of the whole chain stopped at this file.
+drop function if exists public.my_city_near_me(numeric, int);
+
 create or replace function public.my_city_near_me(
   p_radius_miles numeric default 0.5,
   p_limit int default 20

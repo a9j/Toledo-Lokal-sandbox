@@ -90,7 +90,18 @@ serve(async (req) => {
       return json({ error: "Give it a minute before asking for another code" }, 429);
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    // A six digit code from the CSPRNG, not Math.random. The five attempt lockout
+    // already limits guessing, but a verification code should not be
+    // predictable in the first place. Rejection sampling keeps it uniform.
+    const code = (() => {
+      const buf = new Uint32Array(1);
+      let n: number;
+      do {
+        crypto.getRandomValues(buf);
+        n = buf[0]! % 1_000_000;
+      } while (buf[0]! - n > 0xffffffff - 1_000_000 + 1);
+      return String(n).padStart(6, "0");
+    })();
 
     // Hash in the database so bcrypt lives in exactly one place.
     const { data: hashed, error: hashErr } = await admin.rpc("hash_verification_code", {

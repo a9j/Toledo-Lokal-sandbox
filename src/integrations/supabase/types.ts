@@ -8721,30 +8721,18 @@ export type Database = {
         Returns: string
       }
       citygraph_search: { Args: { p_spec: Json }; Returns: Json }
-      citygraph_upsert_entity:
-        | {
-            Args: {
-              p_kind: Database["public"]["Enums"]["entity_kind"]
-              p_location: unknown
-              p_name: string
-              p_neighborhood_id: string
-              p_source_id: string
-              p_source_table: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_blurb?: string
-              p_kind: Database["public"]["Enums"]["entity_kind"]
-              p_location: unknown
-              p_name: string
-              p_neighborhood_id: string
-              p_source_id: string
-              p_source_table: string
-            }
-            Returns: string
-          }
+      citygraph_upsert_entity: {
+        Args: {
+          p_blurb?: string
+          p_kind: Database["public"]["Enums"]["entity_kind"]
+          p_location: unknown
+          p_name: string
+          p_neighborhood_id: string
+          p_source_id: string
+          p_source_table: string
+        }
+        Returns: string
+      }
       claim_ownership: {
         Args: { p_business_id: string; p_verification_method?: string }
         Returns: Json
@@ -9106,6 +9094,7 @@ export type Database = {
         }[]
       }
       local_economic_loop: { Args: { p_months?: number }; Returns: Json }
+      mark_wallet_item_used: { Args: { p_item_id: string }; Returns: undefined }
       mask_phone: { Args: { phone_number: string }; Returns: string }
       match_opportunities: {
         Args: { p_limit?: number }
