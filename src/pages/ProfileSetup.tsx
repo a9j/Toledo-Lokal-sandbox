@@ -18,6 +18,7 @@ import { Check, MapPin, Heart, User, ArrowRight, Smartphone } from 'lucide-react
 import tlLogo from '@/assets/tl-logo.png';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { InstallAppButton } from '@/components/pwa/InstallAppButton';
+import { AddressPicker } from '@/components/my-city/AddressPicker';
 
 export default function ProfileSetup() {
   const { user } = useAuth();
@@ -258,6 +259,19 @@ export default function ProfileSetup() {
                 full-screen, app-like experience.
               </p>
             </div>
+            {/* Optional, and skippable. An address unlocks My City: trash day,
+                council district, and what is changing on your street. */}
+            <div className="space-y-3 text-left">
+              <div>
+                <h2 className="text-sm font-semibold">One more thing, if you want</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Add your address for your trash day and what is changing near you. Only
+                  you can see it.
+                </p>
+              </div>
+              <AddressPicker />
+            </div>
+
             <div className="space-y-2">
               <InstallAppButton label="Add to Home Screen" className="w-full" />
               <button

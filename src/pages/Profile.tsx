@@ -17,7 +17,7 @@ import { Charter100Badge } from '@/components/charter100/Charter100Badge';
 import { useCharter100Members } from '@/hooks/useCohort';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import {
-  Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download,
+  Settings, Bookmark, FileText, Building2, LogOut, ChevronRight, Download, Home,
   Heart, Crown, MapPin, BadgeCheck, Mail, Shield, Scale, Trash2, QrCode,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -363,6 +363,15 @@ export default function Profile() {
               </div>
             </Link>
           )}
+
+          {/* My City: set or change the home address, and verify it. */}
+          <Link to="/my-city">
+            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors">
+              <Home className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 font-medium">My City and home address</span>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Link>
 
           {isAdmin && (
             <Link to="/admin">

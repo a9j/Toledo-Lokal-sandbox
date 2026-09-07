@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      address_verifications: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          expires_at: string
+          parcel_id: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          parcel_id: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          parcel_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "address_verifications_parcel_id_fkey"
+            columns: ["parcel_id"]
+            isOneToOne: false
+            referencedRelation: "parcels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -4102,6 +4137,71 @@ export type Database = {
           },
         ]
       }
+      parcels: {
+        Row: {
+          address: string
+          assessed_value: number | null
+          council_district: string | null
+          created_at: string
+          id: string
+          location: unknown
+          neighborhood_id: string | null
+          parcel_number: string | null
+          precinct: string | null
+          raw: Json
+          recycling_week: string | null
+          refuse_day: string | null
+          school_district: string | null
+          snow_route: string | null
+          tax_year_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          assessed_value?: number | null
+          council_district?: string | null
+          created_at?: string
+          id?: string
+          location?: unknown
+          neighborhood_id?: string | null
+          parcel_number?: string | null
+          precinct?: string | null
+          raw?: Json
+          recycling_week?: string | null
+          refuse_day?: string | null
+          school_district?: string | null
+          snow_route?: string | null
+          tax_year_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          assessed_value?: number | null
+          council_district?: string | null
+          created_at?: string
+          id?: string
+          location?: unknown
+          neighborhood_id?: string | null
+          parcel_number?: string | null
+          precinct?: string | null
+          raw?: Json
+          recycling_week?: string | null
+          refuse_day?: string | null
+          school_district?: string | null
+          snow_route?: string | null
+          tax_year_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcels_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       passport_checkins: {
         Row: {
           business_id: string
@@ -5369,6 +5469,38 @@ export type Database = {
           },
         ]
       }
+      resident_homes: {
+        Row: {
+          created_at: string
+          parcel_id: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          parcel_id: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          parcel_id?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_homes_parcel_id_fkey"
+            columns: ["parcel_id"]
+            isOneToOne: false
+            referencedRelation: "parcels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resumes: {
         Row: {
           file_name: string | null
@@ -6544,6 +6676,7 @@ export type Database = {
         Returns: Json
       }
       compute_neighborhood_activity: { Args: never; Returns: undefined }
+      confirm_address_verification: { Args: { p_code: string }; Returns: Json }
       confirm_record_item: {
         Args: { p_item_id: string }
         Returns: {
@@ -6756,6 +6889,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      hash_verification_code: { Args: { p_code: string }; Returns: string }
       hire_qr_checkin: {
         Args: { p_event_id?: string; p_org_id: string }
         Returns: {
@@ -6821,6 +6955,52 @@ export type Database = {
         Returns: string
       }
       mask_phone: { Args: { phone_number: string }; Returns: string }
+      my_city_near_me: {
+        Args: { p_limit?: number; p_radius_miles?: number }
+        Returns: {
+          body: string
+          distance_miles: number
+          entity_id: string
+          entity_name: string
+          event_type: string
+          log_id: string
+          occurs_at: string
+          scope: string
+          source_id: string
+          source_table: string
+          title: string
+        }[]
+      }
+      my_city_nearby_businesses: {
+        Args: { p_limit?: number; p_radius_miles?: number }
+        Returns: {
+          address: string
+          business_id: string
+          category: string
+          created_at: string
+          distance_miles: number
+          name: string
+        }[]
+      }
+      my_home: {
+        Args: never
+        Returns: {
+          address: string
+          assessed_value: number
+          council_district: string
+          neighborhood_id: string
+          neighborhood_name: string
+          parcel_id: string
+          precinct: string
+          recycling_week: string
+          refuse_day: string
+          school_district: string
+          snow_route: string
+          source: string
+          tax_year_amount: number
+          verified_at: string
+        }[]
+      }
       pulse_recount_reactions: {
         Args: { p_post_id: string }
         Returns: undefined
@@ -6841,6 +7021,16 @@ export type Database = {
         Returns: Json
       }
       reset_monthly_loop_caps: { Args: never; Returns: undefined }
+      search_parcels: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: {
+          address: string
+          id: string
+          neighborhood_id: string
+          neighborhood_name: string
+        }[]
+      }
+      set_home_parcel: { Args: { p_parcel_id: string }; Returns: undefined }
       transfer_ownership: {
         Args: { p_business_id: string; p_new_owner_user_id: string }
         Returns: Json

@@ -21,6 +21,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
 import { LP_ENABLED } from '@/lib/flags';
+import { MyCityHomeSection } from '@/components/my-city/MyCityHomeSection';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
@@ -146,6 +147,10 @@ export default function Today() {
 
         {/* Content */}
         <div className="space-y-4 pb-4 lg:max-w-2xl lg:mx-auto">
+          {/* My City leads for residents who have set an address. Renders
+              nothing for signed out visitors, so the landing page is unchanged. */}
+          <MyCityHomeSection />
+
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-36 rounded-3xl animate-pulse" />
