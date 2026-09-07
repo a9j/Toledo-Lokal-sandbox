@@ -189,6 +189,21 @@ export default function Today() {
             <EmptyDailyDrop date={today} />
           )}
 
+          {/* Ask Toledo. Answers come from the CityGraph, not the open web. */}
+          <Link
+            to="/ask"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">Ask Toledo</p>
+              <p className="text-[12px] text-muted-foreground">Anything about the city, answered from local listings</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
           {/* Discover Toledo quick card */}
           <Link
             to="/discover"

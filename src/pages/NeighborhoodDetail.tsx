@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Store, CalendarDays } from 'lucide-react';
+import { MapPin, Store, CalendarDays, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
+import { AskToledoPanel } from '@/components/city-os/AskToledoPanel';
 
 /**
  * Neighborhood page.
@@ -112,6 +113,25 @@ export default function NeighborhoodDetail() {
         />
 
         <div className="mt-6 space-y-6">
+          <section>
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+              Ask {neighborhood.name}
+            </h2>
+            {/* Same engine as Ask Toledo, pinned to this neighborhood so the
+                answers only come from here. */}
+            <AskToledoPanel
+              compact
+              neighborhoodId={neighborhood.id}
+              neighborhoodName={neighborhood.name}
+              suggestions={[
+                `What is on in ${neighborhood.name}`,
+                `Places to eat in ${neighborhood.name}`,
+                `What changed in ${neighborhood.name}`,
+              ]}
+            />
+          </section>
+
           <RecentChanges source={{ table: 'neighborhoods', id: neighborhood.id }} />
 
           <section>
