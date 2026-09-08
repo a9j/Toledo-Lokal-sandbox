@@ -1711,6 +1711,7 @@ export type Database = {
       cities: {
         Row: {
           accent_color: string | null
+          config: Json
           created_at: string
           id: string
           is_active: boolean
@@ -1723,6 +1724,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          config?: Json
           created_at?: string
           id?: string
           is_active?: boolean
@@ -1735,6 +1737,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          config?: Json
           created_at?: string
           id?: string
           is_active?: boolean
@@ -1840,6 +1843,8 @@ export type Database = {
           confidence: number | null
           created_at: string
           data_source_id: string | null
+          embedded_at: string | null
+          embedding: string | null
           id: string
           kind: Database["public"]["Enums"]["entity_kind"]
           location: unknown
@@ -1858,6 +1863,8 @@ export type Database = {
           confidence?: number | null
           created_at?: string
           data_source_id?: string | null
+          embedded_at?: string | null
+          embedding?: string | null
           id?: string
           kind: Database["public"]["Enums"]["entity_kind"]
           location?: unknown
@@ -1876,6 +1883,8 @@ export type Database = {
           confidence?: number | null
           created_at?: string
           data_source_id?: string | null
+          embedded_at?: string | null
+          embedding?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["entity_kind"]
           location?: unknown
@@ -1924,6 +1933,7 @@ export type Database = {
         Row: {
           body: string | null
           created_at: string
+          data_source_id: string | null
           entity_id: string
           event_type: string
           id: string
@@ -1934,6 +1944,7 @@ export type Database = {
         Insert: {
           body?: string | null
           created_at?: string
+          data_source_id?: string | null
           entity_id: string
           event_type: string
           id?: string
@@ -1944,6 +1955,7 @@ export type Database = {
         Update: {
           body?: string | null
           created_at?: string
+          data_source_id?: string | null
           entity_id?: string
           event_type?: string
           id?: string
@@ -1952,6 +1964,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "city_events_log_data_source_id_fkey"
+            columns: ["data_source_id"]
+            isOneToOne: false
+            referencedRelation: "data_sources"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "city_events_log_entity_id_fkey"
             columns: ["entity_id"]
@@ -3292,6 +3311,7 @@ export type Database = {
       inbox_items: {
         Row: {
           created_at: string
+          digested_at: string | null
           id: string
           log_id: string
           read_at: string | null
@@ -3299,6 +3319,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          digested_at?: string | null
           id?: string
           log_id: string
           read_at?: string | null
@@ -3306,6 +3327,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          digested_at?: string | null
           id?: string
           log_id?: string
           read_at?: string | null
@@ -5273,6 +5295,66 @@ export type Database = {
           },
         ]
       }
+      notification_outbox: {
+        Row: {
+          cadence: Database["public"]["Enums"]["notification_cadence"]
+          channel: string
+          created_at: string
+          id: string
+          item_count: number
+          payload: Json
+          send_error: string | null
+          sent_at: string | null
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          cadence: Database["public"]["Enums"]["notification_cadence"]
+          channel?: string
+          created_at?: string
+          id?: string
+          item_count: number
+          payload?: Json
+          send_error?: string | null
+          sent_at?: string | null
+          summary: string
+          user_id: string
+        }
+        Update: {
+          cadence?: Database["public"]["Enums"]["notification_cadence"]
+          channel?: string
+          created_at?: string
+          id?: string
+          item_count?: number
+          payload?: Json
+          send_error?: string | null
+          sent_at?: string | null
+          summary?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          cadence: Database["public"]["Enums"]["notification_cadence"]
+          category: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cadence?: Database["public"]["Enums"]["notification_cadence"]
+          category: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cadence?: Database["public"]["Enums"]["notification_cadence"]
+          category?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       open_to_work: {
         Row: {
           enabled: boolean
@@ -5981,6 +6063,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      privacy_settings: {
+        Row: {
+          ai_recommendations: boolean
+          notification_categories: Json
+          personalization: boolean
+          public_activity: boolean
+          public_rewards: boolean
+          share_location: boolean
+          store_home_address: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_recommendations?: boolean
+          notification_categories?: Json
+          personalization?: boolean
+          public_activity?: boolean
+          public_rewards?: boolean
+          share_location?: boolean
+          store_home_address?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_recommendations?: boolean
+          notification_categories?: Json
+          personalization?: boolean
+          public_activity?: boolean
+          public_rewards?: boolean
+          share_location?: boolean
+          store_home_address?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profile_blocks: {
         Row: {
@@ -8485,6 +8603,17 @@ export type Database = {
           },
         ]
       }
+      city_changes_daily: {
+        Row: {
+          change_count: number | null
+          day: string | null
+          entity_count: number | null
+          event_type: string | null
+          last_change_at: string | null
+          neighborhood_count: number | null
+        }
+        Relationships: []
+      }
       founding_members_public: {
         Row: {
           cover_image_url: string | null
@@ -8818,6 +8947,10 @@ export type Database = {
           total: number
         }[]
       }
+      build_notification_digests: {
+        Args: { p_cadence: string }
+        Returns: number
+      }
       business_command_center: {
         Args: { p_business_id: string; p_days?: number }
         Returns: Json
@@ -8869,6 +9002,27 @@ export type Database = {
           latest_title: string
         }[]
       }
+      city_config: {
+        Args: { p_slug?: string }
+        Returns: {
+          accent_color: string
+          center_lat: number
+          center_lng: number
+          data_source_ids: Json
+          default_radius_miles: number
+          feature_flags: Json
+          id: string
+          is_active: boolean
+          logo_url: string
+          name: string
+          primary_color: string
+          region: string
+          slug: string
+          tagline: string
+          timezone: string
+          units: string
+        }[]
+      }
       city_feed: {
         Args: {
           p_limit?: number
@@ -8890,6 +9044,30 @@ export type Database = {
           source_id: string
           source_table: string
           title: string
+        }[]
+      }
+      city_scoping_audit: {
+        Args: never
+        Returns: {
+          has_city_id: boolean
+          row_count: number
+          table_name: string
+        }[]
+      }
+      city_search: {
+        Args: { p_limit?: number; p_query: string; p_user_id?: string }
+        Returns: {
+          blurb: string
+          distance_miles: number
+          entity_id: string
+          kind: string
+          match_kind: string
+          name: string
+          neighborhood: string
+          neighborhood_id: string
+          rank: number
+          source_id: string
+          source_table: string
         }[]
       }
       citygraph_business_point: {
@@ -8919,6 +9097,21 @@ export type Database = {
           p_source_table: string
         }
         Returns: string
+      }
+      citylog_delta: {
+        Args: { p_after: unknown; p_before: unknown; p_field: string }
+        Returns: Json
+      }
+      citylog_write: {
+        Args: {
+          p_body?: string
+          p_event_type: string
+          p_payload?: Json
+          p_source_id: string
+          p_source_table: string
+          p_title: string
+        }
+        Returns: undefined
       }
       claim_ownership: {
         Args: { p_business_id: string; p_verification_method?: string }
@@ -9026,6 +9219,15 @@ export type Database = {
       effective_business_role: {
         Args: { p_business_id: string; p_user?: string }
         Returns: string
+      }
+      entities_needing_embeddings: {
+        Args: { p_limit?: number }
+        Returns: {
+          blurb: string
+          entity_id: string
+          kind: string
+          name: string
+        }[]
       }
       entity_follower_count: { Args: { _entity_id: string }; Returns: number }
       entity_memory: {
@@ -9293,6 +9495,10 @@ export type Database = {
         }[]
       }
       local_economic_loop: { Args: { p_months?: number }; Returns: Json }
+      mark_notification_sent: {
+        Args: { p_channel: string; p_error?: string; p_id: string }
+        Returns: undefined
+      }
       mark_wallet_item_used: { Args: { p_item_id: string }; Returns: undefined }
       mask_phone: { Args: { phone_number: string }; Returns: string }
       match_opportunities: {
@@ -9374,6 +9580,27 @@ export type Database = {
         }[]
       }
       my_local_spend_share: { Args: { p_business_id: string }; Returns: Json }
+      my_notification_preferences: {
+        Args: never
+        Returns: {
+          cadence: string
+          category: string
+          description: string
+          label: string
+        }[]
+      }
+      my_privacy_settings: {
+        Args: never
+        Returns: {
+          ai_recommendations: boolean
+          notification_categories: Json
+          personalization: boolean
+          public_activity: boolean
+          public_rewards: boolean
+          share_location: boolean
+          store_home_address: boolean
+        }[]
+      }
       my_reported_issues: { Args: never; Returns: string[] }
       my_suppliers: {
         Args: { p_business_id: string }
@@ -9442,6 +9669,32 @@ export type Database = {
           under_construction: number
         }[]
       }
+      notification_categories: {
+        Args: never
+        Returns: {
+          category: string
+          description: string
+          label: string
+        }[]
+      }
+      notification_category:
+        | { Args: { p_event_type: string }; Returns: string }
+        | {
+            Args: { p_entity_kind?: string; p_event_type: string }
+            Returns: string
+          }
+      pending_notifications: {
+        Args: { p_limit?: number }
+        Returns: {
+          cadence: string
+          created_at: string
+          id: string
+          item_count: number
+          payload: Json
+          summary: string
+          user_id: string
+        }[]
+      }
       pledge_to_issue: {
         Args: {
           p_amount: number
@@ -9463,6 +9716,10 @@ export type Database = {
           p_title: string
         }
         Returns: string
+      }
+      privacy_allows: {
+        Args: { p_setting: string; p_user_id: string }
+        Returns: boolean
       }
       published_plugins: {
         Args: never
@@ -9508,6 +9765,7 @@ export type Database = {
         Args: { p_business_id: string }
         Returns: number
       }
+      refresh_city_changes_daily: { Args: never; Returns: undefined }
       report_issue: {
         Args: {
           p_description?: string
@@ -9551,7 +9809,31 @@ export type Database = {
           neighborhood_name: string
         }[]
       }
+      semantic_search: {
+        Args: { p_embedding: string; p_limit?: number; p_user_id?: string }
+        Returns: {
+          blurb: string
+          distance_miles: number
+          entity_id: string
+          kind: string
+          match_kind: string
+          name: string
+          neighborhood: string
+          neighborhood_id: string
+          rank: number
+          source_id: string
+          source_table: string
+        }[]
+      }
       set_home_parcel: { Args: { p_parcel_id: string }; Returns: undefined }
+      set_notification_preference: {
+        Args: { p_cadence: string; p_category: string }
+        Returns: undefined
+      }
+      set_privacy_setting: {
+        Args: { p_setting: string; p_value: boolean }
+        Returns: undefined
+      }
       set_supplier_spend: {
         Args: { p_link_id: string; p_monthly_spend?: number }
         Returns: undefined
@@ -9666,6 +9948,7 @@ export type Database = {
         | "bonus"
         | "refund"
         | "expire"
+      notification_cadence: "immediate" | "daily" | "weekly" | "off"
       pulse_category:
         | "right_now"
         | "heads_up"
@@ -9921,6 +10204,7 @@ export const Constants = {
         "refund",
         "expire",
       ],
+      notification_cadence: ["immediate", "daily", "weekly", "off"],
       pulse_category: [
         "right_now",
         "heads_up",
