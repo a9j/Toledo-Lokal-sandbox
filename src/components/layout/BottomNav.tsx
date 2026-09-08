@@ -1,30 +1,33 @@
-import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Newspaper, Compass, Radio, Repeat, HeartHandshake, Sparkles, Circle, Lock, Inbox } from 'lucide-react';
+import { Home, Radio, Compass, Map, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { LP_ENABLED, SOFT_LAUNCH } from '@/lib/flags';
-import { ComingSoonModal } from '@/components/layout/ComingSoonModal';
+import { useCity } from '@/contexts/CityContext';
+import { SOFT_LAUNCH } from '@/lib/flags';
 import { useInboxUnreadCount } from '@/hooks/useCivicInbox';
 
+// Phase 0 Step 9: five tabs, each pointing at a screen that already exists.
+// No new content was built for them. The tabs this replaces (Featured, Loop,
+// Community, Circles, Inbox) keep their routes and stay reachable from the
+// screens that link to them; they are just no longer top level. The Civic
+// Inbox lives under My City, which is where its unread badge now sits.
 const navItems = [
-  { path: '/', icon: Newspaper, label: 'Today' },
-  { path: '/founding-5', icon: Sparkles, label: 'Featured' },
-  { path: '/discover', icon: Compass, label: 'Discover' },
+  { path: '/', icon: Home, label: 'Home' },
+  // Pulse is hidden during soft launch, and the tab goes with it rather than
+  // leaving a tab that bounces you home.
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
-  { path: '/loop', icon: Repeat, label: 'Loop', locked: !LP_ENABLED },
-  { path: '/community', icon: HeartHandshake, label: 'Community' },
-  // Circles lands on the founding cohort today (see CirclesLanding); `match`
-  // keeps the tab highlighted once the resolver redirects to /charter-100.
-  { path: '/circles', icon: Circle, label: 'Circles', match: ['/charter-100'] },
-  // Civic Inbox. Carries the unread badge; see `unreadCount` below.
-  { path: '/inbox', icon: Inbox, label: 'Inbox', badge: 'inbox' as const },
+  { path: '/explore', icon: Compass, label: 'Explore', match: ['/discover'] },
+  { path: '/near-me', icon: Map, label: 'Map', match: ['/around'] },
+  {
+    path: '/my-toledo', icon: User, label: 'MY_CITY_LABEL',
+    match: ['/inbox', '/profile', '/my-city'], badge: 'inbox' as const,
+  },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
-  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const { city } = useCity();
   const { data: unreadCount = 0 } = useInboxUnreadCount();
 
   // Hide on auth page, scanner mode, accept invitation, and the unlisted
@@ -41,28 +44,9 @@ export function BottomNav() {
         <div className="relative flex items-center justify-around h-16 max-w-lg lg:max-w-3xl mx-auto px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-
-            // Locked tabs (e.g. Today, Loop) show a Coming Soon modal instead
-            // of navigating, until their feature flag flips on.
-            if (item.locked) {
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  onClick={() => setComingSoonOpen(true)}
-                  aria-label={`${item.label} (coming soon)`}
-                  className="flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200 relative group text-muted-foreground/50"
-                >
-                  <div className="relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 group-hover:bg-muted">
-                    <Icon className="h-5 w-5" />
-                    <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-muted-foreground/70 text-background">
-                      <Lock className="h-2 w-2" strokeWidth={3} />
-                    </span>
-                  </div>
-                  <span className="text-[10px] mt-0.5 font-medium">{item.label}</span>
-                </button>
-              );
-            }
+            // Named from the city, so a second city does not ship a tab that
+            // says Toledo.
+            const label = item.label === 'MY_CITY_LABEL' ? `My ${city.name}` : item.label;
 
             const matchPaths = [item.path, ...(item.match ?? [])];
             const isActive = matchPaths.some((path) =>
@@ -110,7 +94,7 @@ export function BottomNav() {
                   "text-[10px] mt-0.5 font-medium transition-all duration-200",
                   isActive ? "font-semibold text-foreground" : ""
                 )}>
-                  {item.label}
+                  {label}
                 </span>
               </NavLink>
             );
@@ -118,7 +102,6 @@ export function BottomNav() {
         </div>
       </nav>
 
-      <ComingSoonModal open={comingSoonOpen} onOpenChange={setComingSoonOpen} />
     </>
   );
 }

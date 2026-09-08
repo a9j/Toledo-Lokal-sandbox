@@ -24,8 +24,10 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { LoopProvider } from "@/contexts/LoopContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { CityProvider } from "@/contexts/CityContext";
 import { ActiveRoleProvider } from "@/contexts/ActiveRoleContext";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { AskToledoButton } from "@/components/city-os/AskToledoButton";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { BetaGate } from "@/components/beta/BetaGate";
 import { AccessGate } from "@/components/access/AccessGate";
@@ -119,6 +121,10 @@ const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
 const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const AdminApprovals = lazy(() => import("./pages/AdminApprovals"));
+const AdminSources = lazy(() => import("./pages/AdminSources"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const CitySearch = lazy(() => import("./pages/CitySearch"));
 const BusinessAdmin = lazy(() => import("./pages/BusinessAdmin"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
@@ -164,6 +170,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
+        <CityProvider>
         <ActiveRoleProvider>
         <SubscriptionProvider>
           <LoopProvider>
@@ -287,6 +294,10 @@ const App = () => (
                   <Route path="/business-onboarding" element={<BusinessOnboarding />} />
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/admin/approvals" element={<AdminApprovals />} />
+                  <Route path="/admin/sources" element={<AdminSources />} />
+                  <Route path="/settings/notifications" element={<NotificationSettings />} />
+                  <Route path="/settings/privacy" element={<Privacy />} />
+                  <Route path="/search" element={<CitySearch />} />
                   <Route path="/admin/city-os" element={<AdminCityOs />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
@@ -296,6 +307,7 @@ const App = () => (
                 </Routes>
               </Suspense>
               <BottomNav />
+              <AskToledoButton />
               <InstallPrompt />
               </AccessGate>
               </BetaGate>
@@ -306,6 +318,7 @@ const App = () => (
         </LoopProvider>
       </SubscriptionProvider>
         </ActiveRoleProvider>
+        </CityProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
