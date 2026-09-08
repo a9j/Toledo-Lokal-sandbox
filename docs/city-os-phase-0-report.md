@@ -141,7 +141,94 @@ returns the polygon, a point 100 miles away returns nothing; garbage, `%%`,
 `__`, a lone backslash, one character, an empty string and a SQL injection
 attempt all return nothing.
 
-## Steps 3 to 10
+## Step 3: connectors and source confidence
+
+Applied as `city_os_p0_step3_connectors`, then one corrective migration
+described below. Files `20260908000700` and `20260908000800`, rollbacks beside
+them. Edge function `connectors-run` deployed at v2.
+
+**New tables:** `data_sources` (six kinds, schedule, last run, last status,
+last error, record count), `data_source_config` (urls and anything secret,
+admin and service role only), `source_records` (`unique(source_id,
+external_id)`, a 0 to 1 confidence with a range check, `fetched_at`,
+`verified_at`, `verified_by`).
+
+**New columns:** `data_source_id` and `confidence` on both `city_entities` and
+`parcels`.
+
+**New functions:** `entity_provenance(entity_id)` for the badge, and
+`record_source_run(...)` for the edge function, revoked from everyone so only
+the service role reaches it.
+
+**A "Sandbox seed" source** now owns all 309 entities and all 200 parcels at
+confidence 0.20. That is the point of the step. A blank space reads as fact, so
+every invented row now says on screen that it was made up for testing.
+
+**New UI:** `/admin/sources` lists every source with its kind, last run,
+status in plain words, records held and a Run Now button on the two kinds that
+have handlers. `ConfidenceBadge` renders provenance under any entity.
+
+### The bug: source_id already meant something else
+
+`city_entities.source_id` has held the primary key of the row in
+`source_table` since PR #1. An entity for a business carries that business's
+id. Step 3 added a `source_id` meaning "which data source", which is a
+different thing under the same name.
+
+`add column if not exists` found the column already there and skipped the
+whole clause, foreign key included, so the registry was never corrupted. Then
+the backfill, `... where source_id is null`, matched zero rows, because every
+entity already has one. Confidence stayed null on all 309 entities and
+`entity_provenance` returned nulls, which is how this was found.
+
+Had that column not already existed under that name, the backfill would have
+overwritten every entity's link to its source row with one `data_sources` id,
+and the CityGraph would have lost the pointer that makes it a registry. It
+survived on a technicality, not on design. The provenance column is
+`data_source_id` on both tables now, and `parcels.source_id`, added by Step 3
+an hour earlier and read by nothing, was dropped rather than left as a second
+trap.
+
+### Two deviations from the roadmap
+
+**Config is its own table.** The roadmap puts `config jsonb` on
+`data_sources`. A connector config is where an API key ends up, and `revoke
+select (config)` does nothing against a table wide grant. That exact mistake
+was found in the supplier spend column in PR #1.
+
+**Neither handler has a URL.** The roadmap says to register both with a sample
+public Toledo URL and run them once. This environment has no outbound network,
+so no URL could be checked here, and one that looks official but was never
+fetched is worse than none. Both are registered with status `needs url`.
+
+### Verified
+
+Registry intact: 12 businesses still join to their entities, 309 entities and
+341 edges unchanged, search and `resolve_address` unaffected.
+
+Provenance: all 309 entities and 200 parcels attributed at 0.20;
+`entity_provenance` returns "Sandbox seed, manual, 0.20, seed=true" for both a
+business entity and a parcel entity.
+
+Permissions: anon reads sources and records, sees **zero** rows of
+`data_source_config`, and is refused 42501 on inserting a source or calling
+`record_source_run`. A confidence above 1 is refused by the check constraint.
+`record_source_run` on an unknown id is refused.
+
+Parsers, tested on sample feeds with no network: ical unfolds continuation
+lines, unescapes `\,` `\n` and `\;`, skips a VEVENT with no UID, and reads
+both a timestamp and a date only DTSTART; rss strips CDATA and HTML, decodes
+entities, reads Atom entries through `<id>` and `href`, and **drops a
+`javascript:` link** while keeping the item. The feed URL guard blocks
+`javascript:`, `file:`, localhost, `127.*`, `10.*`, `192.168.*`, `172.16-31.*`,
+`169.254.169.254` and `metadata.google.internal`, which is the shape of an
+SSRF against a function holding the service role.
+
+**Not verified: the function has never been invoked.** The proxy here refuses
+the Supabase host, so Run Now has not been pressed against a live feed. The
+parsers are proven; the round trip is not.
+
+## Steps 4 to 10
 
 Not started.
 

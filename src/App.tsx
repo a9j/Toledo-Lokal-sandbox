@@ -98,6 +98,7 @@ const ConnectorDashboard = lazy(() => import("./pages/ConnectorDashboard"));
 const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
 const AdminBusinesses = lazy(() => import("./pages/AdminBusinesses"));
 const AdminApprovals = lazy(() => import("./pages/AdminApprovals"));
+const AdminSources = lazy(() => import("./pages/AdminSources"));
 const BusinessAdmin = lazy(() => import("./pages/BusinessAdmin"));
 const RoleSelect = lazy(() => import("./pages/RoleSelect"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
@@ -246,6 +247,7 @@ const App = () => (
                   <Route path="/business-onboarding" element={<BusinessOnboarding />} />
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/admin/approvals" element={<AdminApprovals />} />
+                  <Route path="/admin/sources" element={<AdminSources />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
