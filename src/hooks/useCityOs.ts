@@ -1,26 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { EntitySourceTable } from '@/integrations/supabase/city-os';
 
-/** A source table plus its primary key. The graph resolves that to an entity,
- *  so callers never have to know an entity id. */
-export interface EntityRef {
-  table: string;
-  id: string;
-}
-
-export interface InboxItem {
-  id: string;
-  log_id: string;
-  read_at: string | null;
-  created_at: string;
-  title: string;
-  body: string | null;
-  event_type: string;
-  entity_name: string | null;
-  source_table: string | null;
-  source_id: string | null;
-}
+// Phase 0 additions only.
+//
+// Following, the Civic Inbox and the unread count already exist in
+// useEntityFollow.ts and useCivicInbox.ts, and this file deliberately does not
+// duplicate them. What lives here is what Phase 0 added: how often a person
+// hears from us, and the one search box across every kind.
 
 export interface NotificationPreference {
   category: string;
@@ -40,156 +28,9 @@ export interface SearchResult {
   blurb: string | null;
   distance_miles: number | null;
   rank: number;
+  /** 'text' for a direct match, 'related' for something one graph edge away,
+   *  such as the business that offers a matching deal. */
   match_kind: string;
-}
-
-async function resolveEntityId(ref: EntityRef): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('city_entities')
-    .select('id')
-    .eq('source_table', ref.table)
-    .eq('source_id', ref.id)
-    .maybeSingle();
-  if (error) throw error;
-  return data?.id ?? null;
-}
-
-export function useEntityId(ref: EntityRef | null) {
-  return useQuery({
-    queryKey: ['entity-id', ref?.table, ref?.id],
-    enabled: !!ref,
-    staleTime: 60 * 60 * 1000,
-    queryFn: () => resolveEntityId(ref as EntityRef),
-  });
-}
-
-export function useIsFollowing(entityId: string | null | undefined) {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ['is-following', entityId, user?.id],
-    enabled: !!entityId && !!user,
-    queryFn: async (): Promise<boolean> => {
-      const { data, error } = await supabase
-        .from('entity_follows')
-        .select('entity_id')
-        .eq('entity_id', entityId as string)
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return !!data;
-    },
-  });
-}
-
-export function useToggleFollow() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ entityId, following }: { entityId: string; following: boolean }) => {
-      if (!user) throw new Error('Sign in to follow.');
-      if (following) {
-        const { error } = await supabase
-          .from('entity_follows')
-          .delete()
-          .eq('entity_id', entityId)
-          .eq('user_id', user.id);
-        if (error) throw error;
-        return false;
-      }
-      const { error } = await supabase
-        .from('entity_follows')
-        .insert({ entity_id: entityId, user_id: user.id });
-      if (error) throw error;
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['is-following'] });
-      queryClient.invalidateQueries({ queryKey: ['inbox'] });
-      queryClient.invalidateQueries({ queryKey: ['inbox-unread'] });
-    },
-  });
-}
-
-/** The Civic Inbox, newest first. The join gives each item its headline. */
-export function useInbox(limit = 100) {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ['inbox', user?.id, limit],
-    enabled: !!user,
-    queryFn: async (): Promise<InboxItem[]> => {
-      const { data, error } = await supabase
-        .from('inbox_items')
-        .select(`
-          id, log_id, read_at, created_at,
-          city_events_log!inner (
-            title, body, event_type,
-            city_entities ( name, source_table, source_id )
-          )
-        `)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-      if (error) throw error;
-
-      return (data ?? []).map((row) => {
-        const log = (row as unknown as {
-          city_events_log: {
-            title: string; body: string | null; event_type: string;
-            city_entities: { name: string; source_table: string; source_id: string } | null;
-          };
-        }).city_events_log;
-        const r = row as unknown as { id: string; log_id: string; read_at: string | null; created_at: string };
-        return {
-          id: r.id,
-          log_id: r.log_id,
-          read_at: r.read_at,
-          created_at: r.created_at,
-          title: log?.title ?? 'Something changed',
-          body: log?.body ?? null,
-          event_type: log?.event_type ?? 'status_change',
-          entity_name: log?.city_entities?.name ?? null,
-          source_table: log?.city_entities?.source_table ?? null,
-          source_id: log?.city_entities?.source_id ?? null,
-        };
-      });
-    },
-  });
-}
-
-export function useUnreadCount() {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ['inbox-unread', user?.id],
-    enabled: !!user,
-    // The badge should feel live without hammering the database.
-    refetchInterval: 60_000,
-    queryFn: async (): Promise<number> => {
-      const { count, error } = await supabase
-        .from('inbox_items')
-        .select('id', { count: 'exact', head: true })
-        .is('read_at', null);
-      if (error) throw error;
-      return count ?? 0;
-    },
-  });
-}
-
-export function useMarkInboxRead() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (ids: string[]) => {
-      if (ids.length === 0) return;
-      const { error } = await supabase
-        .from('inbox_items')
-        .update({ read_at: new Date().toISOString() })
-        .in('id', ids)
-        .is('read_at', null);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inbox'] });
-      queryClient.invalidateQueries({ queryKey: ['inbox-unread'] });
-    },
-  });
 }
 
 export function useNotificationPreferences() {
@@ -221,8 +62,8 @@ export function useSetNotificationPreference() {
   });
 }
 
-/** One search across every kind. Empty query returns nothing rather than
- *  everything, which is what a blank box should do. */
+/** One search across every kind. A short query returns nothing rather than
+ *  everything, which is what a nearly empty box should do. */
 export function useCitySearch(query: string, limit = 40) {
   const trimmed = query.trim();
   return useQuery({
@@ -242,19 +83,39 @@ export function useCitySearch(query: string, limit = 40) {
   });
 }
 
-/** Where a result should take you. Kinds with no page of their own fall back
- *  to the closest list rather than a dead link. */
+/** Where a result should take you. Every kind now has a real page, because
+ *  the phases that built them are merged. */
 export function resultPath(result: SearchResult): string {
   switch (result.source_table) {
-    case 'businesses':      return `/business/${result.source_id}`;
-    case 'events':          return `/events/${result.source_id}`;
-    case 'nonprofits':      return `/community`;
-    case 'jobs':            return `/jobs`;
-    case 'deals':           return `/deals`;
-    case 'neighborhoods':   return `/explore`;
+    case 'businesses':         return `/business/${result.source_id}`;
+    case 'events':             return `/events/${result.source_id}`;
+    case 'nonprofits':         return `/community`;
+    case 'jobs':               return `/jobs`;
+    case 'deals':              return `/deals`;
+    case 'neighborhoods':      return `/neighborhood/${result.source_id}`;
+    case 'developments':       return `/built/${result.source_id}`;
+    case 'spaces':             return `/spaces`;
+    case 'issues':             return `/fix`;
+    case 'opportunities':      return `/opportunities`;
+    case 'parcels':            return `/my-city`;
     case 'business_locations': return `/discover`;
-    default:                return `/explore`;
+    default:                   return `/explore`;
   }
+}
+
+/** The tables the CityGraph knows how to follow. Deals and business
+ *  locations are in the graph but have no follow path of their own yet, so a
+ *  result from one gets no follow button rather than a button that fails. */
+const FOLLOWABLE: readonly EntitySourceTable[] = [
+  'businesses', 'events', 'neighborhoods', 'nonprofits', 'jobs',
+  'parcels', 'issues', 'opportunities', 'developments', 'spaces',
+];
+
+export function followableSource(
+  result: SearchResult,
+): { table: EntitySourceTable; id: string } | null {
+  const table = FOLLOWABLE.find((t) => t === result.source_table);
+  return table ? { table, id: result.source_id } : null;
 }
 
 export function kindLabel(kind: string): string {

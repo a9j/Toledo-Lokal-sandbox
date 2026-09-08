@@ -115,7 +115,7 @@ export default function NotificationSettings() {
 
       <p className="mt-6 text-xs leading-snug text-muted-foreground">
         You can also turn off what we keep about you on the{' '}
-        <Link to="/privacy" className="font-medium text-primary">Privacy</Link> screen.
+        <Link to="/settings/privacy" className="font-medium text-primary">Privacy</Link> screen.
       </p>
     </div>
   );

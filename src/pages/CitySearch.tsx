@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCity } from '@/contexts/CityContext';
 import { usePrivacy } from '@/hooks/usePrivacy';
-import { useCitySearch, resultPath, kindLabel, type SearchResult } from '@/hooks/useCityOs';
+import {
+  useCitySearch, resultPath, kindLabel, followableSource, type SearchResult,
+} from '@/hooks/useCityOs';
 import { FollowButton } from '@/components/city-os/FollowButton';
 
 /** The order groups appear in. Anything not listed follows, alphabetically. */
@@ -98,7 +100,7 @@ export default function CitySearch() {
           {!allows('share_location') && (
             <p className="mt-4 text-xs leading-snug text-muted-foreground">
               Turn on "Use where I am" in{' '}
-              <Link to="/privacy" className="font-medium text-primary">Privacy</Link>{' '}
+              <Link to="/settings/privacy" className="font-medium text-primary">Privacy</Link>{' '}
               and results closer to you will come first.
             </p>
           )}
@@ -152,11 +154,13 @@ export default function CitySearch() {
                         )}
                       </div>
                     </div>
-                    <FollowButton
-                      source={{ table: row.source_table, id: row.source_id }}
-                      size="sm"
-                      className="shrink-0"
-                    />
+                    {followableSource(row) && (
+                      <FollowButton
+                        source={followableSource(row)!}
+                        size="sm"
+                        className="shrink-0"
+                      />
+                    )}
                   </div>
                 ))}
               </div>

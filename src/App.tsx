@@ -296,7 +296,7 @@ const App = () => (
                   <Route path="/admin/approvals" element={<AdminApprovals />} />
                   <Route path="/admin/sources" element={<AdminSources />} />
                   <Route path="/settings/notifications" element={<NotificationSettings />} />
-                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/settings/privacy" element={<Privacy />} />
                   <Route path="/search" element={<CitySearch />} />
                   <Route path="/admin/city-os" element={<AdminCityOs />} />
                   <Route path="/role-select" element={<RoleSelect />} />
