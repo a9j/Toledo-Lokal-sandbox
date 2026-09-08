@@ -50,6 +50,165 @@
 
   <body>
     <div id="root"></div>
+
+    <!--
+      Boot guard.
+
+      This runs outside the app bundle on purpose. src/main.tsx already clears
+      old caches and service workers, but that code ships inside the bundle, so
+      it cannot run in the one case that needs it most: when the bundle itself
+      fails to load or throws while starting. Then nothing on the page ever
+      renders and the visitor sees an empty dark screen with no explanation.
+
+      A saved copy in the browser makes that worse. A service worker can keep
+      handing out the broken files long after the site is fixed, so the visitor
+      stays stuck even though the server is healthy.
+
+      So: if the app has put nothing on the page a few seconds after load, and a
+      script failed, clear the saved copies and reload. At most one attempt per
+      minute per tab, so this can never turn into a reload loop. If the retry
+      does not help, write a short message instead of leaving a blank screen.
+    -->
+    <script>
+      (function () {
+        var ATTEMPT_KEY = "lokal_boot_recovery";
+        var RETRY_GAP_MS = 60000;
+        var WAIT_MS = 5000;
+        var scriptFailed = false;
+        var recovering = false;
+
+        function recentlyTried() {
+          try {
+            var at = parseInt(sessionStorage.getItem(ATTEMPT_KEY) || "0", 10);
+            return Date.now() - at < RETRY_GAP_MS;
+          } catch (e) {
+            // Private browsing can make sessionStorage throw. Without a way to
+            // remember the attempt we must not retry, or we could loop.
+            return true;
+          }
+        }
+
+        function markTried() {
+          try {
+            sessionStorage.setItem(ATTEMPT_KEY, String(Date.now()));
+          } catch (e) {}
+        }
+
+        function mounted() {
+          var root = document.getElementById("root");
+          return !!root && root.childElementCount > 0;
+        }
+
+        function showMessage() {
+          var root = document.getElementById("root");
+          if (!root || root.childElementCount > 0) return;
+          root.innerHTML =
+            '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+            'padding:24px;background:#0A0F1E;color:#E6EAF2;' +
+            'font-family:system-ui,-apple-system,\'Segoe UI\',Roboto,sans-serif">' +
+            '<div style="max-width:24rem;text-align:center">' +
+            '<h1 style="font-size:1.125rem;font-weight:600;margin:0 0 .5rem">This page did not load</h1>' +
+            '<p style="margin:0 0 1.25rem;line-height:1.5;color:#A8B0C0">' +
+            'We cleared the saved copy in your browser and tried again. Check your ' +
+            'internet connection, then reload.</p>' +
+            '<button type="button" id="lokal-boot-reload" ' +
+            'style="border:0;border-radius:.5rem;padding:.65rem 1.4rem;background:#2F6BE0;' +
+            'color:#fff;font-size:1rem;cursor:pointer">Reload</button>' +
+            "</div></div>";
+          var button = document.getElementById("lokal-boot-reload");
+          if (button) {
+            button.addEventListener("click", function () {
+              location.reload();
+            });
+          }
+        }
+
+        function recover() {
+          if (recovering) return;
+          recovering = true;
+          markTried();
+
+          var jobs = [];
+          if (window.caches && caches.keys) {
+            jobs.push(
+              caches.keys().then(function (keys) {
+                return Promise.all(
+                  keys.map(function (key) {
+                    return caches.delete(key);
+                  })
+                );
+              })
+            );
+          }
+          if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+            jobs.push(
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(
+                  regs.map(function (reg) {
+                    return reg.unregister();
+                  })
+                );
+              })
+            );
+          }
+
+          Promise.all(jobs)
+            ["catch"](function () {})
+            .then(function () {
+              location.reload();
+            });
+        }
+
+        // Only a script counts. A missing image or web font is not a reason to
+        // throw away someone's offline cache.
+        window.addEventListener(
+          "error",
+          function (event) {
+            var target = event.target;
+            if (target && target !== window && target.tagName === "SCRIPT") {
+              scriptFailed = true;
+            } else if (event.message) {
+              scriptFailed = true;
+            }
+          },
+          true
+        );
+
+        // A lazy route whose chunk has gone missing, which is what happens to an
+        // open tab when a new version is deployed. Reloading picks up the new
+        // file names, so recover even though the app is already on screen.
+        window.addEventListener("unhandledrejection", function (event) {
+          var reason = event.reason;
+          var text = reason && (reason.message || reason) + "";
+          if (!text || text.indexOf("dynamically imported module") === -1) return;
+          scriptFailed = true;
+          if (!recentlyTried()) recover();
+        });
+
+        function check() {
+          if (mounted()) return;
+          // Nothing on screen but no script failed: a slow connection that is
+          // still fetching. Leave it alone.
+          if (!scriptFailed) return;
+          if (recentlyTried()) showMessage();
+          else recover();
+        }
+
+        // Timed from DOMContentLoaded, not load. The module script below is
+        // deferred, so it runs right after this point. Waiting for load would
+        // hand the timing to whichever web font or image is slowest, which can
+        // leave someone staring at an empty screen for far longer.
+        function startTimer() {
+          setTimeout(check, WAIT_MS);
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", startTimer);
+        } else {
+          startTimer();
+        }
+      })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
