@@ -34,6 +34,8 @@ import { AccessGate } from "@/components/access/AccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analytics } from "@vercel/analytics/react";
+import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import { SetupNeeded } from "@/components/SetupNeeded";
 
 // Critical path: eagerly loaded (landing page)
 import Today from "./pages/Today";
@@ -166,7 +168,13 @@ function PageFallback() {
   );
 }
 
-const App = () => (
+const App = () => {
+  // Every provider below reaches for Supabase on mount. With no settings that
+  // is a wall of failed requests behind a blank screen, so say what is wrong
+  // instead and render nothing else.
+  if (!isSupabaseConfigured) return <SetupNeeded />;
+
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
@@ -322,6 +330,7 @@ const App = () => (
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

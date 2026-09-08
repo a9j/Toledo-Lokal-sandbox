@@ -12,16 +12,37 @@ export default defineConfig(({ mode }) => {
   // Accept either VITE_* (what this codebase originally wanted) or NEXT_PUBLIC_*
   // (what the Supabase ↔ Vercel integration sets by default). That way the
   // build picks up whichever names are already in Vercel without a rename.
+  // Last-resort fallback for the sandbox project. This repo is the sandbox
+  // (a9j/Toledo-Lokal-sandbox) and both of these values are public by design:
+  // the project URL and the publishable key ship inside the browser bundle of
+  // any correctly configured build, and the key only grants what row level
+  // security already allows an anonymous visitor. The service role key must
+  // never appear here. Environment variables always win over these constants,
+  // so setting VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in the host
+  // (Vercel, Netlify, a local .env) still overrides them. Without this fallback
+  // a host with no environment variables builds a bundle that cannot start,
+  // which is a blank page.
+  const SANDBOX_SUPABASE_URL = "https://waezoxzkvhuqjzomafee.supabase.co";
+  const SANDBOX_SUPABASE_KEY = "sb_publishable_ta7L5WppK1StIwHOhliCcg_VUNIxB3E";
+
   const supabaseUrl =
     env.VITE_SUPABASE_URL ||
     env.NEXT_PUBLIC_SUPABASE_URL ||
-    "";
+    SANDBOX_SUPABASE_URL;
   const supabaseKey =
     env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     env.SUPABASE_ANON_KEY ||
-    "";
+    SANDBOX_SUPABASE_KEY;
+
+  if (!env.VITE_SUPABASE_URL && !env.NEXT_PUBLIC_SUPABASE_URL) {
+    console.warn(
+      "[vite] No Supabase environment variables found. Falling back to the " +
+        "sandbox project. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY " +
+        "to point this build at a different project.",
+    );
+  }
 
   return {
   define: {
