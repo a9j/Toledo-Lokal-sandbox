@@ -1,80 +1,80 @@
-import { useNavigate } from 'react-router-dom';
 import { Bell, BellRing, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEntityId, useIsFollowing, useToggleFollow, type EntityRef } from '@/hooks/useCityOs';
+import { useEntityFollow, useEntityId, type EntityRef } from '@/hooks/useEntityFollow';
 
 interface FollowButtonProps {
-  /** The source row. The graph turns this into an entity, so callers never
-   *  need to know an entity id. */
-  source: EntityRef;
+  /** The CityGraph entity id, when the caller already has one. */
+  entityId?: string | null;
+  /** Or the source row, and the entity id gets looked up. */
+  source?: EntityRef;
+  /** Button label when not following. */
   label?: string;
+  variant?: 'default' | 'secondary' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
   className?: string;
-  size?: 'sm' | 'default' | 'lg';
 }
 
 /**
- * Follow anything in the city: a business, an event, a neighborhood, a job,
- * a nonprofit, an address.
+ * One follow button for everything in the city.
  *
- * Renders nothing when the thing is not in the graph, rather than a button
- * that would fail on click.
+ * Following an entity is what routes its changes into your Civic Inbox, so the
+ * copy says that rather than promising notifications we do not send yet.
  */
-export function FollowButton({ source, label, className, size = 'default' }: FollowButtonProps) {
+export function FollowButton({
+  entityId,
+  source,
+  label = 'Follow',
+  variant,
+  size = 'default',
+  className,
+}: FollowButtonProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const { data: entityId, isLoading } = useEntityId(source);
-  const { data: following } = useIsFollowing(entityId);
-  const toggle = useToggleFollow();
+  const resolved = useEntityId(entityId ? undefined : source);
+  const id = entityId ?? resolved.data ?? null;
 
-  if (isLoading) {
-    return (
-      <Button variant="secondary" size={size} disabled className={className}>
-        <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-        Follow
-      </Button>
-    );
-  }
+  const { isFollowing, followerCount, toggleFollow } = useEntityFollow(id);
 
-  if (!entityId) return null;
+  // An entity that is not in the registry yet cannot be followed. Rather than
+  // show a button that always fails, show nothing.
+  if (!id && !resolved.isLoading && !entityId) return null;
 
-  const onClick = () => {
+  const handleClick = () => {
     if (!user) {
-      navigate('/auth');
+      toast.error('Sign in to follow this and get updates in your inbox.');
       return;
     }
-    toggle.mutate(
-      { entityId, following: !!following },
-      {
-        onSuccess: (nowFollowing) =>
-          toast.success(
-            nowFollowing
-              ? 'Following. Changes will show up in your inbox.'
-              : 'Unfollowed.',
-          ),
-        onError: (e: Error) => toast.error(e.message || 'That did not work. Try again.'),
-      },
-    );
+    toggleFollow.mutate(undefined, {
+      onSuccess: () =>
+        toast.success(
+          isFollowing ? 'Unfollowed.' : 'Following. Changes will show up in your inbox.',
+        ),
+      onError: () => toast.error('Could not update. Please try again.'),
+    });
   };
+
+  const busy = toggleFollow.isPending || resolved.isLoading;
 
   return (
     <Button
-      variant={following ? 'secondary' : 'default'}
+      type="button"
+      variant={variant ?? (isFollowing ? 'secondary' : 'default')}
       size={size}
+      onClick={handleClick}
+      disabled={busy || !id}
       className={className}
-      onClick={onClick}
-      disabled={toggle.isPending}
-      aria-pressed={!!following}
+      aria-pressed={isFollowing}
     >
-      {toggle.isPending ? (
+      {busy ? (
         <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-      ) : following ? (
+      ) : isFollowing ? (
         <BellRing className="mr-1.5 h-4 w-4" />
       ) : (
         <Bell className="mr-1.5 h-4 w-4" />
       )}
-      {following ? 'Following' : (label ?? 'Follow')}
+      {isFollowing ? 'Following' : label}
+      {followerCount > 0 && <span className="ml-1.5 text-xs opacity-80">· {followerCount}</span>}
     </Button>
   );
 }

@@ -3,28 +3,32 @@ import { Home, Radio, Compass, Map, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCity } from '@/contexts/CityContext';
-import { useUnreadCount } from '@/hooks/useCityOs';
 import { SOFT_LAUNCH } from '@/lib/flags';
+import { useInboxUnreadCount } from '@/hooks/useCivicInbox';
 
 // Phase 0 Step 9: five tabs, each pointing at a screen that already exists.
-// No new content was built for them; the old tabs (Featured, Loop, Community,
-// Circles) keep their routes and are reachable from the screens that link to
-// them, they are just no longer top level.
+// No new content was built for them. The tabs this replaces (Featured, Loop,
+// Community, Circles, Inbox) keep their routes and stay reachable from the
+// screens that link to them; they are just no longer top level. The Civic
+// Inbox lives under My City, which is where its unread badge now sits.
 const navItems = [
   { path: '/', icon: Home, label: 'Home' },
   // Pulse is hidden during soft launch, and the tab goes with it rather than
   // leaving a tab that bounces you home.
   { path: '/pulse', icon: Radio, label: 'Pulse', show: !SOFT_LAUNCH },
   { path: '/explore', icon: Compass, label: 'Explore', match: ['/discover'] },
-  { path: '/near-me', icon: Map, label: 'Map' },
-  { path: '/my-toledo', icon: User, label: 'MY_CITY_LABEL', match: ['/inbox', '/profile'] },
+  { path: '/near-me', icon: Map, label: 'Map', match: ['/around'] },
+  {
+    path: '/my-toledo', icon: User, label: 'MY_CITY_LABEL',
+    match: ['/inbox', '/profile', '/my-city'], badge: 'inbox' as const,
+  },
 ].filter((item) => item.show !== false);
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const { city } = useCity();
-  const { data: unread } = useUnreadCount();
+  const { data: unreadCount = 0 } = useInboxUnreadCount();
 
   // Hide on auth page, scanner mode, accept invitation, and the unlisted
   // /join marketing pages (which should read as a standalone landing page).
@@ -40,11 +44,9 @@ export function BottomNav() {
         <div className="relative flex items-center justify-around h-16 max-w-lg lg:max-w-3xl mx-auto px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            // The last tab is named after the city, so a second city does not
-            // ship a tab that says Toledo.
+            // Named from the city, so a second city does not ship a tab that
+            // says Toledo.
             const label = item.label === 'MY_CITY_LABEL' ? `My ${city.name}` : item.label;
-            // Unread civic inbox items live under the last tab.
-            const badge = item.path === '/my-toledo' ? (unread ?? 0) : 0;
 
             const matchPaths = [item.path, ...(item.match ?? [])];
             const isActive = matchPaths.some((path) =>
@@ -78,13 +80,12 @@ export function BottomNav() {
                     "h-5 w-5 transition-all duration-200",
                     isActive && "stroke-[2.25px] text-primary"
                   )} />
-                  {badge > 0 && (
+                  {item.badge === 'inbox' && unreadCount > 0 && (
                     <span
-                      aria-label={`${badge} unread`}
-                      className="absolute -top-0.5 right-1 flex h-4 min-w-4 items-center justify-center
-                                 rounded-full bg-primary px-1 text-[9px] font-semibold text-primary-foreground"
+                      aria-label={`${unreadCount} unread`}
+                      className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-primary-foreground"
                     >
-                      {badge > 9 ? '9+' : badge}
+                      {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
                 </div>

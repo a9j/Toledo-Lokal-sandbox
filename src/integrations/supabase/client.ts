@@ -8,7 +8,9 @@ import type { Database } from './types';
 declare const __SUPABASE_URL__: string;
 declare const __SUPABASE_KEY__: string;
 
-const SUPABASE_URL = __SUPABASE_URL__;
+// Exported so pages that show the project URL to people (the API docs) use
+// the same value the client connects to, never a hardcoded one.
+export const SUPABASE_URL = __SUPABASE_URL__;
 const SUPABASE_PUBLISHABLE_KEY = __SUPABASE_KEY__;
 
 // Import the supabase client like this:

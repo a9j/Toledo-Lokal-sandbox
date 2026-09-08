@@ -21,6 +21,8 @@ import { CommunitySupportDisplay } from '@/components/community/CommunitySupport
 import { useNonprofit, CAUSE_CATEGORY_LABELS } from '@/hooks/useNonprofits';
 import { useProjectSponsors } from '@/hooks/useCommunitySponsors';
 import { useAuth } from '@/contexts/AuthContext';
+import { FollowButton } from '@/components/city-os/FollowButton';
+import { RecentChanges } from '@/components/city-os/RecentChanges';
 
 export default function NonprofitDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -264,6 +266,15 @@ export default function NonprofitDetail() {
               <span className="flex-1 text-sm text-foreground">{nonprofit.address}</span>
             </div>
           )}
+        </section>
+
+        <section className="mt-6 space-y-4">
+          <FollowButton
+            source={{ table: 'nonprofits', id: nonprofit.id }}
+            variant="outline"
+            className="w-full"
+          />
+          <RecentChanges source={{ table: 'nonprofits', id: nonprofit.id }} />
         </section>
       </PageContainer>
     </>

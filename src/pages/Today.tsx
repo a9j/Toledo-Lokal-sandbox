@@ -16,11 +16,13 @@ import { useNavigate } from 'react-router-dom';
 // Lazy-load onboarding — only shown to first-time visitors
 const FirstVisitOnboarding = lazy(() => import('@/components/onboarding/FirstVisitOnboarding').then(m => ({ default: m.FirstVisitOnboarding })));
 import { Link } from 'react-router-dom';
-import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn } from 'lucide-react';
+import { MapPin, QrCode, Compass, Sparkles, ChevronRight, UserCircle, LogIn, Wrench, HandHeart, HardHat, Radar } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import logoImage from '@/assets/tl-logo.png';
 import { LP_ENABLED } from '@/lib/flags';
+import { MyCityHomeSection } from '@/components/my-city/MyCityHomeSection';
+import { ChangeStrip } from '@/components/city-os/ChangeStrip';
 
 export default function Today() {
   const { user, isLoading: authLoading } = useAuth();
@@ -146,6 +148,13 @@ export default function Today() {
 
         {/* Content */}
         <div className="space-y-4 pb-4 lg:max-w-2xl lg:mx-auto">
+          {/* My City leads for residents who have set an address. Renders
+              nothing for signed out visitors, so the landing page is unchanged. */}
+          <MyCityHomeSection />
+
+          {/* What the city did lately, counted off the CityGraph change log. */}
+          <ChangeStrip />
+
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-36 rounded-3xl animate-pulse" />
@@ -183,6 +192,81 @@ export default function Today() {
           ) : (
             <EmptyDailyDrop date={today} />
           )}
+
+          {/* Ask Toledo. Answers come from the CityGraph, not the open web. */}
+          <Link
+            to="/ask"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">Ask Toledo</p>
+              <p className="text-[12px] text-muted-foreground">Anything about the city, answered from local listings</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          {/* Fix Toledo and Opportunities. Phase 4 surfaces. */}
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              to="/fix"
+              className="group flex flex-col gap-2 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+                <Wrench className="h-4 w-4 text-primary" strokeWidth={1.8} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Fix Toledo</p>
+                <p className="text-[12px] text-muted-foreground">Report something broken</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/opportunities"
+              className="group flex flex-col gap-2 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+                <HandHeart className="h-4 w-4 text-primary" strokeWidth={1.8} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Opportunities</p>
+                <p className="text-[12px] text-muted-foreground">Help you may qualify for</p>
+              </div>
+            </Link>
+          </div>
+
+          {/* What is being built. The radar plus the same list sorted by
+              distance from home. */}
+          <Link
+            to="/built"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <HardHat className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">What is being built</p>
+              <p className="text-[12px] text-muted-foreground">Every project on the map, and what changed</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
+
+          {/* Autopilot. Watches the city against what you asked for. */}
+          <Link
+            to="/autopilot"
+            className="group flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-all"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+              <Radar className="h-5 w-5 text-primary" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">Autopilot</p>
+              <p className="text-[12px] text-muted-foreground">Tell it what matters and it watches for you</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
 
           {/* Discover Toledo quick card */}
           <Link

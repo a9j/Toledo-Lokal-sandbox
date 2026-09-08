@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Briefcase, Zap, Filter, X } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { JobsNearMe } from '@/components/city-os/JobsNearMe';
 import { isLoopParticipant } from '@/lib/loop-tiers';
 import {
   Select,
@@ -43,6 +44,10 @@ export default function Jobs() {
   const [hiringNowOnly, setHiringNowOnly] = useState(false);
   const [payMin, setPayMin] = useState<number | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
+  // Phase 6 adds a second view rather than replacing the shipped one. Near me
+  // sorts by distance from home and carries the ten filters that decide whether
+  // someone can actually take a job: a car, a record, a shift that fits school.
+  const [view, setView] = useState<'all' | 'near'>('all');
 
   const { data: jobs, isLoading } = useJobs({
     jobType: selectedType,
@@ -87,6 +92,28 @@ export default function Jobs() {
           </p>
         </div>
 
+        <div className="flex gap-2">
+          {(['all', 'near'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={
+                'flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ' +
+                (view === v
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border/60 bg-card hover:bg-muted/40')
+              }
+            >
+              {v === 'all' ? 'All jobs' : 'Near me'}
+            </button>
+          ))}
+        </div>
+
+        {view === 'near' && <JobsNearMe />}
+
+        {view === 'all' && (
+        <>
         {/* Search & Filter Row */}
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -245,6 +272,8 @@ export default function Jobs() {
             </div>
           )}
         </div>
+        </>
+        )}
       </PageContainer>
     </>
   );

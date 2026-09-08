@@ -1,8 +1,4 @@
-import { Bell, BellRing, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { useBusinessFollows } from '@/hooks/useBusinessFollows';
+import { FollowButton } from '@/components/city-os/FollowButton';
 
 interface FollowTruckButtonProps {
   businessId: string;
@@ -11,41 +7,18 @@ interface FollowTruckButtonProps {
   className?: string;
 }
 
+/**
+ * @deprecated Use `<FollowButton />` directly. Kept so any caller still holding
+ * a business id keeps working; it now writes to `entity_follows` like every
+ * other follow in the app, and the database bridges that back to
+ * `business_follows` for the dashboard and admin counts.
+ */
 export function FollowTruckButton({ businessId, label = 'Follow', className }: FollowTruckButtonProps) {
-  const { user } = useAuth();
-  const { isFollowing, followerCount, toggleFollow } = useBusinessFollows(businessId);
-
-  const handleClick = () => {
-    if (!user) {
-      toast.error('Sign in to follow and get notified about new stops.');
-      return;
-    }
-    toggleFollow.mutate(undefined, {
-      onSuccess: () =>
-        toast.success(isFollowing ? 'Unfollowed.' : "You're following — we'll keep you posted."),
-      onError: () => toast.error('Could not update. Please try again.'),
-    });
-  };
-
   return (
-    <Button
-      type="button"
-      variant={isFollowing ? 'secondary' : 'default'}
-      onClick={handleClick}
-      disabled={toggleFollow.isPending}
+    <FollowButton
+      source={{ table: 'businesses', id: businessId }}
+      label={label}
       className={className}
-    >
-      {toggleFollow.isPending ? (
-        <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-      ) : isFollowing ? (
-        <BellRing className="mr-1.5 h-4 w-4" />
-      ) : (
-        <Bell className="mr-1.5 h-4 w-4" />
-      )}
-      {isFollowing ? 'Following' : label}
-      {followerCount > 0 && (
-        <span className="ml-1.5 text-xs opacity-80">· {followerCount}</span>
-      )}
-    </Button>
+    />
   );
 }

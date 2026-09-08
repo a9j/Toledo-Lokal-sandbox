@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/sharing/ShareButton';
 import { SEOHead, createEventJsonLd } from '@/components/seo/SEOHead';
+import { FollowButton } from '@/components/city-os/FollowButton';
+import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { format } from 'date-fns';
 import { 
   Calendar, 
@@ -328,6 +330,16 @@ export default function EventDetail() {
             </a>
           </Button>
         )}
+
+        {/* Follow the event itself: time changes and cancellations land in the
+            Civic Inbox, which an RSVP does not do. */}
+        <FollowButton
+          source={{ table: 'events', id: event.id }}
+          variant="outline"
+          className="w-full"
+        />
+
+        <RecentChanges source={{ table: 'events', id: event.id }} />
       </PageContainer>
     </>
   );

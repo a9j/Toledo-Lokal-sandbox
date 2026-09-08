@@ -1,176 +1,171 @@
-import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Inbox as InboxIcon, CheckCheck, Settings, LogIn } from 'lucide-react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Inbox as InboxIcon, ChevronRight, LogIn } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Header } from '@/components/layout/Header';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCity } from '@/contexts/CityContext';
-import { useInbox, useMarkInboxRead, type InboxItem } from '@/hooks/useCityOs';
+import { useCivicInbox } from '@/hooks/useCivicInbox';
+import { eventTypeLabel, entityPath, type InboxEntry } from '@/integrations/supabase/city-os';
 
-function dayLabel(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return 'Earlier';
-  const today = new Date();
-  const isSameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  if (isSameDay(d, today)) return 'Today';
-  if (isSameDay(d, yesterday)) return 'Yesterday';
-  return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-}
-
+/**
+ * Civic Inbox.
+ *
+ * Everything you follow, in one list, grouped by day. Rows arrive from the fan
+ * out trigger on the CityGraph change log, so this page only reads.
+ */
 export default function Inbox() {
-  const { user, isLoading: authLoading } = useAuth();
-  const { city } = useCity();
-  const navigate = useNavigate();
-  const { data: items, isLoading } = useInbox();
-  const markRead = useMarkInboxRead();
+  const { user } = useAuth();
+  const { days, unreadIds, isLoading, error, markRead } = useCivicInbox();
 
-  const grouped = useMemo(() => {
-    const byDay = new Map<string, InboxItem[]>();
-    for (const item of items ?? []) {
-      const key = dayLabel(item.created_at);
-      const list = byDay.get(key) ?? [];
-      list.push(item);
-      byDay.set(key, list);
-    }
-    return Array.from(byDay.entries());
-  }, [items]);
-
-  const unreadIds = (items ?? []).filter((i) => !i.read_at).map((i) => i.id);
-
-  if (authLoading) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <Skeleton className="h-32 w-full rounded-xl" />
-      </div>
-    );
-  }
+  // Opening the inbox is what marks it read. Fires once per set of unread ids.
+  const unreadKey = unreadIds.join(',');
+  useEffect(() => {
+    if (unreadIds.length > 0) markRead.mutate(unreadIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unreadKey]);
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-          <InboxIcon className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <h1 className="font-heading text-lg font-semibold">Sign in to see your inbox</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Follow places around {city.name} and changes show up here.
-        </p>
-        <Button asChild className="mt-5">
-          <Link to="/auth"><LogIn className="mr-1.5 h-4 w-4" />Sign in</Link>
-        </Button>
-      </div>
+      <>
+        <Header title="Inbox" showBack />
+        <PageContainer>
+          <EmptyState
+            title="Sign in to see your inbox"
+            body="Follow a business, an event or your neighborhood and every change shows up here."
+            action={
+              <Button asChild>
+                <Link to="/auth">
+                  <LogIn className="mr-1.5 h-4 w-4" />
+                  Sign in
+                </Link>
+              </Button>
+            }
+          />
+        </PageContainer>
+      </>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-24 pt-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </button>
-
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight">Your inbox</h1>
+    <>
+      <Header title="Inbox" showBack />
+      <PageContainer>
+        <div className="mb-5">
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">Inbox</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            What changed at the places you follow.
+            Changes to everything you follow.
           </p>
         </div>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/settings/notifications" aria-label="Notification settings">
-            <Settings className="h-4 w-4" />
-          </Link>
-        </Button>
+
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-20 w-full rounded-xl" />
+            <Skeleton className="h-20 w-full rounded-xl" />
+          </div>
+        ) : error ? (
+          /* A failed request is not an empty inbox. Saying "nothing yet" here
+             would tell someone their follows had vanished. */
+          <EmptyState
+            title="Could not load your inbox"
+            body="Check your connection and try again."
+          />
+        ) : days.length === 0 ? (
+          <EmptyState
+            title="Nothing yet"
+            body="Follow a business, an event or your neighborhood and its changes land here."
+            action={
+              <Button asChild variant="secondary">
+                <Link to="/discover">Find something to follow</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-7">
+            {days.map((day) => (
+              <section key={day.date}>
+                <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {day.label}
+                </h2>
+                <div className="space-y-2.5">
+                  {day.entries.map((entry) => (
+                    <InboxRow key={entry.id} entry={entry} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      </PageContainer>
+    </>
+  );
+}
+
+function InboxRow({ entry }: { entry: InboxEntry }) {
+  const { log } = entry;
+  const entity = log.entity;
+  const href = entity ? entityPath(entity) : null;
+  const unread = !entry.read_at;
+
+  const inner = (
+    <div className="flex items-start gap-3">
+      {/* Unread marker. Reserved space either way so rows do not shift. */}
+      <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" style={{ opacity: unread ? 1 : 0 }} />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary" className="text-[10px] font-medium">
+            {eventTypeLabel(log.event_type)}
+          </Badge>
+          {entity && (
+            <span className="truncate text-xs font-medium text-muted-foreground">
+              {entity.name}
+            </span>
+          )}
+        </div>
+        <p className="mt-1.5 text-sm font-semibold leading-snug">{log.title}</p>
+        {log.body && (
+          <p className="mt-1 text-sm leading-snug text-muted-foreground">{log.body}</p>
+        )}
       </div>
 
-      {unreadIds.length > 0 && (
-        <Button
-          variant="secondary"
-          size="sm"
-          className="mt-4"
-          disabled={markRead.isPending}
-          onClick={() => markRead.mutate(unreadIds)}
-        >
-          <CheckCheck className="mr-1.5 h-4 w-4" />
-          Mark all read
-        </Button>
-      )}
+      {href && <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />}
+    </div>
+  );
 
-      {isLoading ? (
-        <div className="mt-5 space-y-3">
-          <Skeleton className="h-20 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-        </div>
-      ) : grouped.length === 0 ? (
-        <div className="py-16 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-            <InboxIcon className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-sm font-medium">Nothing here yet</p>
-          <p className="mx-auto mt-1.5 max-w-xs text-sm text-muted-foreground">
-            Follow a business, an event or your own street, and anything that changes
-            will land here.
-          </p>
-          <Button asChild variant="secondary" className="mt-5">
-            <Link to="/explore">Find something to follow</Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="mt-5 space-y-6">
-          {grouped.map(([day, dayItems]) => (
-            <section key={day}>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {day}
-              </h2>
-              <div className="space-y-2">
-                {dayItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className={
-                      'rounded-xl border p-4 ' +
-                      (item.read_at ? 'border-border/60 bg-card' : 'border-primary/40 bg-primary/5')
-                    }
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold">{item.title}</p>
-                        {item.body && (
-                          <p className="mt-0.5 text-sm leading-snug text-muted-foreground">
-                            {item.body}
-                          </p>
-                        )}
-                        {item.entity_name && (
-                          <p className="mt-1 text-xs text-muted-foreground">{item.entity_name}</p>
-                        )}
-                      </div>
-                      {!item.read_at && (
-                        <Badge variant="secondary" className="shrink-0 text-[10px]">New</Badge>
-                      )}
-                    </div>
-                    {!item.read_at && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-1.5 h-7 px-2 text-xs"
-                        onClick={() => markRead.mutate([item.id])}
-                      >
-                        Mark read
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-      )}
+  const className =
+    'block rounded-xl border border-border/60 bg-card p-3.5 transition-colors' +
+    (href ? ' hover:border-border hover:bg-muted/40' : '');
+
+  return href ? (
+    <Link to={href} className={className}>
+      {inner}
+    </Link>
+  ) : (
+    <div className={className}>{inner}</div>
+  );
+}
+
+function EmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+        <InboxIcon className="h-6 w-6 text-muted-foreground" />
+      </div>
+      <h2 className="font-heading text-lg font-semibold">{title}</h2>
+      <p className="mx-auto mt-1.5 max-w-xs text-sm text-muted-foreground">{body}</p>
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
