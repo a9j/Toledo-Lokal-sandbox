@@ -21,7 +21,8 @@ import {
 import { ProfileBusiness } from '@/components/business/profile/redesign/profile-types';
 import { ProfileHero } from '@/components/business/profile/redesign/ProfileHero';
 import { ScheduleStopsBlock } from '@/components/business/ScheduleStopsBlock';
-import { FollowTruckButton } from '@/components/business/FollowTruckButton';
+import { FollowButton } from '@/components/city-os/FollowButton';
+import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { ProfileTabs } from '@/components/business/profile/redesign/ProfileTabs';
 import { TodayTab } from '@/components/business/profile/redesign/TodayTab';
 import { PulseTab } from '@/components/business/profile/redesign/PulseTab';
@@ -270,10 +271,23 @@ export default function BusinessDetail() {
 
         {/* Food-truck schedule lives above the tabs: the profile is built around
             "Now at" / "Next stop", with a Follow-the-Truck action. */}
+        {!business.isFoodTruck && (
+          <div className="px-4 pt-4">
+            <FollowButton
+              source={{ table: 'businesses', id: business.id }}
+              className="w-full"
+            />
+          </div>
+        )}
+
         {business.isFoodTruck && (
           <div className="space-y-3 px-4 pt-4">
             <ScheduleStopsBlock businessId={business.id} />
-            <FollowTruckButton businessId={business.id} label="Follow the Truck" className="w-full" />
+            <FollowButton
+              source={{ table: 'businesses', id: business.id }}
+              label="Follow the Truck"
+              className="w-full"
+            />
           </div>
         )}
 
@@ -296,6 +310,15 @@ export default function BusinessDetail() {
             {tab === 'community' && <CommunityTab business={pb} />}
             {tab === 'photos' && <PhotosTab business={pb} />}
             {tab === 'about' && <AboutTab business={pb} actions={contactActions} />}
+
+            {/* CityGraph change log. Renders nothing when this business has no
+                logged changes, so quiet profiles stay quiet. */}
+            {tab === 'today' && (
+              <RecentChanges
+                source={{ table: 'businesses', id: business.id }}
+                className="mt-4"
+              />
+            )}
           </div>
         </div>
       </div>

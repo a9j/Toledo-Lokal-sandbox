@@ -47,6 +47,27 @@ const Events = lazy(() => import("./pages/Events"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Community = lazy(() => import("./pages/Community"));
 const NonprofitDetail = lazy(() => import("./pages/NonprofitDetail"));
+const Inbox = lazy(() => import("./pages/Inbox"));
+const NeighborhoodDetail = lazy(() => import("./pages/NeighborhoodDetail"));
+const MyCity = lazy(() => import("./pages/MyCity"));
+const CityReceipt = lazy(() => import("./pages/CityReceipt"));
+const VerifyAddress = lazy(() => import("./pages/VerifyAddress"));
+const AskToledo = lazy(() => import("./pages/AskToledo"));
+const FixToledo = lazy(() => import("./pages/FixToledo"));
+const IssueDetail = lazy(() => import("./pages/IssueDetail"));
+const NeedsYou = lazy(() => import("./pages/NeedsYou"));
+const Opportunities = lazy(() => import("./pages/Opportunities"));
+const Developments = lazy(() => import("./pages/Developments"));
+const DevelopmentDetail = lazy(() => import("./pages/DevelopmentDetail"));
+const AroundMe = lazy(() => import("./pages/AroundMe"));
+const Spaces = lazy(() => import("./pages/Spaces"));
+const Economy = lazy(() => import("./pages/Economy"));
+const StartABusiness = lazy(() => import("./pages/StartABusiness"));
+const Autopilot = lazy(() => import("./pages/Autopilot"));
+const Developers = lazy(() => import("./pages/Developers"));
+const Plugins = lazy(() => import("./pages/Plugins"));
+const MyYear = lazy(() => import("./pages/MyYear"));
+const AdminCityOs = lazy(() => import("./pages/AdminCityOs"));
 const Deals = lazy(() => import("./pages/Deals"));
 const Requests = lazy(() => import("./pages/Requests"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -192,6 +213,26 @@ const App = () => (
                   <Route path="/requests" element={<Requests />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/messages" element={<Messages />} />
+                  <Route path="/inbox" element={<Inbox />} />
+                  <Route path="/neighborhood/:id" element={<NeighborhoodDetail />} />
+                  <Route path="/my-city" element={<MyCity />} />
+                  <Route path="/my-city/receipt" element={<CityReceipt />} />
+                  <Route path="/my-city/verify" element={<VerifyAddress />} />
+                  <Route path="/ask" element={<AskToledo />} />
+                  <Route path="/fix" element={<FixToledo />} />
+                  <Route path="/fix/:id" element={<IssueDetail />} />
+                  <Route path="/needs-you" element={<NeedsYou />} />
+                  <Route path="/opportunities" element={<Opportunities />} />
+                  <Route path="/built" element={<Developments />} />
+                  <Route path="/built/:id" element={<DevelopmentDetail />} />
+                  <Route path="/around" element={<AroundMe />} />
+                  <Route path="/spaces" element={<Spaces />} />
+                  <Route path="/economy" element={<Economy />} />
+                  <Route path="/start-a-business" element={<StartABusiness />} />
+                  <Route path="/autopilot" element={<Autopilot />} />
+                  <Route path="/developers" element={<Developers />} />
+                  <Route path="/plugins" element={<Plugins />} />
+                  <Route path="/my-year" element={<MyYear />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
                   {/* Permanent business QR target. Encodes the immutable business id
                       and forwards to the current public page, keeping ?via=qr. */}
@@ -246,6 +287,7 @@ const App = () => (
                   <Route path="/business-onboarding" element={<BusinessOnboarding />} />
                   <Route path="/admin/businesses" element={<AdminBusinesses />} />
                   <Route path="/admin/approvals" element={<AdminApprovals />} />
+                  <Route path="/admin/city-os" element={<AdminCityOs />} />
                   <Route path="/role-select" element={<RoleSelect />} />
                   <Route path="/profile-setup" element={<ProfileSetup />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />

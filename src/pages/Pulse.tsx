@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PulseFeed } from '@/components/pulse/PulseFeed';
@@ -13,8 +14,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { CityFeed } from '@/components/city-os/CityFeed';
 
 export default function Pulse() {
+  // Phase 5 adds a second view rather than replacing the shipped one. Pulse is
+  // what people post; Everything is the whole city, merged and scoped.
+  const [view, setView] = useState<'pulse' | 'everything'>('pulse');
+
   return (
     <>
       <SEOHead
@@ -72,18 +78,44 @@ export default function Pulse() {
             </Dialog>
           </div>
 
-          {/* Live City Signals layer */}
-          <div className="mb-5">
-            <CitySignalsStrip />
+          {/* Pulse is what neighbours post. Everything folds in the change
+              log, upcoming events and city signals, with a geo scope. */}
+          <div className="mb-5 flex gap-2">
+            {(['pulse', 'everything'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                className={
+                  'flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ' +
+                  (view === v
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border/60 bg-card hover:bg-muted/40')
+                }
+              >
+                {v === 'pulse' ? 'Pulse' : 'Everything'}
+              </button>
+            ))}
           </div>
 
-          {/* Composer */}
-          <div className="mb-5">
-            <PulseCreateForm />
-          </div>
+          {view === 'everything' ? (
+            <CityFeed />
+          ) : (
+            <>
+              {/* Live City Signals layer */}
+              <div className="mb-5">
+                <CitySignalsStrip />
+              </div>
 
-          {/* Feed */}
-          <PulseFeed />
+              {/* Composer */}
+              <div className="mb-5">
+                <PulseCreateForm />
+              </div>
+
+              {/* Feed */}
+              <PulseFeed />
+            </>
+          )}
         </div>
       </PageContainer>
     </>
