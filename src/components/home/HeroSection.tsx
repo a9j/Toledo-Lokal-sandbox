@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useCity } from '@/contexts/CityContext';
 import { ChevronRight, Heart, Users } from 'lucide-react';
 import heroSkyline from '@/assets/hero-toledo-skyline.jpg';
 
@@ -7,12 +8,13 @@ interface HeroSectionProps {
 }
 
 /**
- * Hero — cinematic Toledo skyline with "TOLEDO IS / BUILT / TOGETHER." headline,
+ * Hero — cinematic city skyline with "TOLEDO IS / BUILT / TOGETHER." headline,
  * descriptive copy, primary CTA, and two stacked glass info cards on the right.
  * Matches the "Discover" mockup.
  */
 export function HeroSection({ onSearch: _onSearch }: HeroSectionProps) {
   const navigate = useNavigate();
+  const { city } = useCity();
 
   return (
     <section className="px-4 pt-3">
@@ -20,7 +22,7 @@ export function HeroSection({ onSearch: _onSearch }: HeroSectionProps) {
         {/* Photo backdrop */}
         <img
           src={heroSkyline}
-          alt="Toledo skyline at dusk"
+          alt={`${city.name} skyline at dusk`}
           width={1280}
           height={896}
           className="absolute inset-0 w-full h-full object-cover"
@@ -40,7 +42,7 @@ export function HeroSection({ onSearch: _onSearch }: HeroSectionProps) {
         <div className="relative h-full flex flex-col justify-between p-5">
           <div className="max-w-[62%]">
             <p className="text-[11px] font-bold tracking-[0.22em] text-primary/90 uppercase mb-2">
-              Toledo is
+              {city.name} is
             </p>
             <h1
               className="font-black uppercase text-white"
@@ -74,14 +76,14 @@ export function HeroSection({ onSearch: _onSearch }: HeroSectionProps) {
             <p className="mt-4 text-white/85 text-[13px] leading-relaxed">
               Discover local businesses, nonprofits,<br />
               events and people making{' '}
-              <span className="text-primary font-semibold">Toledo</span> better.
+              <span className="text-primary font-semibold">{city.name}</span> better.
             </p>
 
             <button
               onClick={() => navigate('/explore')}
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold text-sm pl-5 pr-4 py-3 shadow-glow-blue hover:brightness-110 transition-all"
             >
-              Explore Toledo
+              Explore {city.name}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -98,7 +100,7 @@ export function HeroSection({ onSearch: _onSearch }: HeroSectionProps) {
           <GlassCard
             icon={<Heart className="h-4 w-4 text-primary fill-primary/30" strokeWidth={2.2} />}
             title="Love Local"
-            sub="Support the people who support Toledo."
+            sub={`Support the people who support ${city.name}.`}
           />
           <GlassCard
             icon={<Users className="h-4 w-4 text-primary" strokeWidth={2.2} />}

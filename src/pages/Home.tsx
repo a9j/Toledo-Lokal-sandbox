@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useCity } from '@/contexts/CityContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Radio, 
@@ -35,6 +36,7 @@ import { cn } from '@/lib/utils';
 type ViewMode = 'pulse' | 'discover';
 
 export default function Home() {
+  const { city } = useCity();
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -73,7 +75,7 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-[calc(5rem+env(safe-area-inset-bottom))]">
       <SEOHead 
         url="/"
-        keywords={['Toledo local businesses', 'Toledo events', 'Glass City', 'Toledo restaurants', 'what\'s happening Toledo']}
+        keywords={[`${city.name} local businesses`, `${city.name} events`, `${city.name} restaurants`]}
         jsonLd={{
           '@context': 'https://schema.org',
           '@graph': [createWebsiteJsonLd(), createOrganizationJsonLd()]
@@ -204,7 +206,7 @@ function PulseView() {
           <span className="w-2 h-2 rounded-full bg-toledo-rose animate-pulse" />
           <span className="text-xs font-semibold text-toledo-rose uppercase tracking-wider">Live</span>
         </div>
-        <span className="text-sm text-muted-foreground">What's happening in Toledo right now</span>
+        <span className="text-sm text-muted-foreground">What's happening in {city.name} right now</span>
       </div>
 
       {/* Create Pulse */}
@@ -292,7 +294,7 @@ function DiscoverView({
 
       {/* Events Carousel */}
       <EventsCarousel
-        title="This Week in Toledo"
+        title={`This Week in ${city.name}`}
         subtitle="Concerts, shows, markets & more"
         events={upcomingEvents}
         isLoading={eventsLoading}
@@ -314,7 +316,7 @@ function DiscoverView({
               <Zap className="h-3 w-3" />
               <span className="text-xs font-semibold">FREE LISTING</span>
             </div>
-            <h3 className="font-display text-xl font-bold mb-2">Own a business in Toledo?</h3>
+            <h3 className="font-display text-xl font-bold mb-2">Own a business in {city.name}?</h3>
             <p className="text-primary-foreground/70 text-sm mb-5">
               Get discovered by thousands of locals. Join the ToledoLokal community.
             </p>

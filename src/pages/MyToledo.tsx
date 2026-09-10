@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCity } from '@/contexts/CityContext';
 import { 
   DndContext, 
   closestCenter, 
@@ -37,6 +38,7 @@ import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function MyToledo() {
+  const { city } = useCity();
   const { user } = useAuth();
   const { 
     savedItems, 
@@ -107,10 +109,10 @@ export default function MyToledo() {
     <>
       <SEOHead
         title="My Toledo | ToledoLokal"
-        description="Your personal collection of favorite Toledo businesses"
+        description={`Your personal collection of favorite ${city.name} businesses`}
         url="/my-toledo"
       />
-      <Header title="My Toledo" showBack />
+      <Header title={`My ${city.name}`} showBack />
       
       <PageContainer className="space-y-6">
         {/* Header Section */}
@@ -119,7 +121,7 @@ export default function MyToledo() {
             <Heart className="h-8 w-8 text-primary fill-primary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            {collectionSettings?.collection_name || 'My Toledo'}
+            {collectionSettings?.collection_name || `My ${city.name}`}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             {savedItems.length} {savedItems.length === 1 ? 'place' : 'places'} saved
@@ -185,7 +187,7 @@ export default function MyToledo() {
               Start your collection
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Save your favorite Toledo spots to build your personal guide
+              Save your favorite {city.name} spots to build your personal guide
             </p>
             <Link to="/discover">
               <Button>

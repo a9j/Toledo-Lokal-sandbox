@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useCity } from '@/contexts/CityContext';
 import { MapPin, ChevronRight, Building2, Calendar } from 'lucide-react';
 import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,13 +40,15 @@ const neighborhoodMeta: Record<string, { description: string; image: string }> =
   },
 };
 
-const defaultMeta = {
-  description: 'Explore this vibrant Toledo neighborhood',
+const defaultMetaFor = (cityName: string) => ({
+  description: `Explore this vibrant ${cityName} neighborhood`,
   image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=400&fit=crop',
-};
+});
 
 export function NeighborhoodHighlight() {
   const { data: neighborhoods, isLoading } = useNeighborhoods();
+  const { city } = useCity();
+  const defaultMeta = defaultMetaFor(city.name);
 
   return (
     <section className="py-8">
@@ -53,7 +56,7 @@ export function NeighborhoodHighlight() {
       <div className="flex items-end justify-between mb-5 px-4">
         <div>
           <div className="flex items-center gap-1.5 mb-2">
-            <span className="eyebrow">Explore Toledo</span>
+            <span className="eyebrow">Explore {city.name}</span>
           </div>
           <h2
             className="text-2xl md:text-3xl font-normal text-foreground tracking-tight"

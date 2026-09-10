@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useCity } from '@/contexts/CityContext';
 import { SITE_URL } from '@/lib/site-url';
 
 interface SEOHeadProps {
@@ -14,12 +15,13 @@ interface SEOHeadProps {
 }
 
 const DEFAULT_TITLE = 'ToledoLokal - Discover the Glass City';
-const DEFAULT_DESCRIPTION = 'Discover local businesses, events, and community in Toledo, Ohio. Your guide to the Glass City.';
+const describe = (cityName: string, region: string | null) =>
+  `Discover local businesses, events, and community in ${cityName}${region ? `, ${region}` : ''}.`;
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function SEOHead({
   title,
-  description = DEFAULT_DESCRIPTION,
+  description,
   image = DEFAULT_IMAGE,
   url,
   type = 'website',
@@ -27,19 +29,20 @@ export function SEOHead({
   jsonLd,
   noindex = false,
 }: SEOHeadProps) {
+  const { city } = useCity();
   const fullTitle = title ? `${title} | ToledoLokal` : DEFAULT_TITLE;
   const fullUrl = url ? `${SITE_URL}${url}` : SITE_URL;
-  
-  // Default keywords for Toledo
+  const metaDescription = description ?? describe(city.name, city.region);
+
+  // Keywords follow the active city rather than naming Toledo in every build.
   const defaultKeywords = [
-    'Toledo Ohio',
-    'Glass City',
+    `${city.name}${city.region ? ` ${city.region}` : ''}`,
     'local businesses',
-    'Toledo events',
-    'Toledo restaurants',
-    'Toledo attractions',
-    'things to do in Toledo',
-    'Toledo community',
+    `${city.name} events`,
+    `${city.name} restaurants`,
+    `${city.name} attractions`,
+    `things to do in ${city.name}`,
+    `${city.name} community`,
   ];
   
   const allKeywords = useMemo(
@@ -65,13 +68,13 @@ export function SEOHead({
     };
 
     // Standard meta tags
-    updateMeta('description', description, true);
+    updateMeta('description', metaDescription, true);
     updateMeta('keywords', allKeywords.join(', '), true);
     updateMeta('author', 'ToledoLokal', true);
 
     // Open Graph
     updateMeta('og:title', fullTitle);
-    updateMeta('og:description', description);
+    updateMeta('og:description', metaDescription);
     updateMeta('og:image', image);
     updateMeta('og:url', fullUrl);
     updateMeta('og:type', type);
@@ -80,7 +83,7 @@ export function SEOHead({
 
     // Twitter
     updateMeta('twitter:title', fullTitle, true);
-    updateMeta('twitter:description', description, true);
+    updateMeta('twitter:description', metaDescription, true);
     updateMeta('twitter:image', image, true);
     updateMeta('twitter:card', 'summary_large_image', true);
     updateMeta('twitter:site', '@ToledoLokal', true);
@@ -134,7 +137,7 @@ export function SEOHead({
         seoRobots.remove();
       }
     };
-  }, [fullTitle, description, image, fullUrl, type, allKeywords, jsonLd, noindex]);
+  }, [fullTitle, metaDescription, image, fullUrl, type, allKeywords, jsonLd, noindex]);
 
   return null;
 }

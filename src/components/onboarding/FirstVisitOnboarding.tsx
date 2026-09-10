@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useCity } from '@/contexts/CityContext';
 import useEmblaCarousel from 'embla-carousel-react';
 import { 
   MapPin, 
@@ -21,11 +22,13 @@ interface FirstVisitOnboardingProps {
   onComplete: () => void;
 }
 
-const features = [
+// Built from the active city rather than held as a constant, so the copy names
+// whichever city the app is running as.
+const featuresFor = (cityName: string) => [
   {
     icon: MapPin,
     title: 'Discover Local Gems',
-    description: 'Find the best restaurants, shops, and hidden spots across Toledo neighborhoods.',
+    description: `Find the best restaurants, shops, and hidden spots across ${cityName} neighborhoods.`,
     gradient: 'from-primary to-primary/70',
   },
   {
@@ -37,7 +40,7 @@ const features = [
   {
     icon: Users,
     title: 'Community & Causes',
-    description: 'Explore local nonprofits and find causes you care about in Toledo.',
+    description: `Explore local nonprofits and find causes you care about in ${cityName}.`,
     gradient: 'from-rose-500 to-rose-400',
   },
   {
@@ -52,7 +55,9 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
   const [step, setStep] = useState(0);
   const { canInstall, isIOS, isInstalled, promptInstall } = usePWAInstall();
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-  
+  const { city } = useCity();
+  const features = useMemo(() => featuresFor(city.name), [city.name]);
+
   const totalSteps = features.length + 1; // Features + install step
   const isLastStep = step === totalSteps - 1;
   const showInstallStep = canInstall || isIOS;
@@ -238,7 +243,7 @@ export function FirstVisitOnboarding({ onComplete }: FirstVisitOnboardingProps) 
                 
                 <h1 className="text-2xl font-bold mb-3">You're All Set!</h1>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  Start exploring everything Toledo has to offer.
+                  Start exploring everything {city.name} has to offer.
                 </p>
               </div>
             )}
