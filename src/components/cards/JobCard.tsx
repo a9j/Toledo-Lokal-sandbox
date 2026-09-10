@@ -3,6 +3,7 @@ import { Briefcase, DollarSign, Clock, Zap, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Job, JobType } from '@/hooks/useJobs';
 import { SecureImage } from '@/components/ui/secure-image';
+import { FollowButton } from '@/components/city-os/FollowButton';
 
 interface JobCardProps {
   job: Job;
@@ -45,9 +46,15 @@ export function JobCard({ job, showLocalEmployerBadge = false }: JobCardProps) {
   const pay = formatPay(job);
 
   return (
-    <Link to={job.business ? `/business/${job.business.id}` : '#'} className="block group">
-      <div className="card-elevated p-4 hover:bg-secondary/30 transition-colors">
-        <div className="flex gap-4">
+    <div className="card-elevated p-4 hover:bg-secondary/30 transition-colors">
+      <div className="flex gap-4">
+        {/* The card links to the employer, so the follow button sits beside the
+            link rather than inside it. A button nested in an anchor is invalid
+            markup and the click would navigate instead of following. */}
+        <Link
+          to={job.business ? `/business/${job.business.id}` : '#'}
+          className="group flex min-w-0 flex-1 gap-4"
+        >
           {/* Business Logo */}
           <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden">
             {job.business?.logo_url ? (
@@ -121,8 +128,17 @@ export function JobCard({ job, showLocalEmployerBadge = false }: JobCardProps) {
               )}
             </div>
           </div>
+        </Link>
+
+        <div className="flex-shrink-0 self-start">
+          <FollowButton
+            source={{ table: 'jobs', id: job.id }}
+            size="sm"
+            variant="outline"
+            label="Follow"
+          />
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

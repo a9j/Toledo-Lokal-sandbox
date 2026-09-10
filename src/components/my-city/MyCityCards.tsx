@@ -72,7 +72,12 @@ function MyHomeCard({ home }: { home: MyHome }) {
               <Home className="h-4 w-4" />
               My Home
             </CardTitle>
-            <p className="mt-1 truncate text-sm text-muted-foreground">{home.address}</p>
+            <Link
+              to={`/parcel/${home.parcel_id}`}
+              className="mt-1 block truncate text-sm text-muted-foreground hover:text-primary"
+            >
+              {home.address}
+            </Link>
           </div>
           {home.verified_at ? (
             <Badge variant="secondary" className="shrink-0 gap-1">

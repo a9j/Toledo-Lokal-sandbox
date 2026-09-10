@@ -97,7 +97,7 @@ export function resultPath(result: SearchResult): string {
     case 'spaces':             return `/spaces`;
     case 'issues':             return `/fix`;
     case 'opportunities':      return `/opportunities`;
-    case 'parcels':            return `/my-city`;
+    case 'parcels':            return `/parcel/${result.source_id}`;
     case 'business_locations': return `/discover`;
     default:                   return `/explore`;
   }
