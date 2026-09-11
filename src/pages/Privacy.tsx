@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Home, Navigation, Sparkles, Bot, Eye, Award, type LucideIcon } from 'lucide-react';
 import { ArrowLeft, LogIn, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -13,37 +14,44 @@ interface Row {
   label: string;
   help: string;
   warning?: string;
+  icon: LucideIcon;
 }
 
 const ROWS: Row[] = [
   {
     key: 'store_home_address',
+    icon: Home,
     label: 'Keep my address',
     help: 'Lets you save your home so we can show what is happening on your street.',
     warning: 'Turning this off deletes the address we have. We do not keep a copy.',
   },
   {
     key: 'share_location',
+    icon: Navigation,
     label: 'Use where I am',
     help: 'Sorts results by how close they are to your home.',
   },
   {
     key: 'personalization',
+    icon: Sparkles,
     label: 'Learn what I like',
     help: 'Uses what you follow and open to pick what to show first.',
   },
   {
     key: 'ai_recommendations',
+    icon: Bot,
     label: 'Let AI suggest things',
     help: 'Allows suggestions written by AI from your activity.',
   },
   {
     key: 'public_activity',
+    icon: Eye,
     label: 'Show my activity',
     help: 'Lets other people see what you follow and post.',
   },
   {
     key: 'public_rewards',
+    icon: Award,
     label: 'Show my rewards',
     help: 'Puts your points and badges on your public profile.',
   },
@@ -101,13 +109,16 @@ export default function Privacy() {
         </p>
       </div>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/60 bg-card">
         {ROWS.map((row) => {
           const on = settings[row.key] === true;
+          const Icon = row.icon;
           return (
-            <div key={row.key} className="rounded-xl border border-border/60 bg-card p-4">
+            <div key={row.key} className="p-4">
               <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
+                <div className="flex min-w-0 gap-3">
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0">
                   <label htmlFor={row.key} className="text-sm font-semibold">
                     {row.label}
                   </label>
@@ -117,6 +128,7 @@ export default function Privacy() {
                       {row.warning}
                     </p>
                   )}
+                  </div>
                 </div>
                 <Switch
                   id={row.key}
