@@ -1,10 +1,25 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Store, CalendarDays, Tag, Briefcase, Home as HomeIcon, MapPin, Megaphone, type LucideIcon } from 'lucide-react';
 import { ArrowLeft, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotificationPreferences, useSetNotificationPreference } from '@/hooks/useCityOs';
+
+
+/** An icon per category, so the list scans as a list rather than a wall of text. */
+function categoryIcon(category: string): LucideIcon {
+  switch (category) {
+    case 'business':      return Store;
+    case 'event':         return CalendarDays;
+    case 'deal':          return Tag;
+    case 'job':           return Briefcase;
+    case 'property':      return HomeIcon;
+    case 'neighborhood':  return MapPin;
+    default:              return Megaphone;
+  }
+}
 
 const CADENCES = [
   { value: 'immediate', label: 'Right away' },
@@ -61,11 +76,18 @@ export default function NotificationSettings() {
         </p>
       </div>
 
-      <div className="mt-5 space-y-3">
-        {(prefs ?? []).map((pref) => (
-          <div key={pref.category} className="rounded-xl border border-border/60 bg-card p-4">
-            <p className="text-sm font-semibold">{pref.label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{pref.description}</p>
+      <div className="mt-5 divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/60 bg-card">
+        {(prefs ?? []).map((pref) => {
+          const Icon = categoryIcon(pref.category);
+          return (
+          <div key={pref.category} className="p-4">
+            <div className="flex gap-3">
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">{pref.label}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{pref.description}</p>
+              </div>
+            </div>
 
             <div
               className="mt-3 flex flex-wrap gap-1.5"
@@ -110,7 +132,8 @@ export default function NotificationSettings() {
               </p>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <p className="mt-6 text-xs leading-snug text-muted-foreground">
