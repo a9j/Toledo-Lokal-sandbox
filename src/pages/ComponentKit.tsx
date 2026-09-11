@@ -8,6 +8,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { InboxRow, InboxRowSkeleton } from '@/components/ui/inbox-row';
 import { SectionHeader } from '@/components/ui/section-header';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ProfileHeader, ProgressRing } from '@/components/profile/ProfileHeader';
 
 /**
  * The component kit, on one page.
@@ -50,6 +51,28 @@ export default function ComponentKit() {
           database, so this page looks the same everywhere and can be used to
           review the design on its own.
         </p>
+
+        <SectionHeader title="Profile header" subtitle="Cover, avatar over the edge, verified only when earned" />
+        <div className="mb-4 overflow-hidden rounded-2xl border border-border/60">
+          <ProfileHeader
+            name="Anthony Anderson"
+            neighborhood="Old West End"
+            since="March 2026"
+            verified
+            editable
+          />
+          <div className="h-4" />
+        </div>
+        <div className="mb-8 overflow-hidden rounded-2xl border border-border/60">
+          <ProfileHeader name="Dana Reyes" neighborhood="East Toledo" since="January 2026" />
+          <div className="h-4" />
+        </div>
+
+        <SectionHeader title="Passport progress" />
+        <div className="mb-8 rounded-2xl border border-border/60 bg-card p-4">
+          <ProgressRing value={34} total={60} label="Passport stamps"
+                        sublabel="9 of 9 neighborhoods visited" />
+        </div>
 
         <SectionHeader title="Stat cards" subtitle="Big number, quiet label" />
         <div className="mb-8 grid grid-cols-2 gap-3">
