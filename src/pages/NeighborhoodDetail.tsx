@@ -1,4 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
+import { HeroImage } from '@/components/ui/hero-image';
+import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Store, CalendarDays, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -94,19 +96,23 @@ export default function NeighborhoodDetail() {
   return (
     <>
       <Header title={neighborhood.name} showBack />
+
+      <HeroImage
+        kind="neighborhood"
+        title={neighborhood.name}
+        ratio="4/3"
+        eyebrow={
+          <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">
+            <MapPin className="mr-1 h-3 w-3" />
+            Neighborhood
+          </Badge>
+        }
+      />
+
       <PageContainer>
-        <div className="mb-5">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-wide">Neighborhood</span>
-          </div>
-          <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight">
-            {neighborhood.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Follow this to get closures, permits and openings here in your inbox.
-          </p>
-        </div>
+        <p className="mb-4 mt-4 text-sm text-muted-foreground">
+          Follow this to get closures, permits and openings here in your inbox.
+        </p>
 
         <FollowButton
           source={{ table: 'neighborhoods', id: neighborhood.id }}

@@ -1,10 +1,18 @@
 import { cn } from '@/lib/utils';
-import { imageSources } from '@/lib/entity-image';
+import { imageSources, placeholderFor } from '@/lib/entity-image';
+import { SecureImage } from '@/components/ui/secure-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface HeroImageProps {
   /** Whatever image URL the caller already has. Null falls back to the kind tile. */
   url?: string | null;
+  /**
+   * A Supabase storage path, which is how most of this app stores images.
+   * These need signing before they can be fetched, so they go through
+   * SecureImage rather than straight into an img src. Takes precedence over
+   * `url` when both are given.
+   */
+  storagePath?: string | null;
   /** Entity kind, which picks the fallback tile. */
   kind?: string | null;
   title: string;
@@ -27,6 +35,7 @@ interface HeroImageProps {
  */
 export function HeroImage({
   url,
+  storagePath,
   kind,
   title,
   eyebrow,
@@ -53,13 +62,31 @@ export function HeroImage({
         className,
       )}
     >
-      <img
-        src={source.src}
-        alt={source.isPlaceholder ? '' : title}
-        aria-hidden={source.isPlaceholder || undefined}
-        className="absolute inset-0 h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-700"
-        loading="eager"
-      />
+      {storagePath ? (
+        <SecureImage
+          storagePath={storagePath}
+          alt={title}
+          priority
+          className="absolute inset-0 h-full w-full"
+          imgClassName="h-full w-full object-cover"
+          fallback={
+            <img
+              src={placeholderFor(kind)}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          }
+        />
+      ) : (
+        <img
+          src={source.src}
+          alt={source.isPlaceholder ? '' : title}
+          aria-hidden={source.isPlaceholder || undefined}
+          className="absolute inset-0 h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-700"
+          loading="eager"
+        />
+      )}
 
       {/* Order matters here, and getting it wrong is invisible in dark mode.
           The page coloured fade has to sit UNDER the dark scrim. Painted over
