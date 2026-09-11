@@ -36,12 +36,19 @@ test.describe('component kit', () => {
     expect(count).toBeGreaterThan(0);
 
     for (let i = 0; i < count; i++) {
-      const img = cards.nth(i).locator('img').first();
-      await expect(img).toHaveJSProperty('naturalWidth', await img.evaluate(
-        (el: HTMLImageElement) => el.naturalWidth,
-      ));
-      // A broken image reports naturalWidth 0. Never a broken image.
-      expect(await img.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
+      const card = cards.nth(i);
+      const img = card.locator('img').first();
+
+      // Card images are loading="lazy", so one below the fold has not fetched
+      // anything yet and reports naturalWidth 0 for a reason that is not a
+      // broken image. Scroll it into view first, then assert.
+      await card.scrollIntoViewIfNeeded();
+      await expect
+        .poll(
+          () => img.evaluate((el: HTMLImageElement) => el.naturalWidth),
+          { timeout: 10_000, message: `card ${i} never loaded its image` },
+        )
+        .toBeGreaterThan(0);
     }
   });
 
