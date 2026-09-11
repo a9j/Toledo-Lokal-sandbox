@@ -5,14 +5,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface InboxRowProps {
   title: string;
-  /** When it happened, already formatted. */
-  time: string;
+  /** The quiet line under the title: a time, a kind, an entity name. Already composed. */
+  meta?: string;
+  /** A sentence of detail, when the change is worth explaining. */
+  body?: string;
   unread?: boolean;
   imageUrl?: string | null;
   kind?: string | null;
   href?: string;
-  /** One quiet line under the title. */
-  detail?: string;
   className?: string;
 }
 
@@ -24,17 +24,17 @@ interface InboxRowProps {
  */
 export function InboxRow({
   title,
-  time,
+  meta,
+  body,
   unread = false,
   imageUrl,
   kind,
   href,
-  detail,
   className,
 }: InboxRowProps) {
   const source = imageSources(imageUrl, kind);
 
-  const body = (
+  const row = (
     <div
       className={cn(
         'flex items-center gap-3 py-3 motion-safe:transition-colors',
@@ -51,15 +51,16 @@ export function InboxRow({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            'truncate text-sm text-foreground',
+            'text-sm leading-snug text-foreground',
             unread ? 'font-semibold' : 'font-medium',
           )}
         >
           {title}
         </p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-          {detail ? `${detail} · ${time}` : time}
-        </p>
+        {body && (
+          <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-muted-foreground">{body}</p>
+        )}
+        {meta && <p className="mt-0.5 truncate text-xs text-muted-foreground">{meta}</p>}
       </div>
       {unread && (
         <span
@@ -70,7 +71,7 @@ export function InboxRow({
     </div>
   );
 
-  return href ? <Link to={href} className="block">{body}</Link> : body;
+  return href ? <Link to={href} className="block">{row}</Link> : row;
 }
 
 export function InboxRowSkeleton() {

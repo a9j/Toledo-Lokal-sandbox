@@ -83,21 +83,19 @@ export default function ComponentKit() {
         <div className="mb-8 divide-y divide-border/50 rounded-2xl border border-border/60 bg-card px-3">
           <InboxRow
             title="Glass City Coffee changed their hours"
-            detail="Business"
-            time="2 hours ago"
+            body="Open until 8pm on Fridays from next week."
+            meta="Business · 2 hours ago"
             kind="business"
             unread
           />
           <InboxRow
             title="A new deal near Old West End"
-            detail="Deal"
-            time="Yesterday"
+            meta="Deal · Yesterday"
             kind="deal"
           />
           <InboxRow
             title="742 Broadway St was revalued"
-            detail="Property"
-            time="Tuesday"
+            meta="Property · Tuesday"
             kind="property"
           />
           <InboxRowSkeleton />
