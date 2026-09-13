@@ -23,6 +23,8 @@ import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { ConfidenceBadge } from '@/components/city-os/ConfidenceBadge';
 import { useEntityId } from '@/hooks/useEntityFollow';
+import { useEntityMedia } from '@/hooks/useEntityMedia';
+import { EntityPhotos } from '@/components/city-os/EntityPhotos';
 
 /**
  * Property page.
@@ -84,6 +86,7 @@ export default function ParcelDetail() {
   });
 
   const entity = useEntityId(id ? { table: 'parcels', id } : undefined);
+  const media = useEntityMedia(entity.data);
 
   if (isLoading) {
     return (
@@ -126,6 +129,7 @@ export default function ParcelDetail() {
 
       <HeroImage
         kind="property"
+        url={media.data?.hero?.src ?? null}
         title={parcel.address}
         ratio="4/3"
         eyebrow={

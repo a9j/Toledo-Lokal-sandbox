@@ -18,7 +18,11 @@ export interface CommunityOrg {
   neighborhood?: { id: string; name: string } | null;
 }
 
-const NONPROFITS_COMMUNITY_CATEGORY_ID = '94102354-adc1-4da0-91b7-de7f71e5127f';
+// Looked up by slug rather than pinned to an id. The hardcoded id this
+// replaces exists in production and in no other database, so on the sandbox
+// the query matched nothing and the verified organisations section of
+// /community was permanently empty with no error to explain it.
+const NONPROFITS_COMMUNITY_SLUG = 'nonprofits-community';
 
 interface UseCommunityDirectoryOptions {
   neighborhoodId?: string;
@@ -30,6 +34,17 @@ export function useCommunityDirectory(options: UseCommunityDirectoryOptions = {}
   return useQuery({
     queryKey: ['community-directory', neighborhoodId],
     queryFn: async () => {
+      const { data: category, error: categoryError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', NONPROFITS_COMMUNITY_SLUG)
+        .maybeSingle();
+      if (categoryError) throw categoryError;
+      // No such category means no organisations to list, which is a legitimate
+      // empty rather than something to throw over.
+      if (!category) return [];
+      const categoryId = category.id;
+
       let query = supabase
         .from('businesses')
         .select(`
@@ -39,7 +54,7 @@ export function useCommunityDirectory(options: UseCommunityDirectoryOptions = {}
           category, created_at,
           neighborhood:neighborhoods(id, name)
         `)
-        .eq('category_id', NONPROFITS_COMMUNITY_CATEGORY_ID)
+        .eq('category_id', categoryId)
         .eq('status', 'approved')
         .order('name');
 
@@ -63,6 +78,14 @@ export function usePendingVerifications() {
   return useQuery({
     queryKey: ['pending-verifications'],
     queryFn: async () => {
+      const { data: category, error: categoryError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', NONPROFITS_COMMUNITY_SLUG)
+        .maybeSingle();
+      if (categoryError) throw categoryError;
+      if (!category) return [];
+
       const { data, error } = await supabase
         .from('businesses')
         .select(`
@@ -70,7 +93,7 @@ export function usePendingVerifications() {
           owner_user_id, created_at,
           neighborhood:neighborhoods(id, name)
         `)
-        .eq('category_id', NONPROFITS_COMMUNITY_CATEGORY_ID)
+        .eq('category_id', category.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
 

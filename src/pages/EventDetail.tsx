@@ -6,6 +6,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { HeroImage } from '@/components/ui/hero-image';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/sharing/ShareButton';
@@ -214,8 +215,30 @@ export default function EventDetail() {
           ticketUrl: event.ticket_url || undefined,
         })}
       />
-      <Header title="Event" />
-      
+      <Header title="Event" showBack />
+
+      {/* The image was already on the page, but only in the SEO tags and the
+          JSON-LD, so the thing people came to look at was the one thing the
+          screen did not show. */}
+      <HeroImage
+        kind="event"
+        url={event.image_url}
+        title={event.title}
+        ratio="16/9"
+        eyebrow={
+          <>
+            <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">
+              {format(startDate, 'EEE d MMM')}
+            </Badge>
+            {event.featured && (
+              <Badge variant="secondary" className="bg-warning/90 text-warning-foreground">
+                Featured
+              </Badge>
+            )}
+          </>
+        }
+      />
+
       <PageContainer className="space-y-6">
         <Link to="/events" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -235,16 +258,12 @@ export default function EventDetail() {
           
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              {event.featured && (
-                <Badge variant="secondary" className="bg-warning/10 text-warning">Featured</Badge>
-              )}
               <ShareButton 
                 title={event.title}
                 text={`${event.title} - ${format(startDate, 'MMM d')} at ${event.location_text || 'TBD'}`}
                 className="ml-auto"
               />
             </div>
-            <h1 className="text-xl font-bold">{event.title}</h1>
             {event.business && (
               <Link to={`/business/${event.business.id}`} className="text-primary hover:underline text-sm">
                 by {event.business.name}

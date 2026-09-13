@@ -9,12 +9,13 @@ import { useNeighborhoods } from '@/hooks/useNeighborhoods';
 import { useBusinessesSavedCounts } from '@/hooks/useDiscoverySignals';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Building2, X, Briefcase, ChevronRight, Search, Truck, Newspaper, Sparkles } from 'lucide-react';
+import { Building2, X, Search, Newspaper, Sparkles } from 'lucide-react';
 import { resolveIcon } from '@/lib/icon-resolver';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { cn } from '@/lib/utils';
 import { TODAY_TAB_ENABLED } from '@/lib/flags';
+import { MoreInToledo } from '@/components/discovery/MoreInToledo';
 
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,35 +184,11 @@ export default function Discover() {
           </div>
         )}
 
-        {/* Jobs Banner */}
-        <Link
-          to="/jobs"
-          className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
-        >
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Briefcase className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">Local Jobs</p>
-            <p className="text-xs text-muted-foreground">Browse open positions at Toledo businesses</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        </Link>
-
-        {/* Food Trucks Banner — entry point into the existing trucks screen */}
-        <Link
-          to="/food-today"
-          className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/50 transition-colors"
-        >
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Truck className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">Food Trucks</p>
-            <p className="text-xs text-muted-foreground">Find where Toledo's trucks are serving today</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        </Link>
+        {/* The two hand rolled banners that used to sit here (Jobs and Food
+            Trucks) were the only way into either screen. They are now two
+            entries in one list that also covers Featured, Community and
+            Circles, which had no way in at all. */}
+        {!selectedCategory && <MoreInToledo />}
 
         {/* Business List */}
         {isLoading ? (

@@ -11,9 +11,10 @@ interface SecureAvatarProps {
   expiresIn?: number;
 }
 
-// Check if a path looks like a storage path (not a full URL)
+// Check if a path looks like a storage path (not a full URL, and not one of
+// the app's own root relative assets, which are served as they are)
 function isStoragePath(path: string): boolean {
-  return !path.startsWith('http') && !path.startsWith('data:');
+  return !path.startsWith('http') && !path.startsWith('data:') && !path.startsWith('/');
 }
 
 // Check if URL is from our Supabase storage
