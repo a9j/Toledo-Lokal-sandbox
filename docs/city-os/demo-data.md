@@ -66,6 +66,7 @@ URL is now recognised as an app asset and used as it is.
 | `demo_city_07_pulse_and_drop.sql` | 24 pulse posts, a published daily drop for today and the six days before, city signals, neighbourhood energy |
 | `demo_city_08_city_life.sql` | Food truck stops for the week, 12 more issues, city memories, impact numbers, B2B requests, change log notices |
 | `demo_city_09_pictures.sql` | `entity_media`: a hero for all 494 entities, 62 logos, 213 gallery photos |
+| `demo_city_10_circle.sql` | The Charter 100: 10 of 100 seats filled, 4 pinned notices, 15 chat posts, 7 ideas with votes and comments |
 
 Every seed is idempotent. Ids are fixed or derived from a hash, and every
 insert is guarded, so running one twice inserts nothing.
@@ -107,11 +108,41 @@ delete from public.issues      where id::text like 'd3110008-%';
 
 -- The pictures, which are all bundled art rather than uploads.
 delete from public.entity_media where bundled_key is not null;
+
+-- The circle. Members and badges go with the people, above.
+delete from public.cohort_pinned_posts;
+delete from public.beta_ideas   where cohort_id in (select id from public.cohorts where slug = 'charter100-beta');
+delete from public.cohort_posts where cohort_id in (select id from public.cohorts where slug = 'charter100-beta');
 ```
 
 The twelve original businesses and ten original events are updates rather than
 inserts, so removing the seeds leaves them in place with their new pictures and
 hours. Setting `cover_image_url` back to null is a separate decision.
+
+## The Circles schema was missing, not empty
+
+`/circles` resolved to `/charter-100`, which read `cohorts` and threw, because
+six migrations from June 2026 were in the repository and had never been applied
+to this sandbox. The sandbox was built from a squashed snapshot that predates
+them, and nothing since had needed them.
+
+Applied, in the repository's own order:
+
+| Repository file | Creates |
+|---|---|
+| `20260626000000_charter100_cohort.sql` | `cohorts`, `cohort_members`, `profile_badges`, `cohort_invites`, `cohort_seat_count()`, `join_cohort()` |
+| `20260626000100_cohort_feedback.sql` | `cohort_feedback` |
+| `20260626000200_admin_cohort_controls.sql` | `community_roles`, `cohort_pinned_posts`, the admin RPCs |
+| `20260626010000_closed_beta_cohort.sql` | `beta_members`, `cohort_posts`, `beta_ideas` and its votes and comments, `jobs.visibility` |
+| `20260627040000_charter100_auto_enroll.sql` | auto enrolment on signup, `beta_signup_count()` |
+| `20260630000300_charter100_beta_circle.sql` | badge gated circles, `is_circle_member()`, `circle_post()` |
+
+Two notes on the order. The sandbox already had the `beta_signups` public
+hotfix, which is a later migration than `closed_beta_cohort` and restates some
+of the same policies, so the pieces the hotfix owns are restated after it. And
+`closed_beta_cohort` adds `jobs.visibility` defaulting to `public`, which
+leaves every existing job visible exactly as before; this was checked as the
+anon role afterwards.
 
 ## Known gaps
 
@@ -121,3 +152,7 @@ hours. Setting `cover_image_url` back to null is a separate decision.
 - **No follows, saved items or check ins.** Those are per user rows and the
   demo accounts cannot sign in, so they would show to nobody.
 - **Reviews are anonymous when signed out**, as described above.
+- **The circle chat and ideas board are invisible when signed out.** Their RLS
+  limits reads to circle members and managers, which is the feature working.
+  What a signed out visitor sees on the cohort page is the framing, the seat
+  count and the pinned notices, all of which are seeded.

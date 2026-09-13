@@ -19,6 +19,12 @@ const describe = (cityName: string, region: string | null) =>
   `Discover local businesses, events, and community in ${cityName}${region ? `, ${region}` : ''}.`;
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
+// The structured data helpers below are plain functions, so they cannot read
+// the city from context the way the component does. They take the description
+// instead, and fall back to the same sentence the component would render for
+// the default city.
+const DEFAULT_DESCRIPTION = describe('Toledo', 'OH');
+
 export function SEOHead({
   title,
   description,
@@ -213,13 +219,13 @@ export function createEventJsonLd(event: {
 }
 
 // Helper to create WebSite JSON-LD
-export function createWebsiteJsonLd() {
+export function createWebsiteJsonLd(description: string = DEFAULT_DESCRIPTION) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'ToledoLokal',
     url: SITE_URL,
-    description: DEFAULT_DESCRIPTION,
+    description,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${SITE_URL}/explore?q={search_term_string}`,
@@ -229,14 +235,14 @@ export function createWebsiteJsonLd() {
 }
 
 // Helper to create Organization JSON-LD
-export function createOrganizationJsonLd() {
+export function createOrganizationJsonLd(description: string = DEFAULT_DESCRIPTION) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'ToledoLokal',
     url: SITE_URL,
     logo: `${SITE_URL}/pwa-512x512.png`,
-    description: DEFAULT_DESCRIPTION,
+    description,
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Toledo',
