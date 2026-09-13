@@ -17,6 +17,12 @@ interface SEOHeadProps {
 const DEFAULT_TITLE = 'ToledoLokal - Discover the Glass City';
 const describe = (cityName: string, region: string | null) =>
   `Discover local businesses, events, and community in ${cityName}${region ? `, ${region}` : ''}.`;
+
+// The JSON-LD builders below are plain functions, not components, so they
+// cannot read the city from context. They get a fixed description. Making them
+// city aware means passing a city in from every call site, which is a change
+// worth making on its own rather than here.
+const STATIC_DESCRIPTION = describe('Toledo', 'Ohio');
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function SEOHead({
@@ -219,7 +225,7 @@ export function createWebsiteJsonLd() {
     '@type': 'WebSite',
     name: 'ToledoLokal',
     url: SITE_URL,
-    description: DEFAULT_DESCRIPTION,
+    description: STATIC_DESCRIPTION,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${SITE_URL}/explore?q={search_term_string}`,
@@ -236,7 +242,7 @@ export function createOrganizationJsonLd() {
     name: 'ToledoLokal',
     url: SITE_URL,
     logo: `${SITE_URL}/pwa-512x512.png`,
-    description: DEFAULT_DESCRIPTION,
+    description: STATIC_DESCRIPTION,
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Toledo',

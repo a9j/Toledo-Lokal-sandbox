@@ -519,3 +519,27 @@
 .animate-scale-in {
   animation: scale-in 0.3s ease-out forwards;
 }
+
+/* Cards easing in as a list arrives. Short and small on purpose: this should
+   read as the list settling, not as an entrance. */
+.animate-card-in {
+  animation: fade-in-up 0.28s ease-out both;
+}
+
+/* Someone who has asked their system for less motion means it. Nothing in this
+   file respected that before, so float, pulse-soft, glow and shimmer all ran
+   for them too. This turns the lot off in one place rather than per component,
+   which is the only way it stays true as components get added.
+
+   Animations are reduced to a single frame rather than removed, so anything
+   that depends on an animation ending still gets its event. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
