@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { HeroSection } from '@/components/home/HeroSection';
@@ -9,31 +9,30 @@ import { EventsCarousel } from '@/components/home/EventsCarousel';
 import { DealsSection } from '@/components/home/DealsSection';
 import { NonprofitsSection } from '@/components/home/NonprofitsSection';
 import { HappeningNow } from '@/components/home/HappeningNow';
-import { FirstVisitOnboarding } from '@/components/onboarding/FirstVisitOnboarding';
 import { useEvents } from '@/hooks/useEvents';
 import { useDeals } from '@/hooks/useDeals';
 import { useBusinesses } from '@/hooks/useBusinesses';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead, createWebsiteJsonLd, createOrganizationJsonLd } from '@/components/seo/SEOHead';
 
+/**
+ * Featured.
+ *
+ * This was the home page until Phase 0 Step 9 replaced the tab bar and pointed
+ * "/" at Today. The page was left in the tree with no route, which is why it
+ * disappeared; it is routed at /featured now and reached from More in Toledo.
+ *
+ * The first visit onboarding gate that used to sit at the top has gone with the
+ * home slot: Today owns that now, and a secondary destination that opens a five
+ * step tour instead of its own content is a trap.
+ */
 export default function Index() {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, isNonprofit } = useAuth();
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return !localStorage.getItem('onboarding-completed');
-  });
+  const { isNonprofit } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: upcomingEvents, isLoading: eventsLoading } = useEvents({ limit: 6 });
   const { data: deals, isLoading: dealsLoading } = useDeals({ limit: 4 });
   const { data: featuredBusinesses, isLoading: featuredLoading } = useBusinesses({ featured: true, limit: 6 });
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (user) {
-      localStorage.setItem('onboarding-completed', 'true');
-      setShowOnboarding(false);
-    }
-  }, [user, authLoading]);
 
   const handleSearch = (query: string, filters: { neighborhood?: string; category?: string }) => {
     const params = new URLSearchParams();
@@ -50,14 +49,10 @@ export default function Index() {
     navigate(`/explore?${params.toString()}`);
   };
 
-  if (showOnboarding) {
-    return <FirstVisitOnboarding onComplete={() => setShowOnboarding(false)} />;
-  }
-
   return (
     <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <SEOHead
-        url="/"
+        url="/featured"
         keywords={['Toledo local businesses', 'Toledo events calendar', 'Glass City guide', 'Toledo restaurants', 'Toledo shopping']}
         jsonLd={{
           '@context': 'https://schema.org',

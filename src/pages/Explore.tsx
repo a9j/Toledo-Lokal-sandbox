@@ -32,6 +32,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { MoreInToledo } from '@/components/discovery/MoreInToledo';
 
 const iconMap: Record<string, LucideIcon> = {
   'utensils': Utensils,
@@ -138,6 +139,11 @@ export default function Explore() {
             </div>
           </section>
         )}
+
+        {/* Everything that is not a business directory listing. Only shown on
+            the unfiltered view, so it never sits between somebody and their
+            search results. */}
+        {!selectedCategory && !searchQuery && <MoreInToledo />}
 
         {/* Active filters */}
         {(selectedCategory || selectedNeighborhood) && (
