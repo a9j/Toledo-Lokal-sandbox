@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import {
+  isAppAssetUrl,
   isExternalUrl,
   isStoragePath,
   isSignedUrl,
@@ -45,6 +46,7 @@ export function SecureImage({
   const immediateUrl = useMemo(() => {
     if (!storagePath) return null;
     if (isExternalUrl(storagePath)) return storagePath;
+    if (isAppAssetUrl(storagePath)) return storagePath;
     if (isSignedUrl(storagePath)) return storagePath;
     return null;
   }, [storagePath]);

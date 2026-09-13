@@ -24,9 +24,21 @@ export function isExternalUrl(url: string): boolean {
   return false;
 }
 
+/**
+ * A file the app itself serves, addressed from the site root.
+ *
+ * The bundled artwork under /art is referenced this way, and a root relative
+ * URL is not a storage path: asking the storage API to sign "/art/cafe.svg"
+ * fails, and the image silently falls back. Anything starting with a slash is
+ * fetched as it is.
+ */
+export function isAppAssetUrl(path: string): boolean {
+  return path.startsWith('/') && !path.startsWith('//');
+}
+
 // Check if this is a storage path (not a full URL)
 export function isStoragePath(path: string): boolean {
-  return !path.startsWith('http') && !path.startsWith('data:');
+  return !path.startsWith('http') && !path.startsWith('data:') && !isAppAssetUrl(path);
 }
 
 // Check if already a signed URL
@@ -57,7 +69,7 @@ export function setCachedUrl(filePath: string, signedUrl: string, expiresInSecon
 export async function prefetchSignedUrls(filePaths: string[]): Promise<void> {
   // Filter out already cached and external URLs
   const pathsToFetch = filePaths.filter(path => {
-    if (!path || isExternalUrl(path) || isSignedUrl(path)) return false;
+    if (!path || isExternalUrl(path) || isSignedUrl(path) || isAppAssetUrl(path)) return false;
     const actualPath = isStoragePath(path) ? path : extractPathFromUrl(path);
     if (!actualPath) return false;
     return !getCachedUrl(actualPath);
