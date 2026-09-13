@@ -2772,6 +2772,56 @@ export type Database = {
           },
         ]
       }
+      entity_media: {
+        Row: {
+          alt: string | null
+          bundled_key: string | null
+          created_at: string
+          entity_id: string
+          height: number | null
+          id: string
+          slot: string
+          sort_order: number
+          storage_path: string | null
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          alt?: string | null
+          bundled_key?: string | null
+          created_at?: string
+          entity_id: string
+          height?: number | null
+          id?: string
+          slot?: string
+          sort_order?: number
+          storage_path?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          alt?: string | null
+          bundled_key?: string | null
+          created_at?: string
+          entity_id?: string
+          height?: number | null
+          id?: string
+          slot?: string
+          sort_order?: number
+          storage_path?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_media_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "city_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_rsvps: {
         Row: {
           created_at: string

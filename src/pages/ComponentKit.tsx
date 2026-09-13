@@ -7,6 +7,8 @@ import { EntityCard, EntityCardSkeleton } from '@/components/ui/entity-card';
 import { StatCard } from '@/components/ui/stat-card';
 import { InboxRow, InboxRowSkeleton } from '@/components/ui/inbox-row';
 import { SectionHeader } from '@/components/ui/section-header';
+import { DEMO_ART } from '@/lib/demo-art-manifest';
+import { artUrl } from '@/lib/bundled-art';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ProfileHeader, ProgressRing } from '@/components/profile/ProfileHeader';
 
@@ -19,13 +21,15 @@ import { ProfileHeader, ProgressRing } from '@/components/profile/ProfileHeader'
  * including ones that cannot reach Supabase.
  */
 
+// Two of these carry no art on purpose: a card whose thing has no picture is a
+// real case, and the kit is where that has to keep looking deliberate.
 const SAMPLES = [
-  { kind: 'business', kindLabel: 'Business', name: 'Glass City Coffee Roasters', context: '0.3 miles away · Downtown' },
-  { kind: 'event', kindLabel: 'Event', name: 'Saturday Farmers Market', context: 'Tomorrow, 9:00 AM' },
-  { kind: 'neighborhood', kindLabel: 'Neighborhood', name: 'Old West End', context: '412 places · 18 events this week' },
-  { kind: 'deal', kindLabel: 'Deal', name: 'Two for one breakfast', context: 'Ends Sunday' },
-  { kind: 'job', kindLabel: 'Job', name: 'Line Cook, full time', context: '$16 to $19 an hour' },
-  { kind: 'property', kindLabel: 'Property', name: '742 Broadway St', context: 'Trash day Tuesday · District 3' },
+  { kind: 'business', kindLabel: 'Business', name: 'Glass City Coffee Roasters', context: '0.3 miles away · Downtown', art: 'cafe-coffee' },
+  { kind: 'event', kindLabel: 'Event', name: 'Saturday Farmers Market', context: 'Tomorrow, 9:00 AM', art: 'ev-market' },
+  { kind: 'neighborhood', kindLabel: 'Neighborhood', name: 'Old West End', context: '412 places · 18 events this week', art: 'bld-victorian' },
+  { kind: 'deal', kindLabel: 'Deal', name: 'Two for one breakfast', context: 'Ends Sunday', art: 'obj-deal' },
+  { kind: 'job', kindLabel: 'Job', name: 'Line Cook, full time', context: '$16 to $19 an hour', art: null },
+  { kind: 'property', kindLabel: 'Property', name: '742 Broadway St', context: 'Trash day Tuesday · District 3', art: null },
 ];
 
 export default function ComponentKit() {
@@ -35,6 +39,7 @@ export default function ComponentKit() {
 
       <HeroImage
         kind="neighborhood"
+        url={artUrl('bld-victorian')}
         title="Old West End"
         ratio="4/3"
         eyebrow={
@@ -91,6 +96,7 @@ export default function ComponentKit() {
               kind={s.kind}
               kindLabel={s.kindLabel}
               context={s.context}
+              imageUrl={artUrl(s.art)}
               href="#"
             />
           ))}
@@ -139,11 +145,37 @@ export default function ComponentKit() {
         <div className="mb-10 overflow-hidden rounded-2xl">
           <HeroImage
             kind="event"
+            url={artUrl('ev-market')}
             title="Saturday Farmers Market"
             ratio="16/9"
             eyebrow={<Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">Event</Badge>}
           />
         </div>
+
+        <SectionHeader
+          title={`Demo pictures, all ${DEMO_ART.length}`}
+          subtitle="Drawings, not photographs. The sandbox has no real ones."
+        />
+        <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+          Seeded rows point at one of these by key. They are cropped here the way
+          a card crops them, so a scene that only works uncropped shows up as a
+          problem on this page rather than in a list.
+        </p>
+        <ul className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {DEMO_ART.map((art) => (
+            <li key={art.key}>
+              <img
+                src={artUrl(art.key) ?? ''}
+                alt={art.title}
+                loading="lazy"
+                className="aspect-video w-full rounded-xl border border-border/60 object-cover"
+              />
+              <p className="mt-1 truncate text-[11px] text-muted-foreground" title={art.title}>
+                {art.key}
+              </p>
+            </li>
+          ))}
+        </ul>
       </PageContainer>
     </>
   );

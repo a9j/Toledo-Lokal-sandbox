@@ -12,6 +12,9 @@ import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
 import { AskToledoPanel } from '@/components/city-os/AskToledoPanel';
 import { CityMemory } from '@/components/city-os/CityMemory';
+import { EntityPhotos } from '@/components/city-os/EntityPhotos';
+import { useEntityId } from '@/hooks/useEntityFollow';
+import { useEntityMedia } from '@/hooks/useEntityMedia';
 import { NeighborhoodHealth } from '@/components/city-os/NeighborhoodHealth';
 
 /**
@@ -37,6 +40,11 @@ export default function NeighborhoodDetail() {
       return data;
     },
   });
+
+  // The registry id for this neighbourhood, which is what the pictures and the
+  // follow state are keyed on.
+  const entity = useEntityId(id ? { table: 'neighborhoods', id } : undefined);
+  const media = useEntityMedia(entity.data);
 
   const { data: businesses } = useQuery({
     queryKey: ['neighborhood-businesses', id],
@@ -99,6 +107,7 @@ export default function NeighborhoodDetail() {
 
       <HeroImage
         kind="neighborhood"
+        url={media.data?.hero?.src ?? null}
         title={neighborhood.name}
         ratio="4/3"
         eyebrow={
@@ -139,6 +148,8 @@ export default function NeighborhoodDetail() {
               ]}
             />
           </section>
+
+          <EntityPhotos entityId={entity.data} title={`Around ${neighborhood.name}`} />
 
           <NeighborhoodHealth neighborhoodId={neighborhood.id} />
 
