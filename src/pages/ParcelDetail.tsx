@@ -16,6 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { HeroImage } from '@/components/ui/hero-image';
 import { Button } from '@/components/ui/button';
 import { FollowButton } from '@/components/city-os/FollowButton';
 import { RecentChanges } from '@/components/city-os/RecentChanges';
@@ -119,17 +121,31 @@ export default function ParcelDetail() {
   return (
     <>
       <Header title="Property" showBack />
+
+      <HeroImage
+        kind="property"
+        title={parcel.address}
+        ratio="4/3"
+        eyebrow={
+          <>
+            <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">Property</Badge>
+            {parcel.neighborhood && (
+              <span className="text-xs text-white/85">{parcel.neighborhood.name}</span>
+            )}
+            {parcel.zip && <span className="text-xs text-white/85">{parcel.zip}</span>}
+          </>
+        }
+      />
+
       <PageContainer>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">{parcel.address}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {parcel.neighborhood ? (
-            <Link to={`/neighborhood/${parcel.neighborhood.id}`} className="hover:text-primary">
+        {parcel.neighborhood && (
+          <p className="mt-4 text-sm text-muted-foreground">
+            In{' '}
+            <Link to={`/neighborhood/${parcel.neighborhood.id}`} className="font-medium text-primary hover:underline">
               {parcel.neighborhood.name}
             </Link>
-          ) : null}
-          {parcel.neighborhood && parcel.zip ? ' · ' : null}
-          {parcel.zip}
-        </p>
+          </p>
+        )}
 
         <div className="mt-4">
           <FollowButton source={{ table: 'parcels', id: parcel.id }} label="Follow this address" />

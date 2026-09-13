@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, MapPin, Loader2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Search, Search as SearchIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useCity } from '@/contexts/CityContext';
 import { usePrivacy } from '@/hooks/usePrivacy';
 import {
   useCitySearch, resultPath, kindLabel, followableSource, type SearchResult,
 } from '@/hooks/useCityOs';
-import { FollowButton } from '@/components/city-os/FollowButton';
+import { EntityCard, EntityCardSkeleton } from '@/components/ui/entity-card';
+import { SectionHeader } from '@/components/ui/section-header';
+import { EmptyState } from '@/components/ui/empty-state';
 
 /** The order groups appear in. Anything not listed follows, alphabetically. */
 const KIND_ORDER = [
@@ -23,6 +23,17 @@ const EXAMPLES = [
   'who is hiring',
   'what is being built',
 ];
+
+
+/** One line under the name: where it is, how far, or why it came back at all. */
+function contextLine(row: SearchResult): string | null {
+  const parts: string[] = [];
+  if (row.neighborhood) parts.push(row.neighborhood);
+  if (row.distance_miles !== null && row.distance_miles !== undefined) {
+    parts.push(`${row.distance_miles} mi away`);
+  }
+  return parts.length ? parts.join(' \u00b7 ') : null;
+}
 
 export default function CitySearch() {
   const navigate = useNavigate();
@@ -108,66 +119,45 @@ export default function CitySearch() {
       )}
 
       {searching && isLoading && (
-        <div className="mt-5 space-y-3">
-          <Skeleton className="h-16 w-full rounded-xl" />
-          <Skeleton className="h-16 w-full rounded-xl" />
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <EntityCardSkeleton />
+          <EntityCardSkeleton />
+          <EntityCardSkeleton />
+          <EntityCardSkeleton />
         </div>
       )}
 
       {searching && !isLoading && groups.length === 0 && (
-        <div className="py-14 text-center">
-          <p className="text-sm font-medium">Nothing matched that</p>
-          <p className="mx-auto mt-1.5 max-w-xs text-sm text-muted-foreground">
-            Try fewer words, or a name you know is in {city.name}.
-          </p>
-        </div>
+        <EmptyState
+          icon={SearchIcon}
+          title="Nothing matched that"
+          description={`Try fewer words, or a name you know is in ${city.name}.`}
+        />
       )}
 
       {searching && groups.length > 0 && (
-        <div className="mt-5 space-y-6">
+        <div className="mt-5 space-y-7">
           {groups.map(([kind, rows]) => (
             <section key={kind}>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {kindLabel(kind)}
-              </h2>
-              <div className="space-y-2">
+              <SectionHeader title={kindLabel(kind)} />
+              <div className="grid grid-cols-2 gap-3">
                 {rows.map((row) => (
-                  <div
+                  <EntityCard
                     key={row.entity_id}
-                    className="flex items-start gap-3 rounded-xl border border-border/60 bg-card p-4"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <Link to={resultPath(row)} className="text-sm font-semibold hover:underline">
-                        {row.name}
-                      </Link>
-                      <div className="mt-1 flex flex-wrap items-center gap-2">
-                        {row.neighborhood && (
-                          <Badge variant="outline" className="text-[10px]">
-                            <MapPin className="mr-1 h-2.5 w-2.5" />
-                            {row.neighborhood}
-                          </Badge>
-                        )}
-                        {row.distance_miles !== null && (
-                          <span className="text-xs text-muted-foreground">
-                            {row.distance_miles} mi away
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {followableSource(row) && (
-                      <FollowButton
-                        source={followableSource(row)!}
-                        size="sm"
-                        className="shrink-0"
-                      />
-                    )}
-                  </div>
+                    name={row.name}
+                    kind={kind}
+                    kindLabel={kindLabel(kind)}
+                    context={contextLine(row)}
+                    href={resultPath(row)}
+                    follow={followableSource(row)}
+                  />
                 ))}
               </div>
             </section>
           ))}
         </div>
       )}
+
     </div>
   );
 }

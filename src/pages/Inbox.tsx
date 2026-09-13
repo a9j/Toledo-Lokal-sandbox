@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { InboxRow } from '@/components/ui/inbox-row';
+import { SectionHeader } from '@/components/ui/section-header';
 import { Link } from 'react-router-dom';
 import { Inbox as InboxIcon, ChevronRight, LogIn } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -87,12 +89,10 @@ export default function Inbox() {
           <div className="space-y-7">
             {days.map((day) => (
               <section key={day.date}>
-                <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {day.label}
-                </h2>
-                <div className="space-y-2.5">
+                <SectionHeader title={day.label} />
+                <div className="divide-y divide-border/50 rounded-2xl border border-border/60 bg-card px-3">
                   {day.entries.map((entry) => (
-                    <InboxRow key={entry.id} entry={entry} />
+                    <InboxEntryRow key={entry.id} entry={entry} />
                   ))}
                 </div>
               </section>
@@ -104,50 +104,21 @@ export default function Inbox() {
   );
 }
 
-function InboxRow({ entry }: { entry: InboxEntry }) {
+function InboxEntryRow({ entry }: { entry: InboxEntry }) {
   const { log } = entry;
   const entity = log.entity;
-  const href = entity ? entityPath(entity) : null;
-  const unread = !entry.read_at;
-
-  const inner = (
-    <div className="flex items-start gap-3">
-      {/* Unread marker. Reserved space either way so rows do not shift. */}
-      <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" style={{ opacity: unread ? 1 : 0 }} />
-
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="text-[10px] font-medium">
-            {eventTypeLabel(log.event_type)}
-          </Badge>
-          {entity && (
-            <span className="truncate text-xs font-medium text-muted-foreground">
-              {entity.name}
-            </span>
-          )}
-        </div>
-        <p className="mt-1.5 text-sm font-semibold leading-snug">{log.title}</p>
-        {log.body && (
-          <p className="mt-1 text-sm leading-snug text-muted-foreground">{log.body}</p>
-        )}
-      </div>
-
-      {href && <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />}
-    </div>
-  );
-
-  const className =
-    'block rounded-xl border border-border/60 bg-card p-3.5 transition-colors' +
-    (href ? ' hover:border-border hover:bg-muted/40' : '');
-
-  return href ? (
-    <Link to={href} className={className}>
-      {inner}
-    </Link>
-  ) : (
-    <div className={className}>{inner}</div>
+  return (
+    <InboxRow
+      title={log.title}
+      body={log.body ?? undefined}
+      meta={[eventTypeLabel(log.event_type), entity?.name].filter(Boolean).join(' \u00b7 ')}
+      unread={!entry.read_at}
+      kind={entity?.kind}
+      href={entity ? entityPath(entity) ?? undefined : undefined}
+    />
   );
 }
+
 
 function EmptyState({
   title,

@@ -54,6 +54,7 @@ const NonprofitDetail = lazy(() => import("./pages/NonprofitDetail"));
 const Inbox = lazy(() => import("./pages/Inbox"));
 const NeighborhoodDetail = lazy(() => import("./pages/NeighborhoodDetail"));
 const ParcelDetail = lazy(() => import("./pages/ParcelDetail"));
+const ComponentKit = lazy(() => import("./pages/ComponentKit"));
 const MyCity = lazy(() => import("./pages/MyCity"));
 const CityReceipt = lazy(() => import("./pages/CityReceipt"));
 const VerifyAddress = lazy(() => import("./pages/VerifyAddress"));
@@ -232,6 +233,7 @@ const App = () => {
                   <Route path="/inbox" element={<Inbox />} />
                   <Route path="/neighborhood/:id" element={<NeighborhoodDetail />} />
                   <Route path="/parcel/:id" element={<ParcelDetail />} />
+                  <Route path="/dev/kit" element={<ComponentKit />} />
                   <Route path="/my-city" element={<MyCity />} />
                   <Route path="/my-city/receipt" element={<CityReceipt />} />
                   <Route path="/my-city/verify" element={<VerifyAddress />} />
