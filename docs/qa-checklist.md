@@ -50,6 +50,25 @@ the host is reachable. Blocked means "not run here", not "not working".
 | Image upload and render at every size | Upload, then request 400/800/1200 | Three sizes | **Blocked.** Upload needs the network. See below on srcSet. |
 | srcSet at 400/800/1200 | Inspect an `<img>` | Three candidate widths | **Blocked by a paid add on.** Supabase image transformations must be enabled, and transforms have to be requested when a URL is signed rather than appended after, or the signature stops matching. Shipping three URLs that resolve to identical bytes would look like the feature without being it. |
 
+## A correction to earlier verification claims
+
+Every "tsc 0 errors" in this branch's history was meaningless. The root
+`tsconfig.json` has `"files": []` and delegates to project references, so
+`npx tsc --noEmit` against it checks **zero files** and always succeeds. The
+repo already had a correct `npm run typecheck` script; it simply was not the
+command being run.
+
+The real count is **73 pre-existing errors**. Fixing the invocation surfaced
+21 that had been introduced in this work and merged:
+
+| Where | What | Effect |
+|---|---|---|
+| `SEOHead.tsx` | 2 references to a `DEFAULT_DESCRIPTION` deleted in the city-aware copy pass | `createWebsiteJsonLd()` and `createOrganizationJsonLd()` would throw a ReferenceError at runtime |
+| `ParcelDetail.tsx` | 19 errors from building the `.select()` string by concatenation | Supabase infers the row type by parsing that string at the type level and can only do it for a literal, so every field became a property of `GenericStringError` |
+
+Both are fixed. `npm run typecheck:ratchet` now runs in CI and fails if the
+count rises, so this cannot quietly regrow.
+
 ## Findings
 
 1. **Three entities carry no confidence.** 309 of 312 have one. Worth a look

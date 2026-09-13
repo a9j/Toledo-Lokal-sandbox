@@ -19,6 +19,10 @@ jobs:
 
       - run: npm ci
 
+      # Fails if the typecheck error count goes up. Gating on zero would mean a
+      # permanently red build, because this repo carries a long standing set.
+      - run: npm run typecheck:ratchet
+
       # Only Chromium. The suite pins the iPhone 15 viewport onto Chromium
       # rather than WebKit, so pulling all three engines would be wasted time.
       - run: npx playwright install --with-deps chromium

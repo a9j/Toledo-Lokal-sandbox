@@ -44,6 +44,7 @@ export function EntityCard({
     <div
       className={cn(
         'group overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm',
+        'motion-safe:animate-card-in',
         'motion-safe:transition-transform motion-safe:duration-200 motion-safe:active:scale-[0.98]',
         className,
       )}

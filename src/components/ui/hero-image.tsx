@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { imageSources, placeholderFor } from '@/lib/entity-image';
 import { SecureImage } from '@/components/ui/secure-image';
@@ -33,6 +34,46 @@ interface HeroImageProps {
  * bright sky or a dark room. It also fades into the page background so the
  * image belongs to the page rather than sitting in a box on it.
  */
+
+/**
+ * A little drift on the hero as the page scrolls.
+ *
+ * Returns 0 and never listens when the viewer has asked for reduced motion, so
+ * there is no work being done for someone who does not want the effect. The
+ * image is scaled slightly so the drift never exposes an edge.
+ */
+function useParallax() {
+  const [offset, setOffset] = useState(0);
+  const hostRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const host = hostRef.current;
+        if (!host) return;
+        const { top, height } = host.getBoundingClientRect();
+        if (top + height < 0 || top > window.innerHeight) return;
+        setOffset(Math.round(Math.max(-40, Math.min(40, -top * 0.15))));
+      });
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  return { offset, hostRef };
+}
+
 export function HeroImage({
   url,
   storagePath,
@@ -45,6 +86,7 @@ export function HeroImage({
   children,
 }: HeroImageProps) {
   const source = imageSources(url, kind);
+  const { offset, hostRef } = useParallax();
 
   if (loading) {
     return (
@@ -61,6 +103,8 @@ export function HeroImage({
         ratio === '4/3' ? 'aspect-[4/3]' : 'aspect-video',
         className,
       )}
+      ref={hostRef}
+      style={offset ? { ['--hero-shift' as string]: `${offset}px` } : undefined}
     >
       {storagePath ? (
         <SecureImage
@@ -83,7 +127,8 @@ export function HeroImage({
           src={source.src}
           alt={source.isPlaceholder ? '' : title}
           aria-hidden={source.isPlaceholder || undefined}
-          className="absolute inset-0 h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-700"
+          className="absolute inset-0 h-full w-full scale-110 object-cover"
+          style={{ transform: 'translate3d(0, var(--hero-shift, 0px), 0) scale(1.1)' }}
           loading="eager"
         />
       )}

@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "typecheck:ratchet": "node scripts/typecheck-ratchet.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",

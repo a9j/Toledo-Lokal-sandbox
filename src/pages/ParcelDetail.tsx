@@ -71,10 +71,12 @@ export default function ParcelDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('parcels')
+        // One string literal, deliberately. Supabase infers the row type by
+        // parsing this at the type level, and it can only do that for a literal.
+        // Concatenating across lines widens it to `string`, the inference gives
+        // up, and every field below becomes a property on GenericStringError.
         .select(
-          'id, parcel_number, address, zip, council_district, precinct, school_district, ' +
-            'refuse_day, recycling_week, snow_route, assessed_value, tax_year_amount, ' +
-            'neighborhood:neighborhoods(id, name)',
+          'id, parcel_number, address, zip, council_district, precinct, school_district, refuse_day, recycling_week, snow_route, assessed_value, tax_year_amount, neighborhood:neighborhoods(id, name)',
         )
         .eq('id', id as string)
         .maybeSingle();

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Home, LogIn } from 'lucide-react';
+import { Home, LogIn, MapPinned } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { HeroImage } from '@/components/ui/hero-image';
 import { Header } from '@/components/layout/Header';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,8 +50,25 @@ export default function MyCity() {
   return (
     <>
       <Header title="My City" showBack />
+
+      {/* Only once there is a home. Before that the page is a question, and a
+          hero over a question is decoration. */}
+      {home && (
+        <HeroImage
+          kind="neighborhood"
+          title={home.neighborhood_name ?? 'My City'}
+          ratio="16/9"
+          eyebrow={
+            <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">
+              <MapPinned className="mr-1 h-3 w-3" />
+              Your neighborhood
+            </Badge>
+          }
+        />
+      )}
+
       <PageContainer>
-        <div className="mb-5">
+        <div className="mb-5 mt-4">
           <h1 className="font-heading text-2xl font-semibold tracking-tight">My City</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {home ? 'Your street, your neighborhood, your city.' : 'Start with your address.'}
