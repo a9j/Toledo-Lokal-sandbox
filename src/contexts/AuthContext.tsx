@@ -31,23 +31,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRoles = (userId: string) => {
-    setTimeout(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userId);
+  const fetchUserRoles = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
 
-        if (!error && data) {
-          setRoles(data.map(r => r.role as AppRole));
-        }
-      } catch (err) {
-        console.error('Error fetching roles:', err);
-      } finally {
-        setIsLoading(false);
+      if (!error && data) {
+        setRoles(data.map(r => r.role as AppRole));
       }
-    }, 0);
+    } catch (err) {
+      console.error('Error fetching roles:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
