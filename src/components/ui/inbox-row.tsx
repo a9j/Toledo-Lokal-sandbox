@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { imageSources } from '@/lib/entity-image';
+import { SecureImage } from '@/components/ui/secure-image';
+import { placeholderFor } from '@/lib/entity-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface InboxRowProps {
@@ -32,8 +33,6 @@ export function InboxRow({
   href,
   className,
 }: InboxRowProps) {
-  const source = imageSources(imageUrl, kind);
-
   const row = (
     <div
       className={cn(
@@ -42,11 +41,20 @@ export function InboxRow({
         className,
       )}
     >
-      <img
-        src={source.src}
-        alt=""
-        aria-hidden
-        className="h-11 w-11 shrink-0 rounded-xl object-cover"
+      <SecureImage
+        storagePath={imageUrl}
+        alt={title}
+        className="h-11 w-11 shrink-0 rounded-xl"
+        imgClassName="object-cover"
+        blurUp={false}
+        fallback={
+          <img
+            src={placeholderFor(kind)}
+            alt=""
+            aria-hidden
+            className="h-11 w-11 shrink-0 rounded-xl object-cover"
+          />
+        }
       />
       <div className="min-w-0 flex-1">
         <p

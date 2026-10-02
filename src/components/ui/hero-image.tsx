@@ -112,7 +112,8 @@ export function HeroImage({
           alt={title}
           priority
           className="absolute inset-0 h-full w-full"
-          imgClassName="h-full w-full object-cover"
+          imgClassName="h-full w-full scale-110 object-cover"
+          style={{ transform: 'translate3d(0, var(--hero-shift, 0px), 0) scale(1.1)' }}
           fallback={
             <img
               src={placeholderFor(kind)}

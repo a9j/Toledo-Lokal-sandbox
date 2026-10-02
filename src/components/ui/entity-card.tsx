@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { imageSources } from '@/lib/entity-image';
+import { SecureImage } from '@/components/ui/secure-image';
+import { placeholderFor } from '@/lib/entity-image';
 import { FollowButton } from '@/components/city-os/FollowButton';
 import type { EntitySourceTable } from '@/integrations/supabase/city-os';
 
@@ -38,8 +39,6 @@ export function EntityCard({
   follow,
   className,
 }: EntityCardProps) {
-  const source = imageSources(imageUrl, kind);
-
   return (
     <div
       className={cn(
@@ -51,12 +50,19 @@ export function EntityCard({
     >
       <Link to={href} className="block">
         <div className="relative aspect-video overflow-hidden">
-          <img
-            src={source.src}
-            alt={source.isPlaceholder ? '' : name}
-            aria-hidden={source.isPlaceholder || undefined}
-            loading="lazy"
-            className="h-full w-full object-cover"
+          <SecureImage
+            storagePath={imageUrl}
+            alt={name}
+            className="h-full w-full"
+            imgClassName="object-cover"
+            fallback={
+              <img
+                src={placeholderFor(kind)}
+                alt=""
+                aria-hidden
+                className="h-full w-full object-cover"
+              />
+            }
           />
           <Badge
             variant="secondary"

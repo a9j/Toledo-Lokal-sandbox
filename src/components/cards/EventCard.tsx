@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Clock, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
-import { imageSources } from '@/lib/entity-image';
+import { SecureImage } from '@/components/ui/secure-image';
+import { placeholderFor } from '@/lib/entity-image';
 
 interface EventCardProps {
   event: {
@@ -43,17 +44,24 @@ function EventThumb({
   day: string;
   size: 'sm' | 'md';
 }) {
-  const source = imageSources(imageUrl, 'event');
   const box = size === 'sm' ? 'h-14 w-14' : 'h-[4.5rem] w-[4.5rem]';
 
   return (
     <div className={`relative flex-shrink-0 overflow-hidden rounded-xl bg-secondary ${box}`}>
-      <img
-        src={source.src}
-        alt={source.isPlaceholder ? '' : title}
-        aria-hidden={source.isPlaceholder || undefined}
-        loading="lazy"
-        className="h-full w-full object-cover"
+      <SecureImage
+        storagePath={imageUrl}
+        alt={title}
+        className="h-full w-full"
+        imgClassName="object-cover"
+        blurUp={false}
+        fallback={
+          <img
+            src={placeholderFor('event')}
+            alt=""
+            aria-hidden
+            className="h-full w-full object-cover"
+          />
+        }
       />
       {/* The scrim is what keeps the date readable over a bright picture. */}
       <div className="absolute inset-x-0 top-0 h-2/3 bg-gradient-to-b from-black/70 to-transparent" />
