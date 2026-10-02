@@ -30,10 +30,16 @@ export function useImageUpload() {
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const compressImage = useCallback(async (file: File, maxWidth: number = 1920, quality: number = 0.85): Promise<Blob> => {
+  const compressImage = useCallback(async (file: File, maxWidth: number = 1920, quality: number = 0.85): Promise<File> => {
+    // Animated GIFs are never touched: drawing one to a canvas would flatten
+    // it to a single static frame.
+    if (file.type === 'image/gif') return file;
+
     return new Promise((resolve, reject) => {
       const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
       img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
         const canvas = document.createElement('canvas');
         let { width, height } = img;
 
@@ -54,20 +60,37 @@ export function useImageUpload() {
 
         ctx.drawImage(img, 0, 0, width, height);
 
+        // Keep the source format for PNG/WebP so transparency survives;
+        // photographs (and HEIC conversions) become JPEG. The returned File
+        // carries the matching type and extension so the stored contentType
+        // always describes the actual bytes.
+        const targetType =
+          file.type === 'image/png' ? 'image/png'
+          : file.type === 'image/webp' ? 'image/webp'
+          : 'image/jpeg';
+        const targetExt =
+          targetType === 'image/png' ? 'png'
+          : targetType === 'image/webp' ? 'webp'
+          : 'jpg';
+
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              resolve(blob);
+              const name = file.name.replace(/\.[^.]+$/, `.${targetExt}`);
+              resolve(new File([blob], name, { type: targetType }));
             } else {
               reject(new Error('Failed to compress image'));
             }
           },
-          'image/jpeg',
+          targetType,
           quality
         );
       };
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Failed to load image'));
+      };
+      img.src = objectUrl;
     });
   }, []);
 
@@ -138,19 +161,20 @@ export function useImageUpload() {
       setPreviewUrl(localPreview);
       setProgress(20);
 
-      // Compress image client-side
-      let uploadBlob: Blob;
+      // Compress image client-side (GIFs pass through untouched so
+      // animation survives; the returned File always matches its bytes)
+      let uploadFile: File;
       if (processedFile.type.startsWith('image/') && processedFile.size > 500 * 1024) {
         setProgress(30);
-        uploadBlob = await compressImage(processedFile);
+        uploadFile = await compressImage(processedFile);
         setProgress(50);
       } else {
-        uploadBlob = processedFile;
+        uploadFile = processedFile;
         setProgress(50);
       }
 
-      // Generate unique filename with correct extension
-      const ext = processedFile.name.split('.').pop() || 'jpg';
+      // Generate unique filename with the correct extension
+      const ext = uploadFile.name.split('.').pop() || 'jpg';
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
       const fileName = `${timestamp}-${randomStr}.${ext}`;
@@ -161,8 +185,8 @@ export function useImageUpload() {
       // Upload to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
         .from(opts.bucket || 'uploads')
-        .upload(path, uploadBlob, {
-          contentType: processedFile.type,
+        .upload(path, uploadFile, {
+          contentType: uploadFile.type,
           upsert: false,
         });
 
